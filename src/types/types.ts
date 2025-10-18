@@ -56,6 +56,9 @@ export type TUsers = {
   lastName: string;
   middleName: string;
   firstName: string;
+  course?: string,
+  section?: string,
+  year?: string,
   email: string;
   phoneNumber: string;
   userRole: string;

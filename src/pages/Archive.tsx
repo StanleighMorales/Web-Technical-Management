@@ -716,12 +716,14 @@ export default function Archive() {
                             middleName={user.middleName}
                             lastName={user.lastName}
                             userRole={user.userRole}
+                            course={user.course}
+                            section={user.section}
+                            year={user.year}
                             status={user.status}
                             onDelete={() => handleDeleteUser(user.id)}
                             onRestore={() => handleRestoreUser(user.id)}
                             isRestoring={restoreMutation.isPending}
                             isDeleting={deleteMutation.isPending}
-
                           />
                         </tr>
                       ))

@@ -35,13 +35,13 @@ type StudentTableProps = {
 export default function StudentTable({
     id,
     studentIdNumber,
-    course,
-    section,
-    year,
     userRole,
     lastName,
     middleName,
     firstName,
+    course,
+    section,
+    year,
     onSetIsEditStudentrOpen,
     onSetEditUserId,
     onSetViewStudentId,
@@ -52,9 +52,7 @@ export default function StudentTable({
     const data = UserData()
 
     const handleArchiveStudent = () => {
-        if (window.confirm(`Are you sure you want to archive this Student ${studentIdNumber}?`)) {
-            onMutate(id);
-        }
+        onMutate(id);
     };
 
     const handleEditStudent = (id: string) => {
@@ -96,7 +94,7 @@ export default function StudentTable({
         <>
             <td className="py-3 px-6">{studentIdNumber}</td>
             <td className="py-3 px-6">{getFullName()}</td>
-            <td className="py-3 px-6">{course}</td>
+            <td className="py-3 px-6">{course }</td>
             <td className="py-3 px-6">{section}</td>
             <td className="py-3 px-6">{year}</td>
             <td className="py-3 px-6">{userRole}</td>

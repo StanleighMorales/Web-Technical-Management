@@ -7,9 +7,9 @@ type ArchiveItemTableProps = {
     firstName: string;
     middleName: string;
     lastName: string;
-    Course?: string;
-    Section?: string;
-    Year?: string;
+    course?: string;
+    section?: string;
+    year?: string;
     userRole: string;
     status: string;
     onDelete: (id: string) => void;
@@ -25,6 +25,9 @@ export default function ArchiveStudentTable({
     lastName,
     userRole,
     status,
+    course,
+    section,
+    year,
     onDelete,
     onRestore,
     isRestoring,
@@ -72,16 +75,13 @@ export default function ArchiveStudentTable({
                 {firstName} {middleName} {lastName}
             </td>
             <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
-                Course - not available in TUsers type, using placeholder
-                N/A
+               {course || "-"}
             </td>
             <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
-                Section - not available in TUsers type, using placeholder
-                N/A
+                {section || "-"}
             </td>
             <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
-                Year - not available in TUsers type, using placeholder
-                N/A
+                {year || "-"}
             </td>
 
             <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
@@ -102,7 +102,7 @@ export default function ArchiveStudentTable({
             </td>
             <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
                 <ShowButtonIfUserAdmin
-                userRole={data.userRole} onHandleRestoreStudent={()=> onRestore(id)} onHandleDeleteStudent={()=> onDelete(id)}
+                    userRole={data.userRole} onHandleRestoreStudent={() => onRestore(id)} onHandleDeleteStudent={() => onDelete(id)}
                 />
             </td>
         </>
