@@ -1,6 +1,7 @@
 import { FaTrash } from "react-icons/fa6";
 import { UserData } from "../utils/usersData/userData";
 import { FaTrashRestore } from "react-icons/fa";
+import { MdVisibility } from "react-icons/md";
 
 type ArchiveTeacherTableProps = {
     id: string;
@@ -12,6 +13,7 @@ type ArchiveTeacherTableProps = {
     status: string;
     onDelete: (id: string) => void;
     onRestore: (id: string) => void;
+    onView: (id: string) => void;
     isRestoring: boolean;
     isDeleting: boolean;
 }
@@ -25,6 +27,7 @@ export default function ArchiveTeacherTable({
     status,
     onDelete,
     onRestore,
+    onView,
     isRestoring,
     isDeleting,
 }: ArchiveTeacherTableProps) {
@@ -37,7 +40,7 @@ export default function ArchiveTeacherTable({
     const data = UserData()
 
 
-    const ShowButtonIfUserAdmin = ({ userRole, onHandleRestoreTeacher, onHandleDeleteTeacher }:checkIfUserAdminProps) => {
+    const ShowButtonIfUserAdmin = ({ userRole, onHandleRestoreTeacher, onHandleDeleteTeacher }: checkIfUserAdminProps) => {
         if (userRole !== "Admin") return null;
         return (
             <>
@@ -89,6 +92,13 @@ export default function ArchiveTeacherTable({
                 </span>
             </td>
             <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
+                <button
+                    onClick={() => onView(id)}
+                    className="mr-2 text-green-500 text-2xl hover:text-green-700 transition-colors"
+                    title="View teacher credentials"
+                >
+                    <MdVisibility />
+                </button>
                 <ShowButtonIfUserAdmin
                     userRole={data.userRole}
                     onHandleDeleteTeacher={() => onDelete(id)}
