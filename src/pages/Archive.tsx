@@ -35,7 +35,7 @@ export default function Archive() {
   const { data, isPending, isError } = useQuery(useArchivesItemsQuery());
   const { data: usersData, isPending: isUsersPending, isError: isUsersError } = useQuery(useArchivesUsersQuery());
   const restoreMutation = useRestoreItemMutation();
-  const restoreUserMutation = useRestoreUserMutation();
+  const { mutate } = useRestoreUserMutation();
   const deleteMutation = useDeleteItemMutation()
   const [isRestoreConfirmOpen, setIsRestoreConfirmOpen] = useState(false)
   const [restoreSelectedId, setRestoreSelectedId] = useState<string | null>(null)
@@ -175,7 +175,6 @@ export default function Archive() {
       onSuccess: () => {
         setIsRestoreConfirmOpen(false)
         setRestoreSelectedId(null)
-        window.location.reload();
       }
     });
   }
@@ -196,7 +195,6 @@ export default function Archive() {
       onSuccess: () => {
         setIsDeleteConfirmOpen(false)
         setDeleteSelectedId(null)
-        window.location.reload();
       }
     });
   }
@@ -213,11 +211,10 @@ export default function Archive() {
 
   const handleConfirmRestoreUser = () => {
     if (!userRestoreSelectedId) return
-    restoreUserMutation.mutate(userRestoreSelectedId, {
+    mutate(userRestoreSelectedId, {
       onSuccess: () => {
         setIsUserRestoreConfirmOpen(false)
         setUserRestoreSelectedId(null)
-        window.location.reload();
       }
     });
   }
@@ -238,7 +235,6 @@ export default function Archive() {
       onSuccess: () => {
         setIsUserDeleteConfirmOpen(false)
         setUserDeleteSelectedId(null)
-        window.location.reload();
       }
     });
   }
@@ -718,7 +714,7 @@ export default function Archive() {
                   <tbody>
                     {paginatedUsers.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="text-center py-10 text-red-400 font-semibold text-xl">
+                        <td colSpan={8} className="text-center py-10 text-red-400 font-semibold text-xl">
                           <div className="flex items-center justify-center h-full">
                             <div className="text-center">
                               <div className="w-full flex justify-center text-6xl mb-4 text-[#64748b]">
@@ -766,7 +762,9 @@ export default function Archive() {
       {/* Restore confirmation */}
       {isRestoreConfirmOpen && (
         <PopUpModal
+          title={"Restore Item"}
           label={"restore"}
+          noun={"item"}
           destination={"inventory list"}
           onHandleCancleAction={handleCancelRestore}
           onHandleConfirmAction={handleConfirmRestoreItem}
@@ -775,6 +773,7 @@ export default function Archive() {
       {/* Delete confirmation */}
       {isDeleteConfirmOpen && (
         <PopUpModalDelete
+          title={"Delete Item"}
           label={"delete"}
           onHandleCancleAction={handleCancelDelete}
           onHandleConfirmAction={handleConfirmDelete}
@@ -783,8 +782,21 @@ export default function Archive() {
       {/* User Restore confirmation */}
       {isUserRestoreConfirmOpen && (
         <PopUpModal
+          title={"Restore Staff"}
           label={"restore"}
-          destination={"user management"}
+          noun={"staff"}
+          destination={"User Management"}
+          onHandleCancleAction={handleCancelUserRestore}
+          onHandleConfirmAction={handleConfirmRestoreUser}
+        />
+      )}
+      {/* Student Restore confirmation */}
+      {isUserRestoreConfirmOpen && (
+        <PopUpModal
+          title={"Restore User"}
+          label={"restore"}
+          noun={"user"}
+          destination={"Regisration Module"}
           onHandleCancleAction={handleCancelUserRestore}
           onHandleConfirmAction={handleConfirmRestoreUser}
         />
@@ -792,6 +804,7 @@ export default function Archive() {
       {/* User Delete confirmation */}
       {isUserDeleteConfirmOpen && (
         <PopUpModalDelete
+          title={"Delete User"}
           label={"delete"}
           onHandleCancleAction={handleCancelUserDelete}
           onHandleConfirmAction={handleConfirmDeleteUser}
