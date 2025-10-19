@@ -19,6 +19,8 @@ import { FaTrashRestore } from "react-icons/fa";
 import { type FC } from "react";
 import ArchiveTeacherTable from "../components/ArchiveTeacherTable.tsx";
 import ArchiveStudentTable from "../components/ArchiveStudentTable.tsx";
+import ArchiveStudentCredentialsPopup from "../components/ArchiveStudentCredentialsPopup.tsx";
+import ArchiveTeacherCredentialsPopup from "../components/ArchiveTeacherCredentialsPopup.tsx";
 
 export default function Archive() {
   const [archiveItems, setArchiveItems] = useState<TArchiveItem[]>([]);
@@ -43,6 +45,10 @@ export default function Archive() {
   const [userRestoreSelectedId, setUserRestoreSelectedId] = useState<string | null>(null)
   const [isUserDeleteConfirmOpen, setIsUserDeleteConfirmOpen] = useState(false)
   const [userDeleteSelectedId, setUserDeleteSelectedId] = useState<string | null>(null)
+  const [isStudentCredentialsOpen, setIsStudentCredentialsOpen] = useState(false)
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null)
+  const [isTeacherCredentialsOpen, setIsTeacherCredentialsOpen] = useState(false)
+  const [selectedTeacherId, setSelectedTeacherId] = useState<string | null>(null)
 
 
   // Filter items based on search term and category
@@ -235,6 +241,26 @@ export default function Archive() {
         window.location.reload();
       }
     });
+  }
+
+  const handleViewStudent = (id: string) => {
+    setSelectedStudentId(id)
+    setIsStudentCredentialsOpen(true)
+  }
+
+  const handleCloseStudentCredentials = () => {
+    setIsStudentCredentialsOpen(false)
+    setSelectedStudentId(null)
+  }
+
+  const handleViewTeacher = (id: string) => {
+    setSelectedTeacherId(id)
+    setIsTeacherCredentialsOpen(true)
+  }
+
+  const handleCloseTeacherCredentials = () => {
+    setIsTeacherCredentialsOpen(false)
+    setSelectedTeacherId(null)
   }
 
   type checkIfUserAdminProps = {
@@ -648,6 +674,7 @@ export default function Archive() {
                             status={user.status}
                             onDelete={() => handleDeleteUser(user.id)}
                             onRestore={() => handleRestoreUser(user.id)}
+                            onView={handleViewTeacher}
                             isRestoring={restoreMutation.isPending}
                             isDeleting={deleteMutation.isPending}
                           />
@@ -722,6 +749,7 @@ export default function Archive() {
                             status={user.status}
                             onDelete={() => handleDeleteUser(user.id)}
                             onRestore={() => handleRestoreUser(user.id)}
+                            onView={handleViewStudent}
                             isRestoring={restoreMutation.isPending}
                             isDeleting={deleteMutation.isPending}
                           />
@@ -767,6 +795,22 @@ export default function Archive() {
           label={"delete"}
           onHandleCancleAction={handleCancelUserDelete}
           onHandleConfirmAction={handleConfirmDeleteUser}
+        />
+      )}
+      {/* Student Credentials Popup */}
+      {isStudentCredentialsOpen && selectedStudentId && (
+        <ArchiveStudentCredentialsPopup
+          studentId={selectedStudentId}
+          isOpen={isStudentCredentialsOpen}
+          onClose={handleCloseStudentCredentials}
+        />
+      )}
+      {/* Teacher Credentials Popup */}
+      {isTeacherCredentialsOpen && selectedTeacherId && (
+        <ArchiveTeacherCredentialsPopup
+          teacherId={selectedTeacherId}
+          isOpen={isTeacherCredentialsOpen}
+          onClose={handleCloseTeacherCredentials}
         />
       )}
     </div>
