@@ -47,7 +47,6 @@ export default function InventoryTable({
 
   const handleConfirmArchive = () => {
     onMutate(id!);
-    window.location.reload();
   }
 
   const handleCancelArchive = () => {
