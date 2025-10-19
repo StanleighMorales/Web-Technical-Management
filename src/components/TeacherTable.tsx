@@ -26,7 +26,6 @@ export default function TeacherTable({
   lastName,
   middleName,
   username,
-  email,
   userRole,
   status,
   onSetEditUserId,
@@ -45,9 +44,7 @@ export default function TeacherTable({
   }
 
   const handleArchiveUser = () => {
-    if (window.confirm(`Are you sure you want to archive this User Email ${email} ?`)) {
-      onMutate(id)
-    }
+   onMutate(id)
   }
 
   const handleEditTeacher = (id: string) => {
