@@ -1,9 +1,9 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getToken } from "../../utils/token";
 
 const restoreUser = async (id: string) => {
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const END_POINT = "/api/v1/archiveusers/restore";
+  const END_POINT = "/api/ArchiveUsers/restore";
 
   const res = await fetch(`${BASE_URL}${END_POINT}/${id}`, {
     method: "DELETE",
@@ -20,8 +20,15 @@ const restoreUser = async (id: string) => {
   return data;
 };
 
-export const useRestoreUserMutation = () =>
-  useMutation({
+export const useRestoreUserMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
     mutationKey: ["restoreUser"],
     mutationFn: restoreUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["ArchiveUsers"] });
+    },
   });
+
+}
