@@ -19,6 +19,5 @@ export const useAllItemsQuery = () => {
   return queryOptions({
     queryKey: ["Item"],
     queryFn: allItems,
-    staleTime: 1000,
   });
 };
