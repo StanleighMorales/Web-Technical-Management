@@ -14,8 +14,8 @@ import TeacherTable from "./TeacherTable";
 import ViewStudentCredentials from "./ViewStudentCredentials";
 import ViewTeacherCredentials from "./ViewTeacherCredentials";
 import { FaChalkboardTeacher, FaGraduationCap } from "react-icons/fa";
-// import Button from "./Button";
 import { useAllTeachersQuery } from "../query/get/useAllTeachersQuery";
+import PopUpModal from "./PopUpModal";
 
 export const RegistrationModule = () => {
     const [isAddTeacherOpen, setIsAddTeacherOpen] = useState<boolean>(false);
@@ -24,6 +24,10 @@ export const RegistrationModule = () => {
     const [isEditStudentOpen, setIsEditStudentOpen] = useState<boolean>(false);
     const [isViewStudentOpen, setIsViewStudentOpen] = useState<boolean>(false);
     const [isViewTeacherOpen, setIsViewTeacherOpen] = useState<boolean>(false);
+    const [isArchiveStudentOpen, setIsArchiveStudentOpen] = useState<boolean>(false);
+    const [isArchiveTeacherOpen, setIsArchiveTeacherOpen] = useState<boolean>(false);
+    const [archiveStudentId, setArchiveStudentId] = useState<string>("");
+    const [archiveTeacherId, setArchiveTeacherId] = useState<string>("");
     const [searchUser, setSearchUser] = useState<string>("");
     const [selectedRole, setSelectedRole] = useState<string>("Teacher");
     const [editTeacherId, setEditTeacherId] = useState<string>("");
@@ -53,8 +57,6 @@ export const RegistrationModule = () => {
     const { data: teachersData } = useQuery(useAllTeachersQuery());
     const { mutate: archiveStudent } = useArchiveStudentMutation();
     const { mutate: archiveTeacher } = useArchiveTeacherMutation();
-
-
 
     useEffect(() => {
         if (studentsData && Array.isArray(studentsData)) {
@@ -106,6 +108,42 @@ export const RegistrationModule = () => {
     // const handleAddStudent = () => {
     //     setIsAddStudentOpen(true);
     // };
+
+    const handleRestoreStudent = (id: string) => {
+        setArchiveStudentId(id)
+        setIsArchiveStudentOpen(true)
+    }
+
+    const handleCancelRestore = () => {
+        setIsArchiveStudentOpen(false)
+        setArchiveStudentId("")
+    }
+
+    const handleConfirmRestoreItem = () => {
+        if (archiveStudentId) {
+            archiveStudent(archiveStudentId)
+            setIsArchiveStudentOpen(false)
+            setArchiveStudentId("")
+        }
+    }
+
+    const handleArchiveTeacher = (id: string) => {
+        setArchiveTeacherId(id)
+        setIsArchiveTeacherOpen(true)
+    }
+
+    const handleCancelArchiveTeacher = () => {
+        setIsArchiveTeacherOpen(false)
+        setArchiveTeacherId("")
+    }
+
+    const handleConfirmArchiveTeacher = () => {
+        if (archiveTeacherId) {
+            archiveTeacher(archiveTeacherId)
+            setIsArchiveTeacherOpen(false)
+            setArchiveTeacherId("")
+        }
+    }
 
     return (
         <div className="w-full min-h-screen bg-gradient-to-br from-[#f8fafc] to-[#e2e8f0] p-6">
@@ -279,7 +317,7 @@ export const RegistrationModule = () => {
                                                     onSetEditUserId={() => setEditStudentId(student.id)}
                                                     onSetViewStudentId={() => setViewStudentId(student.id)}
                                                     onSetIsViewStudentOpen={() => setIsViewStudentOpen(true)}
-                                                    onMutate={() => archiveStudent(student.id)}
+                                                    onMutate={() => handleRestoreStudent(student.id)}
                                                 />
                                             </tr>
                                         ))}
@@ -346,7 +384,7 @@ export const RegistrationModule = () => {
                                                     onSetIsEditUserOpen={() => setIsEditTeacherOpen(true)}
                                                     onSetViewUserId={() => setViewTeacherId(teacher.id)}
                                                     onSetIsViewUserOpen={() => setIsViewTeacherOpen(true)}
-                                                    onMutate={() => archiveTeacher(teacher.id)}
+                                                    onMutate={() => handleArchiveTeacher(teacher.id)}
                                                 />
                                             </tr>
                                         ))}
@@ -364,6 +402,26 @@ export const RegistrationModule = () => {
             </div>
 
             {/* Modals */}
+            {isArchiveStudentOpen && (
+                <PopUpModal
+                    title={"Restore Student"}
+                    label={"restore"}
+                    noun={"student"}
+                    destination={"archive"}
+                    onHandleCancleAction={handleCancelRestore}
+                    onHandleConfirmAction={handleConfirmRestoreItem}
+                />
+            )}
+            {isArchiveTeacherOpen && (
+                <PopUpModal
+                    title={"Archive Teacher"}
+                    label={"archive"}
+                    noun={"teacher"}
+                    destination={"archive"}
+                    onHandleCancleAction={handleCancelArchiveTeacher}
+                    onHandleConfirmAction={handleConfirmArchiveTeacher}
+                />
+            )}
             {isAddTeacherOpen && (
                 <AddTeacher
                     onClose={() => setIsAddTeacherOpen(false)}
