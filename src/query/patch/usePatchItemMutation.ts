@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getToken } from "../../utils/token";
 
 type updateItem = {
@@ -53,8 +53,13 @@ const PatchItem = async ({ id, formData }: PatchItemProps) => {
 };
 
 export const usePatchItemMutation = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: ["items"],
     mutationFn: PatchItem,
+    onSuccess: ()=> {
+      queryClient.invalidateQueries({queryKey: ["Item"]})
+    }
   });
 };
