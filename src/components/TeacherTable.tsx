@@ -12,6 +12,7 @@ type TeacherTable = {
   username: string;
   email: string;
   userRole: string;
+  department: string;
   status: string;
   onSetEditUserId: (value: string) => void;
   onSetIsEditUserOpen: (value: boolean) => void;
@@ -27,6 +28,7 @@ export default function TeacherTable({
   middleName,
   username,
   userRole,
+  department,
   status,
   onSetEditUserId,
   onSetIsEditUserOpen,
@@ -91,6 +93,7 @@ export default function TeacherTable({
       <td className="py-3 px-6">{getFullName()}</td>
       <td className="py-3 px-6">{username}</td>
       <td className="py-3 px-6">{userRole}</td>
+      <td className="py-3 px-6">{department}</td>
       <td className="py-3 px-6">
         <span
           className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${UserStatus(status)}`}
