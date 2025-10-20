@@ -1,5 +1,5 @@
 import { getToken } from "../../utils/token/index.tsx";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type TUpdatedStudentData = {
   firstName: string;
@@ -68,8 +68,13 @@ const StudentPatch = async ({ id, formData }: StudentPatchProps) => {
 }
 
 export const usePatchStudentMutation = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: ["profile"],
     mutationFn: StudentPatch,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["students"] })
+    }
   });
 }
