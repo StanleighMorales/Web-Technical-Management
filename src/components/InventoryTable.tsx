@@ -104,7 +104,9 @@ export default function InventoryTable({
       </td>
       {isConfirmOpen && (
         <PopUpModal
+          title={"Archive Item"}
           label={"archive"}
+          noun={"item"}
           destination={"archive"}
           onHandleCancleAction={handleCancelArchive}
           onHandleConfirmAction={handleConfirmArchive}
