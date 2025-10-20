@@ -357,6 +357,9 @@ export const RegistrationModule = () => {
                                             <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
                                                 Role
                                             </th>
+                                              <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
+                                                Department
+                                            </th>
                                             <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
                                                 Status
                                             </th>
@@ -379,6 +382,7 @@ export const RegistrationModule = () => {
                                                     username={teacher.username}
                                                     email={teacher.email}
                                                     userRole={teacher.userRole}
+                                                    department={teacher.department}
                                                     status={teacher.status}
                                                     onSetEditUserId={() => setEditTeacherId(teacher.id)}
                                                     onSetIsEditUserOpen={() => setIsEditTeacherOpen(true)}
