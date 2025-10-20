@@ -144,8 +144,7 @@ export const EditStudent = ({
                 setTimeout(() => {
                     setShowAlert(false);
                     onClose();
-                    window.location.reload()
-                }, 2000);
+                }, 1500);
             },
             onError: (error) => {
                 console.log(error.message);
