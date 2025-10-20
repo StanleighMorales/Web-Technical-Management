@@ -11,14 +11,17 @@ import { UserSkeletonLoader } from "../loader/UserSkeletonLoader";
 import { useArchiveUserMutation } from "../query/delete/useArchiveUserMutation";
 import UserTable from "../components/UserTable";
 import ErrorTable from "../components/ErrorTables";
+import PopUpModal from "../components/PopUpModal";
 
 export const UserManagement = () => {
   const [isAddUserOpen, setIsAddUserOpen] = useState<boolean>(false);
   const [isEditUserOpen, setIsEditUserOpen] = useState<boolean>(false);
+  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState<boolean>(false);
   const [searchUser, setSearchUser] = useState<string>("");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [selectedRole, setSelectedRole] = useState<string>("all");
   const [editUserId, setEditUserId] = useState<string>("");
+  const [archiveUserId, setArchiveUserId] = useState<string>("");
   const [users, setUsers] = useState<TUsers[]>([]);
 
   const selectedUser = useMemo(() => {
@@ -61,6 +64,22 @@ export const UserManagement = () => {
 
   const { data, isPending, isError } = useQuery(useAllUsersQuery());
   const { mutate } = useArchiveUserMutation();
+
+  const handleArchiveUser = (userId: string) => {
+    setArchiveUserId(userId);
+    setIsArchiveModalOpen(true);
+  };
+
+  const confirmArchiveUser = () => {
+    mutate(archiveUserId);
+    setIsArchiveModalOpen(false);
+    setArchiveUserId("");
+  };
+
+  const cancelArchiveUser = () => {
+    setIsArchiveModalOpen(false);
+    setArchiveUserId("");
+  };
 
   useEffect(() => {
     if (data && Array.isArray(data)) {
@@ -205,7 +224,7 @@ export const UserManagement = () => {
                       status={user.status}
                       onSetEditUserId={() => setEditUserId(user.id)}
                       onSetIsEditUserOpen={() => setIsEditUserOpen(true)}
-                      onMutate={() => mutate(user.id)}
+                      onMutate={() => handleArchiveUser(user.id)}
                     />
                   </tr>
                 ))}
@@ -231,6 +250,16 @@ export const UserManagement = () => {
           email={selectedUser.email}
           phoneNumber={selectedUser.phoneNumber}
           position={selectedUser.userRole}
+        />
+      )}
+      {isArchiveModalOpen && (
+        <PopUpModal
+          title="Archive User"
+          label="archive"
+          noun="user"
+          destination="archive"
+          onHandleCancleAction={cancelArchiveUser}
+          onHandleConfirmAction={confirmArchiveUser}
         />
       )}
     </div>
