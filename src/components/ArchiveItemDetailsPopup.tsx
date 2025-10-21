@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { MdClose, MdInventory, MdCategory, MdBuild, MdDescription, MdCode, MdImage, MdQrCode, MdArchive } from "react-icons/md";
 import { FaBox, FaTag, FaCalendarAlt } from "react-icons/fa";
 import { useViewArchiveItemDetails } from "../query/get/useViewArchiveItemDetails";
+import { FormattedDateTime } from "./FormatedDateTime";
 
 type TArchiveItemDetailsPopupProps = {
     itemId: string;
@@ -16,16 +17,6 @@ export default function ArchiveItemDetailsPopup({
 }: TArchiveItemDetailsPopupProps) {
 
     const { data: item, isPending, isError } = useQuery(useViewArchiveItemDetails(itemId));
-
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
 
     if (!isOpen) return null;
 
@@ -78,7 +69,7 @@ export default function ArchiveItemDetailsPopup({
                         <div className="flex items-center space-x-4">
                             <div className="text-right">
                                 <p className="text-sm text-gray-500">Archived on</p>
-                                <p className="text-sm font-medium text-gray-900">{formatDate(item.archivedAt)}</p>
+                                <p className="text-sm font-medium text-gray-900">{FormattedDateTime(item.archivedAt)}</p>
                             </div>
                             <button
                                 onClick={() => {
@@ -247,7 +238,7 @@ export default function ArchiveItemDetailsPopup({
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500">Archived Date</p>
-                                <p className="font-medium text-gray-900">{formatDate(item.archivedAt)}</p>
+                                <p className="font-medium text-gray-900">{FormattedDateTime(item.archivedAt)}</p>
                             </div>
                         </div>
                     </div>
