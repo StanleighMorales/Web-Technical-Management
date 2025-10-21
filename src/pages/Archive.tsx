@@ -21,6 +21,7 @@ import ArchiveTeacherTable from "../components/ArchiveTeacherTable.tsx";
 import ArchiveStudentTable from "../components/ArchiveStudentTable.tsx";
 import ArchiveStudentCredentialsPopup from "../components/ArchiveStudentCredentialsPopup.tsx";
 import ArchiveTeacherCredentialsPopup from "../components/ArchiveTeacherCredentialsPopup.tsx";
+import ArchiveItemDetailsPopup from "../components/ArchiveItemDetailsPopup.tsx";
 
 export default function Archive() {
   const [archiveItems, setArchiveItems] = useState<TArchiveItem[]>([]);
@@ -36,19 +37,21 @@ export default function Archive() {
   const { data: usersData, isPending: isUsersPending, isError: isUsersError } = useQuery(useArchivesUsersQuery());
   const restoreMutation = useRestoreItemMutation();
   const { mutate } = useRestoreUserMutation();
-  const deleteMutation = useDeleteItemMutation()
-  const [isRestoreConfirmOpen, setIsRestoreConfirmOpen] = useState(false)
-  const [restoreSelectedId, setRestoreSelectedId] = useState<string | null>(null)
-  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
-  const [deleteSelectedId, setDeleteSelectedId] = useState<string | null>(null)
-  const [isUserRestoreConfirmOpen, setIsUserRestoreConfirmOpen] = useState(false)
-  const [userRestoreSelectedId, setUserRestoreSelectedId] = useState<string | null>(null)
-  const [isUserDeleteConfirmOpen, setIsUserDeleteConfirmOpen] = useState(false)
-  const [userDeleteSelectedId, setUserDeleteSelectedId] = useState<string | null>(null)
-  const [isStudentCredentialsOpen, setIsStudentCredentialsOpen] = useState(false)
-  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null)
-  const [isTeacherCredentialsOpen, setIsTeacherCredentialsOpen] = useState(false)
-  const [selectedTeacherId, setSelectedTeacherId] = useState<string | null>(null)
+  const deleteMutation = useDeleteItemMutation();
+  const [isRestoreConfirmOpen, setIsRestoreConfirmOpen] = useState(false);
+  const [restoreSelectedItemId, setRestoreSelectedItemId] = useState<string | null>(null);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [isItemDetailsOpen, setIsItemDetailsOpen] = useState<boolean>(false);
+  const [isDeleteConfirmOpen, setIsDeleteItemConfirmOpen] = useState(false);
+  const [deleteSelectedId, setDeleteSelectedId] = useState<string | null>(null);
+  const [isUserRestoreConfirmOpen, setIsUserRestoreConfirmOpen] = useState(false);
+  const [userRestoreSelectedId, setUserRestoreSelectedId] = useState<string | null>(null);
+  const [isUserDeleteConfirmOpen, setIsUserDeleteConfirmOpen] = useState(false);
+  const [userDeleteSelectedId, setUserDeleteSelectedId] = useState<string | null>(null);
+  const [isStudentCredentialsOpen, setIsStudentCredentialsOpen] = useState(false);
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const [isTeacherCredentialsOpen, setIsTeacherCredentialsOpen] = useState(false);
+  const [selectedTeacherId, setSelectedTeacherId] = useState<string | null>(null);
 
 
   // Filter items based on search term and category
@@ -160,40 +163,40 @@ export default function Archive() {
   }
 
   const handleRestoreItem = (id: string) => {
-    setRestoreSelectedId(id)
+    setRestoreSelectedItemId(id)
     setIsRestoreConfirmOpen(true)
   }
 
   const handleCancelRestore = () => {
     setIsRestoreConfirmOpen(false)
-    setRestoreSelectedId(null)
+    setRestoreSelectedItemId(null)
   }
 
   const handleConfirmRestoreItem = () => {
-    if (!restoreSelectedId) return
-    restoreMutation.mutate(restoreSelectedId, {
+    if (!restoreSelectedItemId) return
+    restoreMutation.mutate(restoreSelectedItemId, {
       onSuccess: () => {
         setIsRestoreConfirmOpen(false)
-        setRestoreSelectedId(null)
+        setRestoreSelectedItemId(null)
       }
     });
   }
 
   const handleDelete = (id: string) => {
     setDeleteSelectedId(id)
-    setIsDeleteConfirmOpen(true)
+    setIsDeleteItemConfirmOpen(true)
   };
 
-  const handleCancelDelete = () => {
-    setIsDeleteConfirmOpen(false)
+  const handleCancelDeleteItem = () => {
+    setIsDeleteItemConfirmOpen(false)
     setDeleteSelectedId(null)
   }
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDeleteItem = () => {
     if (!deleteSelectedId) return
     deleteMutation.mutate(deleteSelectedId, {
       onSuccess: () => {
-        setIsDeleteConfirmOpen(false)
+        setIsDeleteItemConfirmOpen(false)
         setDeleteSelectedId(null)
       }
     });
@@ -237,6 +240,11 @@ export default function Archive() {
         setUserDeleteSelectedId(null)
       }
     });
+  }
+
+  const handleViewItem = (id: string) => {
+    setSelectedItemId(id)
+    setIsItemDetailsOpen(true)
   }
 
   const handleViewStudent = (id: string) => {
@@ -478,6 +486,7 @@ export default function Archive() {
                             category={item.category}
                             condition={item.condition}
                             barcodeImage={item.barcodeImage}
+                            onView={handleViewItem}
                             onRestore={handleRestoreItem}
                             onDelete={handleDelete}
                             isRestoring={restoreMutation.isPending}
@@ -775,8 +784,8 @@ export default function Archive() {
         <PopUpModalDelete
           title={"Delete Item"}
           label={"delete"}
-          onHandleCancleAction={handleCancelDelete}
-          onHandleConfirmAction={handleConfirmDelete}
+          onHandleCancleAction={handleCancelDeleteItem}
+          onHandleConfirmAction={handleConfirmDeleteItem}
         />
       )}
       {/* User Restore confirmation */}
@@ -824,6 +833,17 @@ export default function Archive() {
           teacherId={selectedTeacherId}
           isOpen={isTeacherCredentialsOpen}
           onClose={handleCloseTeacherCredentials}
+        />
+      )}
+      {/* Item Details Popup */}
+      {isItemDetailsOpen && selectedItemId && (
+        <ArchiveItemDetailsPopup
+          itemId={selectedItemId}
+          isOpen={isItemDetailsOpen}
+          onClose={() => {
+            setIsItemDetailsOpen(false);
+            setSelectedItemId(null);
+          }}
         />
       )}
     </div>
