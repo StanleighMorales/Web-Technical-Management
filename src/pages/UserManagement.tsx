@@ -13,7 +13,7 @@ import UserTable from "../components/UserTable";
 import ErrorTable from "../components/ErrorTables";
 import PopUpModal from "../components/PopUpModal";
 
-export const UserManagement = () => {
+export default function UserManagement() {
   const [isAddUserOpen, setIsAddUserOpen] = useState<boolean>(false);
   const [isEditUserOpen, setIsEditUserOpen] = useState<boolean>(false);
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState<boolean>(false);
@@ -38,7 +38,9 @@ export const UserManagement = () => {
         const selectedRoleFilter = selectedRole.toLowerCase();
 
         const matchesStatus =
-          selectedStatusFilter === "all" ? true : userStatus === selectedStatusFilter;
+          selectedStatusFilter === "all"
+            ? true
+            : userStatus === selectedStatusFilter;
 
         const matchesRole =
           selectedRoleFilter === "all" ? true : userRole === selectedRoleFilter;
@@ -109,7 +111,9 @@ export const UserManagement = () => {
               {users.length} total users
             </span>
             <span className="hidden md:inline text-[#94a3b8]">|</span>
-            <span className="hidden md:inline text-sm text-[#64748b]">{filteredUser.length} shown</span>
+            <span className="hidden md:inline text-sm text-[#64748b]">
+              {filteredUser.length} shown
+            </span>
           </div>
         </div>
         <section className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 mb-6">
@@ -121,28 +125,31 @@ export const UserManagement = () => {
             <div className="-mt-5 flex flex-row gap-2">
               <button
                 onClick={() => setSelectedRole("all")}
-                className={` px-6 py-3.5 rounded-md font-medium transition-all duration-200 ${selectedRole === "all"
-                  ? " bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white shadow-md"
-                  : "bg-white text-[#64748b] border border-[#e5e7eb] hover:bg-[#f8fafc] hover:border-[#d1d5db]"
-                  }`}
+                className={` px-6 py-3.5 rounded-md font-medium transition-all duration-200 ${
+                  selectedRole === "all"
+                    ? " bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white shadow-md"
+                    : "bg-white text-[#64748b] border border-[#e5e7eb] hover:bg-[#f8fafc] hover:border-[#d1d5db]"
+                }`}
               >
                 All
               </button>
               <button
                 onClick={() => setSelectedRole("admin")}
-                className={` px-6 py-3.5 rounded-md font-medium transition-all duration-200 ${selectedRole === "admin"
-                  ? " bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white shadow-md"
-                  : "bg-white text-[#64748b] border border-[#e5e7eb] hover:bg-[#f8fafc] hover:border-[#d1d5db]"
-                  }`}
+                className={` px-6 py-3.5 rounded-md font-medium transition-all duration-200 ${
+                  selectedRole === "admin"
+                    ? " bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white shadow-md"
+                    : "bg-white text-[#64748b] border border-[#e5e7eb] hover:bg-[#f8fafc] hover:border-[#d1d5db]"
+                }`}
               >
                 Admin
               </button>
               <button
                 onClick={() => setSelectedRole("staff")}
-                className={` px-6 py-3.5 rounded-md font-medium transition-all duration-200 ${selectedRole === "staff"
-                  ? " bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white shadow-md"
-                  : "bg-white text-[#64748b] border border-[#e5e7eb] hover:bg-[#f8fafc] hover:border-[#d1d5db]"
-                  }`}
+                className={` px-6 py-3.5 rounded-md font-medium transition-all duration-200 ${
+                  selectedRole === "staff"
+                    ? " bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white shadow-md"
+                    : "bg-white text-[#64748b] border border-[#e5e7eb] hover:bg-[#f8fafc] hover:border-[#d1d5db]"
+                }`}
               >
                 Staff
               </button>
@@ -174,7 +181,8 @@ export const UserManagement = () => {
               </div>
               <p className="text-[#0f172a] font-semibold">No users found</p>
               <p className="text-[#64748b] text-sm max-w-md">
-                Try adjusting your filters or search query. You can also add a new user.
+                Try adjusting your filters or search query. You can also add a
+                new user.
               </p>
             </div>
           ) : (
@@ -235,7 +243,8 @@ export const UserManagement = () => {
 
         {/* Description */}
         <p className="mt-6 text-[#64748b] text-sm text-center">
-          <span className="font-semibold">Tip:</span> Use role filters, status filters, and search to quickly locate users.
+          <span className="font-semibold">Tip:</span> Use role filters, status
+          filters, and search to quickly locate users.
         </p>
       </div>
       {isAddUserOpen && <AddUsers onClose={() => setIsAddUserOpen(false)} />}
@@ -264,4 +273,4 @@ export const UserManagement = () => {
       )}
     </div>
   );
-};
+}
