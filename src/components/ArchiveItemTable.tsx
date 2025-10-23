@@ -3,6 +3,7 @@ import { FormattedDateTime } from "./FormatedDateTime";
 import { SlugCondition } from "./SlugCondition";
 import { UserData } from "../utils/usersData/userData";
 import { type FC } from "react";
+import { MdVisibility } from "react-icons/md";
 
 type ArchiveTableProps = {
     id: string;
@@ -17,6 +18,7 @@ type ArchiveTableProps = {
     category: string;
     condition: string;
     barcodeImage: string;
+    onView: (id: string) => void;
     onDelete: (id: string) => void;
     onRestore: (id: string) => void;
     isRestoring: boolean;
@@ -36,6 +38,7 @@ export default function ArchiveItemTable({
     category,
     condition,
     barcodeImage,
+    onView,
     onDelete,
     onRestore,
     isRestoring,
@@ -112,6 +115,13 @@ export default function ArchiveItemTable({
             </td>
             <td className="py-3 px-4">{FormattedDateTime(archivedAt)}</td>
             <td className="py-3 text-center">
+                <button
+                    onClick={() => onView(id)}
+                    className="mr-2 text-green-500 text-2xl hover:text-green-700 transition-colors"
+                    title="View student credentials"
+                >
+                    <MdVisibility />
+                </button>
                 <ShowButtonIfUserAdmin
                     userRole={data.userRole}
                     onHandleDeleteItem={() => onDelete(id)}

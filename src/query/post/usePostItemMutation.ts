@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getToken } from "../../utils/token";
 
 type ItemData = {
@@ -45,8 +45,13 @@ const PostItem = async (formData: ItemData) => {
 };
 
 export const usePostItemMutation = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: ["items"],
     mutationFn: PostItem,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["Item"] })
+    }
   });
 };

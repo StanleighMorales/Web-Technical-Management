@@ -127,7 +127,6 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
         setTimeout(() => {
           setShowAlert(false);
           onClose();
-          window.location.reload();
         }, 1000);
         setFormData({
           serialNumber: "",

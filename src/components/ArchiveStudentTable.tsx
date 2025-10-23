@@ -1,6 +1,7 @@
 import { UserData } from "../utils/usersData/userData";
 import { FaTrash } from "react-icons/fa6";
 import { FaTrashRestore } from "react-icons/fa";
+import { MdVisibility } from "react-icons/md";
 
 type ArchiveItemTableProps = {
     id: string;
@@ -14,6 +15,7 @@ type ArchiveItemTableProps = {
     status: string;
     onDelete: (id: string) => void;
     onRestore: (id: string) => void;
+    onView: (id: string) => void;
     isRestoring: boolean;
     isDeleting: boolean;
 }
@@ -30,6 +32,7 @@ export default function ArchiveStudentTable({
     year,
     onDelete,
     onRestore,
+    onView,
     isRestoring,
     isDeleting,
 }: ArchiveItemTableProps) {
@@ -75,7 +78,7 @@ export default function ArchiveStudentTable({
                 {firstName} {middleName} {lastName}
             </td>
             <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
-               {course || "-"}
+                {course || "-"}
             </td>
             <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
                 {section || "-"}
@@ -101,6 +104,13 @@ export default function ArchiveStudentTable({
                 </span>
             </td>
             <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
+                <button
+                    onClick={() => onView(id)}
+                    className="mr-2 text-green-500 text-2xl hover:text-green-700 transition-colors"
+                    title="View student credentials"
+                >
+                    <MdVisibility />
+                </button>
                 <ShowButtonIfUserAdmin
                     userRole={data.userRole} onHandleRestoreStudent={() => onRestore(id)} onHandleDeleteStudent={() => onDelete(id)}
                 />

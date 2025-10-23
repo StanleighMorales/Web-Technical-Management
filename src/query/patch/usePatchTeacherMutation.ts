@@ -1,6 +1,6 @@
 import { getToken } from "../../utils/token/index.tsx";
 import type { TUpdatedTeacher } from "../../types/types.ts";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type TeacherPatchProps = {
   id: string;
@@ -15,7 +15,7 @@ const TeacherPatch = async ({ id, formData }: TeacherPatchProps) => {
     const res = await fetch(`${BASE_URL}${END_POINT}${id}`, {
       method: "PATCH",
       headers: {
-        "Content-Type" : "application/json",
+        "Content-Type": "application/json",
         Authorization: `Bearer ${getToken()}`
       },
       body: updateTeacher
@@ -34,8 +34,13 @@ const TeacherPatch = async ({ id, formData }: TeacherPatchProps) => {
 }
 
 export const usePatchTeacherMutation = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: ["profile"],
     mutationFn: TeacherPatch,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["teachers"] })
+    }
   });
 }

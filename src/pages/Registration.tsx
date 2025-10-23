@@ -1,5 +1,5 @@
-import { RegistrationModule } from "../components/RegistrationModule";
+import RegistrationModule from "../components/RegistrationModule";
 
-export const Registration = () => {
-    return <RegistrationModule />;
-};
+export default function Registration() {
+  return <RegistrationModule />;
+}

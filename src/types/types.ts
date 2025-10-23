@@ -221,3 +221,45 @@ export type TUpdatedTeacher = {
   department: string
 }
 export type TUpdatedStudents = TStudent & {}
+
+export type TArchiveStudent = {
+  $type: string;
+  archivedAt: string;
+  backStudentIdPicture: string;
+  cityMunicipality: string;
+  course: string;
+  email: string;
+  firstName: string;
+  frontStudentIdPicture: string;
+  id: string;
+  lastName: string;
+  middleName: string;
+  originalUserId: string;
+  phoneNumber: string;
+  postalCode: string;
+  profilePicture: string;
+  province: string;
+  section: string;
+  status: string;
+  studentIdNumber: string;
+  userRole: string;
+  username: string;
+  year: string;
+  street: string;
+};
+
+export type TArchiveTeacher = {
+  $type: string;
+  archivedAt: string;
+  department: string;
+  email: string;
+  firstName: string;
+  id: string;
+  lastName: string;
+  middleName: string | null;
+  originalUserId: string;
+  phoneNumber: string;
+  status: string;
+  userRole: string;
+  username: string;
+};

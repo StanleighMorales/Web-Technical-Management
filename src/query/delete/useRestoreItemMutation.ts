@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getToken } from "../../utils/token";
 
 const restoreItem = async (id: string) => {
@@ -21,8 +21,13 @@ const restoreItem = async (id: string) => {
 };
 
 export const useRestoreItemMutation = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: ["restore"],
     mutationFn: restoreItem,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["archives"] })
+    }
   });
 };

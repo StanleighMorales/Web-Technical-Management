@@ -1,30 +1,28 @@
-import { StrictMode } from "react";
+import { StrictMode, lazy } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import App from "./App.tsx";
-import Home from "./layout/Home.tsx";
-import Dashboard from "./pages/Dashboard.tsx";
-import InventoryList from "./pages/InventoryList.tsx";
-import { UserManagement } from "./pages/UserManagement.tsx";
-import HistoryList from "./pages/HistoryList.tsx";
-import Settings from "./pages/Settings.tsx";
-import ViewItem from "./components/ViewItem.tsx";
-import Archive from "./pages/Archive.tsx";
-import BorrowItem from "./pages/BorrowItem.tsx";
-import { Registration } from "./pages/Registration.tsx";
+const App = lazy(() => import("./App.tsx"));
+const Home = lazy(() => import("./layout/Home.tsx"));
+const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
+const InventoryList = lazy(() => import("./pages/InventoryList.tsx"));
+const UserManagement = lazy(() => import("./pages/UserManagement.tsx"));
+const HistoryList = lazy(() => import("./pages/HistoryList.tsx"));
+const Settings = lazy(() => import("./pages/Settings.tsx"));
+const ViewItem = lazy(() => import("./components/ViewItem.tsx"));
+const Archive = lazy(() => import("./pages/Archive.tsx"));
+const BorrowItem = lazy(() => import("./pages/BorrowItem.tsx"));
+const Registration = lazy(() => import("./pages/Registration.tsx"));
+const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ProtectedRoute } from "./utils/middleware/accessAuth.tsx";
-import NotFound from "./pages/NotFound.tsx";
 import Login from "./auth/Login.tsx";
 
 const routes = createBrowserRouter([
   // Public routes
   {
     path: "/",
-    element: (
-      <App />
-    ),
+    element: <App />,
     children: [
       {
         index: true,
@@ -37,7 +35,7 @@ const routes = createBrowserRouter([
     path: "/home",
     element: (
       <ProtectedRoute>
-        < Home />
+        <Home />
       </ProtectedRoute>
     ),
     children: [
@@ -48,7 +46,7 @@ const routes = createBrowserRouter([
       { path: "archive-table", element: <Archive /> },
       { path: "borrow-item", element: <BorrowItem /> },
       { path: "settings", element: <Settings /> },
-      { path: "registration-module", element: <Registration /> }
+      { path: "registration-module", element: <Registration /> },
     ],
   },
 
@@ -65,7 +63,6 @@ const routes = createBrowserRouter([
     element: <NotFound />,
   },
 ]);
-
 
 const queryClient = new QueryClient();
 

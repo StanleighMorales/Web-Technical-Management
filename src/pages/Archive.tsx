@@ -19,6 +19,9 @@ import { FaTrashRestore } from "react-icons/fa";
 import { type FC } from "react";
 import ArchiveTeacherTable from "../components/ArchiveTeacherTable.tsx";
 import ArchiveStudentTable from "../components/ArchiveStudentTable.tsx";
+import ArchiveStudentCredentialsPopup from "../components/ArchiveStudentCredentialsPopup.tsx";
+import ArchiveTeacherCredentialsPopup from "../components/ArchiveTeacherCredentialsPopup.tsx";
+import ArchiveItemDetailsPopup from "../components/ArchiveItemDetailsPopup.tsx";
 
 export default function Archive() {
   const [archiveItems, setArchiveItems] = useState<TArchiveItem[]>([]);
@@ -33,16 +36,22 @@ export default function Archive() {
   const { data, isPending, isError } = useQuery(useArchivesItemsQuery());
   const { data: usersData, isPending: isUsersPending, isError: isUsersError } = useQuery(useArchivesUsersQuery());
   const restoreMutation = useRestoreItemMutation();
-  const restoreUserMutation = useRestoreUserMutation();
-  const deleteMutation = useDeleteItemMutation()
-  const [isRestoreConfirmOpen, setIsRestoreConfirmOpen] = useState(false)
-  const [restoreSelectedId, setRestoreSelectedId] = useState<string | null>(null)
-  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
-  const [deleteSelectedId, setDeleteSelectedId] = useState<string | null>(null)
-  const [isUserRestoreConfirmOpen, setIsUserRestoreConfirmOpen] = useState(false)
-  const [userRestoreSelectedId, setUserRestoreSelectedId] = useState<string | null>(null)
-  const [isUserDeleteConfirmOpen, setIsUserDeleteConfirmOpen] = useState(false)
-  const [userDeleteSelectedId, setUserDeleteSelectedId] = useState<string | null>(null)
+  const { mutate } = useRestoreUserMutation();
+  const deleteMutation = useDeleteItemMutation();
+  const [isRestoreConfirmOpen, setIsRestoreConfirmOpen] = useState(false);
+  const [restoreSelectedItemId, setRestoreSelectedItemId] = useState<string | null>(null);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [isItemDetailsOpen, setIsItemDetailsOpen] = useState<boolean>(false);
+  const [isDeleteConfirmOpen, setIsDeleteItemConfirmOpen] = useState(false);
+  const [deleteSelectedId, setDeleteSelectedId] = useState<string | null>(null);
+  const [isUserRestoreConfirmOpen, setIsUserRestoreConfirmOpen] = useState(false);
+  const [userRestoreSelectedId, setUserRestoreSelectedId] = useState<string | null>(null);
+  const [isUserDeleteConfirmOpen, setIsUserDeleteConfirmOpen] = useState(false);
+  const [userDeleteSelectedId, setUserDeleteSelectedId] = useState<string | null>(null);
+  const [isStudentCredentialsOpen, setIsStudentCredentialsOpen] = useState(false);
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const [isTeacherCredentialsOpen, setIsTeacherCredentialsOpen] = useState(false);
+  const [selectedTeacherId, setSelectedTeacherId] = useState<string | null>(null);
 
 
   // Filter items based on search term and category
@@ -154,43 +163,41 @@ export default function Archive() {
   }
 
   const handleRestoreItem = (id: string) => {
-    setRestoreSelectedId(id)
+    setRestoreSelectedItemId(id)
     setIsRestoreConfirmOpen(true)
   }
 
   const handleCancelRestore = () => {
     setIsRestoreConfirmOpen(false)
-    setRestoreSelectedId(null)
+    setRestoreSelectedItemId(null)
   }
 
   const handleConfirmRestoreItem = () => {
-    if (!restoreSelectedId) return
-    restoreMutation.mutate(restoreSelectedId, {
+    if (!restoreSelectedItemId) return
+    restoreMutation.mutate(restoreSelectedItemId, {
       onSuccess: () => {
         setIsRestoreConfirmOpen(false)
-        setRestoreSelectedId(null)
-        window.location.reload();
+        setRestoreSelectedItemId(null)
       }
     });
   }
 
   const handleDelete = (id: string) => {
     setDeleteSelectedId(id)
-    setIsDeleteConfirmOpen(true)
+    setIsDeleteItemConfirmOpen(true)
   };
 
-  const handleCancelDelete = () => {
-    setIsDeleteConfirmOpen(false)
+  const handleCancelDeleteItem = () => {
+    setIsDeleteItemConfirmOpen(false)
     setDeleteSelectedId(null)
   }
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDeleteItem = () => {
     if (!deleteSelectedId) return
     deleteMutation.mutate(deleteSelectedId, {
       onSuccess: () => {
-        setIsDeleteConfirmOpen(false)
+        setIsDeleteItemConfirmOpen(false)
         setDeleteSelectedId(null)
-        window.location.reload();
       }
     });
   }
@@ -207,11 +214,10 @@ export default function Archive() {
 
   const handleConfirmRestoreUser = () => {
     if (!userRestoreSelectedId) return
-    restoreUserMutation.mutate(userRestoreSelectedId, {
+    mutate(userRestoreSelectedId, {
       onSuccess: () => {
         setIsUserRestoreConfirmOpen(false)
         setUserRestoreSelectedId(null)
-        window.location.reload();
       }
     });
   }
@@ -232,9 +238,33 @@ export default function Archive() {
       onSuccess: () => {
         setIsUserDeleteConfirmOpen(false)
         setUserDeleteSelectedId(null)
-        window.location.reload();
       }
     });
+  }
+
+  const handleViewItem = (id: string) => {
+    setSelectedItemId(id)
+    setIsItemDetailsOpen(true)
+  }
+
+  const handleViewStudent = (id: string) => {
+    setSelectedStudentId(id)
+    setIsStudentCredentialsOpen(true)
+  }
+
+  const handleCloseStudentCredentials = () => {
+    setIsStudentCredentialsOpen(false)
+    setSelectedStudentId(null)
+  }
+
+  const handleViewTeacher = (id: string) => {
+    setSelectedTeacherId(id)
+    setIsTeacherCredentialsOpen(true)
+  }
+
+  const handleCloseTeacherCredentials = () => {
+    setIsTeacherCredentialsOpen(false)
+    setSelectedTeacherId(null)
   }
 
   type checkIfUserAdminProps = {
@@ -456,6 +486,7 @@ export default function Archive() {
                             category={item.category}
                             condition={item.condition}
                             barcodeImage={item.barcodeImage}
+                            onView={handleViewItem}
                             onRestore={handleRestoreItem}
                             onDelete={handleDelete}
                             isRestoring={restoreMutation.isPending}
@@ -648,6 +679,7 @@ export default function Archive() {
                             status={user.status}
                             onDelete={() => handleDeleteUser(user.id)}
                             onRestore={() => handleRestoreUser(user.id)}
+                            onView={handleViewTeacher}
                             isRestoring={restoreMutation.isPending}
                             isDeleting={deleteMutation.isPending}
                           />
@@ -691,7 +723,7 @@ export default function Archive() {
                   <tbody>
                     {paginatedUsers.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="text-center py-10 text-red-400 font-semibold text-xl">
+                        <td colSpan={8} className="text-center py-10 text-red-400 font-semibold text-xl">
                           <div className="flex items-center justify-center h-full">
                             <div className="text-center">
                               <div className="w-full flex justify-center text-6xl mb-4 text-[#64748b]">
@@ -722,6 +754,7 @@ export default function Archive() {
                             status={user.status}
                             onDelete={() => handleDeleteUser(user.id)}
                             onRestore={() => handleRestoreUser(user.id)}
+                            onView={handleViewStudent}
                             isRestoring={restoreMutation.isPending}
                             isDeleting={deleteMutation.isPending}
                           />
@@ -738,7 +771,9 @@ export default function Archive() {
       {/* Restore confirmation */}
       {isRestoreConfirmOpen && (
         <PopUpModal
+          title={"Restore Item"}
           label={"restore"}
+          noun={"item"}
           destination={"inventory list"}
           onHandleCancleAction={handleCancelRestore}
           onHandleConfirmAction={handleConfirmRestoreItem}
@@ -747,16 +782,30 @@ export default function Archive() {
       {/* Delete confirmation */}
       {isDeleteConfirmOpen && (
         <PopUpModalDelete
+          title={"Delete Item"}
           label={"delete"}
-          onHandleCancleAction={handleCancelDelete}
-          onHandleConfirmAction={handleConfirmDelete}
+          onHandleCancleAction={handleCancelDeleteItem}
+          onHandleConfirmAction={handleConfirmDeleteItem}
         />
       )}
       {/* User Restore confirmation */}
       {isUserRestoreConfirmOpen && (
         <PopUpModal
+          title={"Restore Staff"}
           label={"restore"}
-          destination={"user management"}
+          noun={"staff"}
+          destination={"User Management"}
+          onHandleCancleAction={handleCancelUserRestore}
+          onHandleConfirmAction={handleConfirmRestoreUser}
+        />
+      )}
+      {/* Student Restore confirmation */}
+      {isUserRestoreConfirmOpen && (
+        <PopUpModal
+          title={"Restore User"}
+          label={"restore"}
+          noun={"user"}
+          destination={"Regisration Module"}
           onHandleCancleAction={handleCancelUserRestore}
           onHandleConfirmAction={handleConfirmRestoreUser}
         />
@@ -764,9 +813,37 @@ export default function Archive() {
       {/* User Delete confirmation */}
       {isUserDeleteConfirmOpen && (
         <PopUpModalDelete
+          title={"Delete User"}
           label={"delete"}
           onHandleCancleAction={handleCancelUserDelete}
           onHandleConfirmAction={handleConfirmDeleteUser}
+        />
+      )}
+      {/* Student Credentials Popup */}
+      {isStudentCredentialsOpen && selectedStudentId && (
+        <ArchiveStudentCredentialsPopup
+          studentId={selectedStudentId}
+          isOpen={isStudentCredentialsOpen}
+          onClose={handleCloseStudentCredentials}
+        />
+      )}
+      {/* Teacher Credentials Popup */}
+      {isTeacherCredentialsOpen && selectedTeacherId && (
+        <ArchiveTeacherCredentialsPopup
+          teacherId={selectedTeacherId}
+          isOpen={isTeacherCredentialsOpen}
+          onClose={handleCloseTeacherCredentials}
+        />
+      )}
+      {/* Item Details Popup */}
+      {isItemDetailsOpen && selectedItemId && (
+        <ArchiveItemDetailsPopup
+          itemId={selectedItemId}
+          isOpen={isItemDetailsOpen}
+          onClose={() => {
+            setIsItemDetailsOpen(false);
+            setSelectedItemId(null);
+          }}
         />
       )}
     </div>

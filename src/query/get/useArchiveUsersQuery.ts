@@ -5,7 +5,7 @@ const ArchivesUsers = async () => {
   try {
     const BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const END_POINT = "/api/ArchiveUsers";
-    
+
     const res = await fetch(`${BASE_URL}${END_POINT}`, {
       method: "GET",
       headers: {
@@ -18,9 +18,8 @@ const ArchivesUsers = async () => {
       throw new Error(data.message || "Archives Data not found");
     }
     return data.data;
-
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 };
 

@@ -169,7 +169,6 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
           setTimeout(() => {
             setShowAlert(false);
             onClose();
-            window.location.reload();
           }, 1000);
           setFormData({
             serialNumber: "",

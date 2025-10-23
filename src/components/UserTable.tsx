@@ -43,9 +43,7 @@ export default function UserTable({
   }
 
   const handleArchiveUser = () => {
-    if (window.confirm(`Are you sure you want to archive this User Email ${email} ?`)) {
-      onMutate(id)
-    }
+    onMutate(id)
   }
 
   const handleEditTeacher = (id: string) => {
