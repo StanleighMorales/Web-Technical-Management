@@ -222,7 +222,7 @@ export default function RegistrationModule() {
               <div className="ml-3">
                 <p className="text-sm font-medium text-[#64748b]">Teachers</p>
                 <p className="text-2xl font-bold text-[#1e293b]">
-                  {teachers.length}
+                  {teachers.filter((t) => t.userRole === "Teacher").length}
                 </p>
               </div>
             </div>
@@ -235,7 +235,7 @@ export default function RegistrationModule() {
               <div className="ml-3">
                 <p className="text-sm font-medium text-[#64748b]">Students</p>
                 <p className="text-2xl font-bold text-[#1e293b]">
-                  {students.length}
+                  {students.filter((s) => s.userRole === "Student").length}
                 </p>
               </div>
             </div>
@@ -250,8 +250,12 @@ export default function RegistrationModule() {
               <span className="text-[#64748b] font-normal ml-2">
                 (
                 {selectedRole === "Student"
-                  ? filteredStudents.length
-                  : filteredTeachers.length}{" "}
+                  ? filteredStudents.filter(
+                      (student) => student.userRole === "Student",
+                    ).length
+                  : filteredTeachers.filter(
+                      (teacher) => teacher.userRole === "Teacher",
+                    ).length}{" "}
                 {selectedRole === "Student"
                   ? filteredStudents.length === 1
                     ? "student"
@@ -282,7 +286,7 @@ export default function RegistrationModule() {
                 </p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto h-[22rem]">
                 <table className="w-full">
                   <thead className="bg-[#f8fafc]">
                     <tr>
@@ -310,46 +314,50 @@ export default function RegistrationModule() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredStudents.map((student) => (
-                      <tr
-                        key={student.id}
-                        className="hover:bg-[#f1f5f9] transition-colors odd:bg-white even:bg-[#f8fafc]"
-                      >
-                        <StudentTable
-                          id={student.id}
-                          frontStudentIdPicture={student.frontStudentIdPicture}
-                          backStudentIdPicture={student.backStudentIdPicture}
-                          phoneNumber={student.phoneNumber}
-                          street={student.street}
-                          cityMunicipality={student.cityMunicipality}
-                          province={student.province}
-                          postalCode={student.postalCode}
-                          username={student.username}
-                          email={student.email}
-                          userRole={student.userRole}
-                          status={student.status}
-                          firstName={student.firstName}
-                          middleName={student.middleName}
-                          lastName={student.lastName}
-                          studentIdNumber={student.studentIdNumber}
-                          course={student.course}
-                          section={student.section}
-                          year={student.year}
-                          profilePicture={student.profilePicture}
-                          onSetIsEditStudentrOpen={() =>
-                            setIsEditStudentOpen(true)
-                          }
-                          onSetEditUserId={() => setEditStudentId(student.id)}
-                          onSetViewStudentId={() =>
-                            setViewStudentId(student.id)
-                          }
-                          onSetIsViewStudentOpen={() =>
-                            setIsViewStudentOpen(true)
-                          }
-                          onMutate={() => handleRestoreStudent(student.id)}
-                        />
-                      </tr>
-                    ))}
+                    {filteredStudents
+                      .filter((student) => student.userRole === "Student")
+                      .map((student) => (
+                        <tr
+                          key={student.id}
+                          className="hover:bg-[#f1f5f9] transition-colors odd:bg-white even:bg-[#f8fafc]"
+                        >
+                          <StudentTable
+                            id={student.id}
+                            frontStudentIdPicture={
+                              student.frontStudentIdPicture
+                            }
+                            backStudentIdPicture={student.backStudentIdPicture}
+                            phoneNumber={student.phoneNumber}
+                            street={student.street}
+                            cityMunicipality={student.cityMunicipality}
+                            province={student.province}
+                            postalCode={student.postalCode}
+                            username={student.username}
+                            email={student.email}
+                            userRole={student.userRole}
+                            status={student.status}
+                            firstName={student.firstName}
+                            middleName={student.middleName}
+                            lastName={student.lastName}
+                            studentIdNumber={student.studentIdNumber}
+                            course={student.course}
+                            section={student.section}
+                            year={student.year}
+                            profilePicture={student.profilePicture}
+                            onSetIsEditStudentrOpen={() =>
+                              setIsEditStudentOpen(true)
+                            }
+                            onSetEditUserId={() => setEditStudentId(student.id)}
+                            onSetViewStudentId={() =>
+                              setViewStudentId(student.id)
+                            }
+                            onSetIsViewStudentOpen={() =>
+                              setIsViewStudentOpen(true)
+                            }
+                            onMutate={() => handleRestoreStudent(student.id)}
+                          />
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               </div>
@@ -399,29 +407,31 @@ export default function RegistrationModule() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredTeachers.map((teacher) => (
-                    <tr
-                      key={teacher.id}
-                      className="hover:bg-[#f1f5f9] transition-colors odd:bg-white even:bg-[#f8fafc]"
-                    >
-                      <TeacherTable
-                        id={teacher.id}
-                        firstName={teacher.firstName}
-                        lastName={teacher.lastName}
-                        middleName={teacher.middleName}
-                        username={teacher.username}
-                        email={teacher.email}
-                        userRole={teacher.userRole}
-                        department={teacher.department}
-                        status={teacher.status}
-                        onSetEditUserId={() => setEditTeacherId(teacher.id)}
-                        onSetIsEditUserOpen={() => setIsEditTeacherOpen(true)}
-                        onSetViewUserId={() => setViewTeacherId(teacher.id)}
-                        onSetIsViewUserOpen={() => setIsViewTeacherOpen(true)}
-                        onMutate={() => handleArchiveTeacher(teacher.id)}
-                      />
-                    </tr>
-                  ))}
+                  {filteredTeachers
+                    .filter((teacher) => teacher.userRole === "Teacher")
+                    .map((teacher) => (
+                      <tr
+                        key={teacher.id}
+                        className="hover:bg-[#f1f5f9] transition-colors odd:bg-white even:bg-[#f8fafc]"
+                      >
+                        <TeacherTable
+                          id={teacher.id}
+                          firstName={teacher.firstName}
+                          lastName={teacher.lastName}
+                          middleName={teacher.middleName}
+                          username={teacher.username}
+                          email={teacher.email}
+                          userRole={teacher.userRole}
+                          department={teacher.department}
+                          status={teacher.status}
+                          onSetEditUserId={() => setEditTeacherId(teacher.id)}
+                          onSetIsEditUserOpen={() => setIsEditTeacherOpen(true)}
+                          onSetViewUserId={() => setViewTeacherId(teacher.id)}
+                          onSetIsViewUserOpen={() => setIsViewTeacherOpen(true)}
+                          onMutate={() => handleArchiveTeacher(teacher.id)}
+                        />
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
