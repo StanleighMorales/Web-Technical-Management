@@ -6,7 +6,6 @@ import { FaEyeSlash } from "react-icons/fa6";
 import logo from "../assets/img/aclcLogo.webp";
 import type { TLoginUser } from "../types/types";
 import { usePostLoginMutation } from "../query/post/userPostLoginMutation";
-import { getToken } from "../utils/token";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -21,13 +20,6 @@ export default function Login() {
   });
 
   const { mutate, isPending, error, isError } = usePostLoginMutation();
-
-  useEffect(() => {
-    const token = getToken();
-    if (token) {
-      navigate("/home/dashboard");
-    }
-  }, [navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -66,6 +58,7 @@ export default function Login() {
       },
       onError: (err: Error) => {
         console.error("Registration failed:", err.message);
+        setUsernameError(err.message);
       },
     });
   };
