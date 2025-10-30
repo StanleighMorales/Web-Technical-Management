@@ -10,7 +10,7 @@ type ArchiveTableProps = {
     archivedAt: string;
     itemName: string;
     serialNumber: string;
-    image: string;
+    image: string | null;
     itemType: string;
     itemModel: string;
     itemMake: string;
@@ -31,10 +31,6 @@ export default function ArchiveItemTable({
     itemName,
     serialNumber,
     image,
-    itemType,
-    itemModel,
-    itemMake,
-    description,
     category,
     condition,
     barcodeImage,
@@ -82,21 +78,25 @@ export default function ArchiveItemTable({
         <>
             <td className="py-3 px-4 font-semibold">{serialNumber}</td>
             <td className="py-3 px-4">
-                <img
-                    src={
-                        typeof image === "string" ? image : ""
-                    }
-                    alt={itemName}
-                    className="w-10 h-10 rounded-xl"
-                />
+                {image ? (
+                    <img
+                        src={image}
+                        alt={itemName}
+                        className="w-10 h-10 rounded-xl object-cover"
+                        onError={(e) => {
+                            // Fallback to placeholder if image fails to load
+                            const target = e.target as HTMLImageElement;
+                            target.src = '/placeholder-item.png';
+                            target.alt = 'Image not available';
+                        }}
+                    />
+                ) : (
+                    <div className="w-10 h-10 rounded-xl bg-gray-200 flex items-center justify-center">
+                        <span className="text-gray-500 text-xs">No Image</span>
+                    </div>
+                )}
             </td>
             <td className="py-3 px-4">{itemName}</td>
-            <td className="py-3 px-4">{itemType}</td>
-            <td className="py-3 px-4">{itemModel}</td>
-            <td className="py-3 px-4">{itemMake}</td>
-            <td className="py-3 px-4 max-w-xs truncate" title={description}>
-                {description}
-            </td>
             <td className="py-3 px-4">{category}</td>
             <td className="py-3 px-4">
                 <span
