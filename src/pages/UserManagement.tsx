@@ -12,21 +12,23 @@ import { useArchiveUserMutation } from "../query/delete/useArchiveUserMutation";
 import UserTable from "../components/UserTable";
 import ErrorTable from "../components/ErrorTables";
 import PopUpModal from "../components/PopUpModal";
+import ViewUserCredentials from "../components/ViewUserCredentials";
 
 export default function UserManagement() {
   const [isAddUserOpen, setIsAddUserOpen] = useState<boolean>(false);
   const [isEditUserOpen, setIsEditUserOpen] = useState<boolean>(false);
+  const [isViewCredentialsOpen, setIsViewCredentialsOpen] = useState(false);
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState<boolean>(false);
   const [searchUser, setSearchUser] = useState<string>("");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [selectedRole, setSelectedRole] = useState<string>("all");
-  const [editUserId, setEditUserId] = useState<string>("");
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [archiveUserId, setArchiveUserId] = useState<string>("");
   const [users, setUsers] = useState<TUsers[]>([]);
 
   const selectedUser = useMemo(() => {
-    return users.find((u) => u.id === editUserId);
-  }, [users, editUserId]);
+    return users.find((u) => u.id === selectedUserId);
+  }, [users, selectedUserId]);
 
   const filteredUser = useMemo(
     () =>
@@ -63,6 +65,10 @@ export default function UserManagement() {
       }),
     [searchUser, selectedStatus, selectedRole, users],
   );
+
+  const handleViewUserCredential = () => {
+    setIsArchiveModalOpen(true)
+  }
 
   const { data, isPending, isError } = useQuery(useAllUsersQuery());
   const { mutate } = useArchiveUserMutation();
@@ -125,31 +131,28 @@ export default function UserManagement() {
             <div className="-mt-5 flex flex-row gap-2">
               <button
                 onClick={() => setSelectedRole("all")}
-                className={` px-6 py-3.5 rounded-md font-medium transition-all duration-200 ${
-                  selectedRole === "all"
-                    ? " bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white shadow-md"
-                    : "bg-white text-[#64748b] border border-[#e5e7eb] hover:bg-[#f8fafc] hover:border-[#d1d5db]"
-                }`}
+                className={` px-6 py-3.5 rounded-md font-medium transition-all duration-200 ${selectedRole === "all"
+                  ? " bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white shadow-md"
+                  : "bg-white text-[#64748b] border border-[#e5e7eb] hover:bg-[#f8fafc] hover:border-[#d1d5db]"
+                  }`}
               >
                 All
               </button>
               <button
                 onClick={() => setSelectedRole("admin")}
-                className={` px-6 py-3.5 rounded-md font-medium transition-all duration-200 ${
-                  selectedRole === "admin"
-                    ? " bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white shadow-md"
-                    : "bg-white text-[#64748b] border border-[#e5e7eb] hover:bg-[#f8fafc] hover:border-[#d1d5db]"
-                }`}
+                className={` px-6 py-3.5 rounded-md font-medium transition-all duration-200 ${selectedRole === "admin"
+                  ? " bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white shadow-md"
+                  : "bg-white text-[#64748b] border border-[#e5e7eb] hover:bg-[#f8fafc] hover:border-[#d1d5db]"
+                  }`}
               >
                 Admin
               </button>
               <button
                 onClick={() => setSelectedRole("staff")}
-                className={` px-6 py-3.5 rounded-md font-medium transition-all duration-200 ${
-                  selectedRole === "staff"
-                    ? " bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white shadow-md"
-                    : "bg-white text-[#64748b] border border-[#e5e7eb] hover:bg-[#f8fafc] hover:border-[#d1d5db]"
-                }`}
+                className={` px-6 py-3.5 rounded-md font-medium transition-all duration-200 ${selectedRole === "staff"
+                  ? " bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white shadow-md"
+                  : "bg-white text-[#64748b] border border-[#e5e7eb] hover:bg-[#f8fafc] hover:border-[#d1d5db]"
+                  }`}
               >
                 Staff
               </button>
@@ -216,13 +219,12 @@ export default function UserManagement() {
                 </tr>
               </thead>
               <tbody>
-                {filteredUser.map((user) => (
-                  <tr
-                    key={user.id}
-                    className="hover:bg-[#f1f5f9] transition-colors odd:bg-white even:bg-[#f8fafc]"
-                  >
-                    {/* User Table Component*/}
+                {filteredUser
+                  .filter((user) => user.userRole === "Admin" || user.userRole === "Staff")
+                  .map((user) => (
+                    <tr key={user.id}>
                     <UserTable
+                      key={user.id}
                       id={user.id}
                       firstName={user.firstName}
                       lastName={user.lastName}
@@ -230,12 +232,20 @@ export default function UserManagement() {
                       email={user.email}
                       userRole={user.userRole}
                       status={user.status}
-                      onSetEditUserId={() => setEditUserId(user.id)}
-                      onSetIsEditUserOpen={() => setIsEditUserOpen(true)}
-                      onMutate={() => handleArchiveUser(user.id)}
+                      onSetEditUserId={(userId) => {
+                        setSelectedUserId(userId);
+                        setIsEditUserOpen(true);
+                      }}
+                      onSetIsEditUserOpen={setIsEditUserOpen}
+                      onSetViewUserId={(userId) => setSelectedUserId(userId)}
+                      onSetIsViewUserOpen={setIsViewCredentialsOpen}
+                      onMutate={(userId) => {
+                        setArchiveUserId(userId);
+                        setIsArchiveModalOpen(true);
+                      }}
                     />
-                  </tr>
-                ))}
+                    </tr>
+                  ))}
               </tbody>
             </table>
           )}
@@ -248,29 +258,40 @@ export default function UserManagement() {
         </p>
       </div>
       {isAddUserOpen && <AddUsers onClose={() => setIsAddUserOpen(false)} />}
-      {isEditUserOpen && selectedUser && (
-        <EditUser
-          onClose={() => setIsEditUserOpen(false)}
-          Id={editUserId}
-          firstName={selectedUser.firstName}
-          lastName={selectedUser.lastName}
-          middleName={selectedUser.middleName}
-          username={selectedUser.username}
-          email={selectedUser.email}
-          phoneNumber={selectedUser.phoneNumber}
-          position={selectedUser.userRole}
+      {
+        isEditUserOpen && selectedUser && (
+          <EditUser
+            onClose={() => setIsEditUserOpen(false)}
+            Id={selectedUserId}
+            firstName={selectedUser.firstName}
+            lastName={selectedUser.lastName}
+            middleName={selectedUser.middleName}
+            username={selectedUser.username}
+            email={selectedUser.email}
+            phoneNumber={selectedUser.phoneNumber}
+            position={selectedUser.userRole}
+          />
+        )
+      }
+      {
+        isArchiveModalOpen && (
+          <PopUpModal
+            title="Archive User"
+            label="archive"
+            noun="user"
+            destination="archive"
+            onHandleCancleAction={cancelArchiveUser}
+            onHandleConfirmAction={confirmArchiveUser}
+          />
+        )
+      }
+      {selectedUser && isViewCredentialsOpen && (
+        <ViewUserCredentials
+          user={selectedUser}
+          isOpen={isViewCredentialsOpen}
+          onClose={() => setIsViewCredentialsOpen(false)}
         />
       )}
-      {isArchiveModalOpen && (
-        <PopUpModal
-          title="Archive User"
-          label="archive"
-          noun="user"
-          destination="archive"
-          onHandleCancleAction={cancelArchiveUser}
-          onHandleConfirmAction={confirmArchiveUser}
-        />
-      )}
-    </div>
+    </div >
   );
 }
