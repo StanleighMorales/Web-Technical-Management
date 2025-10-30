@@ -65,13 +65,12 @@ export default function EditProfileModal({ initialValues, onClose, onSubmit }: E
             position: values.position ?? ""
         }
         try {
-            mutate({ formData: PatchUserProps }, {
+            mutate({ id: values.id ?? "", formData: PatchUserProps }, {
                 onSuccess: () => {
                     onSubmit?.(values);
                     setIsSubmitting(true);
                     setSuccessMessage("Profile updated.");
                     setTimeout(onClose, 900);
-                    window.location.reload();
                 },
                 onError: (err) => {
                     const message = err instanceof Error ? err.message : "Failed to update profile.";
