@@ -46,7 +46,7 @@ export default function UserTable({
     onMutate(id)
   }
 
-  const handleEditTeacher = (id: string) => {
+  const handleEditUser = (id: string) => {
     onSetEditUserId(id);
     onSetIsEditUserOpen(true);
   }
@@ -105,7 +105,7 @@ export default function UserTable({
         )}
         <button
           className="mr-2 text-blue-500 text-2xl hover:text-blue-700 transition-colors"
-          onClick={() => handleEditTeacher(id)}
+          onClick={() => handleEditUser(id)}
           title="Edit user"
         >
           <CiEdit />
