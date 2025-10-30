@@ -7,6 +7,7 @@ import SearchBar from "./SearchBar";
 import type { TStudent, TTeacher } from "../types/types";
 import { useQuery } from "@tanstack/react-query";
 import { useAllStudentsQuery } from "../query/get/useAllStudentsQuery";
+import { useAllTeachersQuery } from "../query/get/useAllTeachersQuery";
 import { useArchiveStudentMutation } from "../query/delete/useArchiveStudentMutation";
 import { useArchiveTeacherMutation } from "../query/delete/useArchiveTeacherMutation";
 import StudentTable from "./StudentTable";
@@ -14,7 +15,6 @@ import TeacherTable from "./TeacherTable";
 import ViewStudentCredentials from "./ViewStudentCredentials";
 import ViewTeacherCredentials from "./ViewTeacherCredentials";
 import { FaChalkboardTeacher, FaGraduationCap } from "react-icons/fa";
-import { useAllTeachersQuery } from "../query/get/useAllTeachersQuery";
 import PopUpModal from "./PopUpModal";
 
 export default function RegistrationModule() {
@@ -74,34 +74,34 @@ export default function RegistrationModule() {
 
   const filteredStudents = useMemo(() => {
     let filtered = students;
-
     // Filter by search term
     if (searchUser) {
-      filtered = filtered.filter(
-        (student) =>
-          student.firstName.toLowerCase().includes(searchUser.toLowerCase()) ||
-          student.lastName.toLowerCase().includes(searchUser.toLowerCase()) ||
-          student.course.toLowerCase().includes(searchUser.toLowerCase()),
-      );
+      if (selectedRole === "Student") {
+        filtered = filtered.filter(
+          (student) =>
+            student.firstName.toLowerCase().includes(searchUser.toLowerCase()) ||
+            student.lastName.toLowerCase().includes(searchUser.toLowerCase())
+        );
+      }
     }
-
     return filtered;
-  }, [students, searchUser]);
+  }, [students, searchUser, selectedRole]);
 
   const filteredTeachers = useMemo(() => {
     let filtered = teachers;
 
     // Filter by search term
     if (searchUser) {
-      filtered = filtered.filter(
-        (teacher) =>
-          teacher.firstName.toLowerCase().includes(searchUser.toLowerCase()) ||
-          teacher.lastName.toLowerCase().includes(searchUser.toLowerCase()),
-      );
+      if (selectedRole === "Teacher") {
+        filtered = filtered.filter(
+          (teacher) =>
+            teacher.firstName.toLowerCase().includes(searchUser.toLowerCase()) ||
+            teacher.lastName.toLowerCase().includes(searchUser.toLowerCase())
+        );
+      }
     }
-
     return filtered;
-  }, [teachers, searchUser]);
+  }, [teachers, searchUser, selectedRole]);
 
   // const handleAddTeacher = () => {
   //     setIsAddTeacherOpen(true);
@@ -182,21 +182,19 @@ export default function RegistrationModule() {
               </span>
               <button
                 onClick={() => setSelectedRole("Teacher")}
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-150 ${
-                  selectedRole === "Teacher"
-                    ? "bg-[#1827f9] text-white shadow-md"
-                    : "bg-[#f1f5f9] text-[#64748b] hover:bg-[#e2e8f0]"
-                }`}
+                className={`px-4 py-2 rounded-lg font-medium transition-all duration-150 ${selectedRole === "Teacher"
+                  ? "bg-[#1827f9] text-white shadow-md"
+                  : "bg-[#f1f5f9] text-[#64748b] hover:bg-[#e2e8f0]"
+                  }`}
               >
                 Teachers
               </button>
               <button
                 onClick={() => setSelectedRole("Student")}
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-150 ${
-                  selectedRole === "Student"
-                    ? "bg-[#ed3a3a] text-white shadow-md"
-                    : "bg-[#f1f5f9] text-[#64748b] hover:bg-[#e2e8f0]"
-                }`}
+                className={`px-4 py-2 rounded-lg font-medium transition-all duration-150 ${selectedRole === "Student"
+                  ? "bg-[#ed3a3a] text-white shadow-md"
+                  : "bg-[#f1f5f9] text-[#64748b] hover:bg-[#e2e8f0]"
+                  }`}
               >
                 Students
               </button>
@@ -251,11 +249,11 @@ export default function RegistrationModule() {
                 (
                 {selectedRole === "Student"
                   ? filteredStudents.filter(
-                      (student) => student.userRole === "Student",
-                    ).length
+                    (student) => student.userRole === "Student",
+                  ).length
                   : filteredTeachers.filter(
-                      (teacher) => teacher.userRole === "Teacher",
-                    ).length}{" "}
+                    (teacher) => teacher.userRole === "Teacher",
+                  ).length}{" "}
                 {selectedRole === "Student"
                   ? filteredStudents.length === 1
                     ? "student"
