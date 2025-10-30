@@ -1,35 +1,48 @@
 import { useState } from "react";
 import { FiLock } from "react-icons/fi";
+import { usePatchUserPasswordMutation } from "../query/patch/usePatchUserPasswordMutation";
+import type { TUpdatePassword } from "../types/types";
 
 type ChangePasswordModalProps = {
+    id?: string;
     onClose: () => void;
-    onSubmit?: (currentPassword: string, newPassword: string) => Promise<void> | void;
 };
 
-export default function ChangePasswordModal({ onClose, onSubmit }: ChangePasswordModalProps) {
-    const [currentPassword, setCurrentPassword] = useState("");
+export default function ChangePasswordModal({ id, onClose }: ChangePasswordModalProps) {
+    const updateUserPassword = usePatchUserPasswordMutation();
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
 
-    const isValid = newPassword.length >= 8 && newPassword === confirmPassword && currentPassword.length > 0;
-
-    async function handleSubmit(e: React.FormEvent) {
+    const isValid = newPassword.length >= 8 && newPassword === confirmPassword;
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrorMessage("");
         setSuccessMessage("");
         if (!isValid) return;
+
         try {
+
+            const newUserPassword: TUpdatePassword = {
+                newPassword: newPassword,
+                confirmPassword: confirmPassword
+            }
+
             setIsSubmitting(true);
-            await onSubmit?.(currentPassword, newPassword);
-            setSuccessMessage("Password updated successfully.");
-            setCurrentPassword("");
-            setNewPassword("");
-            setConfirmPassword("");
-            // Optional: close automatically after short delay
-            // setTimeout(onClose, 900);
+            updateUserPassword.mutate({ id: id, formData: newUserPassword }, {
+                onSuccess: () => {
+                    setSuccessMessage("Password updated successfully.");
+                    setNewPassword("");
+                    setConfirmPassword("");
+                    setTimeout(onClose, 1000);
+                },
+                onError: (err) => {
+                    console.log(err.message);
+                    setIsSubmitting(false);
+                }
+            })
         } catch (err) {
             const message = err instanceof Error ? err.message : "Failed to update password.";
             setErrorMessage(message);
@@ -50,19 +63,6 @@ export default function ChangePasswordModal({ onClose, onSubmit }: ChangePasswor
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700">Current Password</label>
-                        <input
-                            type="password"
-                            className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                            value={currentPassword}
-                            onChange={(e) => setCurrentPassword(e.target.value)}
-                            placeholder="Enter current password"
-                            required
-                            autoFocus
-                        />
-                    </div>
-
                     <div>
                         <label className="block text-sm font-medium text-slate-700">New Password</label>
                         <input
@@ -121,5 +121,3 @@ export default function ChangePasswordModal({ onClose, onSubmit }: ChangePasswor
         </div>
     );
 }
-
-
