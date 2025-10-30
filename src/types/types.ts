@@ -50,21 +50,6 @@ export type TStudentFormData = {
   ProfilePicture?: string;
 };
 
-export type TUsers = {
-  id: string;
-  username: string;
-  lastName: string;
-  middleName: string;
-  firstName: string;
-  course?: string,
-  section?: string,
-  year?: string,
-  email: string;
-  phoneNumber: string;
-  userRole: string;
-  status: string;
-};
-
 export type TUpdateUsers = {
   id: string;
   firstName: string,
@@ -214,6 +199,20 @@ export type TTeacher = {
   createdAt?: string;
   updatedAt?: string;
 };
+export type TUsers = {
+  id: string;
+  username: string;
+  lastName: string;
+  middleName: string;
+  firstName: string;
+  email: string;
+  phoneNumber: string;
+  userRole: string;
+  status: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export type TUpdatedTeacher = {
   lastName: string,
   middleName: string,
@@ -263,3 +262,10 @@ export type TArchiveTeacher = {
   userRole: string;
   username: string;
 };
+
+export type TUpdatePassword = {
+  newPassword: string;
+  confirmPassword: string;
+}
+
+
