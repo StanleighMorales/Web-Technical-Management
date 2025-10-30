@@ -48,9 +48,6 @@ export default function Settings() {
     );
   }
 
-  function handlePasswordSubmit(currentPassword: string, newPassword: string) {
-    console.info("Password change submitted", { currentPasswordLength: currentPassword.length, newPasswordLength: newPassword.length });
-  }
   function handleProfileSubmit(values: {
     firstName?: string | null;
     lastName?: string | null;
@@ -251,8 +248,8 @@ export default function Settings() {
         </div>
         {showChangePassword && (
           <ChangePasswordModal
+            id={user?.id}
             onClose={() => setShowChangePassword(false)}
-            onSubmit={handlePasswordSubmit}
           />
         )}
         {showEditProfile && (
