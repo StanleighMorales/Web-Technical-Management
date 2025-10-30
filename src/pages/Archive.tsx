@@ -22,6 +22,7 @@ import ArchiveStudentTable from "../components/ArchiveStudentTable.tsx";
 import ArchiveStudentCredentialsPopup from "../components/ArchiveStudentCredentialsPopup.tsx";
 import ArchiveTeacherCredentialsPopup from "../components/ArchiveTeacherCredentialsPopup.tsx";
 import ArchiveItemDetailsPopup from "../components/ArchiveItemDetailsPopup.tsx";
+import { useDeleteUserMutation } from "../query/delete/useDeleteUsersMutation.ts";
 
 export default function Archive() {
   const [archiveItems, setArchiveItems] = useState<TArchiveItem[]>([]);
@@ -35,9 +36,10 @@ export default function Archive() {
 
   const { data, isPending, isError } = useQuery(useArchivesItemsQuery());
   const { data: usersData, isPending: isUsersPending, isError: isUsersError } = useQuery(useArchivesUsersQuery());
-  const restoreMutation = useRestoreItemMutation();
-  const { mutate } = useRestoreUserMutation();
+  const restoreItemMutation = useRestoreItemMutation();
   const deleteMutation = useDeleteItemMutation();
+  const restoreUserMutation = useRestoreUserMutation();
+  const deleteUserMutation = useDeleteUserMutation();
   const [isRestoreConfirmOpen, setIsRestoreConfirmOpen] = useState(false);
   const [restoreSelectedItemId, setRestoreSelectedItemId] = useState<string | null>(null);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
@@ -174,7 +176,7 @@ export default function Archive() {
 
   const handleConfirmRestoreItem = () => {
     if (!restoreSelectedItemId) return
-    restoreMutation.mutate(restoreSelectedItemId, {
+    restoreItemMutation.mutate(restoreSelectedItemId, {
       onSuccess: () => {
         setIsRestoreConfirmOpen(false)
         setRestoreSelectedItemId(null)
@@ -214,7 +216,7 @@ export default function Archive() {
 
   const handleConfirmRestoreUser = () => {
     if (!userRestoreSelectedId) return
-    mutate(userRestoreSelectedId, {
+    restoreUserMutation.mutateAsync(userRestoreSelectedId, {
       onSuccess: () => {
         setIsUserRestoreConfirmOpen(false)
         setUserRestoreSelectedId(null)
@@ -234,7 +236,7 @@ export default function Archive() {
 
   const handleConfirmDeleteUser = () => {
     if (!userDeleteSelectedId) return
-    deleteMutation.mutate(userDeleteSelectedId, {
+    deleteUserMutation.mutateAsync(userDeleteSelectedId, {
       onSuccess: () => {
         setIsUserDeleteConfirmOpen(false)
         setUserDeleteSelectedId(null)
@@ -415,18 +417,6 @@ export default function Archive() {
                         Name
                       </th>
                       <th className="bg-[#f8fafc]font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
-                        Type
-                      </th>
-                      <th className="bg-[#f8fafc]font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
-                        Model
-                      </th>
-                      <th className="bg-[#f8fafc]font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
-                        Make
-                      </th>
-                      <th className="bg-[#f8fafc]font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
-                        Description
-                      </th>
-                      <th className="bg-[#f8fafc]font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
                         Category
                       </th>
                       <th className="bg-[#f8fafc]font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
@@ -478,7 +468,7 @@ export default function Archive() {
                             archivedAt={item.archivedAt}
                             itemName={item.itemName}
                             serialNumber={item.serialNumber}
-                            image={item.image}
+                            image={item.image || null}
                             itemType={item.itemType}
                             itemModel={item.itemModel}
                             itemMake={item.itemMake}
@@ -489,7 +479,7 @@ export default function Archive() {
                             onView={handleViewItem}
                             onRestore={handleRestoreItem}
                             onDelete={handleDelete}
-                            isRestoring={restoreMutation.isPending}
+                            isRestoring={restoreItemMutation.isPending}
                             isDeleting={deleteMutation.isPending}
                           />
                         </tr>
@@ -680,7 +670,7 @@ export default function Archive() {
                             onDelete={() => handleDeleteUser(user.id)}
                             onRestore={() => handleRestoreUser(user.id)}
                             onView={handleViewTeacher}
-                            isRestoring={restoreMutation.isPending}
+                            isRestoring={restoreUserMutation.isPending}
                             isDeleting={deleteMutation.isPending}
                           />
                         </tr>
@@ -755,7 +745,7 @@ export default function Archive() {
                             onDelete={() => handleDeleteUser(user.id)}
                             onRestore={() => handleRestoreUser(user.id)}
                             onView={handleViewStudent}
-                            isRestoring={restoreMutation.isPending}
+                            isRestoring={restoreUserMutation.isPending}
                             isDeleting={deleteMutation.isPending}
                           />
                         </tr>
