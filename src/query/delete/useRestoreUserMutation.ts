@@ -3,7 +3,8 @@ import { getToken } from "../../utils/token";
 
 const restoreUser = async (id: string) => {
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const END_POINT = "/api/ArchiveUsers/restore";
+  const VERSION = "v1";
+  const END_POINT = `/api/${VERSION}/archiveusers/restore`;
 
   const res = await fetch(`${BASE_URL}${END_POINT}/${id}`, {
     method: "DELETE",
