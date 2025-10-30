@@ -1,10 +1,20 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../../auth/useAuth";
-import { removeToken } from "../token";
+import { getToken, removeToken } from "../token";
 import logo from "../../assets/img/aclcLogo.webp"
 
 interface RouteProps {
   children: React.ReactNode;
+}
+
+export const PublicRoute = ({ children }: RouteProps) => {
+  const token = getToken()
+
+  if (token) {
+    return <Navigate to="/home/dashboard" replace />;
+  }
+
+  return <>{children}</>;
 }
 
 export const ProtectedRoute = ({ children }: RouteProps) => {
