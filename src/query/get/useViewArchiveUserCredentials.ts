@@ -5,7 +5,8 @@ import { getToken } from "../../utils/token";
 const viewArchivesUsersCredential = async (id: string) => {
     try {
         const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-        const END_POINT = "/api/ArchiveUsers";
+        const VERSION = "v1";
+        const END_POINT = `/api/${VERSION}/archiveusers`;
 
         const res = await fetch(`${BASE_URL}${END_POINT}/${id}`, {
             method: "GET",
