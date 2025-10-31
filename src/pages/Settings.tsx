@@ -60,7 +60,7 @@ export default function Settings() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-slate-50 to-slate-100">
+    <div className="min-h-screen w-full bg-linear-to-b from-slate-50 to-slate-100">
       <div className="px-6 md:px-10 py-10 w-full mx-auto max-w-7xl">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">Settings</h1>
@@ -68,7 +68,7 @@ export default function Settings() {
         </div>
 
         <div className="relative rounded-2xl border border-white/60 bg-white/70 backdrop-blur shadow-xl overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 px-8 py-7">
+          <div className="bg-linear-to-r from-blue-600 via-blue-700 to-indigo-700 px-8 py-7">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
               <div className="flex items-center gap-4">
                 <div className="relative">
