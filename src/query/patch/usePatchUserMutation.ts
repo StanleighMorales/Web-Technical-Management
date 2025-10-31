@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getToken } from "../../utils/token";
 
 type PathUserCredentials = {
@@ -12,12 +12,14 @@ type PathUserCredentials = {
 }
 
 type PatchUserProps = {
+  id: string;
   formData: PathUserCredentials
 }
 
-const PatchUser = async ({ formData }: PatchUserProps) => {
+const PatchUser = async ({ id, formData }: PatchUserProps) => {
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const END_POINT = "/api/v1/users/profile/admin-or-staff";
+  const VERSION = "v1";
+  const END_POINT = `/api/${VERSION}/users/admin-or-staff/profile`;
 
   const token = getToken();
   if (!token) {
@@ -26,7 +28,7 @@ const PatchUser = async ({ formData }: PatchUserProps) => {
 
   const updatedUser = JSON.stringify(formData);
 
-  const res = await fetch(`${BASE_URL}${END_POINT}`, {
+  const res = await fetch(`${BASE_URL}${END_POINT}/${id}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -71,8 +73,12 @@ const PatchUser = async ({ formData }: PatchUserProps) => {
 }
 
 export const usePatchUserMutation = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ["admin-or-staff"],
-    mutationFn: PatchUser
+    mutationFn: PatchUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["me"] })
+    }
   })
 }
