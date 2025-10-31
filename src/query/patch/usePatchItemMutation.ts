@@ -20,7 +20,8 @@ type PatchItemProps = {
 
 const PatchItem = async ({ id, formData }: PatchItemProps) => {
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const END_POINT = "/api/v1/items";
+  const VERSION = "v1";
+  const END_POINT = `/api/${VERSION}/items`;
 
   const body = new FormData();
   body.append("ItemMake", formData.itemMake);
@@ -58,8 +59,8 @@ export const usePatchItemMutation = () => {
   return useMutation({
     mutationKey: ["items"],
     mutationFn: PatchItem,
-    onSuccess: ()=> {
-      queryClient.invalidateQueries({queryKey: ["Item"]})
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["Item"] })
     }
   });
 };
