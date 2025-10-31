@@ -3,7 +3,7 @@ import logo from "../assets/img/aclcLogo.webp";
 import { CiLogout, CiSettings, CiUser } from "react-icons/ci";
 import { GiArchiveRegister } from "react-icons/gi";
 import { GrStorage } from "react-icons/gr";
-import { MdHistory, MdInventory, MdDashboardCustomize, MdOutlineAppRegistration } from "react-icons/md";
+import { MdHistory, MdInventory, MdDashboardCustomize, MdAppRegistration } from "react-icons/md";
 import { useState, useEffect } from "react";
 import SidebarSkeletonLoader from "../loader/SidebarSkeletonLoader";
 import { usePostLogoutUserMutation } from "../query/post/usePostLogoutUserMutation";
@@ -22,7 +22,7 @@ export default function Sidebar() {
     { label: "Your History", link: "history-list", icon: MdHistory },
     { label: "Borrow Items", link: "borrow-item", icon: GrStorage },
     { label: "Your Settings", link: "settings", icon: CiSettings },
-    { label: "Registration Module", link: "registration-module", icon: MdOutlineAppRegistration }
+    { label: "Registration Module", link: "registration-module", icon: MdAppRegistration },
   ];
 
   useEffect(() => {
