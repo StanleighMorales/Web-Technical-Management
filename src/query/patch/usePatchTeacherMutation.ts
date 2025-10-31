@@ -9,10 +9,11 @@ type TeacherPatchProps = {
 const TeacherPatch = async ({ id, formData }: TeacherPatchProps) => {
   try {
     const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    const END_POINT = "/api/v1/users/teachers/profile";
+    const VERSION = "v1";
+    const END_POINT = `/api/${VERSION}/users/teachers/profile`;
 
     const updateTeacher = JSON.stringify(formData);
-    const res = await fetch(`${BASE_URL}${END_POINT}${id}`, {
+    const res = await fetch(`${BASE_URL}${END_POINT}/${id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
