@@ -5,7 +5,8 @@ const LoginUser = async (formData: TLoginUser) => {
 
   try {
     const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    const END_POINT = "/api/v1/auth/login";
+    const VERSION = "v1";
+    const END_POINT = `/api/${VERSION}/auth/login`;
 
     const userFormData = JSON.stringify(formData)
     const res = await fetch(`${BASE_URL}${END_POINT}`, {
