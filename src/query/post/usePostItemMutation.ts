@@ -15,7 +15,8 @@ type ItemData = {
 
 const PostItem = async (formData: ItemData) => {
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const END_POINT = "/api/v1/items";
+  const VERSION = "v1";
+  const END_POINT = `/api/${VERSION}/items`;
 
   const body = new FormData();
   body.append("SerialNumber", formData.serialNumber);
