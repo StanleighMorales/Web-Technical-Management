@@ -28,7 +28,8 @@ export default function InventoryList() {
       items.filter((item) => {
         const matchesSearch =
           item.itemName.toLowerCase().includes(searchItem.toLowerCase()) ||
-          item.category.toLowerCase().includes(searchItem.toLowerCase());
+          item.category.toLowerCase().includes(searchItem.toLowerCase()) ||
+          item.serialNumber.toLowerCase().includes(searchItem.toLowerCase());
 
         const matchesCategory =
           selectedCategory === "" || item.category === selectedCategory;
