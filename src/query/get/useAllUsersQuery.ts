@@ -22,7 +22,7 @@ const AllStaffs = async () => {
 
 export const useAllUsersQuery = () => {
   return queryOptions({
-    queryKey: ["staffs"],
+    queryKey: ["users"],
     queryFn: AllStaffs,
   });
 };
