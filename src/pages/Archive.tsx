@@ -283,7 +283,7 @@ export default function Archive() {
           onClick={onHandleDeleteUser}
           // disabled={isDeleting}
           title="Delete user"
-          className="text-red-600 text-2xl cursor-pointer mr-2"
+          className="mr-2 text-2xl text-red-600 cursor-pointer"
         >
           <FaTrash />
         </button>
@@ -292,7 +292,7 @@ export default function Archive() {
           onClick={onHandleRestoreUser}
           // disabled={isRestoring}
           title="Restore user"
-          className="text-orange-300 text-2xl cursor-pointer"
+          className="text-2xl text-orange-300 cursor-pointer"
         >
           <FaTrashRestore />
         </button>
@@ -302,12 +302,12 @@ export default function Archive() {
 
 
   return (
-    <div className="animate-fadeIn archive-list-container min-h-screen w-full bg-gradient-to-br from-[#f8fafc] via-[#e0e7ef] to-[#c7d2fe] flex flex-col">
-      <header className="archive-header pt-8 px-8 pb-8 bg-white/80 shadow-md flex flex-col items-center z-50">
-        <h1 className="text-[#1e293b] text-5xl mb-2 font-extrabold tracking-tight drop-shadow-lg">
+    <div className="flex flex-col w-full min-h-screen bg-gradient-to-br animate-fadeIn archive-list-container from-[#f8fafc] via-[#e0e7ef] to-[#c7d2fe]">
+      <header className="flex z-50 flex-col items-center px-8 pt-8 pb-8 shadow-md archive-header bg-white/80">
+        <h1 className="mb-2 text-5xl font-extrabold tracking-tight text-[#1e293b] drop-shadow-lg">
           Archived {activeFilter === "items" ? "Items" : activeFilter === "users" ? "Users" : activeFilter === "teachers" ? "Teachers" : "Students"}
         </h1>
-        <p className="text-[#64748b] text-lg font-medium max-w-2xl text-center mb-6">
+        <p className="mb-6 max-w-2xl text-lg font-medium text-center text-[#64748b]">
           Manage archived {activeFilter === "items" ? "items" : activeFilter === "users" ? "users" : activeFilter === "teachers" ? "teachers" : "students"} and restore them if needed. View all previously archived {activeFilter === "items" ? "assets" : activeFilter === "users" ? "accounts" : activeFilter === "teachers" ? "teacher accounts" : "student accounts"}.
         </p>
       </header>
@@ -374,11 +374,11 @@ export default function Archive() {
         </div>
       )}
 
-      <div className="h-full overflow-auto mt-8">
+      <div className="overflow-auto mt-8 h-full">
         {/* Archived Items/Users Table */}
         <section className="px-8">
-          <div className="bg-white/90 h-[55vh] py-4 px-4 rounded-3xl shadow-md border border-[#e0e7ef] overflow-x-auto">
-            <section className="mb-4 flex justify-between">
+          <div className="overflow-x-auto py-4 px-4 rounded-3xl border shadow-md bg-white/90 h-[55vh] border-[#e0e7ef]">
+            <section className="flex justify-between mb-4">
               <div className=""></div>
               <div className="flex flex-row gap-2">
                 {/* Pagination Component */}
@@ -399,36 +399,36 @@ export default function Archive() {
                 />
               </div>
             </section>
-            <div className="h-[40vh] overflow-x-auto rounded-md shadow-inner bg-white/95">
+            <div className="overflow-x-auto rounded-md shadow-inner h-[40vh] bg-white/95">
               {/* Check if the response from the QUERY is error cause for internet connection etc, will return a ERROR TABLE COMPONENTS */}
               {isError || isUsersError ? (
                 <ErrorTable />
               ) : activeFilter === "items" ? (
-                <table className="w-full border-collapse text-left">
+                <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="sticky -top-4 bg-[#f8fafc]">
-                      <th className="bg-[#f8fafc]font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 border-b bg-[#f8fafc]font-semibold border-[#e6e6e6] text-[#2563eb]">
                         Serial Num
                       </th>
-                      <th className="bg-[#f8fafc]font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 border-b bg-[#f8fafc]font-semibold border-[#e6e6e6] text-[#2563eb]">
                         Image
                       </th>
-                      <th className="bg-[#f8fafc]font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 border-b bg-[#f8fafc]font-semibold border-[#e6e6e6] text-[#2563eb]">
                         Name
                       </th>
-                      <th className="bg-[#f8fafc]font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 border-b bg-[#f8fafc]font-semibold border-[#e6e6e6] text-[#2563eb]">
                         Category
                       </th>
-                      <th className="bg-[#f8fafc]font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 border-b bg-[#f8fafc]font-semibold border-[#e6e6e6] text-[#2563eb]">
                         Condition
                       </th>
-                      <th className="bg-[#f8fafc]font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 border-b bg-[#f8fafc]font-semibold border-[#e6e6e6] text-[#2563eb]">
                         Bar Code
                       </th>
-                      <th className="bg-[#f8fafc]font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 border-b bg-[#f8fafc]font-semibold border-[#e6e6e6] text-[#2563eb]">
                         DateTime
                       </th>
-                      <th className="bg-[#f8fafc]font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 border-b bg-[#f8fafc]font-semibold border-[#e6e6e6] text-[#2563eb]">
                         Action
                       </th>
                     </tr>
@@ -439,16 +439,16 @@ export default function Archive() {
                       <tr>
                         <td
                           colSpan={12}
-                          className="text-center py-10 text-red-400 font-semibold text-xl"
+                          className="py-10 text-xl font-semibold text-center text-red-400"
                         >
                           {archiveItems.length === 0
-                            ? <div className="flex items-center justify-center h-full">
+                            ? <div className="flex justify-center items-center h-full">
                               <div className="text-center">
-                                {/* <div className="text-6xl mb-4 text-[#64748b]">👥</div> */}
-                                <h3 className="mt-14 text-2xl font-semibold text-[#1e293b] mb-2">
+                                {/* <div className="mb-4 text-6xl text-[#64748b]">👥</div> */}
+                                <h3 className="mt-14 mb-2 text-2xl font-semibold text-[#1e293b]">
                                   No Archived Items
                                 </h3>
-                                <p className="text-[#64748b] text-lg max-w-md">
+                                <p className="max-w-md text-lg text-[#64748b]">
                                   Currently, there are no archived items in the system. When items are archived, they will appear here.
                                 </p>
                               </div>
@@ -461,7 +461,7 @@ export default function Archive() {
                       paginatedItems.map((item) => (
                         <tr
                           key={item.id}
-                          className="hover:bg-[#f1f5f9] transition-colors odd:bg-white even:bg-[#f8fafc] cursor-pointer"
+                          className="transition-colors cursor-pointer odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9]"
                         >
                           <ArchiveItemTable
                             id={item.id}
@@ -489,31 +489,31 @@ export default function Archive() {
                 </table>
               ) : activeFilter === "users" ? (
                 // Users table
-                <table className="w-full border-collapse text-left">
+                <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="sticky -top-4 bg-[#f8fafc]">
-                      <th className="bg-[#f8fafc] font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                         ID
                       </th>
-                      <th className="bg-[#f8fafc] font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                         Full Name
                       </th>
-                      <th className="bg-[#f8fafc] font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                         Username
                       </th>
-                      <th className="bg-[#f8fafc] font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                         Email
                       </th>
-                      <th className="bg-[#f8fafc] font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                         Phone
                       </th>
-                      <th className="bg-[#f8fafc] font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                         Role
                       </th>
-                      <th className="bg-[#f8fafc] font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                         Status
                       </th>
-                      <th className="bg-[#f8fafc] font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                         Action
                       </th>
                     </tr>
@@ -524,7 +524,7 @@ export default function Archive() {
                       <tr>
                         <td
                           colSpan={8}
-                          className="text-center py-10 text-red-400 font-semibold text-xl"
+                          className="py-10 text-xl font-semibold text-center text-red-400"
                         >
                           {(() => {
                             // Check if there are any users matching the current filter
@@ -541,15 +541,15 @@ export default function Archive() {
 
                             if (!hasMatchingUsers) {
                               return (
-                                <div className="flex items-center justify-center h-full">
+                                <div className="flex justify-center items-center h-full">
                                   <div className="text-center">
-                                    <div className="w-full flex justify-center text-6xl mb-4 text-[#64748b]">
+                                    <div className="flex justify-center mb-4 w-full text-6xl text-[#64748b]">
                                       <FaUser />
                                     </div>
-                                    <h3 className="mt-14 text-2xl font-semibold text-[#1e293b] mb-2">
+                                    <h3 className="mt-14 mb-2 text-2xl font-semibold text-[#1e293b]">
                                       No Archived {activeFilter === "users" ? "Users" : activeFilter === "teachers" ? "Teachers" : "Students"}
                                     </h3>
-                                    <p className="text-[#64748b] text-lg max-w-md">
+                                    <p className="max-w-md text-lg text-[#64748b]">
                                       Currently, there are no archived {activeFilter === "users" ? "Admin and Staff users" : activeFilter === "teachers" ? "teachers" : "students"} in the system. When {activeFilter === "users" ? "Admin and Staff users" : activeFilter === "teachers" ? "teachers" : "students"} are archived, they will appear here.
                                     </p>
                                   </div>
@@ -565,24 +565,24 @@ export default function Archive() {
                       paginatedUsers.map((user: TUsers) => (
                         <tr
                           key={user.id}
-                          className="hover:bg-[#f1f5f9] transition-colors odd:bg-white even:bg-[#f8fafc] cursor-pointer"
+                          className="transition-colors cursor-pointer odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9]"
                         >
-                          <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
+                          <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
                             {user.id}
                           </td>
-                          <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
+                          <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
                             {user.firstName} {user.middleName} {user.lastName}
                           </td>
-                          <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
+                          <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
                             {user.username}
                           </td>
-                          <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
+                          <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
                             {user.email}
                           </td>
-                          <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
+                          <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
                             {user.phoneNumber}
                           </td>
-                          <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
+                          <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
                             <span className={`px-2 py-1 rounded-full text-xs font-semibold ${user.userRole === 'admin'
                               ? 'bg-red-100 text-red-800'
                               : user.userRole === 'staff'
@@ -594,7 +594,7 @@ export default function Archive() {
                               {user.userRole}
                             </span>
                           </td>
-                          <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
+                          <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
                             <span className={`px-2 py-1 rounded-full text-xs font-semibold ${user.status === 'active'
                               ? 'bg-green-100 text-green-800'
                               : 'bg-red-100 text-red-800'
@@ -602,7 +602,7 @@ export default function Archive() {
                               {user.status}
                             </span>
                           </td>
-                          <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
+                          <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
                             <ShowButtonIfUserAdmin onHandleRestoreUser={() => handleRestoreUser(user.id)} onHandleDeleteUser={() => handleDeleteUser(user.id)} />
                           </td>
                         </tr>
@@ -613,25 +613,25 @@ export default function Archive() {
                 </table>
               ) : activeFilter === "teachers" ? (
                 // Teachers table
-                <table className="w-full border-collapse text-left">
+                <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="sticky -top-4 bg-[#f8fafc]">
-                      <th className="bg-[#f8fafc] font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                         ID
                       </th>
-                      <th className="bg-[#f8fafc] font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                         Full Name
                       </th>
-                      <th className="bg-[#f8fafc] font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                         Username
                       </th>
-                      <th className="bg-[#f8fafc] font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                         Role
                       </th>
-                      <th className="bg-[#f8fafc] font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                         Status
                       </th>
-                      <th className="bg-[#f8fafc] font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                         Action
                       </th>
                     </tr>
@@ -640,16 +640,16 @@ export default function Archive() {
                     {/* Check if the paginated data is equal to ZERO  */}
                     {paginatedUsers.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="text-center py-10 text-red-400 font-semibold text-xl">
-                          <div className="flex items-center justify-center h-full">
+                        <td colSpan={6} className="py-10 text-xl font-semibold text-center text-red-400">
+                          <div className="flex justify-center items-center h-full">
                             <div className="text-center">
-                              <div className="w-full flex justify-center text-6xl mb-4 text-[#64748b]">
+                              <div className="flex justify-center mb-4 w-full text-6xl text-[#64748b]">
                                 <FaUser />
                               </div>
-                              <h3 className="mt-14 text-2xl font-semibold text-[#1e293b] mb-2">
+                              <h3 className="mt-14 mb-2 text-2xl font-semibold text-[#1e293b]">
                                 No Archived Teachers
                               </h3>
-                              <p className="text-[#64748b] text-lg max-w-md">
+                              <p className="max-w-md text-lg text-[#64748b]">
                                 Currently, there are no archived teachers in the system. When teachers are archived, they will appear here.
                               </p>
                             </div>
@@ -658,7 +658,7 @@ export default function Archive() {
                       </tr>
                     ) : (
                       paginatedUsers.map((user: TUsers) => (
-                        <tr key={user.id} className="hover:bg-[#f1f5f9] transition-colors odd:bg-white even:bg-[#f8fafc] cursor-pointer">
+                        <tr key={user.id} className="transition-colors cursor-pointer odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9]">
                           <ArchiveTeacherTable
                             id={user.id}
                             firstName={user.firstName}
@@ -680,32 +680,32 @@ export default function Archive() {
                 </table>
               ) : (
                 // Students table
-                <table className="w-full border-collapse text-left">
+                <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="sticky -top-4 bg-[#f8fafc]">
-                      <th className="bg-[#f8fafc] font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                         Student ID
                       </th>
-                      <th className="bg-[#f8fafc] font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                         Full Name
                       </th>
-                      <th className="bg-[#f8fafc] font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                         Course
                       </th>
-                      <th className="bg-[#f8fafc] font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                         Section
                       </th>
-                      <th className="bg-[#f8fafc] font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                         Year
                       </th>
 
-                      <th className="bg-[#f8fafc] font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                         Role
                       </th>
-                      <th className="bg-[#f8fafc] font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                         Status
                       </th>
-                      <th className="bg-[#f8fafc] font-semibold py-4 px-4 border-b border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                         Action
                       </th>
                     </tr>
@@ -713,16 +713,16 @@ export default function Archive() {
                   <tbody>
                     {paginatedUsers.length === 0 ? (
                       <tr>
-                        <td colSpan={8} className="text-center py-10 text-red-400 font-semibold text-xl">
-                          <div className="flex items-center justify-center h-full">
+                        <td colSpan={8} className="py-10 text-xl font-semibold text-center text-red-400">
+                          <div className="flex justify-center items-center h-full">
                             <div className="text-center">
-                              <div className="w-full flex justify-center text-6xl mb-4 text-[#64748b]">
+                              <div className="flex justify-center mb-4 w-full text-6xl text-[#64748b]">
                                 <FaUser />
                               </div>
-                              <h3 className="mt-14 text-2xl font-semibold text-[#1e293b] mb-2">
+                              <h3 className="mt-14 mb-2 text-2xl font-semibold text-[#1e293b]">
                                 No Archived Students
                               </h3>
-                              <p className="text-[#64748b] text-lg max-w-md">
+                              <p className="max-w-md text-lg text-[#64748b]">
                                 Currently, there are no archived students in the system. When students are archived, they will appear here.
                               </p>
                             </div>
@@ -731,16 +731,13 @@ export default function Archive() {
                       </tr>
                     ) : (
                       paginatedUsers.map((user: TUsers) => (
-                        <tr key={user.id} className="hover:bg-[#f1f5f9] transition-colors odd:bg-white even:bg-[#f8fafc] cursor-pointer">
+                        <tr key={user.id} className="transition-colors cursor-pointer odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9]">
                           <ArchiveStudentTable
                             id={user.id}
                             firstName={user.firstName}
                             middleName={user.middleName}
                             lastName={user.lastName}
                             userRole={user.userRole}
-                            course={user.course}
-                            section={user.section}
-                            year={user.year}
                             status={user.status}
                             onDelete={() => handleDeleteUser(user.id)}
                             onRestore={() => handleRestoreUser(user.id)}
