@@ -122,9 +122,9 @@ export default function Dashboard() {
   if (isLoading) return <DashboardSkeletonLoader />;
 
   return (
-    <div className="animate-fadeIn min-h-screen w-full bg-gradient-to-br from-[#f8fafc] via-[#e0e7ef] to-[#c7d2fe] flex flex-col items-center py-10 px-2">
+    <div className="flex flex-col items-center py-10 px-2 w-full min-h-screen animate-fadeIn bg-linear-to-br from-[#f8fafc] via-[#e0e7ef] to-[#c7d2fe]">
       {/* Stats Badges */}
-      <div className="w-full max-w-7xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+      <div className="grid grid-cols-1 gap-8 mb-8 w-full max-w-7xl sm:grid-cols-2 lg:grid-cols-4">
         {badges.map((item, index) => (
           <div key={index}>
             <DashboardBadges
@@ -137,12 +137,12 @@ export default function Dashboard() {
       </div>
 
       {/* Table Borrowed Section */}
-      <div className="w-full max-w-7xl bg-white/90 shadow-md rounded-2xl p-8 border border-[#e0e7ef]">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
-          <h1 className="font-bold text-[#1e293b] text-2xl -mt-10">
+      <div className="p-8 w-full max-w-7xl rounded-2xl border shadow-md bg-white/90 border-[#e0e7ef]">
+        <div className="flex flex-col gap-4 mb-4 md:flex-row md:justify-between md:items-center">
+          <h1 className="-mt-10 text-2xl font-bold max-sm:-mt-1 text-[#1e293b]">
             Recently Borrowed Items
           </h1>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4">
+          <div className="flex flex-col sm:flex-row sm:gap-4 sm:items-center">
             {totalPages > 1 && (
               // Pagination Component
               <Pagination
@@ -159,29 +159,29 @@ export default function Dashboard() {
             />
           </div>
         </div>
-        <div className="h-[55vh] overflow-x-auto rounded-xl shadow-inner bg-white/95">
+        <div className="overflow-x-auto rounded-xl shadow-inner h-[55vh] bg-white/95">
           {isError ? (
             <ErrorTable />
           ) : (
-            <table className="relative w-full border-collapse text-left">
+            <table className="relative w-full text-left border-collapse">
               <thead>
                 <tr>
-                  <th className="bg-[#f8fafc] sticky top-0 font-semibold py-4 px-6 border-b border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 py-4 px-6 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                     Date & Time
                   </th>
-                  <th className="bg-[#f8fafc] sticky top-0 font-semibold py-4 px-6 border-b border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 py-4 px-6 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                     Teacher
                   </th>
-                  <th className="bg-[#f8fafc] sticky top-0 font-semibold py-4 px-6 border-b border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 py-4 px-6 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                     Room
                   </th>
-                  <th className="bg-[#f8fafc] sticky top-0 font-semibold py-4 px-6 border-b border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 py-4 px-6 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                     Item
                   </th>
-                  <th className="bg-[#f8fafc] sticky top-0 font-semibold py-4 px-6 border-b border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 py-4 px-6 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                     Occupied By
                   </th>
-                  <th className="bg-[#f8fafc] sticky top-0 font-semibold py-4 px-6 border-b border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 py-4 px-6 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
                     Remarks
                   </th>
                 </tr>
@@ -190,7 +190,7 @@ export default function Dashboard() {
                 {paginatedData.map((item) => (
                   <tr
                     key={item.id}
-                    className="hover:bg-[#f1f5f9] transition-colors odd:bg-white even:bg-[#f8fafc]"
+                    className="transition-colors odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9]"
                   >
                     {/* Borrowers Table Component */}
                     <RecentBorrowedItemsTable
