@@ -11,10 +11,10 @@ export default function DashboardBadges({ name, link, data }: BadgesProps) {
     <Link
       key={name}
       to={link}
-      className="flex flex-col bg-white/90 shadow-md rounded-2xl p-8 items-center justify-center hover:scale-105 hover:shadow-2xl transition-all duration-200 border border-[#e0e7ef]"
+      className="flex flex-col justify-center items-center p-8 rounded-2xl border shadow-md transition-all duration-200 hover:shadow-2xl hover:scale-105 bg-white/90 border-[#e0e7ef]"
     >
-      <h2 className="font-semibold text-lg text-[#64748b] mb-2">{name}</h2>
-      <p className="text-4xl font-bold text-[#2563eb]">{data}</p>
+      <h2 className="mb-2 text-lg font-semibold text-[#64748b]">{name}</h2>
+      <p className="text-4xl font-bold text-[#2563eb]">{data || 0}</p>
     </Link>
   );
 }
