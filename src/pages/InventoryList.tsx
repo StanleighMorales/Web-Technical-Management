@@ -89,21 +89,21 @@ export default function InventoryList() {
   }
 
   return (
-    <div className="animate-fadeIn inventory-list-container min-h-svh w-full bg-gradient-to-br from-[#f8fafc] via-[#e8eef7] to-[#dbeafe] flex flex-col antialiased">
-      <header className="inventory-header sticky top-0 pt-8 px-8 pb-6 bg-white/70 backdrop-blur-md shadow-sm border-b border-[#e5e9f2] flex flex-col items-center z-50">
-        <h1 className="text-[#1e293b] text-5xl mb-2 font-extrabold tracking-tight drop-shadow-lg">
+    <div className="flex flex-col w-full antialiased bg-linear-to-br animate-fadeIn inventory-list-container min-h-svh from-[#f8fafc] via-[#e8eef7] to-[#dbeafe]">
+      <header className="flex sticky top-0 z-40 flex-col items-center px-8 pt-8 pb-6 border-b shadow-sm inventory-header bg-white/70 backdrop-blur-md border-[#e5e9f2]">
+        <h1 className="mb-2 text-5xl font-extrabold tracking-tight text-[#1e293b] drop-shadow-lg">
           Inventory List
         </h1>
-        <p className="text-[#64748b] text-base md:text-lg font-medium max-w-2xl text-center">
+        <p className="max-w-2xl text-base font-medium text-center md:text-lg text-[#64748b]">
           Overview of assets and availability. Track counts by category, staff
           status, and items currently borrowed.
         </p>
       </header>
 
-      <div className="h-full overflow-auto">
+      <div className="overflow-auto h-full">
         {/* Inventory Stats */}
-        <section className="scrollbar-none mx-auto w-full px-8 py-6">
-          <div className="inline-flex gap-3 overflow-x-auto w-full pb-2">
+        <section className="py-6 px-8 mx-auto w-full scrollbar-none">
+          <div className="inline-flex overflow-x-auto gap-3 pb-2 w-full">
             {Array.from(new Set(items.map((item) => item.category))).map(
               (category) => {
                 const itemsInCategory = items.filter(
@@ -125,8 +125,8 @@ export default function InventoryList() {
 
         {/* Inventory Items Table */}
         <section className="px-8">
-          <div className="bg-white/90 h-[60vh] p-4 rounded-2xl shadow-xl ring-1 ring-[#e0e7ef]/80 overflow-x-auto">
-            <section className="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="overflow-x-auto p-4 rounded-2xl ring-1 shadow-xl bg-white/90 h-[60vh] ring-[#e0e7ef]/80">
+            <section className="flex flex-col gap-3 justify-between mb-4 md:flex-row md:items-center">
               <div>
                 <Button
                   onClick={() => setIsAddItemFormOpen(true)}
@@ -152,33 +152,33 @@ export default function InventoryList() {
                 />
               </div>
             </section>
-            <div className="h-[46vh] overflow-x-auto rounded-lg shadow-inner bg-white/95">
+            <div className="overflow-x-auto rounded-lg shadow-inner h-[46vh] bg-white/95">
               {/* Check if the response from the QUERY is error cause for internet connection etc, will return a ERROR TABLE COMPONENTS */}
               {isError ? (
                 <ErrorTable />
               ) : (
-                <table className="w-full border-collapse text-left">
+                <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="sticky top-0 bg-white/90 backdrop-blur-sm">
-                      <th className="bg-transparent font-semibold py-3 px-4 border-b border-[#e6e6e6] text-[#0f172a] text-xs uppercase tracking-wider">
+                      <th className="py-3 px-4 text-xs font-semibold tracking-wider uppercase bg-transparent border-b border-[#e6e6e6] text-[#0f172a]">
                         Serial Num
                       </th>
-                      <th className="bg-transparent font-semibold py-3 px-4 border-b border-[#e6e6e6] text-[#0f172a] text-xs uppercase tracking-wider">
+                      <th className="py-3 px-4 text-xs font-semibold tracking-wider uppercase bg-transparent border-b border-[#e6e6e6] text-[#0f172a]">
                         Image
                       </th>
-                      <th className="bg-transparent font-semibold py-3 px-4 border-b border-[#e6e6e6] text-[#0f172a] text-xs uppercase tracking-wider">
+                      <th className="py-3 px-4 text-xs font-semibold tracking-wider uppercase bg-transparent border-b border-[#e6e6e6] text-[#0f172a]">
                         Name
                       </th>
-                      <th className="bg-transparent font-semibold py-3 px-4 border-b border-[#e6e6e6] text-[#0f172a] text-xs uppercase tracking-wider">
+                      <th className="py-3 px-4 text-xs font-semibold tracking-wider uppercase bg-transparent border-b border-[#e6e6e6] text-[#0f172a]">
                         Category
                       </th>
-                      <th className="bg-transparent font-semibold py-3 px-4 border-b border-[#e6e6e6] text-[#0f172a] text-xs uppercase tracking-wider">
+                      <th className="py-3 px-4 text-xs font-semibold tracking-wider uppercase bg-transparent border-b border-[#e6e6e6] text-[#0f172a]">
                         Condition
                       </th>
-                      <th className="bg-transparent font-semibold py-3 px-4 border-b border-[#e6e6e6] text-[#0f172a] text-xs uppercase tracking-wider">
+                      <th className="py-3 px-4 text-xs font-semibold tracking-wider uppercase bg-transparent border-b border-[#e6e6e6] text-[#0f172a]">
                         DateTime
                       </th>
-                      <th className="bg-transparent font-semibold py-3 px-4 border-b border-[#e6e6e6] text-[#0f172a] text-xs uppercase tracking-wider">
+                      <th className="py-3 px-4 text-xs font-semibold tracking-wider uppercase bg-transparent border-b border-[#e6e6e6] text-[#0f172a]">
                         Action
                       </th>
                     </tr>
@@ -190,7 +190,7 @@ export default function InventoryList() {
                       paginatedData.map((item) => (
                         <tr
                           key={item.serialNumber}
-                          className="hover:bg-[#f8fafc] transition-colors odd:bg-white even:bg-[#f9fbff] cursor-pointer"
+                          className="transition-colors cursor-pointer odd:bg-white even:bg-[#f9fbff] hover:bg-[#f8fafc]"
                         >
                           <InventoryTable
                             id={item.id}
@@ -210,13 +210,13 @@ export default function InventoryList() {
                 </table>
               )}
               {paginatedData.length == 0 && (
-                <div className="w-full mt-16 flex items-center justify-center">
-                  <div className="text-center max-w-md">
-                    <div className="text-5xl mb-3 text-[#94a3b8]">📦</div>
-                    <h3 className="text-2xl font-semibold text-[#0f172a] mb-2">
+                <div className="flex justify-center items-center mt-16 w-full">
+                  <div className="max-w-md text-center">
+                    <div className="mb-3 text-5xl text-[#94a3b8]">📦</div>
+                    <h3 className="mb-2 text-2xl font-semibold text-[#0f172a]">
                       No items found
                     </h3>
-                    <p className="text-[#64748b] text-base">
+                    <p className="text-base text-[#64748b]">
                       Try adjusting your search or filters. New items will appear here once created.
                     </p>
                   </div>
