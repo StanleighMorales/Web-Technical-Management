@@ -11,7 +11,8 @@ import { usePostLogoutUserMutation } from "../query/post/usePostLogoutUserMutati
 
 export default function Sidebar() {
   const navigate = useNavigate()
-  const [isSidebarLoading, setIsSidebarLoading] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+  const [isSidebarLoading, setIsSidebarLoading] = useState<boolean>(true);
   const { mutate, isPending } = usePostLogoutUserMutation()
 
   const sideBarList = [
@@ -25,6 +26,12 @@ export default function Sidebar() {
     { label: "Registration Module", link: "registration-module", icon: MdAppRegistration },
   ];
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsSidebarLoading(false);
@@ -45,59 +52,151 @@ export default function Sidebar() {
   if (isSidebarLoading) {
     return <SidebarSkeletonLoader />;
   }
-
   return (
-    <aside className="group animate-fadeIn h-screen w-[75px] hover:w-[270px] transition-all duration-300 bg-white border-r border-[#e5e7eb] flex flex-col justify-between shadow-xl left-0 top-0 z-30">
-      {/* Logo and Title */}
-      <div className="flex flex-col items-center py-8">
-        <img
-          src={logo}
-          alt="Logo"
-          className="w-12 h-12 mb-2 transition-all duration-300 group-hover:w-20 group-hover:h-20"
-        />
-        <span className="text-[#2563eb] font-extrabold text-xl tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          ACLC
-        </span>
+    <>
+      {/* Desktop Sidebar (visible lg and above only) */}
+      <aside className="hidden top-0 left-0 z-30 flex-col justify-between h-screen bg-white border-r shadow-xl transition-all duration-300 lg:flex group animate-fadeIn w-[75px] border-[#e5e7eb] hover:w-[270px]">
+        {/* Logo */}
+        <div className="flex flex-col items-center py-8">
+          <img
+            src={logo}
+            alt="Logo"
+            className="mb-2 w-12 h-12 transition-all duration-300 group-hover:w-20 group-hover:h-20"
+          />
+          <span className="text-xl font-extrabold tracking-widest opacity-0 transition-opacity duration-300 group-hover:opacity-100 text-[#2563eb]">
+            ACLC
+          </span>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1">
+          <ul className="flex flex-col gap-2 px-2">
+            {sideBarList.map((item) => (
+              <li key={item.label}>
+                <NavLink
+                  to={item.link}
+                  className={({ isActive }) =>
+                    `flex items-center outline-0 gap-2.5 px-3 py-3 rounded-lg font-medium text-base transition-all duration-150 ${isActive
+                      ? "bg-blue-600 text-white shadow"
+                      : "text-gray-500 hover:bg-[#f1f5f9] hover:text-[#2563eb]"
+                    }`
+                  }
+                >
+                  <item.icon className="text-2xl min-w-[30px]" />
+                  <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    {item.label}
+                  </span>
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {/* Logout */}
+        <footer className="py-2 px-2 border-t border-gray-200">
+          <button
+            type="button"
+            onClick={logoutUser}
+            className="flex gap-3 items-center py-3 px-3 w-full text-base font-medium rounded-lg transition-all duration-150 outline-0 text-[#ef4444] hover:bg-[#fee2e2] hover:text-[#b91c1c]"
+            disabled={isPending}
+          >
+            <CiLogout className="text-2xl shrink-0 min-w-6" />
+            <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+              Logout
+            </span>
+          </button>
+        </footer>
+      </aside>
+
+      {/* Mobile Menu Toggle Button (visible below lg) */}
+      <div className="fixed top-4 left-4 z-50 lg:hidden">
+        <button
+          onClick={toggleMobileMenu}
+          className="p-3 rounded-xl border shadow-lg transition-all duration-300 hover:shadow-xl backdrop-blur-xl bg-white/10 border-white/20 hover:bg-white/20"
+          aria-label="Toggle mobile menu"
+        >
+          <svg
+            className="w-6 h-6 text-black"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            {isMobileMenuOpen ? (
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            ) : (
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            )}
+          </svg>
+        </button>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1">
-        <ul className="flex flex-col gap-2 px-2">
-          {sideBarList.map((item) => (
-            <li key={item.label}>
-              <NavLink
-                to={item.link}
-                className={({ isActive }) =>
-                  `flex items-center outline-0 gap-2.5 px-3 py-3 rounded-lg font-medium text-base transition-all duration-150 ${isActive
-                    ? "bg-blue-600 text-white shadow"
-                    : "text-gray-500 hover:bg-[#f1f5f9] hover:text-[#2563eb]"
-                  }`
-                }
-              >
-                <item.icon className="text-2xl min-w-[30px] group-hover:min-w-[25px] group-hover:text-2xl" />
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
-                  {item.label}
-                </span>
-              </NavLink>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-40 lg:hidden bg-black/70 backdrop-blur-md"
+          onClick={closeMobileMenu}
+        />
+      )}
 
-      {/* Logout */}
-      <footer className="px-2 py-2 border-t border-gray-200">
-        <button
-          type="button"
-          onClick={logoutUser}
-          className="w-full flex items-center outline-0 gap-3 px-3 py-3 rounded-lg font-medium text-base text-[#ef4444] hover:bg-[#fee2e2] hover:text-[#b91c1c] transition-all duration-150"
-          disabled={isPending}
-        >
-          <CiLogout className="text-2xl min-w-[24px] flex-shrink-0" />
-          <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
-            Logout
-          </span>
-        </button>
-      </footer>
-    </aside>
+      {/* Mobile Sidebar Drawer */}
+      {isMobileMenuOpen && (
+        <div className="flex fixed inset-y-0 left-0 z-50 flex-col w-64 bg-white shadow-lg lg:hidden animate-slideIn">
+          {/* Logo */}
+          <div className="flex gap-2 items-center py-4 px-4 border-b">
+            <img src={logo} alt="Logo" className="w-10 h-10" />
+            <span className="text-lg font-bold text-[#2563eb]">ACLC</span>
+          </div>
+
+          {/* Navigation */}
+          <nav className="overflow-y-auto flex-1">
+            <ul className="flex flex-col gap-2 py-4 px-2">
+              {sideBarList.map((item) => (
+                <li key={item.label}>
+                  <NavLink
+                    to={item.link}
+                    onClick={closeMobileMenu}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-base transition-all duration-150 ${isActive
+                        ? "bg-blue-600 text-white shadow"
+                        : "text-gray-600 hover:bg-[#f1f5f9] hover:text-[#2563eb]"
+                      }`
+                    }
+                  >
+                    <item.icon className="text-xl min-w-[24px]" />
+                    <span>{item.label}</span>
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {/* Logout */}
+          <footer className="py-3 px-4 border-t">
+            <button
+              type="button"
+              onClick={() => {
+                logoutUser();
+                closeMobileMenu();
+              }}
+              className="flex gap-3 items-center w-full text-base font-medium rounded-lg transition-all duration-150 text-[#ef4444] hover:bg-[#fee2e2] hover:text-[#b91c1c]"
+              disabled={isPending}
+            >
+              <CiLogout className="text-xl" />
+              <span>Logout</span>
+            </button>
+          </footer>
+        </div>
+      )}
+    </>
   );
 }
