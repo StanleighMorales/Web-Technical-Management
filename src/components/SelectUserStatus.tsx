@@ -24,10 +24,10 @@ export const SelectUserStatus = ({
   };
 
   return (
-    <div className="flex flex-row items-center justify-center px-2 py-0 -mt-6 ">
+    <div className="flex flex-row justify-center items-center py-0 px-2">
       <select
         id="status-select"
-        className="bg-gradient-to-r text-gray-600 border border-gray-300 font-bold px-2 py-3 rounded-md outline-none focus:ring-2 focus:ring-[#2563eb] transition-all duration-200 cursor-pointer text-lg"
+        className="py-3 px-2 text-lg font-bold text-gray-600 bg-gradient-to-r rounded-md border border-gray-300 transition-all duration-200 cursor-pointer outline-none focus:ring-2 focus:ring-[#2563eb]"
         value={selectedStatus}
         onChange={handleChange}
       >
