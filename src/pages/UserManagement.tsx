@@ -66,17 +66,8 @@ export default function UserManagement() {
     [searchUser, selectedStatus, selectedRole, users],
   );
 
-  const handleViewUserCredential = () => {
-    setIsArchiveModalOpen(true)
-  }
-
   const { data, isPending, isError } = useQuery(useAllUsersQuery());
   const { mutate } = useArchiveUserMutation();
-
-  const handleArchiveUser = (userId: string) => {
-    setArchiveUserId(userId);
-    setIsArchiveModalOpen(true);
-  };
 
   const confirmArchiveUser = () => {
     mutate(archiveUserId);
@@ -100,38 +91,38 @@ export default function UserManagement() {
   }
 
   return (
-    <div className="animate-fadeIn min-h-screen w-full bg-gradient-to-br from-[#eef2ff] via-[#e2e8f0] to-[#c7d2fe] flex flex-col items-center py-10 px-2">
-      <div className="w-full max-w-[2000px] bg-white/80 backdrop-blur-md shadow-xl rounded-3xl p-6 md:p-10 relative ring-1 ring-black/5">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-8 gap-4">
+    <div className="flex flex-col items-center py-10 px-2 w-full min-h-screen bg-linear-to-br animate-fadeIn from-[#eef2ff] via-[#e2e8f0] to-[#c7d2fe]">
+      <div className="relative p-6 w-full rounded-3xl ring-1 shadow-xl md:p-10 max-w-[2000px] bg-white/80 backdrop-blur-md ring-black/5">
+        <div className="flex flex-col gap-4 mb-8 md:flex-row md:justify-between md:items-end">
           <div>
-            <h1 className="text-3xl md:text-4xl font-extrabold text-[#0f172a] mb-2 tracking-tight">
+            <h1 className="mb-2 text-3xl font-extrabold tracking-tight md:text-4xl text-[#0f172a]">
               User Management
             </h1>
             <p className="text-sm md:text-base text-[#475569]">
               Manage staff, search users, and update statuses with ease.
             </p>
           </div>
-          <div className="flex items-center gap-2 text-[#475569]">
-            <span className="inline-flex items-center gap-2 rounded-full bg-[#eef2ff] px-3 py-1 text-sm font-medium text-[#3730a3]">
-              <span className="h-2 w-2 rounded-full bg-[#22c55e]"></span>
+          <div className="flex gap-2 items-center text-[#475569]">
+            <span className="inline-flex gap-2 items-center py-1 px-3 text-sm font-medium rounded-full bg-[#eef2ff] text-[#3730a3]">
+              <span className="w-2 h-2 rounded-full bg-[#22c55e]"></span>
               {users.length} total users
             </span>
             <span className="hidden md:inline text-[#94a3b8]">|</span>
-            <span className="hidden md:inline text-sm text-[#64748b]">
+            <span className="hidden text-sm md:inline text-[#64748b]">
               {filteredUser.length} shown
             </span>
           </div>
         </div>
-        <section className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 mb-6">
+        <section className="flex flex-col gap-3 mb-6 md:flex-row md:gap-4 md:justify-between md:items-center">
           <div className="order-2 md:order-1">
             <Button onClick={() => setIsAddUserOpen(true)} name={"New User"} />
           </div>
-          <div className="order-1 md:order-2 flex w-full md:w-auto flex-col sm:flex-row sm:items-center gap-2">
+          <div className="flex flex-col order-1 gap-2 w-full sm:flex-row sm:items-center md:order-2 md:w-auto">
             {/* Role Filter Buttons */}
-            <div className="-mt-5 flex flex-row gap-2">
+            <div className="flex flex-row gap-2 -mt-5">
               <button
                 onClick={() => setSelectedRole("all")}
-                className={` px-6 py-3.5 rounded-md font-medium transition-all duration-200 ${selectedRole === "all"
+                className={` px-6 py-3.5 max-sm:px-4 max-sm:py-3 rounded-md font-medium transition-all duration-200 ${selectedRole === "all"
                   ? " bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white shadow-md"
                   : "bg-white text-[#64748b] border border-[#e5e7eb] hover:bg-[#f8fafc] hover:border-[#d1d5db]"
                   }`}
@@ -140,7 +131,7 @@ export default function UserManagement() {
               </button>
               <button
                 onClick={() => setSelectedRole("admin")}
-                className={` px-6 py-3.5 rounded-md font-medium transition-all duration-200 ${selectedRole === "admin"
+                className={` px-6 py-3.5 max-sm:px-4 max-sm:py-3 rounded-md font-medium transition-all duration-200 ${selectedRole === "admin"
                   ? " bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white shadow-md"
                   : "bg-white text-[#64748b] border border-[#e5e7eb] hover:bg-[#f8fafc] hover:border-[#d1d5db]"
                   }`}
@@ -149,17 +140,17 @@ export default function UserManagement() {
               </button>
               <button
                 onClick={() => setSelectedRole("staff")}
-                className={` px-6 py-3.5 rounded-md font-medium transition-all duration-200 ${selectedRole === "staff"
+                className={` px-6 py-3.5 max-sm:px-4 lg:-mr-12 max-sm:mr-10 max-sm:py-3 rounded-md font-medium transition-all duration-200 ${selectedRole === "staff"
                   ? " bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white shadow-md"
                   : "bg-white text-[#64748b] border border-[#e5e7eb] hover:bg-[#f8fafc] hover:border-[#d1d5db]"
                   }`}
               >
                 Staff
               </button>
-            </div>
-            {/* Select Component */}
-            <div className="sm:min-w-[200px] -mr-12">
-              <SelectUserStatus onChangeStatus={setSelectedStatus} />
+              {/* Select Component */}
+              <div className="-mr-12 sm:min-w-[200px]">
+                <SelectUserStatus onChangeStatus={setSelectedStatus} />
+              </div>
             </div>
             {/* Search Bar Component */}
             <div className="flex-1">
@@ -173,47 +164,47 @@ export default function UserManagement() {
         </section>
 
         {/* User Table / Empty State */}
-        <div className="h-[60vh] overflow-x-auto rounded-2xl shadow-lg bg-white/95 border border-[#e5e7eb]">
+        <div className="overflow-x-auto rounded-2xl border shadow-lg h-[60vh] bg-white/95 border-[#e5e7eb]">
           {isError ? (
             <ErrorTable />
           ) : filteredUser.length === 0 ? (
-            <div className="h-full w-full flex flex-col items-center justify-center text-center p-8">
-              <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#eef2ff] text-[#3730a3]">
+            <div className="flex flex-col justify-center items-center p-8 w-full h-full text-center">
+              <div className="inline-flex justify-center items-center mb-3 w-12 h-12 rounded-full bg-[#eef2ff] text-[#3730a3]">
                 {/* magnifier icon substitute */}
                 <span className="text-xl">🔎</span>
               </div>
-              <p className="text-[#0f172a] font-semibold">No users found</p>
-              <p className="text-[#64748b] text-sm max-w-md">
+              <p className="font-semibold text-[#0f172a]">No users found</p>
+              <p className="max-w-md text-sm text-[#64748b]">
                 Try adjusting your filters or search query. You can also add a
                 new user.
               </p>
             </div>
           ) : (
-            <table className="w-full border-collapse text-left">
+            <table className="w-full text-left border-collapse">
               <thead>
                 <tr>
-                  <th className="bg-[#f8fafc]/90 backdrop-blur sticky top-0 z-10 font-semibold py-3 md:py-4 px-4 md:px-6 border-b border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur border-[#e6e6e6] text-[#2563eb]">
                     ID
                   </th>
-                  <th className="bg-[#f8fafc]/90 backdrop-blur sticky top-0 z-10 font-semibold py-3 md:py-4 px-4 md:px-6 border-b border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur border-[#e6e6e6] text-[#2563eb]">
                     Firstname
                   </th>
-                  <th className="bg-[#f8fafc]/90 backdrop-blur sticky top-0 z-10 font-semibold py-3 md:py-4 px-4 md:px-6 border-b border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur border-[#e6e6e6] text-[#2563eb]">
                     Lastname
                   </th>
-                  <th className="bg-[#f8fafc]/90 backdrop-blur sticky top-0 z-10 font-semibold py-3 md:py-4 px-4 md:px-6 border-b border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur border-[#e6e6e6] text-[#2563eb]">
                     Username
                   </th>
-                  <th className="bg-[#f8fafc]/90 backdrop-blur sticky top-0 z-10 font-semibold py-3 md:py-4 px-4 md:px-6 border-b border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur border-[#e6e6e6] text-[#2563eb]">
                     Email
                   </th>
-                  <th className="bg-[#f8fafc]/90 backdrop-blur sticky top-0 z-10 font-semibold py-3 md:py-4 px-4 md:px-6 border-b border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur border-[#e6e6e6] text-[#2563eb]">
                     Role
                   </th>
-                  <th className="bg-[#f8fafc]/90 backdrop-blur sticky top-0 z-10 font-semibold py-3 md:py-4 px-4 md:px-6 border-b border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur border-[#e6e6e6] text-[#2563eb]">
                     Status
                   </th>
-                  <th className="bg-[#f8fafc]/90 backdrop-blur sticky top-0 z-10 font-semibold py-3 md:py-4 px-4 md:px-6 border-b border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur border-[#e6e6e6] text-[#2563eb]">
                     Action
                   </th>
                 </tr>
@@ -223,27 +214,27 @@ export default function UserManagement() {
                   .filter((user) => user.userRole === "Admin" || user.userRole === "Staff")
                   .map((user) => (
                     <tr key={user.id}>
-                    <UserTable
-                      key={user.id}
-                      id={user.id}
-                      firstName={user.firstName}
-                      lastName={user.lastName}
-                      username={user.username}
-                      email={user.email}
-                      userRole={user.userRole}
-                      status={user.status}
-                      onSetEditUserId={(userId) => {
-                        setSelectedUserId(userId);
-                        setIsEditUserOpen(true);
-                      }}
-                      onSetIsEditUserOpen={setIsEditUserOpen}
-                      onSetViewUserId={(userId) => setSelectedUserId(userId)}
-                      onSetIsViewUserOpen={setIsViewCredentialsOpen}
-                      onMutate={(userId) => {
-                        setArchiveUserId(userId);
-                        setIsArchiveModalOpen(true);
-                      }}
-                    />
+                      <UserTable
+                        key={user.id}
+                        id={user.id}
+                        firstName={user.firstName}
+                        lastName={user.lastName}
+                        username={user.username}
+                        email={user.email}
+                        userRole={user.userRole}
+                        status={user.status}
+                        onSetEditUserId={(userId) => {
+                          setSelectedUserId(userId);
+                          setIsEditUserOpen(true);
+                        }}
+                        onSetIsEditUserOpen={setIsEditUserOpen}
+                        onSetViewUserId={(userId) => setSelectedUserId(userId)}
+                        onSetIsViewUserOpen={setIsViewCredentialsOpen}
+                        onMutate={(userId) => {
+                          setArchiveUserId(userId);
+                          setIsArchiveModalOpen(true);
+                        }}
+                      />
                     </tr>
                   ))}
               </tbody>
@@ -252,7 +243,7 @@ export default function UserManagement() {
         </div>
 
         {/* Description */}
-        <p className="mt-6 text-[#64748b] text-sm text-center">
+        <p className="mt-6 text-sm text-center text-[#64748b]">
           <span className="font-semibold">Tip:</span> Use role filters, status
           filters, and search to quickly locate users.
         </p>
