@@ -184,9 +184,6 @@ export default function UserManagement() {
               <thead>
                 <tr>
                   <th className="sticky top-0 z-10 py-3 px-4 font-semibold border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur border-[#e6e6e6] text-[#2563eb]">
-                    ID
-                  </th>
-                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur border-[#e6e6e6] text-[#2563eb]">
                     Firstname
                   </th>
                   <th className="sticky top-0 z-10 py-3 px-4 font-semibold border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur border-[#e6e6e6] text-[#2563eb]">
