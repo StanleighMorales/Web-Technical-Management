@@ -6,7 +6,7 @@ const ArchiveItem = async (id: string) => {
   const VERSION = "v1";
   const END_POINT = `/api/${VERSION}/items/archive`;
 
-  const res = await fetch(`${BASE_URL}${END_POINT}${id}`, {
+  const res = await fetch(`${BASE_URL}${END_POINT}/${id}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${getToken()}`,
