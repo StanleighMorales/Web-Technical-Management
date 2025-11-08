@@ -5,7 +5,7 @@ import { IoArchive } from "react-icons/io5";
 import logo from "../assets/img/aclcLogo.webp";
 import { FormattedDateTime } from "./FormatedDateTime";
 import { SlugCondition } from "./SlugCondition";
-import { MdOutlineGridView } from "react-icons/md";
+import { MdVisibility } from "react-icons/md";
 import { UserData } from "../utils/usersData/userData";
 import PopUpModal from "./PopUpModal";
 
@@ -62,7 +62,7 @@ export default function InventoryTable({
       <button
         onClick={onHandleArchiveItem}
         title="Archive item"
-        className="text-orange-600 text-2xl cursor-pointer hover:text-orange-700 transition-colors"
+        className="text-2xl text-orange-600 transition-colors cursor-pointer hover:text-orange-700"
       >
         <IoArchive />
       </button>
@@ -89,13 +89,13 @@ export default function InventoryTable({
         </span>
       </td>
       <td className="py-3 px-4">{FormattedDateTime(createdAt)}</td>
-      <td className="py-3 px-4 flex flex-row ">
+      <td className="flex flex-row py-3 px-4">
         <Link
           to={`/item/${id}`}
           title="View more"
-          className="mr-2 text-blue-500 text-2xl"
+          className="mr-2 text-2xl text-green-500"
         >
-          <MdOutlineGridView />
+          <MdVisibility />
         </Link>
         <ShowButtonIfUserAdmin
           userRole={userRole}
