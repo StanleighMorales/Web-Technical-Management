@@ -1,6 +1,6 @@
 export default function SidebarSkeletonLoader() {
   return (
-    <aside className="flex top-0 left-0 z-30 flex-col justify-between h-screen bg-white border-r shadow-xl md:hidden animate-fadeIn max-sm:hidden w-[75px] border-[#e5e7eb]">
+    <aside className="hidden top-0 left-0 z-30 flex-col justify-between h-screen bg-white border-r shadow-xl lg:flex animate-fadeIn w-[75px] border-[#e5e7eb]">
       {/* Logo and Title Skeleton */}
       <div className="flex flex-col items-center py-8">
         {/* Logo skeleton */}
