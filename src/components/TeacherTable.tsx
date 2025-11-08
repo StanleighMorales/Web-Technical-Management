@@ -89,7 +89,6 @@ export default function TeacherTable({
   
   return (
     <>
-      <td className="py-3 px-6">{id}</td>
       <td className="py-3 px-6">{getFullName()}</td>
       <td className="py-3 px-6">{username}</td>
       <td className="py-3 px-6">{userRole}</td>
