@@ -381,10 +381,7 @@ export default function RegistrationModule() {
               <table className="w-full">
                 <thead className="bg-[#f8fafc]">
                   <tr>
-                    <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
-                      ID
-                    </th>
-                    <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
+                   <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
                       Full Name
                     </th>
                     <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
