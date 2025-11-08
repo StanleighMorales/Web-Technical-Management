@@ -103,7 +103,7 @@ export default function InventoryList() {
       <div className="overflow-auto h-full">
         {/* Inventory Stats */}
         <section className="py-6 px-8 mx-auto w-full scrollbar-none">
-          <div className="inline-flex overflow-x-auto gap-3 pb-2 w-full">
+          <div className="flex overflow-x-auto gap-3 pb-2 w-full scrollbar-none">
             {Array.from(new Set(items.map((item) => item.category))).map(
               (category) => {
                 const itemsInCategory = items.filter(
