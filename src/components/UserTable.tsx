@@ -72,7 +72,7 @@ export default function UserTable({
       <button
         onClick={onHandleArchiveUser}
         title="Archive item"
-        className="text-orange-600 text-2xl cursor-pointer hover:text-orange-700 transition-colors"
+        className="text-2xl text-orange-600 transition-colors cursor-pointer hover:text-orange-700"
       >
         <IoArchive />
       </button>
@@ -80,7 +80,6 @@ export default function UserTable({
   };
   return (
     <>
-      <td className="py-3 px-6">{id}</td>
       <td className="py-3 px-6">{firstName}</td>
       <td className="py-3 px-6">{lastName}</td>
       <td className="py-3 px-6">{username}</td>
@@ -93,10 +92,10 @@ export default function UserTable({
           {status}
         </span>
       </td>
-      <td className="py-3 px-6 flex flex-row">
+      <td className="flex flex-row py-3 px-6">
         {onSetViewUserId && onSetIsViewUserOpen && (
           <button
-            className="mr-2 text-green-500 text-2xl hover:text-green-700 transition-colors"
+            className="mr-2 text-2xl text-green-500 transition-colors hover:text-green-700"
             onClick={() => handleViewUser(id)}
             title="View user credentials"
           >
@@ -104,7 +103,7 @@ export default function UserTable({
           </button>
         )}
         <button
-          className="mr-2 text-blue-500 text-2xl hover:text-blue-700 transition-colors"
+          className="mr-2 text-2xl text-blue-500 transition-colors hover:text-blue-700"
           onClick={() => handleEditUser(id)}
           title="Edit user"
         >
