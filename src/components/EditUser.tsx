@@ -5,6 +5,16 @@ import { useAllUsersQuery } from "../query/get/useAllUsersQuery";
 import { useQuery } from "@tanstack/react-query";
 import { usePatchUserMutation } from "../query/patch/usePatchUserMutation";
 
+type PathUserCredentials = {
+  username: string,
+  email: string,
+  phoneNumber: string,
+  lastName: string,
+  middleName: string,
+  firstName: string,
+  position: string
+}
+
 type EditItemProps = {
   onClose(): void;
   Id: string;
@@ -54,7 +64,7 @@ export default function EditUser({ onClose, Id, firstName, lastName, middleName,
     if (name === "position") return setPositionError("");
   };
 
-  const PathUserProps = {
+  const PathUserProps: PathUserCredentials = {
     firstName: formData.firstName,
     lastName: formData.lastName,
     middleName: formData.middleName,
@@ -66,7 +76,7 @@ export default function EditUser({ onClose, Id, firstName, lastName, middleName,
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutate({ formData: PathUserProps }, {
+    mutate({ id: formData.id, formData: PathUserProps }, {
       onSuccess: () => {
         onClose();
       },
@@ -77,24 +87,24 @@ export default function EditUser({ onClose, Id, firstName, lastName, middleName,
   };
 
   return (
-    <div className="fixed animate-fadeIn inset-0 z-50 flex items-center justify-center bg-gray-900/60">
-      <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-3xl relative animate-fadeInUp">
+    <div className="flex fixed inset-0 z-50 justify-center items-center animate-fadeIn bg-gray-900/60">
+      <div className="relative p-8 w-full max-w-3xl bg-white rounded-3xl shadow-2xl animate-fadeInUp">
         <button
-          className="absolute top-4 right-4 text-2xl text-[#64748b] hover:text-[#2563eb] transition-colors"
+          className="absolute top-4 right-4 text-2xl transition-colors text-[#64748b] hover:text-[#2563eb]"
           aria-label="Close"
           onClick={onClose}
         >
           <CloseButton onClick={onClose} />
         </button>
-        <h2 className="text-3xl font-extrabold text-[#1e293b] mb-6 text-center tracking-tight">
+        <h2 className="mb-6 text-3xl font-extrabold tracking-tight text-center text-[#1e293b]">
           Edit User
         </h2>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col gap-4 md:flex-row">
             <div className="flex-1">
               <label
                 htmlFor="firstName"
-                className="block text-[#2563eb] font-semibold mb-1"
+                className="block mb-1 font-semibold text-[#2563eb]"
               >
                 First Name <span className="text-red-500">*</span>
               </label>
@@ -109,14 +119,14 @@ export default function EditUser({ onClose, Id, firstName, lastName, middleName,
                 placeholder="Enter first name"
               />
               {firstnameError && (
-                <p className="text-red-500 text-sm mt-1">{firstnameError}</p>
+                <p className="mt-1 text-sm text-red-500">{firstnameError}</p>
               )}
             </div>
 
             <div className="flex-1">
               <label
                 htmlFor="lastName"
-                className="block text-[#2563eb] font-semibold mb-1"
+                className="block mb-1 font-semibold text-[#2563eb]"
               >
                 Last Name <span className="text-red-500">*</span>
               </label>
@@ -131,14 +141,14 @@ export default function EditUser({ onClose, Id, firstName, lastName, middleName,
                 placeholder="Enter last name"
               />
               {lastnameError && (
-                <p className="text-red-500 text-sm mt-1">{lastnameError}</p>
+                <p className="mt-1 text-sm text-red-500">{lastnameError}</p>
               )}
             </div>
 
             <div className="flex-1">
               <label
                 htmlFor="middleName"
-                className="block text-[#2563eb] font-semibold mb-1"
+                className="block mb-1 font-semibold text-[#2563eb]"
               >
                 Middle Name <span className="text-gray-400/50">(Optional)</span>
               </label>
@@ -153,15 +163,15 @@ export default function EditUser({ onClose, Id, firstName, lastName, middleName,
                 placeholder="Enter middle name"
               />
               {middlenameError && (
-                <p className="text-red-500 text-sm mt-1">{middlenameError}</p>
+                <p className="mt-1 text-sm text-red-500">{middlenameError}</p>
               )}
             </div>
           </div>
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col gap-4 md:flex-row">
             <div className="flex-1">
               <label
                 htmlFor="username"
-                className="block text-[#2563eb] font-semibold mb-1"
+                className="block mb-1 font-semibold text-[#2563eb]"
               >
                 Username <span className="text-gray-400/50">(Optional)</span>
               </label>
@@ -176,14 +186,14 @@ export default function EditUser({ onClose, Id, firstName, lastName, middleName,
                 placeholder="Enter username"
               />
               {middlenameError && (
-                <p className="text-red-500 text-sm mt-1">{middlenameError}</p>
+                <p className="mt-1 text-sm text-red-500">{middlenameError}</p>
               )}
             </div>
 
             <div className="flex-1">
               <label
                 htmlFor="username"
-                className="block text-[#2563eb] font-semibold mb-1"
+                className="block mb-1 font-semibold text-[#2563eb]"
               >
                 Email <span className="text-gray-400/50">(Optional)</span>
               </label>
@@ -198,14 +208,14 @@ export default function EditUser({ onClose, Id, firstName, lastName, middleName,
                 placeholder="Enter Email"
               />
               {middlenameError && (
-                <p className="text-red-500 text-sm mt-1">{middlenameError}</p>
+                <p className="mt-1 text-sm text-red-500">{middlenameError}</p>
               )}
             </div>
 
             <div className="flex-1">
               <label
                 htmlFor="username"
-                className="block text-[#2563eb] font-semibold mb-1"
+                className="block mb-1 font-semibold text-[#2563eb]"
               >
                 Phone Number <span className="text-gray-400/50">(Optional)</span>
               </label>
@@ -220,17 +230,17 @@ export default function EditUser({ onClose, Id, firstName, lastName, middleName,
                 placeholder="9XXXXXXXXX"
               />
               {middlenameError && (
-                <p className="text-red-500 text-sm mt-1">{middlenameError}</p>
+                <p className="mt-1 text-sm text-red-500">{middlenameError}</p>
               )}
             </div>
 
           </div>
 
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col gap-4 md:flex-row">
             <div className="flex-1">
               <label
                 htmlFor="role"
-                className="block text-[#2563eb] font-semibold mb-1"
+                className="block mb-1 font-semibold text-[#2563eb]"
               >
                 Role <span className="text-red-500">*</span>
               </label>
@@ -247,7 +257,7 @@ export default function EditUser({ onClose, Id, firstName, lastName, middleName,
                 <option value="Staff">Staff</option>
               </select>
               {roleError && (
-                <p className="text-red-500 text-sm mt-1">{roleError}</p>
+                <p className="mt-1 text-sm text-red-500">{roleError}</p>
               )}
             </div>
           </div>
@@ -255,9 +265,9 @@ export default function EditUser({ onClose, Id, firstName, lastName, middleName,
           <div className="flex justify-center pt-2">
             <button
               type="submit"
-              className="px-8 py-3 bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white font-bold rounded-xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-150 cursor-pointer"
+              className="py-3 px-8 font-bold text-white bg-gradient-to-r rounded-xl shadow-lg transition-all duration-150 cursor-pointer hover:shadow-2xl hover:scale-105 from-[#2563eb] to-[#38bdf8]"
             >
-              Save User
+              Save Changes
             </button>
           </div>
         </form>
