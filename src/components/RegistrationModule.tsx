@@ -79,6 +79,7 @@ export default function RegistrationModule() {
       if (selectedRole === "Student") {
         filtered = filtered.filter(
           (student) =>
+            String(student.studentIdNumber || "").toLowerCase().includes(searchUser.toLowerCase()) ||
             student.firstName.toLowerCase().includes(searchUser.toLowerCase()) ||
             student.lastName.toLowerCase().includes(searchUser.toLowerCase())
         );
@@ -96,7 +97,8 @@ export default function RegistrationModule() {
         filtered = filtered.filter(
           (teacher) =>
             teacher.firstName.toLowerCase().includes(searchUser.toLowerCase()) ||
-            teacher.lastName.toLowerCase().includes(searchUser.toLowerCase())
+            teacher.lastName.toLowerCase().includes(searchUser.toLowerCase()) ||
+            String(teacher.department || "").toLowerCase().includes(searchUser.toLowerCase())
         );
       }
     }
@@ -148,14 +150,14 @@ export default function RegistrationModule() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-[#f8fafc] to-[#e2e8f0] p-6">
-      <div className="w-full max-w-8xl mx-auto">
+    <div className="p-6 w-full min-h-screen bg-gradient-to-br from-[#f8fafc] to-[#e2e8f0]">
+      <div className="mx-auto w-full max-w-8xl">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-[#1e293b] mb-2">
+          <h1 className="mb-2 text-4xl font-bold text-[#1e293b]">
             Registration Module
           </h1>
-          <p className="text-[#64748b] text-lg">
+          <p className="text-lg text-[#64748b]">
             Manage teachers and students registration
           </p>
         </div>
@@ -173,11 +175,11 @@ export default function RegistrationModule() {
                 </div> */}
 
         {/* Filters */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+        <div className="p-6 mb-6 bg-white rounded-2xl shadow-lg">
+          <div className="flex flex-col gap-4 items-start lg:flex-row lg:items-center">
             {/* Role Filter Buttons */}
-            <div className="flex flex-wrap gap-2">
-              <span className="text-[#64748b] font-semibold mr-2">
+            <div className="flex flex-col lg:flex-wrap gap-2">
+              <span className="mr-2 font-semibold text-[#64748b]">
                 Filter by Role:
               </span>
               <button
@@ -201,7 +203,7 @@ export default function RegistrationModule() {
             </div>
 
             {/* Search */}
-            <div className="flex flex-col sm:flex-row gap-4 ml-auto">
+            <div className="flex flex-col gap-4 ml-auto sm:flex-row">
               <SearchBar
                 onChangeValue={setSearchUser}
                 placeholder="Search by name"
@@ -211,10 +213,10 @@ export default function RegistrationModule() {
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-xl shadow-lg p-4">
+        <div className="grid grid-cols-1 gap-4 mb-6 md:grid-cols-4">
+          <div className="p-4 bg-white rounded-xl shadow-lg">
             <div className="flex items-center">
-              <div className="p-2 bg-[#059669]/10 rounded-lg">
+              <div className="p-2 rounded-lg bg-[#059669]/10">
                 <FaChalkboardTeacher className="text-2xl text-[#059669]" />
               </div>
               <div className="ml-3">
@@ -225,9 +227,9 @@ export default function RegistrationModule() {
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow-lg p-4">
+          <div className="p-4 bg-white rounded-xl shadow-lg">
             <div className="flex items-center">
-              <div className="p-2 bg-[#7c3aed]/10 rounded-lg">
+              <div className="p-2 rounded-lg bg-[#7c3aed]/10">
                 <FaGraduationCap className="text-2xl text-[#7c3aed]" />
               </div>
               <div className="ml-3">
@@ -241,11 +243,11 @@ export default function RegistrationModule() {
         </div>
 
         {/* Users/Students Table */}
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div className="overflow-hidden bg-white rounded-2xl shadow-lg">
           <div className="p-6 border-b border-[#e2e8f0]">
             <h2 className="text-2xl font-bold text-[#1e293b]">
               {selectedRole === "Student" ? "Students" : "Teachers"}
-              <span className="text-[#64748b] font-normal ml-2">
+              <span className="ml-2 font-normal text-[#64748b]">
                 (
                 {selectedRole === "Student"
                   ? filteredStudents.filter(
@@ -269,12 +271,12 @@ export default function RegistrationModule() {
           {selectedRole === "Student" ? (
             filteredStudents.length === 0 ? (
               <div className="p-12 text-center">
-                <div className="text-6xl text-[#cbd5e1] mb-4">
-                  <div className="flex items-center justify-center">
+                <div className="mb-4 text-6xl text-[#cbd5e1]">
+                  <div className="flex justify-center items-center">
                     <FaGraduationCap className="text-center" />
                   </div>
                 </div>
-                <h3 className="text-xl font-semibold text-[#64748b] mb-2">
+                <h3 className="mb-2 text-xl font-semibold text-[#64748b]">
                   No students found
                 </h3>
                 <p className="text-[#94a3b8]">
@@ -288,25 +290,25 @@ export default function RegistrationModule() {
                 <table className="w-full">
                   <thead className="bg-[#f8fafc]">
                     <tr>
-                      <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
+                      <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
                         Student ID
                       </th>
-                      <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
+                      <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
                         Full Name
                       </th>
-                      <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
+                      <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
                         Course
                       </th>
-                      <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
+                      <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
                         Section
                       </th>
-                      <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
+                      <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
                         Year
                       </th>
-                      <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
+                      <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
                         Role
                       </th>
-                      <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
+                      <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
                         Actions
                       </th>
                     </tr>
@@ -317,7 +319,7 @@ export default function RegistrationModule() {
                       .map((student) => (
                         <tr
                           key={student.id}
-                          className="hover:bg-[#f1f5f9] transition-colors odd:bg-white even:bg-[#f8fafc]"
+                          className="transition-colors odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9]"
                         >
                           <StudentTable
                             id={student.id}
@@ -362,12 +364,12 @@ export default function RegistrationModule() {
             )
           ) : filteredTeachers.length === 0 ? (
             <div className="p-12 text-center">
-              <div className="text-6xl text-[#cbd5e1] mb-4">
-                <div className="flex items-center justify-center">
+              <div className="mb-4 text-6xl text-[#cbd5e1]">
+                <div className="flex justify-center items-center">
                   <FaChalkboardTeacher className="text-center" />
                 </div>
               </div>
-              <h3 className="text-xl font-semibold text-[#64748b] mb-2">
+              <h3 className="mb-2 text-xl font-semibold text-[#64748b]">
                 No teachers found
               </h3>
               <p className="text-[#94a3b8]">
@@ -381,22 +383,22 @@ export default function RegistrationModule() {
               <table className="w-full">
                 <thead className="bg-[#f8fafc]">
                   <tr>
-                   <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
+                    <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
                       Full Name
                     </th>
-                    <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
+                    <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
                       Username
                     </th>
-                    <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
+                    <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
                       Role
                     </th>
-                    <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
+                    <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
                       Department
                     </th>
-                    <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
+                    <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
                       Status
                     </th>
-                    <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
+                    <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
                       Actions
                     </th>
                   </tr>
@@ -407,7 +409,7 @@ export default function RegistrationModule() {
                     .map((teacher) => (
                       <tr
                         key={teacher.id}
-                        className="hover:bg-[#f1f5f9] transition-colors odd:bg-white even:bg-[#f8fafc]"
+                        className="transition-colors odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9]"
                       >
                         <TeacherTable
                           id={teacher.id}
@@ -434,7 +436,7 @@ export default function RegistrationModule() {
         </div>
 
         {/* Description */}
-        <p className="mt-6 text-[#64748b] text-sm text-center">
+        <p className="mt-6 text-sm text-center text-[#64748b]">
           <span className="font-semibold">Tip:</span> Use filters and search to
           quickly locate users by role.
         </p>
