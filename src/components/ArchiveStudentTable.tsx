@@ -27,9 +27,6 @@ export default function ArchiveStudentTable({
     lastName,
     userRole,
     status,
-    course,
-    section,
-    year,
     onDelete,
     onRestore,
     onView,
@@ -53,7 +50,7 @@ export default function ArchiveStudentTable({
                     onClick={onHandleDeleteStudent}
                     disabled={isDeleting}
                     title="Delete item"
-                    className="text-red-600 text-2xl cursor-pointer mr-2"
+                    className="mr-2 text-2xl text-red-600 cursor-pointer"
                 >
                     <FaTrash />
                 </button>
@@ -62,7 +59,7 @@ export default function ArchiveStudentTable({
                     onClick={onHandleRestoreStudent}
                     disabled={isRestoring}
                     title="Restore item"
-                    className="text-orange-300 text-2xl cursor-pointer"
+                    className="text-2xl text-orange-300 cursor-pointer"
                 >
                     <FaTrashRestore />
                 </button>
@@ -71,23 +68,14 @@ export default function ArchiveStudentTable({
     }
     return (
         <>
-            <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
+            <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
                 {id}
             </td>
-            <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
+            <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
                 {firstName} {middleName} {lastName}
             </td>
-            <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
-                {course || "-"}
-            </td>
-            <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
-                {section || "-"}
-            </td>
-            <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
-                {year || "-"}
-            </td>
 
-            <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
+            <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
                 <span className={`px-2 py-1 rounded-full text-xs font-semibold ${userRole === 'student'
                     ? 'bg-green-100 text-green-800'
                     : 'bg-gray-100 text-gray-800'
@@ -95,7 +83,7 @@ export default function ArchiveStudentTable({
                     {userRole}
                 </span>
             </td>
-            <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
+            <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
                 <span className={`px-2 py-1 rounded-full text-xs font-semibold ${status === 'active'
                     ? 'bg-green-100 text-green-800'
                     : 'bg-red-100 text-red-800'
@@ -103,10 +91,10 @@ export default function ArchiveStudentTable({
                     {status}
                 </span>
             </td>
-            <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
+            <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
                 <button
                     onClick={() => onView(id)}
-                    className="mr-2 text-green-500 text-2xl hover:text-green-700 transition-colors"
+                    className="mr-2 text-2xl text-green-500 transition-colors hover:text-green-700"
                     title="View student credentials"
                 >
                     <MdVisibility />
