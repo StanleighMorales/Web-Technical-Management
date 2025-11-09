@@ -14,11 +14,11 @@ export default function Pagination({
   handleShowAll,
 }: PaginationProps) {
   return (
-    <div className="flex items-center gap-2 -mt-6">
+    <div className="flex flex-row gap-2 items-center md:ml-12 md:-mt-6 lg:ml-12 lg:-mt-6">
       {/* Reset back to all items Button */}
       {selectedCategory && selectedCategory !== "" && (
         <button
-          className="px-4 py-3 rounded bg-[#e0e7ef] text-[#2563eb] font-semibold disabled:opacity-50"
+          className="py-3 px-4 font-semibold rounded disabled:opacity-50 bg-[#e0e7ef] text-[#2563eb]"
           onClick={handleShowAll}
         >
           All
@@ -26,7 +26,7 @@ export default function Pagination({
       )}
       {/* Decreament the Page */}
       <button
-        className="px-4 py-3 rounded bg-[#e0e7ef] text-[#2563eb] font-semibold disabled:opacity-50"
+        className="py-3 px-4 font-semibold rounded disabled:opacity-50 bg-[#e0e7ef] text-[#2563eb]"
         onClick={() => handlePageChange(currentPage - 1)}
         disabled={currentPage === 1}
       >
@@ -47,7 +47,7 @@ export default function Pagination({
       ))}
       {/* Increament the Page */}
       <button
-        className="px-4 py-3 rounded bg-[#e0e7ef] text-[#2563eb] font-semibold disabled:opacity-50"
+        className="py-3 px-4 font-semibold rounded disabled:opacity-50 bg-[#e0e7ef] text-[#2563eb]"
         onClick={() => handlePageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
       >
