@@ -133,16 +133,18 @@ export default function InventoryList() {
                   name={"New Item"}
                 />
               </div>
-              <div className="flex flex-col gap-2 items-center lg:md:flex-row">
+              <div className="flex flex-col gap-2 items-center md:flex-row lg:flex-row">
                 {/*Pagination Component*/}
                 {filteredItems.length > 0 && (
-                  <Pagination
-                    totalPages={totalPages}
-                    currentPage={currentPage}
-                    handlePageChange={handlePageChange}
-                    selectedCategory={selectedCategory}
-                    handleShowAll={handleShowAll}
-                  />
+                  <div className="flex pt-2 -ml-20">
+                    <Pagination
+                      totalPages={totalPages}
+                      currentPage={currentPage}
+                      handlePageChange={handlePageChange}
+                      selectedCategory={selectedCategory}
+                      handleShowAll={handleShowAll}
+                    />
+                  </div>
                 )}
                 {/* Search Bar Component */}
                 <SearchBar
@@ -160,25 +162,28 @@ export default function InventoryList() {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="sticky top-0 bg-white/90 backdrop-blur-sm">
-                      <th className="py-3 px-4 text-xs font-semibold tracking-wider uppercase bg-transparent border-b border-[#e6e6e6] text-[#0f172a]">
+                      <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
                         Serial Num
                       </th>
-                      <th className="py-3 px-4 text-xs font-semibold tracking-wider uppercase bg-transparent border-b border-[#e6e6e6] text-[#0f172a]">
+                      <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
                         Image
                       </th>
-                      <th className="py-3 px-4 text-xs font-semibold tracking-wider uppercase bg-transparent border-b border-[#e6e6e6] text-[#0f172a]">
+                      <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
                         Name
                       </th>
-                      <th className="py-3 px-4 text-xs font-semibold tracking-wider uppercase bg-transparent border-b border-[#e6e6e6] text-[#0f172a]">
+                      <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
                         Category
                       </th>
-                      <th className="py-3 px-4 text-xs font-semibold tracking-wider uppercase bg-transparent border-b border-[#e6e6e6] text-[#0f172a]">
+                      <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
                         Condition
                       </th>
-                      <th className="py-3 px-4 text-xs font-semibold tracking-wider uppercase bg-transparent border-b border-[#e6e6e6] text-[#0f172a]">
+                      <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
+                        Status
+                      </th>
+                      <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
                         DateTime
                       </th>
-                      <th className="py-3 px-4 text-xs font-semibold tracking-wider uppercase bg-transparent border-b border-[#e6e6e6] text-[#0f172a]">
+                      <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
                         Action
                       </th>
                     </tr>
@@ -201,6 +206,7 @@ export default function InventoryList() {
                             ItemType={item.itemType}
                             Category={item.category}
                             Condition={item.condition}
+                            Status={item.status}
                             onMutate={() => mutate(item.id)}
                           />
                         </tr>
