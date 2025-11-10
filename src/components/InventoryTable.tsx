@@ -5,6 +5,7 @@ import { IoArchive } from "react-icons/io5";
 import logo from "../assets/img/aclcLogo.webp";
 import { FormattedDateTime } from "./FormatedDateTime";
 import { SlugCondition } from "./SlugCondition";
+import { SlugStatus } from "./SlugStatus";
 import { MdVisibility } from "react-icons/md";
 import { UserData } from "../utils/usersData/userData";
 import PopUpModal from "./PopUpModal";
@@ -23,6 +24,7 @@ type InventoryTableProps = {
   ItemType: string;
   Category: string;
   Condition: string;
+  Status: string;
   onMutate: (value: string) => void;
 };
 
@@ -34,6 +36,7 @@ export default function InventoryTable({
   Image,
   Category,
   Condition,
+  Status,
   onMutate,
 }: InventoryTableProps) {
 
@@ -71,7 +74,7 @@ export default function InventoryTable({
 
   return (
     <>
-      <td className="py-3 px-4 font-semibold">{SerialNumber}</td>
+      <td className="py-3 px-4">{SerialNumber}</td>
       <td className="py-3 px-4">
         <img
           src={typeof Image === "string" ? Image : logo}
@@ -83,9 +86,16 @@ export default function InventoryTable({
       <td className="py-3 px-4">{Category}</td>
       <td className="py-3 px-4">
         <span
-          className={`px-3 py-1 rounded-full text-sm font-semibold ${SlugCondition(Condition)}`}
+          className={`px-3 py-1 rounded-full text-sm ${SlugCondition(Condition)}`}
         >
           {Condition}
+        </span>
+      </td>
+      <td className="py-3 px-4">
+        <span
+          className={`px-3 py-1 rounded-full text-sm ${SlugStatus(Status)}`}
+        >
+          {Status}
         </span>
       </td>
       <td className="py-3 px-4">{FormattedDateTime(createdAt)}</td>
