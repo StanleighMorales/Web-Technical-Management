@@ -90,7 +90,7 @@ export default function InventoryList() {
 
   return (
     <div className="flex flex-col w-full antialiased bg-linear-to-br animate-fadeIn inventory-list-container min-h-svh from-[#f8fafc] via-[#e8eef7] to-[#dbeafe]">
-      <header className="flex sticky top-0 z-40 flex-col items-center px-8 pt-8 pb-6 border-b shadow-sm inventory-header bg-white/70 backdrop-blur-md border-[#e5e9f2]">
+      <header className="flex sticky top-0 z-30 flex-col items-center px-8 pt-8 pb-6 border-b shadow-sm inventory-header bg-white/70 backdrop-blur-md border-[#e5e9f2]">
         <h1 className="mb-2 text-5xl font-extrabold tracking-tight text-[#1e293b] drop-shadow-lg">
           Inventory List
         </h1>
@@ -126,14 +126,14 @@ export default function InventoryList() {
         {/* Inventory Items Table */}
         <section className="px-8">
           <div className="overflow-x-auto p-4 rounded-2xl ring-1 shadow-xl bg-white/90 h-[60vh] ring-[#e0e7ef]/80">
-            <section className="flex flex-col gap-3 justify-between mb-4 md:flex-row md:items-center">
+            <section className="flex flex-col gap-3 justify-between mb-4 lg:md:flex-row">
               <div>
                 <Button
                   onClick={() => setIsAddItemFormOpen(true)}
                   name={"New Item"}
                 />
               </div>
-              <div className="flex flex-row gap-2 items-center">
+              <div className="flex flex-col gap-2 items-center lg:md:flex-row">
                 {/*Pagination Component*/}
                 {filteredItems.length > 0 && (
                   <Pagination
