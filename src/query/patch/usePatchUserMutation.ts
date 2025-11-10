@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getToken } from "../../utils/token";
+import { getToken, removeToken } from "../../utils/token";
 
 type PathUserCredentials = {
   username: string,
@@ -37,8 +37,9 @@ const PatchUser = async ({ id, formData }: PatchUserProps) => {
     body: updatedUser
   });
 
-  if (res.status === 204) {
-    return null;
+  if (res.status === 401) {
+    removeToken();
+    return;
   }
 
   let data: unknown = null;
