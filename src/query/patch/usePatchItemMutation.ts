@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getToken } from "../../utils/token";
+import { getToken, removeToken } from "../../utils/token";
 
 type updateItem = {
   serialNumber: string,
@@ -44,6 +44,10 @@ const PatchItem = async ({ id, formData }: PatchItemProps) => {
     body: body,
   });
 
+  if (res.status === 401) {
+    removeToken();
+    return;
+  }
 
   const text = await res.text();
   const data = text ? JSON.parse(text) : {};
