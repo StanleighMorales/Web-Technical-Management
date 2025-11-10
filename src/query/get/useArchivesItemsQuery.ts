@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getToken } from "../../utils/token";
+import { getToken, removeToken } from "../../utils/token";
 
 const ArchivesItems = async () => {
   try {
@@ -13,6 +13,11 @@ const ArchivesItems = async () => {
         Authorization: `Bearer ${getToken()}`,
       },
     });
+
+    if (res.status === 401) {
+      removeToken();
+      return;
+    }
 
     const data = await res.json();
     if (!res.ok) {
