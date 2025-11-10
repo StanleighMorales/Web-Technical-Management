@@ -26,12 +26,12 @@ export default function ViewItem() {
 
   if (error || !data) {
     return (
-      <div className="w-full min-h-screen flex justify-center items-center bg-gradient-to-br from-slate-50 to-slate-100">
-        <div className="bg-white rounded-2xl shadow-lg border border-red-100 p-8 text-center max-w-md mx-4">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <IoMdWarning className="text-red-500 w-8 h-8" />
+      <div className="flex justify-center items-center w-full min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className="p-8 mx-4 max-w-md text-center bg-white rounded-2xl border border-red-100 shadow-lg">
+          <div className="flex justify-center items-center mx-auto mb-4 w-16 h-16 bg-red-100 rounded-full">
+            <IoMdWarning className="w-8 h-8 text-red-500" />
           </div>
-          <h3 className="text-lg font-semibold text-slate-900 mb-2">
+          <h3 className="mb-2 text-lg font-semibold text-slate-900">
             Unable to Load
           </h3>
           <p className="text-slate-600">
@@ -45,26 +45,26 @@ export default function ViewItem() {
   const itemDetails: TItemList = data;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="relative max-w-6xl mx-auto">
-        <div className="absolute top-0 left-0 flex flex-row justify-between w-full gap-2">
+    <div className="py-12 px-4 min-h-screen bg-gray-50">
+      <div className="relative mx-auto max-w-6xl">
+        <div className="flex absolute top-0 left-0 flex-row gap-2 justify-between w-full">
           <Link to="/home/inventory-list">
-            <FaArrowCircleLeft className="text-blue-600 w-8 h-8 cursor-pointer" />
+            <FaArrowCircleLeft className="w-8 h-8 text-blue-600 cursor-pointer" />
           </Link>
           <button type="button" onClick={() => setIsEditItemFormOpen(true)}>
-            <FaEdit className="text-blue-600 w-8 h-8 cursor-pointer" />
+            <FaEdit className="w-8 h-8 text-blue-600 cursor-pointer" />
           </button>
         </div>
         {/* Header */}
-        <div className="text-center mb-8 mt-10">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <div className="mt-10 mb-8 text-center">
+          <h1 className="mb-2 text-3xl font-bold text-gray-900">
             {itemDetails.itemName}
           </h1>
-          <p className="text-gray-600 font-bold">{itemDetails.category}</p>
+          <p className={`font-bold text-center ${itemDetails.status.toLowerCase() === "available" ? "text-green-500" : "text-red-500"}`}  >{itemDetails.status}</p>
         </div>
 
         {/* Image Section */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="p-6 mb-8 bg-white rounded-lg shadow-md">
           <div className="flex justify-center">
             {itemDetails.image ? (
               <img
@@ -72,12 +72,12 @@ export default function ViewItem() {
                   typeof itemDetails.image === "string" ? itemDetails.image : ""
                 }
                 alt={itemDetails.itemName}
-                className="w-64 h-64 object-cover rounded-lg"
+                className="object-cover w-64 h-64 rounded-lg"
               />
             ) : (
-              <div className="w-64 h-64 flex flex-col items-center justify-center bg-gray-100 rounded-lg border-2 border-dashed border-gray-300">
+              <div className="flex flex-col justify-center items-center w-64 h-64 bg-gray-100 rounded-lg border-2 border-gray-300 border-dashed">
                 <svg
-                  className="w-12 h-12 text-gray-400 mb-2"
+                  className="mb-2 w-12 h-12 text-gray-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -89,7 +89,7 @@ export default function ViewItem() {
                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                   />
                 </svg>
-                <span className="text-gray-500 text-sm">
+                <span className="text-sm text-gray-500">
                   No Image Available
                 </span>
               </div>
@@ -97,12 +97,12 @@ export default function ViewItem() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {/* Serial Number */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="p-6 bg-white rounded-lg shadow-md">
             <div className="flex items-center mb-3">
-              <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center mr-3">
-                <FaHashtag className="text-white w-4 h-4" />
+              <div className="flex justify-center items-center mr-3 w-8 h-8 bg-indigo-500 rounded-lg">
+                <FaHashtag className="w-4 h-4 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
                 Serial Number
@@ -112,21 +112,31 @@ export default function ViewItem() {
           </div>
 
           {/* Condition */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="p-6 bg-white rounded-lg shadow-md">
             <div className="flex items-center mb-3">
-              <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center mr-3">
-                <FaCheckCircle className="text-white w-4 h-4" />
+              <div className="flex justify-center items-center mr-3 w-8 h-8 bg-emerald-500 rounded-lg">
+                <FaCheckCircle className="w-4 h-4 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">Condition</h3>
             </div>
             <p className="text-gray-600">{itemDetails.condition}</p>
           </div>
 
-          {/* Item Make */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="p-6 bg-white rounded-lg shadow-md">
             <div className="flex items-center mb-3">
-              <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
-                <FaTools className="text-white w-4 h-4" />
+              <div className="flex justify-center items-center mr-3 w-8 h-8 bg-emerald-500 rounded-lg">
+                <FaCheckCircle className="w-4 h-4 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">Category</h3>
+            </div>
+            <p className="text-gray-600">{itemDetails.category}</p>
+          </div>
+
+          {/* Item Make */}
+          <div className="p-6 bg-white rounded-lg shadow-md">
+            <div className="flex items-center mb-3">
+              <div className="flex justify-center items-center mr-3 w-8 h-8 bg-blue-500 rounded-lg">
+                <FaTools className="w-4 h-4 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">Item Make</h3>
             </div>
@@ -134,10 +144,10 @@ export default function ViewItem() {
           </div>
 
           {/* Item Type */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="p-6 bg-white rounded-lg shadow-md">
             <div className="flex items-center mb-3">
-              <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mr-3">
-                <FaTools className="text-white w-4 h-4" />
+              <div className="flex justify-center items-center mr-3 w-8 h-8 bg-purple-500 rounded-lg">
+                <FaTools className="w-4 h-4 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">Item Type</h3>
             </div>
@@ -145,10 +155,10 @@ export default function ViewItem() {
           </div>
 
           {/* Item Model */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="p-6 bg-white rounded-lg shadow-md">
             <div className="flex items-center mb-3">
-              <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center mr-3">
-                <FaHashtag className="text-white w-4 h-4" />
+              <div className="flex justify-center items-center mr-3 w-8 h-8 bg-orange-500 rounded-lg">
+                <FaHashtag className="w-4 h-4 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
                 Item Model
@@ -158,10 +168,10 @@ export default function ViewItem() {
           </div>
 
           {/* Date Added */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="p-6 bg-white rounded-lg shadow-md">
             <div className="flex items-center mb-3">
-              <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center mr-3">
-                <BsCalendar2Date className="text-white w-4 h-4" />
+              <div className="flex justify-center items-center mr-3 w-8 h-8 bg-red-500 rounded-lg">
+                <BsCalendar2Date className="w-4 h-4 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
                 Date Added
@@ -171,15 +181,11 @@ export default function ViewItem() {
               {FormattedDateTime(itemDetails.createdAt)}
             </p>
           </div>
-        </div>
-
-        {/* Description */}
-        <div className="flex flex-row justify-between gap-4">
-          <div className="flex flex-1 bg-white rounded-lg shadow-md p-6 mt-6">
+          <div className="flex flex-1 p-6 bg-white rounded-lg shadow-md">
             <div className="mb-3">
               <div className="flex flex-row items-center mb-4">
-                <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center mr-3">
-                  <MdOutlineDescription className="text-white w-4 h-4" />
+                <div className="flex justify-center items-center mr-3 w-8 h-8 bg-red-500 rounded-lg">
+                  <MdOutlineDescription className="w-4 h-4 text-white" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">
                   Description
@@ -188,15 +194,19 @@ export default function ViewItem() {
               <p className="text-gray-600">{itemDetails.description}</p>
             </div>
           </div>
+        </div>
+
+        {/* Description */}
+        <div className="flex flex-row gap-4 justify-between">
           {/* Barcode */}
-          <div className="flex flex-1 bg-white rounded-lg shadow-md p-4 mt-6">
-            <div className="w-full flex justify-center items-center">
+          <div className="flex flex-1 p-4 mt-6 bg-white rounded-lg shadow-md">
+            <div className="flex justify-center items-center w-full">
               {itemDetails.barcodeImage ? (
                 <a href="" target="_blank">
                   <img
                     src={itemDetails.barcodeImage}
                     alt="Barcode"
-                    className="w-96 h-32"
+                    className="w-96 h-40"
                   />
                 </a>
               ) : (
@@ -207,12 +217,12 @@ export default function ViewItem() {
             </div>
           </div>
         </div>
-        <div className="flex flex-row justify-end mt-6">
+        <div className="flex flex-row justify-center items-center mt-6 md:justify-end lg:justify-end">
           <button
             type="button"
-            className="text-lg font-semibold text-gray-900 cursor-pointer float-right bg-white rounded-lg shadow-md p-4 px-8"
+            className="float-right p-4 px-8 text-lg font-semibold text-gray-900 bg-white rounded-lg shadow-md cursor-pointer"
           >
-            <div className="flex flex-row justify-center items-center gap-2">
+            <div className="flex flex-row gap-2 justify-center items-center">
               {itemDetails.barcode ? (
                 <>
                   <FaBarcode />
