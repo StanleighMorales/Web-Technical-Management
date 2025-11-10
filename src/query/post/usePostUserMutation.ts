@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import type { TUserFormData } from "../../types/types";
-import { getToken } from "../../utils/token";
+import { getToken, removeToken } from "../../utils/token";
 
 const PostUser = async (formData: TUserFormData) => {
 
@@ -18,14 +18,21 @@ const PostUser = async (formData: TUserFormData) => {
       },
       body: newUserData,
     });
-    const data = await res.json();
 
+    if (res.status === 401) {
+      removeToken();
+      return;
+    }
+
+    const data = await res.json();
     if (!res.ok) throw new Error(data.message);
 
     return data.message;
 
   } catch (error) {
-    console.log(error)
+    if (error instanceof Error) {
+      console.log(error);
+    }
   }
 };
 
