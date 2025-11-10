@@ -314,7 +314,7 @@ export default function Archive() {
 
       {/* Filter Buttons */}
       {isError || isUsersError ? "" : (
-        <div className="flex gap-4 mt-8 ml-10">
+        <div className="flex flex-1 gap-4 mt-8 ml-10 md:flex-row lg:flex-row">
           <button
             onClick={() => {
               setActiveFilter("items");
@@ -372,15 +372,15 @@ export default function Archive() {
             Students
           </button>
         </div>
-      )}
+      )
+      }
 
-      <div className="overflow-auto mt-8 h-full">
+      <div className="overflow-x-auto mt-8 h-full">
         {/* Archived Items/Users Table */}
         <section className="px-8">
-          <div className="overflow-x-auto py-4 px-4 rounded-3xl border shadow-md bg-white/90 h-[55vh] border-[#e0e7ef]">
-            <section className="flex justify-between mb-4">
-              <div className=""></div>
-              <div className="flex flex-row gap-2">
+          <div className="overflow-x-auto py-4 px-4 rounded-3xl border shadow-md bg-white/90 border-[#e0e7ef] lg:h-[55vh]">
+            <section className="flex justify-end mb-4">
+              <div className="flex flex-col gap-2 md:flex-row lg:flex-row">
                 {/* Pagination Component */}
                 {((activeFilter === "items" && filteredItems.length > 0) || (activeFilter === "users" && filteredUsers.length > 0)) && (
                   <Pagination
@@ -407,28 +407,28 @@ export default function Archive() {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="sticky -top-4 bg-[#f8fafc]">
-                      <th className="py-4 px-4 border-b bg-[#f8fafc]font-semibold border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Serial Num
                       </th>
-                      <th className="py-4 px-4 border-b bg-[#f8fafc]font-semibold border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Image
                       </th>
-                      <th className="py-4 px-4 border-b bg-[#f8fafc]font-semibold border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Name
                       </th>
-                      <th className="py-4 px-4 border-b bg-[#f8fafc]font-semibold border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Category
                       </th>
-                      <th className="py-4 px-4 border-b bg-[#f8fafc]font-semibold border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Condition
                       </th>
-                      <th className="py-4 px-4 border-b bg-[#f8fafc]font-semibold border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Bar Code
                       </th>
-                      <th className="py-4 px-4 border-b bg-[#f8fafc]font-semibold border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         DateTime
                       </th>
-                      <th className="py-4 px-4 border-b bg-[#f8fafc]font-semibold border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Action
                       </th>
                     </tr>
@@ -492,28 +492,28 @@ export default function Archive() {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="sticky -top-4 bg-[#f8fafc]">
-                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         ID
                       </th>
-                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Full Name
                       </th>
-                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Username
                       </th>
-                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Email
                       </th>
-                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Phone
                       </th>
-                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Role
                       </th>
-                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Status
                       </th>
-                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Action
                       </th>
                     </tr>
@@ -556,7 +556,6 @@ export default function Archive() {
                                 </div>
                               );
                             }
-                            return "No users match your search criteria";
                           })()}
                         </td>
                       </tr>
@@ -616,22 +615,22 @@ export default function Archive() {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="sticky -top-4 bg-[#f8fafc]">
-                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         ID
                       </th>
-                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Full Name
                       </th>
-                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Username
                       </th>
-                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Role
                       </th>
-                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Status
                       </th>
-                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Action
                       </th>
                     </tr>
@@ -683,29 +682,28 @@ export default function Archive() {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="sticky -top-4 bg-[#f8fafc]">
-                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Student ID
                       </th>
-                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Full Name
                       </th>
-                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Course
                       </th>
-                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Section
                       </th>
-                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Year
                       </th>
-
-                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Role
                       </th>
-                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Status
                       </th>
-                      <th className="py-4 px-4 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                      <th className="py-4 px-4 font-semibold tracking-wider uppercase border-b bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                         Action
                       </th>
                     </tr>
@@ -756,83 +754,99 @@ export default function Archive() {
         </section>
       </div>
       {/* Restore confirmation */}
-      {isRestoreConfirmOpen && (
-        <PopUpModal
-          title={"Restore Item"}
-          label={"restore"}
-          noun={"item"}
-          destination={"inventory list"}
-          onHandleCancleAction={handleCancelRestore}
-          onHandleConfirmAction={handleConfirmRestoreItem}
-        />
-      )}
+      {
+        isRestoreConfirmOpen && (
+          <PopUpModal
+            title={"Restore Item"}
+            label={"restore"}
+            noun={"item"}
+            destination={"inventory list"}
+            onHandleCancleAction={handleCancelRestore}
+            onHandleConfirmAction={handleConfirmRestoreItem}
+          />
+        )
+      }
       {/* Delete confirmation */}
-      {isDeleteConfirmOpen && (
-        <PopUpModalDelete
-          title={"Delete Item"}
-          label={"delete"}
-          onHandleCancleAction={handleCancelDeleteItem}
-          onHandleConfirmAction={handleConfirmDeleteItem}
-        />
-      )}
+      {
+        isDeleteConfirmOpen && (
+          <PopUpModalDelete
+            title={"Delete Item"}
+            label={"delete"}
+            onHandleCancleAction={handleCancelDeleteItem}
+            onHandleConfirmAction={handleConfirmDeleteItem}
+          />
+        )
+      }
       {/* User Restore confirmation */}
-      {isUserRestoreConfirmOpen && (
-        <PopUpModal
-          title={"Restore Staff"}
-          label={"restore"}
-          noun={"staff"}
-          destination={"User Management"}
-          onHandleCancleAction={handleCancelUserRestore}
-          onHandleConfirmAction={handleConfirmRestoreUser}
-        />
-      )}
+      {
+        isUserRestoreConfirmOpen && (
+          <PopUpModal
+            title={"Restore Staff"}
+            label={"restore"}
+            noun={"staff"}
+            destination={"User Management"}
+            onHandleCancleAction={handleCancelUserRestore}
+            onHandleConfirmAction={handleConfirmRestoreUser}
+          />
+        )
+      }
       {/* Student Restore confirmation */}
-      {isUserRestoreConfirmOpen && (
-        <PopUpModal
-          title={"Restore User"}
-          label={"restore"}
-          noun={"user"}
-          destination={"Regisration Module"}
-          onHandleCancleAction={handleCancelUserRestore}
-          onHandleConfirmAction={handleConfirmRestoreUser}
-        />
-      )}
+      {
+        isUserRestoreConfirmOpen && (
+          <PopUpModal
+            title={"Restore User"}
+            label={"restore"}
+            noun={"user"}
+            destination={"Regisration Module"}
+            onHandleCancleAction={handleCancelUserRestore}
+            onHandleConfirmAction={handleConfirmRestoreUser}
+          />
+        )
+      }
       {/* User Delete confirmation */}
-      {isUserDeleteConfirmOpen && (
-        <PopUpModalDelete
-          title={"Delete User"}
-          label={"delete"}
-          onHandleCancleAction={handleCancelUserDelete}
-          onHandleConfirmAction={handleConfirmDeleteUser}
-        />
-      )}
+      {
+        isUserDeleteConfirmOpen && (
+          <PopUpModalDelete
+            title={"Delete User"}
+            label={"delete"}
+            onHandleCancleAction={handleCancelUserDelete}
+            onHandleConfirmAction={handleConfirmDeleteUser}
+          />
+        )
+      }
       {/* Student Credentials Popup */}
-      {isStudentCredentialsOpen && selectedStudentId && (
-        <ArchiveStudentCredentialsPopup
-          studentId={selectedStudentId}
-          isOpen={isStudentCredentialsOpen}
-          onClose={handleCloseStudentCredentials}
-        />
-      )}
+      {
+        isStudentCredentialsOpen && selectedStudentId && (
+          <ArchiveStudentCredentialsPopup
+            studentId={selectedStudentId}
+            isOpen={isStudentCredentialsOpen}
+            onClose={handleCloseStudentCredentials}
+          />
+        )
+      }
       {/* Teacher Credentials Popup */}
-      {isTeacherCredentialsOpen && selectedTeacherId && (
-        <ArchiveTeacherCredentialsPopup
-          teacherId={selectedTeacherId}
-          isOpen={isTeacherCredentialsOpen}
-          onClose={handleCloseTeacherCredentials}
-        />
-      )}
+      {
+        isTeacherCredentialsOpen && selectedTeacherId && (
+          <ArchiveTeacherCredentialsPopup
+            teacherId={selectedTeacherId}
+            isOpen={isTeacherCredentialsOpen}
+            onClose={handleCloseTeacherCredentials}
+          />
+        )
+      }
       {/* Item Details Popup */}
-      {isItemDetailsOpen && selectedItemId && (
-        <ArchiveItemDetailsPopup
-          itemId={selectedItemId}
-          isOpen={isItemDetailsOpen}
-          onClose={() => {
-            setIsItemDetailsOpen(false);
-            setSelectedItemId(null);
-          }}
-        />
-      )}
-    </div>
+      {
+        isItemDetailsOpen && selectedItemId && (
+          <ArchiveItemDetailsPopup
+            itemId={selectedItemId}
+            isOpen={isItemDetailsOpen}
+            onClose={() => {
+              setIsItemDetailsOpen(false);
+              setSelectedItemId(null);
+            }}
+          />
+        )
+      }
+    </div >
   );
 }
