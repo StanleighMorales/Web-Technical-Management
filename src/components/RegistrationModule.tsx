@@ -176,9 +176,9 @@ export default function RegistrationModule() {
 
         {/* Filters */}
         <div className="p-6 mb-6 bg-white rounded-2xl shadow-lg">
-          <div className="flex flex-col gap-4 items-start lg:flex-row lg:items-center">
+          <div className="flex flex-col gap-4 items-start md:flex-row lg:flex-row lg:items-center">
             {/* Role Filter Buttons */}
-            <div className="flex flex-col lg:flex-wrap gap-2">
+            <div className="flex lg:flex-wrap gap-2">
               <span className="mr-2 font-semibold text-[#64748b]">
                 Filter by Role:
               </span>
