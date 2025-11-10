@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getToken } from "../../utils/token";
+import { getToken, removeToken } from "../../utils/token";
 
 
 const SummaryData = async () => {
@@ -13,9 +13,15 @@ const SummaryData = async () => {
             Authorization: `Bearer ${getToken()}`
         }
     })
+
+    if (res.status === 401) {
+        removeToken();
+        return;
+    }
+
     const data = await res.json()
     if (!res.ok) throw new Error(data.message || "Failed to fetch summary");
-    return data
+    return data.data;
 }
 
 export const useSummaryDataQuery = () => {
