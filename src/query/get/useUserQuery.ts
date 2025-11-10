@@ -1,6 +1,5 @@
-import { getToken } from "../../utils/token";
+import { getToken, removeToken } from "../../utils/token";
 import { queryOptions } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
 
 const fetchUserData = async () => {
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -13,6 +12,11 @@ const fetchUserData = async () => {
       Authorization: `Bearer ${getToken()}`,
     },
   });
+
+  if (res.status === 401) {
+    removeToken();
+    return;
+  }
 
   const data = await res.json();
   if (!res.ok) {
