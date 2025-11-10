@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { getToken } from "../../utils/token";
+import { getToken, removeToken } from "../../utils/token";
 import type { TUpdatePassword } from "../../types/types";
 
 type UpdateUserPasswordProps = {
@@ -21,6 +21,11 @@ const UpdateUserPassword = async ({ id, formData }: UpdateUserPasswordProps) => 
     },
     body: newPaswword
   });
+
+  if (res.status === 401) {
+    removeToken();
+    return;
+  }
 
   const data = await res.json();
   if (!res.ok) throw new Error(data.message || "Submission failed");
