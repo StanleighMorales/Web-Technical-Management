@@ -89,6 +89,7 @@ export type TItemList = {
   description: string;
   category: string;
   condition: string;
+  status: string;
   barcode: "",
   barcodeImage: "",
   createdAt: string;
@@ -98,26 +99,6 @@ export type TItemList = {
 export type TEditItemForm = {
   Id: number;
   SerialNumber: string;
-};
-
-export type TBorrowedItems = {
-  id: number;
-  datetime: string;
-  teacher: string;
-  room: string;
-  item: string;
-  occupied: string;
-  status: string;
-};
-
-export type TRecentBorrowedItemsTableProps = {
-  id: number;
-  datetime: string;
-  teacher: string;
-  room: string;
-  item: string;
-  occupied: string;
-  status: string;
 };
 
 export type THistoryBorrwedItems = {
@@ -267,5 +248,3 @@ export type TUpdatePassword = {
   newPassword: string;
   confirmPassword: string;
 }
-
-
