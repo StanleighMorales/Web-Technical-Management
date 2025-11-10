@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getToken } from "../../utils/token";
+import { getToken, removeToken } from "../../utils/token";
 
 const archiveTeacher = async (teacherId: string) => {
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -13,8 +13,12 @@ const archiveTeacher = async (teacherId: string) => {
     },
   });
 
-  const data = await res.json();
+  if (res.status === 401) {
+    removeToken();
+    return;
+  }
 
+  const data = await res.json();
   if (!res.ok) throw new Error(data.message || "Error archiving teacher");
 
   return data;
