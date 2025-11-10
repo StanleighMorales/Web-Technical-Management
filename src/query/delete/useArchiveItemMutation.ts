@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getToken } from "../../utils/token";
+import { getToken, removeToken } from "../../utils/token";
 
 const ArchiveItem = async (id: string) => {
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -12,6 +12,12 @@ const ArchiveItem = async (id: string) => {
       Authorization: `Bearer ${getToken()}`,
     },
   });
+
+  if (res.status === 401) {
+    removeToken();
+    return;
+  }
+
   const data = await res.json();
   if (!res.ok) throw new Error("Failed to delete item");
   return data;
