@@ -1,20 +1,51 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import SearchBar from "../components/SearchBar";
-import type { TBorrowedItems } from "../types/types";
-import { useQueries } from "@tanstack/react-query";
-import { useBorrowedItemsQuery } from "../query/get/useBorrwedItemsQuery";
+import { useQuery } from "@tanstack/react-query";
 import { DashboardSkeletonLoader } from "../loader/DashboardSkeletonLoader";
 import DashboardBadges from "../components/DashboardBadges";
 import ErrorTable from "../components/ErrorTables";
 import Pagination from "../components/Pagination";
-import RecentBorrowedItemsTable from "../components/RecentBorrowedItemsTable";
+import { RecentBorrowedItemsTable } from "../components/RecentBorrowedItemsTable";
 import { useSummaryDataQuery } from "../query/get/useSummaryDataQuery";
+import { useBorrowedItemsQuery } from "../query/get/useBorrwedItemsQuery";
+
+type recentBorrowItemProps = {
+  id: string;
+  userId: null,
+  teacherId: string,
+  borrowerFullName: string,
+  borrowerRole: string,
+  teacherFullName: string,
+  room: string,
+  subjectTimeSchedule: string,
+  lentAt: string,
+  returnedAt: string,
+  status: string,
+  remarks: null,
+  isHiddenFromUser: boolean,
+  item: {
+    id: string;
+    serialNumber: string;
+    barcode: null;
+    barcodeImage: null;
+    image: null;
+    itemName: string;
+    itemType: string;
+    itemModel: string;
+    itemMake: string;
+    description: string;
+    category: string;
+    condition: string;
+    createdAt: string;
+    updatedAt: string;
+  }
+}
 
 type summary = {
-  totalItems: number;
-  totalActiveUsers: number;
-  totalLentItems: number;
-  totalItemsCategories: number;
+  totalItems: number | null;
+  totalActiveUsers: number | null;
+  totalLentItems: number | null;
+  totalItemsCategories: number | null;
 };
 
 export default function Dashboard() {
@@ -22,8 +53,12 @@ export default function Dashboard() {
     totalItems: 0,
     totalActiveUsers: 0,
     totalLentItems: 0,
-    totalItemsCategories: 0,
+    totalItemsCategories: 0
   });
+
+  const [onViewBorrowItemOpen, setOnViewBorrowItemOpen] = useState<boolean>();
+  const [selectedId, setSelectedId] = useState<string>("");
+  const [borrowedItemData, setBorrowedItemData] = useState<recentBorrowItemProps[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 10;
@@ -51,24 +86,21 @@ export default function Dashboard() {
     },
   ];
 
-  const results = useQueries({
-    queries: [useBorrowedItemsQuery(), useSummaryDataQuery()],
-  });
-
-  const borrowedItemsResult = results[0];
-  const summaryData = results[1];
-
-  const borrowedItemsData: TBorrowedItems[] = useMemo(() => {
-    return borrowedItemsResult.data ?? [];
-  }, [borrowedItemsResult]);
+  const { data: recentBorrowData, isLoading: isborrowedItemLoading, isError: isBorrowItemError } = useQuery(useBorrowedItemsQuery());
+  const { data: summaryData } = useQuery(useSummaryDataQuery());
 
   const filteredData = useMemo(
     () =>
-      borrowedItemsData.filter((item) =>
-        item.item.toLowerCase().includes(searchTerm.toLowerCase()),
+      borrowedItemData.filter((item) =>
+        item.item.itemName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.item.serialNumber?.toLowerCase().includes(searchTerm.toLowerCase())
       ),
-    [borrowedItemsData, searchTerm],
+    [borrowedItemData, searchTerm],
   );
+
+  const findByItemID = useMemo(() => {
+    return filteredData.find((item) => item.item.serialNumber === selectedId);
+  }, [filteredData])
 
   const paginatedData = useMemo(
     () =>
@@ -92,10 +124,10 @@ export default function Dashboard() {
     if (!summaryData) return;
 
     setDataSummary((prev) => {
-      const newTotalItems = summaryData.data?.data.totalItems;
-      const newTotalActiveUsers = summaryData.data?.data.totalActiveUsers;
-      const newTotalCategories = summaryData.data?.data.totalItemsCategories;
-      const newTotalLentItems = summaryData.data?.data.totalLentItems;
+      const newTotalItems = summaryData?.totalItems;
+      const newTotalActiveUsers = summaryData?.totalActiveUsers;
+      const newTotalCategories = summaryData?.totalItemsCategories;
+      const newTotalLentItems = summaryData?.totalLentItems;
 
       if (
         prev.totalItems === newTotalItems &&
@@ -116,10 +148,14 @@ export default function Dashboard() {
     });
   }, [summaryData]);
 
-  const isLoading = borrowedItemsResult.isLoading;
-  const isError = borrowedItemsResult.error;
+  // const isError = borrowedItemsResult.error;
 
-  if (isLoading) return <DashboardSkeletonLoader />;
+  useEffect(() => {
+    if (!recentBorrowData) return;
+    setBorrowedItemData(recentBorrowData);
+  }, [recentBorrowData])
+
+  if (isborrowedItemLoading) return <DashboardSkeletonLoader />;
 
   return (
     <div className="flex flex-col items-center py-10 px-2 w-full min-h-screen animate-fadeIn bg-linear-to-br from-[#f8fafc] via-[#e0e7ef] to-[#c7d2fe]">
@@ -137,7 +173,7 @@ export default function Dashboard() {
       </div>
 
       {/* Table Borrowed Section */}
-      <div className="p-8 w-full max-w-7xl rounded-2xl border shadow-md bg-white/90 border-[#e0e7ef]">
+      <div className="p-8 w-full rounded-2xl border shadow-md bg-white/90 border-[#e0e7ef]">
         <div className="flex flex-col gap-4 mb-4 md:flex-row md:justify-between md:items-center">
           <h1 className="-mt-10 text-2xl font-bold max-sm:-mt-1 text-[#1e293b]">
             Recently Borrowed Items
@@ -160,55 +196,68 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="overflow-x-auto rounded-xl shadow-inner h-[55vh] bg-white/95">
-          {isError ? (
+          {isBorrowItemError ? (
             <ErrorTable />
-          ) : (
+          ) :
             <table className="relative w-full text-left border-collapse">
               <thead>
                 <tr>
-                  <th className="sticky top-0 py-4 px-6 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
-                    Date & Time
+                  <th className="sticky top-0 py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
+                    Serial Number
                   </th>
-                  <th className="sticky top-0 py-4 px-6 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
-                    Teacher
+                  <th className="sticky top-0 py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
+                    Image
                   </th>
-                  <th className="sticky top-0 py-4 px-6 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
-                    Room
-                  </th>
-                  <th className="sticky top-0 py-4 px-6 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
                     Item
                   </th>
-                  <th className="sticky top-0 py-4 px-6 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
                     Occupied By
                   </th>
-                  <th className="sticky top-0 py-4 px-6 font-semibold border-b bg-[#f8fafc] border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
+                    Teacher
+                  </th>
+                  <th className="sticky top-0 py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
+                    Room
+                  </th>
+                  <th className="sticky top-0 py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
                     Remarks
+                  </th>
+                  <th className="sticky top-0 py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
+                    DateTime
+                  </th>
+                  <th className="sticky top-0 py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
+                    Action
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {paginatedData.map((item) => (
                   <tr
-                    key={item.id}
+                    key={item.item.serialNumber}
                     className="transition-colors odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9]"
                   >
                     {/* Borrowers Table Component */}
                     <RecentBorrowedItemsTable
-                      id={item.id}
-                      datetime={item.datetime}
-                      teacher={item.teacher}
+                      image={item.item.image}
+                      itemName={item.item.itemName}
+                      serialNumber={item.item.serialNumber}
+                      borrowerFullName={item.borrowerFullName}
                       room={item.room}
-                      item={item.item}
-                      occupied={item.occupied}
-                      status={item.status}
+                      teacherFullName={item.teacherFullName}
+                      remarks={item.remarks}
+                      createdAt={item.item.createdAt}
+                      onSetSelectedId={() => setSelectedId(item.item.serialNumber)}
+                      onView={setOnViewBorrowItemOpen}
                     />
                   </tr>
                 ))}
               </tbody>
             </table>
-          )}
+          }
         </div>
       </div>
+      {selectedId && onViewBorrowItemOpen && <h1 className="p-10 bg-amber-200">Hello World</h1>}
     </div>
   );
 }
