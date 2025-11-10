@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getToken } from "../../utils/token";
+import { getToken, removeToken } from "../../utils/token";
 
 const restoreUser = async (id: string) => {
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -12,8 +12,13 @@ const restoreUser = async (id: string) => {
       Authorization: `Bearer ${getToken()}`,
     },
   });
-  const data = await res.json();
 
+  if (res.status === 401) {
+    removeToken();
+    return;
+  }
+
+  const data = await res.json();
   if (!res.ok) {
     throw new Error(data.message || "Failed to restore user");
   }
