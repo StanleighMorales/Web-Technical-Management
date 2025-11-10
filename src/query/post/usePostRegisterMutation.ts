@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import type { TRegisterUser } from "../../types/types";
+import { removeToken } from "../../utils/token";
 
 const RegisterUser = async (formData: TRegisterUser) => {
   try {
@@ -16,8 +17,12 @@ const RegisterUser = async (formData: TRegisterUser) => {
       body: newUserData,
     });
 
-    const data = await res.json();
+    if (res.status === 401) {
+      removeToken();
+      return;
+    }
 
+    const data = await res.json();
     if (!res.ok) {
       throw new Error(data.message || "Failed to register user");
     }
@@ -25,7 +30,9 @@ const RegisterUser = async (formData: TRegisterUser) => {
     return data;
 
   } catch (error) {
-    console.error(error)
+    if (error instanceof Error) {
+      console.error(error);
+    }
   }
 
 
