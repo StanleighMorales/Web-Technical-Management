@@ -183,25 +183,25 @@ export default function UserManagement() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr>
-                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold tracking-wider text-left uppercase border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                     Firstname
                   </th>
-                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold tracking-wider text-left uppercase border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                     Lastname
                   </th>
-                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold tracking-wider text-left uppercase border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                     Username
                   </th>
-                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold tracking-wider text-left uppercase border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                     Email
                   </th>
-                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold tracking-wider text-left uppercase border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                     Role
                   </th>
-                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold tracking-wider text-left uppercase border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                     Status
                   </th>
-                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold tracking-wider text-left uppercase border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                     Action
                   </th>
                 </tr>
