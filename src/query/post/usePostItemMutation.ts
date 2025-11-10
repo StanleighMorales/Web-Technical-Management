@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getToken } from "../../utils/token";
+import { getToken, removeToken } from "../../utils/token";
 
 type ItemData = {
   serialNumber: string;
@@ -39,6 +39,11 @@ const PostItem = async (formData: ItemData) => {
     },
     body: body,
   });
+
+  if (res.status === 401) {
+    removeToken();
+    return;
+  }
 
   const data = await res.json();
   if (!res.ok) throw new Error(data.errors || "Item Id already exist");
