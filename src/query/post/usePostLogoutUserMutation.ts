@@ -12,6 +12,11 @@ const LogoutUser = async () => {
             credentials: "include"
         });
 
+        if (res.status === 401) {
+            removeToken();
+            return;
+        }
+
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Logout User Failed");
 
