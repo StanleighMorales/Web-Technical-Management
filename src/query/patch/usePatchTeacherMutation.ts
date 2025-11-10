@@ -1,4 +1,4 @@
-import { getToken } from "../../utils/token/index.tsx";
+import { getToken, removeToken } from "../../utils/token/index.tsx";
 import type { TUpdatedTeacher } from "../../types/types.ts";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -21,6 +21,11 @@ const TeacherPatch = async ({ id, formData }: TeacherPatchProps) => {
       },
       body: updateTeacher
     })
+
+    if (res.status === 401) {
+      removeToken();
+      return;
+    }
 
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || "Submission failed");
