@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 type BadgesProps = {
   name: string;
   link: string;
-  data: number;
+  data: number | null;
 };
 
 export default function DashboardBadges({ name, link, data }: BadgesProps) {
