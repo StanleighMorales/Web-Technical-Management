@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getToken } from "../../utils/token";
+import { getToken, removeToken } from "../../utils/token";
 
 const AllStaffs = async () => {
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -12,6 +12,11 @@ const AllStaffs = async () => {
       Authorization: `Bearer ${getToken()}`,
     },
   });
+
+  if (res.status === 401) {
+    removeToken();
+    return;
+  }
 
   const data = await res.json();
 
