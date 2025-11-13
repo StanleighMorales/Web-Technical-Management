@@ -188,6 +188,9 @@ export type TUsers = {
   firstName: string;
   email: string;
   phoneNumber: string;
+  course: string;
+  section: string;
+  year: string;
   userRole: string;
   status: string;
   createdAt?: string;
