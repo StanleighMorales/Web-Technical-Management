@@ -14,6 +14,8 @@ import ErrorTable from "../components/ErrorTables";
 import PopUpModal from "../components/PopUpModal";
 import ViewUserCredentials from "../components/ViewUserCredentials";
 
+type TNewUserTypes = Omit<TUsers, "course" | "section" | "year">
+
 export default function UserManagement() {
   const [isAddUserOpen, setIsAddUserOpen] = useState<boolean>(false);
   const [isEditUserOpen, setIsEditUserOpen] = useState<boolean>(false);
@@ -24,7 +26,7 @@ export default function UserManagement() {
   const [selectedRole, setSelectedRole] = useState<string>("all");
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [archiveUserId, setArchiveUserId] = useState<string>("");
-  const [users, setUsers] = useState<TUsers[]>([]);
+  const [users, setUsers] = useState<TNewUserTypes[]>([]);
 
   const selectedUser = useMemo(() => {
     return users.find((u) => u.id === selectedUserId);
