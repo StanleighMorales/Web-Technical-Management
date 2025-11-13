@@ -1,3 +1,4 @@
+import { type FC } from "react";
 import { useArchivesItemsQuery } from "../query/get/useArchivesItemsQuery.ts";
 import { useArchivesUsersQuery } from "../query/get/useArchiveUsersQuery.ts";
 import { FaTrash, FaUser } from "react-icons/fa6";
@@ -10,19 +11,22 @@ import { useRestoreUserMutation } from "../query/delete/useRestoreUserMutation.t
 import ErrorTable from "../components/ErrorTables.tsx";
 import SearchBar from "../components/SearchBar.tsx";
 import Pagination from "../components/Pagination.tsx";
-import ArchiveItemTable from "../components/ArchiveItemTable.tsx";
 import { useDeleteItemMutation } from "../query/delete/useDeleteItemMutation.ts";
 import PopUpModal from "../components/PopUpModal.tsx";
 import PopUpModalDelete from "../components/PopUpModalDelete.tsx";
 import { UserData } from "../utils/usersData/userData.ts";
 import { FaTrashRestore } from "react-icons/fa";
-import { type FC } from "react";
-import ArchiveTeacherTable from "../components/ArchiveTeacherTable.tsx";
-import ArchiveStudentTable from "../components/ArchiveStudentTable.tsx";
+import { ArchiveItemTable } from "../components/ArchiveItemTable.tsx";
+import { ArchiveTeacherTable } from "../components/ArchiveTeacherTable.tsx";
+import { ArchiveStudentTable } from "../components/ArchiveStudentTable.tsx";
 import ArchiveStudentCredentialsPopup from "../components/ArchiveStudentCredentialsPopup.tsx";
 import ArchiveTeacherCredentialsPopup from "../components/ArchiveTeacherCredentialsPopup.tsx";
 import ArchiveItemDetailsPopup from "../components/ArchiveItemDetailsPopup.tsx";
 import { useDeleteUserMutation } from "../query/delete/useDeleteUsersMutation.ts";
+
+type TNewUserTypes = Omit<TUsers, "course" | "section" | "year">
+type TStudentTypes = Required<TUsers>
+
 
 export default function Archive() {
   const [archiveItems, setArchiveItems] = useState<TArchiveItem[]>([]);
@@ -469,9 +473,6 @@ export default function Archive() {
                             itemName={item.itemName}
                             serialNumber={item.serialNumber}
                             image={item.image || null}
-                            itemType={item.itemType}
-                            itemModel={item.itemModel}
-                            itemMake={item.itemMake}
                             description={item.description}
                             category={item.category}
                             condition={item.condition}
@@ -561,7 +562,7 @@ export default function Archive() {
                       </tr>
                     ) : (
                       // Mapping all the archived users
-                      paginatedUsers.map((user: TUsers) => (
+                      paginatedUsers.map((user: TNewUserTypes) => (
                         <tr
                           key={user.id}
                           className="transition-colors cursor-pointer odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9]"
@@ -656,7 +657,7 @@ export default function Archive() {
                         </td>
                       </tr>
                     ) : (
-                      paginatedUsers.map((user: TUsers) => (
+                      paginatedUsers.map((user: TNewUserTypes) => (
                         <tr key={user.id} className="transition-colors cursor-pointer odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9]">
                           <ArchiveTeacherTable
                             id={user.id}
@@ -728,13 +729,16 @@ export default function Archive() {
                         </td>
                       </tr>
                     ) : (
-                      paginatedUsers.map((user: TUsers) => (
+                      paginatedUsers.map((user: TStudentTypes) => (
                         <tr key={user.id} className="transition-colors cursor-pointer odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9]">
                           <ArchiveStudentTable
                             id={user.id}
                             firstName={user.firstName}
                             middleName={user.middleName}
                             lastName={user.lastName}
+                            course={user.course}
+                            section={user.section}
+                            year={user.year}
                             userRole={user.userRole}
                             status={user.status}
                             onDelete={() => handleDeleteUser(user.id)}
