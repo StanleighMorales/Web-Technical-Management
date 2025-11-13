@@ -251,3 +251,36 @@ export type TUpdatePassword = {
   newPassword: string;
   confirmPassword: string;
 }
+
+
+export type TRecentBorrowItemProps = {
+  id: string;
+  userId: null,
+  teacherId: string,
+  borrowerFullName: string,
+  borrowerRole: string,
+  teacherFullName: string,
+  room: string,
+  subjectTimeSchedule: string,
+  lentAt: string,
+  returnedAt: string,
+  status: string,
+  remarks: null,
+  isHiddenFromUser: boolean,
+  item: {
+    id: string;
+    serialNumber: string;
+    barcode: null;
+    barcodeImage: null;
+    image: null;
+    itemName: string;
+    itemType: string;
+    itemModel: string;
+    itemMake: string;
+    description: string;
+    category: string;
+    condition: string;
+    createdAt: string;
+    updatedAt: string;
+  }
+}
