@@ -26,42 +26,29 @@ type StudentTableProps = {
     middleName: string,
     firstName: string
     onSetEditUserId: (value: string) => void,
-    onSetIsEditStudentrOpen: (value: boolean) => void;
+    onSetIsEditStudentOpen: (value: boolean) => void;
     onSetViewStudentId: (value: string) => void;
     onSetIsViewStudentOpen: (value: boolean) => void;
     onMutate: (value: string) => void;
 };
 
-export default function StudentTable({
-    id,
-    studentIdNumber,
-    userRole,
-    lastName,
-    middleName,
-    firstName,
-    course,
-    section,
-    year,
-    onSetIsEditStudentrOpen,
-    onSetEditUserId,
-    onSetViewStudentId,
-    onSetIsViewStudentOpen,
-    onMutate,
-}: StudentTableProps) {
+type TStudentNewTypes = Pick<StudentTableProps, "id" | "studentIdNumber" | "userRole" | "lastName" | "middleName" | "firstName" | "course" | "section" | "year" | "onSetIsEditStudentOpen" | "onSetEditUserId" | "onSetViewStudentId" | "onSetIsViewStudentOpen" | "onMutate">
+
+export const StudentTable: FC<TStudentNewTypes> = (props) => {
 
     const data = UserData()
 
     const handleArchiveStudent = () => {
-        onMutate(id);
+        props.onMutate(props.id);
     };
 
     const handleEditStudent = (id: string) => {
-        onSetEditUserId(id);
-        onSetIsEditStudentrOpen(true);
+        props.onSetEditUserId(id);
+        props.onSetIsEditStudentOpen(true);
     }
     const handleViewStudent = (id: string) => {
-        onSetViewStudentId(id);
-        onSetIsViewStudentOpen(true);
+        props.onSetViewStudentId(id);
+        props.onSetIsViewStudentOpen(true);
     };
 
     type ShowButtonIfUserAdminProps = {
@@ -78,7 +65,7 @@ export default function StudentTable({
             <button
                 onClick={onHandleArchiveStudent}
                 title="Archive student"
-                className="text-orange-600 text-2xl cursor-pointer hover:text-orange-700 transition-colors"
+                className="text-2xl text-orange-600 transition-colors cursor-pointer hover:text-orange-700"
             >
                 <IoArchive />
             </button>
@@ -86,29 +73,29 @@ export default function StudentTable({
     };
 
     const getFullName = () => {
-        const middleInitial = middleName ? `${middleName.charAt(0)}.` : "";
-        return `${firstName} ${middleInitial} ${lastName}`.replace(/\s+/g, " ").trim();
+        const middleInitial = props.middleName ? `${props.middleName.charAt(0)}.` : "";
+        return `${props.firstName} ${middleInitial} ${props.lastName}`.replace(/\s+/g, " ").trim();
     };
 
     return (
         <>
-            <td className="py-3 px-6">{studentIdNumber}</td>
+            <td className="py-3 px-6">{props.studentIdNumber}</td>
             <td className="py-3 px-6">{getFullName()}</td>
-            <td className="py-3 px-6">{course }</td>
-            <td className="py-3 px-6">{section}</td>
-            <td className="py-3 px-6">{year}</td>
-            <td className="py-3 px-6">{userRole}</td>
-            <td className="py-3 px-6 flex flex-row">
+            <td className="py-3 px-6">{props.course}</td>
+            <td className="py-3 px-6">{props.section}</td>
+            <td className="py-3 px-6">{props.year}</td>
+            <td className="py-3 px-6">{props.userRole}</td>
+            <td className="flex flex-row py-3 px-6">
                 <button
-                    className="mr-2 text-green-500 text-2xl hover:text-green-700 transition-colors"
-                    onClick={() => handleViewStudent(id)}
+                    className="mr-2 text-2xl text-green-500 transition-colors hover:text-green-700"
+                    onClick={() => handleViewStudent(props.id)}
                     title="View student credentials"
                 >
                     <MdVisibility />
                 </button>
                 <button
-                    className="mr-2 text-blue-500 text-2xl hover:text-blue-700 transition-colors"
-                    onClick={() => handleEditStudent(id)}
+                    className="mr-2 text-2xl text-blue-500 transition-colors hover:text-blue-700"
+                    onClick={() => handleEditStudent(props.id)}
                     title="Edit user"
                 >
                     <CiEdit />
