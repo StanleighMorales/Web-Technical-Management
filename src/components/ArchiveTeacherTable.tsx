@@ -2,6 +2,7 @@ import { FaTrash } from "react-icons/fa6";
 import { UserData } from "../utils/usersData/userData";
 import { FaTrashRestore } from "react-icons/fa";
 import { MdVisibility } from "react-icons/md";
+import type { FC } from "react";
 
 type ArchiveTeacherTableProps = {
     id: string;
@@ -17,28 +18,15 @@ type ArchiveTeacherTableProps = {
     isRestoring: boolean;
     isDeleting: boolean;
 }
-export default function ArchiveTeacherTable({
-    id,
-    firstName,
-    middleName,
-    lastName,
-    username,
-    userRole,
-    status,
-    onDelete,
-    onRestore,
-    onView,
-    isRestoring,
-    isDeleting,
-}: ArchiveTeacherTableProps) {
+export const ArchiveTeacherTable: FC<Required<ArchiveTeacherTableProps>> = (props) => {
 
     type checkIfUserAdminProps = {
         userRole?: string,
         onHandleRestoreTeacher: () => void,
         onHandleDeleteTeacher: () => void
     }
-    const data = UserData()
 
+    const data = UserData()
 
     const ShowButtonIfUserAdmin = ({ userRole, onHandleRestoreTeacher, onHandleDeleteTeacher }: checkIfUserAdminProps) => {
         if (userRole !== "Admin") return null;
@@ -46,18 +34,18 @@ export default function ArchiveTeacherTable({
             <>
                 <button
                     onClick={onHandleDeleteTeacher}
-                    disabled={isDeleting}
+                    disabled={props.isDeleting}
                     title="Delete Teacher"
-                    className="text-red-600 text-2xl cursor-pointer mr-2"
+                    className="mr-2 text-2xl text-red-600 cursor-pointer"
                 >
                     <FaTrash />
                 </button>
 
                 <button
                     onClick={onHandleRestoreTeacher}
-                    disabled={isRestoring}
+                    disabled={props.isRestoring}
                     title="Restore Teacher"
-                    className="text-orange-300 text-2xl cursor-pointer"
+                    className="text-2xl text-orange-300 cursor-pointer"
                 >
                     <FaTrashRestore />
                 </button>
@@ -66,43 +54,43 @@ export default function ArchiveTeacherTable({
     }
     return (
         <>
-            <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
-                {id}
+            <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
+                {props.id}
             </td>
-            <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
-                {firstName} {middleName} {lastName}
+            <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
+                {props.firstName} {String(props.middleName).charAt(0).toUpperCase()}. {props.lastName}
             </td>
-            <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
-                {username}
+            <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
+                {props.username}
             </td>
-            <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
-                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${userRole === 'teacher'
+            <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
+                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${props.userRole === 'teacher'
                     ? 'bg-blue-100 text-blue-800'
                     : 'bg-gray-100 text-gray-800'
                     }`}>
-                    {userRole}
+                    {props.userRole}
                 </span>
             </td>
-            <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
-                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${status === 'active'
+            <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
+                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${props.status === 'active'
                     ? 'bg-green-100 text-green-800'
                     : 'bg-red-100 text-red-800'
                     }`}>
-                    {status}
+                    {props.status}
                 </span>
             </td>
-            <td className="py-4 px-4 border-b border-[#e6e6e6] text-[#1e293b] font-medium">
+            <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
                 <button
-                    onClick={() => onView(id)}
-                    className="mr-2 text-green-500 text-2xl hover:text-green-700 transition-colors"
+                    onClick={() => props.onView(props.id)}
+                    className="mr-2 text-2xl text-green-500 transition-colors hover:text-green-700"
                     title="View teacher credentials"
                 >
                     <MdVisibility />
                 </button>
                 <ShowButtonIfUserAdmin
                     userRole={data.userRole}
-                    onHandleDeleteTeacher={() => onDelete(id)}
-                    onHandleRestoreTeacher={() => onRestore(id)}
+                    onHandleDeleteTeacher={() => props.onDelete(props.id)}
+                    onHandleRestoreTeacher={() => props.onRestore(props.id)}
                 />
             </td>
         </>
