@@ -15,61 +15,61 @@ type TRecentBorrowedItemsTableProps = {
   subjectTimeSchedule?: string;
   remarks: string | null;
   createdAt: string;
+  status: string;
   onSetSelectedId?: (value: string) => void;
   onView?: (value: boolean) => void;
 }
-export const RecentBorrowedItemsTable: FC<TRecentBorrowedItemsTableProps> = ({
-  image,
-  itemName,
-  serialNumber,
-  borrowerFullName,
-  room,
-  teacherFullName,
-  remarks,
-  createdAt,
-  onSetSelectedId,
-  onView
-}) => {
+
+type TRecentNewProps = Omit<TRecentBorrowedItemsTableProps, "barcode" | "barcodeImage" | "subjectTimeSchedule">
+
+export const RecentBorrowedItemsTable: FC<TRecentNewProps> = (props) => {
 
   const handleviewBorrowItemDetails = (id: string) => {
-    if (onSetSelectedId && onView) {
-      onSetSelectedId(id);
-      onView(true);
+    if (props.onSetSelectedId && props.onView) {
+      props.onSetSelectedId(id);
+      props.onView(true);
     }
   }
 
   return (
     <>
       <td className="py-3 px-4">
-        {serialNumber}
+        {props.serialNumber}
       </td>
       <td className="py-4 px-6">
         <img
-          src={typeof image === "string" ? image : "-"}
-          alt={itemName}
+          src={typeof props.image === "string" ? props.image : "-"}
+          alt={props.itemName}
           className="w-10 h-10 rounded-xl"
         />
       </td>
       <td className="py-4 px-6">
-        {itemName}
+        {props.itemName}
       </td>
       <td className="py-4 px-6">
-        {borrowerFullName}
+        {props.borrowerFullName}
       </td>
       <td className="py-4 px-6">
-        {teacherFullName || "-"}
+        {props.teacherFullName || "-"}
       </td>
       <td className="py-4 px-6">
-        {room || "-"}
+        {props.room || "-"}
       </td>
       <td className="py-4 px-6">
-        {remarks}
+        {props.remarks || "-"}
       </td>
       <td className="py-4 px-6">
-        {FormattedDateTime(createdAt)}
+        {FormattedDateTime(props.createdAt)}
       </td>
-      <td className="py-4 px-6 font-semibold text-center">
-        <button onClick={() => handleviewBorrowItemDetails(serialNumber)}
+      <td className="py-4 px-6">
+        <span
+          className={`px-3 py-1 rounded-full text-sm ${SlugStatus(props.status)}`}
+        >
+          {props.status}
+        </span>
+      </td>
+      <td className="py-4 px-6 font-semibold">
+        <button onClick={() => handleviewBorrowItemDetails(props.serialNumber)}
           className="mr-2 text-2xl text-green-500"
           title="View more"
         >
