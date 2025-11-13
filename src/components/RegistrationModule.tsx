@@ -10,7 +10,7 @@ import { useAllStudentsQuery } from "../query/get/useAllStudentsQuery";
 import { useAllTeachersQuery } from "../query/get/useAllTeachersQuery";
 import { useArchiveStudentMutation } from "../query/delete/useArchiveStudentMutation";
 import { useArchiveTeacherMutation } from "../query/delete/useArchiveTeacherMutation";
-import StudentTable from "./StudentTable";
+import {StudentTable} from "./StudentTable";
 import TeacherTable from "./TeacherTable";
 import ViewStudentCredentials from "./ViewStudentCredentials";
 import ViewTeacherCredentials from "./ViewTeacherCredentials";
