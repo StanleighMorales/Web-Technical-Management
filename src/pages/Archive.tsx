@@ -24,8 +24,8 @@ import ArchiveTeacherCredentialsPopup from "../components/ArchiveTeacherCredenti
 import ArchiveItemDetailsPopup from "../components/ArchiveItemDetailsPopup.tsx";
 import { useDeleteUserMutation } from "../query/delete/useDeleteUsersMutation.ts";
 
+type TStudentTypes = TUsers
 type TNewUserTypes = Omit<TUsers, "course" | "section" | "year">
-type TStudentTypes = Required<TUsers>
 
 
 export default function Archive() {
