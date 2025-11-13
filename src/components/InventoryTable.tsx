@@ -28,17 +28,7 @@ type InventoryTableProps = {
   onMutate: (value: string) => void;
 };
 
-export default function InventoryTable({
-  id,
-  createdAt,
-  ItemName,
-  SerialNumber,
-  Image,
-  Category,
-  Condition,
-  Status,
-  onMutate,
-}: InventoryTableProps) {
+export const InventoryTable: FC<Required<InventoryTableProps>> = (props) => {
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const data = UserData()
@@ -49,7 +39,7 @@ export default function InventoryTable({
   }
 
   const handleConfirmArchive = () => {
-    onMutate(id!);
+    props.onMutate(props.id!);
   }
 
   const handleCancelArchive = () => {
@@ -74,34 +64,34 @@ export default function InventoryTable({
 
   return (
     <>
-      <td className="py-3 px-4">{SerialNumber}</td>
+      <td className="py-3 px-4">{props.SerialNumber}</td>
       <td className="py-3 px-4">
         <img
-          src={typeof Image === "string" ? Image : logo}
-          alt={ItemName}
+          src={typeof props.Image === "string" ? props.Image : logo}
+          alt={props.ItemName}
           className="w-10 h-10 rounded-xl"
         />
       </td>
-      <td className="py-3 px-4">{ItemName}</td>
-      <td className="py-3 px-4">{Category}</td>
+      <td className="py-3 px-4">{props.ItemName}</td>
+      <td className="py-3 px-4">{props.Category}</td>
       <td className="py-3 px-4">
         <span
-          className={`px-3 py-1 rounded-full text-sm ${SlugCondition(Condition)}`}
+          className={`px-3 py-1 rounded-full text-sm ${SlugCondition(props.Condition)}`}
         >
-          {Condition}
+          {props.Condition}
         </span>
       </td>
+      <td className="py-3 px-4">{FormattedDateTime(props.createdAt)}</td>
       <td className="py-3 px-4">
         <span
-          className={`px-3 py-1 rounded-full text-sm ${SlugStatus(Status)}`}
+          className={`px-3 py-1 rounded-full text-sm ${SlugStatus(props.Status)}`}
         >
-          {Status}
+          {props.Status}
         </span>
       </td>
-      <td className="py-3 px-4">{FormattedDateTime(createdAt)}</td>
       <td className="flex flex-row py-3 px-4">
         <Link
-          to={`/item/${id}`}
+          to={`/item/${props.id}`}
           title="View more"
           className="mr-2 text-2xl text-green-500"
         >
