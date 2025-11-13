@@ -10,7 +10,7 @@ import type { TItemList } from "../types/types";
 import { useAllItemsQuery } from "../query/get/useAllItemsQuery";
 import { InventoryBadges } from "../components/InventoryBadges";
 import Pagination from "../components/Pagination";
-import InventoryTable from "../components/InventoryTable";
+import { InventoryTable } from "../components/InventoryTable";
 import ErrorTable from "../components/ErrorTables";
 
 export default function InventoryList() {
@@ -178,10 +178,10 @@ export default function InventoryList() {
                         Condition
                       </th>
                       <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
-                        Status
+                        DateTime
                       </th>
                       <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
-                        DateTime
+                        Status
                       </th>
                       <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
                         Action
