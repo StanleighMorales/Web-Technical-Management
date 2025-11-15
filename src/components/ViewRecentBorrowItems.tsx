@@ -13,9 +13,12 @@ import {
 import { FaBox, FaTag, FaCalendarAlt, FaUser, FaDoorOpen, FaCheckCircle } from "react-icons/fa";
 import { useViewBorrowItemCredentials } from "../query/get/useViewBorrowItemCredentials.ts";
 import { FormattedDateTime } from "./FormatedDateTime";
+import CloseButton from "./CloseButton.tsx";
 import type { TRecentBorrowItemProps } from "../types/types.ts";
 import ErrorTable from "../components/ErrorTables.tsx";
 import { useEffect, useState } from "react";
+
+
 
 type TArchiveItemDetailsPopupProps = {
   itemId: string;
@@ -82,13 +85,7 @@ export const ViewRecentBorrowItems = ({
                 <p className="text-gray-600">Complete borrow item information</p>
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="text-gray-400 transition-colors hover:text-gray-600"
-              title="Close"
-            >
-              <MdClose className="text-2xl" />
-            </button>
+            <CloseButton onClick={onClose} />
           </div>
         </div>
 
