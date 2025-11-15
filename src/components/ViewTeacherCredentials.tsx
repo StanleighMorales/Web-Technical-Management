@@ -3,7 +3,7 @@ import { IoIdCard } from "react-icons/io5";
 import type { FC } from "react";
 import type { TTeacher } from "../types/types";
 import { FaPlus } from "react-icons/fa6";
-
+import { FormattedPhoneNumber } from "./FormatedPhoneNumber";
 type ViewTeacherCredentialsProps = {
     teacher: TTeacher;
     isOpen: boolean;
@@ -63,20 +63,20 @@ const ViewTeacherCredentials: FC<ViewTeacherCredentialsProps> = ({
                             </div>
                             <div>
                                 <label className="block mb-1 text-sm font-medium text-gray-700">Username</label>
-                                <p className="text-gray-900">{teacher.username}</p>
+                                <p className="text-gray-900">{teacher.username || "N/A"}</p>
                             </div>
                             <div>
                                 <label className="block mb-1 text-sm font-medium text-gray-700">Email</label>
                                 <div className="flex items-center">
                                     <MdEmail className="mr-2 text-gray-400" />
-                                    <p className="text-gray-900">{teacher.email}</p>
+                                    <p className="text-gray-900">{teacher.email || "N/A"}</p>
                                 </div>
                             </div>
                             <div>
                                 <label className="block mb-1 text-sm font-medium text-gray-700">Phone Number</label>
                                 <div className="flex items-center">
                                     <MdPhone className="mr-2 text-gray-400" />
-                                    <p className="text-gray-900">{teacher.phoneNumber}</p>
+                                    <p className="text-gray-900">{FormattedPhoneNumber(teacher.phoneNumber) || "N/A"}</p>
                                 </div>
                             </div>
                         </div>
@@ -91,11 +91,11 @@ const ViewTeacherCredentials: FC<ViewTeacherCredentialsProps> = ({
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
                                 <label className="block mb-1 text-sm font-medium text-gray-700">Department</label>
-                                <p className="text-gray-900">{teacher.department}</p>
+                                <p className="text-gray-900">{teacher.department || "N/A"}</p>
                             </div>
                             <div>
                                 <label className="block mb-1 text-sm font-medium text-gray-700">Subject Specialization</label>
-                                <p className="text-gray-900">{teacher.subject}</p>
+                                <p className="text-gray-900">{teacher.subject || "N/A"}</p>
                             </div>
                         </div>
                     </div>
@@ -113,7 +113,7 @@ const ViewTeacherCredentials: FC<ViewTeacherCredentialsProps> = ({
                                     ? 'bg-red-100 text-red-800'
                                     : 'bg-green-100 text-green-800'
                                     }`}>
-                                    {teacher.userRole}
+                                    {teacher.userRole || "N/A"}
                                 </span>
                             </div>
                             <div>
@@ -122,7 +122,7 @@ const ViewTeacherCredentials: FC<ViewTeacherCredentialsProps> = ({
                                     ? 'bg-green-100 text-green-800'
                                     : 'bg-gray-100 text-gray-800'
                                     }`}>
-                                    {teacher.status}
+                                    {teacher.status || "N/A"}
                                 </span>
                             </div>
                         </div>
