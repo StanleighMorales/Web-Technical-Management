@@ -6,8 +6,10 @@ import { FaPlus } from "react-icons/fa6";
 import { useState } from "react";
 import ChangePasswordModal from "./ChangePasswordModal";
 
+type TNewUserTyps = Omit<TUsers, 'course' | 'year' | 'section'>
+
 type ViewUserCredentialsProps = {
-  user: TUsers;
+  user: TNewUserTyps;
   isOpen: boolean;
   onClose: () => void;
 };
@@ -65,24 +67,24 @@ const ViewUserCredentials = ({ user, isOpen, onClose }: ViewUserCredentialsProps
               </div>
               <div>
                 <label className="block mb-1 text-sm font-medium text-gray-700">Full Name</label>
-                <p className="font-medium text-gray-900">{getFullName()}</p>
+                <p className="font-medium text-gray-900">{getFullName() || "N/A"}</p>
               </div>
               <div>
                 <label className="block mb-1 text-sm font-medium text-gray-700">Username</label>
-                <p className="text-gray-900">{user.username}</p>
+                <p className="text-gray-900">{user.username || "N/A"}</p>
               </div>
               <div>
                 <label className="block mb-1 text-sm font-medium text-gray-700">Email</label>
                 <div className="flex items-center">
                   <MdEmail className="mr-2 text-gray-400" />
-                  <p className="text-gray-900">{user.email}</p>
+                  <p className="text-gray-900">{user.email || "N/A"}</p>
                 </div>
               </div>
               <div>
                 <label className="block mb-1 text-sm font-medium text-gray-700">Phone Number</label>
                 <div className="flex items-center">
                   <MdPhone className="mr-2 text-gray-400" />
-                  <p className="text-gray-900">{user.phoneNumber}</p>
+                  <p className="text-gray-900">{user.phoneNumber || "N/A"}</p>
                 </div>
               </div>
             </div>
