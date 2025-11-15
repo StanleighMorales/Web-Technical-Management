@@ -32,7 +32,7 @@ type StudentTableProps = {
     onMutate: (value: string) => void;
 };
 
-type TStudentNewTypes = Pick<StudentTableProps, "id" | "studentIdNumber" | "userRole" | "lastName" | "middleName" | "firstName" | "course" | "section" | "year" | "onSetIsEditStudentOpen" | "onSetEditUserId" | "onSetViewStudentId" | "onSetIsViewStudentOpen" | "onMutate">
+type TStudentNewTypes = Pick<StudentTableProps, "id" | "studentIdNumber" | "userRole" | "lastName" | "phoneNumber" | "middleName" | "firstName" | "course" | "section" | "year" | "onSetIsEditStudentOpen" | "onSetEditUserId" | "onSetViewStudentId" | "onSetIsViewStudentOpen" | "onMutate">
 
 export const StudentTable: FC<TStudentNewTypes> = (props) => {
 
