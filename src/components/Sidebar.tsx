@@ -22,8 +22,8 @@ export default function Sidebar() {
     { label: "Your Archive", link: "archive-table", icon: MdInventory },
     { label: "Your History", link: "history-list", icon: MdHistory },
     { label: "Borrow Items", link: "borrow-item", icon: GrStorage },
-    { label: "Your Settings", link: "settings", icon: CiSettings },
     { label: "Registration Module", link: "registration-module", icon: MdAppRegistration },
+    { label: "Your Settings", link: "settings", icon: CiSettings },
   ];
 
   const toggleMobileMenu = () => {
