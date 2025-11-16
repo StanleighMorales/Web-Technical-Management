@@ -16,6 +16,7 @@ import ViewStudentCredentials from "./ViewStudentCredentials";
 import ViewTeacherCredentials from "./ViewTeacherCredentials";
 import { FaChalkboardTeacher, FaGraduationCap } from "react-icons/fa";
 import PopUpModal from "./PopUpModal";
+import ErrorTable from "./ErrorTables.tsx";
 
 export default function RegistrationModule() {
   const [isAddTeacherOpen, setIsAddTeacherOpen] = useState<boolean>(false);
@@ -39,6 +40,11 @@ export default function RegistrationModule() {
   const [students, setStudents] = useState<TStudent[]>([]);
   const [teachers, setTeachers] = useState<TTeacher[]>([]);
 
+  const { data: studentsData, isError: isStudentStudentIsError } = useQuery(useAllStudentsQuery());
+  const { data: teachersData, isError: isTeacherDataIsError } = useQuery(useAllTeachersQuery());
+  const { mutate: archiveStudent } = useArchiveStudentMutation();
+  const { mutate: archiveTeacher } = useArchiveTeacherMutation();
+
   const selectedViewStudent = useMemo(() => {
     return students.find((s) => s.id === viewStudentId);
   }, [students, viewStudentId]);
@@ -55,10 +61,6 @@ export default function RegistrationModule() {
     return students.find((s) => s.id === editStudentId);
   }, [students, editStudentId]);
 
-  const { data: studentsData } = useQuery(useAllStudentsQuery());
-  const { data: teachersData } = useQuery(useAllTeachersQuery());
-  const { mutate: archiveStudent } = useArchiveStudentMutation();
-  const { mutate: archiveTeacher } = useArchiveTeacherMutation();
 
   useEffect(() => {
     if (studentsData && Array.isArray(studentsData)) {
@@ -323,19 +325,8 @@ export default function RegistrationModule() {
                         >
                           <StudentTable
                             id={student.id}
-                            frontStudentIdPicture={
-                              student.frontStudentIdPicture
-                            }
-                            backStudentIdPicture={student.backStudentIdPicture}
                             phoneNumber={student.phoneNumber}
-                            street={student.street}
-                            cityMunicipality={student.cityMunicipality}
-                            province={student.province}
-                            postalCode={student.postalCode}
-                            username={student.username}
-                            email={student.email}
                             userRole={student.userRole}
-                            status={student.status}
                             firstName={student.firstName}
                             middleName={student.middleName}
                             lastName={student.lastName}
@@ -343,8 +334,7 @@ export default function RegistrationModule() {
                             course={student.course}
                             section={student.section}
                             year={student.year}
-                            profilePicture={student.profilePicture}
-                            onSetIsEditStudentrOpen={() =>
+                            onSetIsEditStudentOpen={() =>
                               setIsEditStudentOpen(true)
                             }
                             onSetEditUserId={() => setEditStudentId(student.id)}
@@ -380,6 +370,7 @@ export default function RegistrationModule() {
             </div>
           ) : (
             <div className="overflow-x-auto h-[22rem]">
+            {isTeacherDataIsError ? <ErrorTable /> : (
               <table className="w-full">
                 <thead className="bg-[#f8fafc]">
                   <tr>
@@ -431,6 +422,7 @@ export default function RegistrationModule() {
                     ))}
                 </tbody>
               </table>
+            )} 
             </div>
           )}
         </div>
@@ -485,6 +477,7 @@ export default function RegistrationModule() {
       )}
       {isEditTeacherOpen && selectedEditTeacher && (
         <EditTeacher
+
           id={selectedEditTeacher.id}
           firstName={selectedEditTeacher.firstName}
           middleName={selectedEditTeacher.middleName}
