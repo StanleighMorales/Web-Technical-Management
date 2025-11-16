@@ -85,39 +85,39 @@ export default function EditProfileModal({ initialValues, onClose, onSubmit }: E
     }
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center">
+        <div className="flex fixed inset-0 justify-center items-center z-[60]">
             <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-            <div className="relative z-10 w-full max-w-2xl rounded-2xl border border-white/60 bg-white/80 backdrop-blur p-6 shadow-2xl">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">Edit Profile</h3>
+            <div className="relative z-10 p-6 w-full max-w-2xl rounded-2xl border shadow-2xl border-white/60 bg-white/80 backdrop-blur">
+                <h3 className="mb-4 text-lg font-semibold text-slate-900">Edit Profile</h3>
 
-                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
                         <label className="block text-sm font-medium text-slate-700">First Name</label>
-                        <div className="mt-1 relative">
+                        <div className="relative mt-1">
                             <input
                                 type="text"
-                                className="w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 pr-9 text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                className="py-2 px-3 pr-9 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
                                 value={values.firstName ?? ""}
                                 onChange={(e) => update("firstName", e.target.value)}
                                 placeholder="Your firstname"
                                 required
                             />
-                            <span className="pointer-events-none absolute inset-y-0 right-2 inline-flex items-center text-slate-400"><FaUser /></span>
+                            <span className="inline-flex absolute inset-y-0 right-2 items-center pointer-events-none text-slate-400"><FaUser /></span>
                         </div>
                     </div>
 
                     <div>
                         <label className="block text-sm font-medium text-slate-700">Last Name</label>
-                        <div className="mt-1 relative">
+                        <div className="relative mt-1">
                             <input
                                 type="text"
-                                className="w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 pr-9 text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                className="py-2 px-3 pr-9 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
                                 value={values.lastName ?? ""}
                                 onChange={(e) => update("lastName", e.target.value)}
                                 placeholder="Your lastname"
                                 required
                             />
-                            <span className="pointer-events-none absolute inset-y-0 right-2 inline-flex items-center text-slate-400"><FaUser /></span>
+                            <span className="inline-flex absolute inset-y-0 right-2 items-center pointer-events-none text-slate-400"><FaUser /></span>
                         </div>
                     </div>
 
@@ -125,7 +125,7 @@ export default function EditProfileModal({ initialValues, onClose, onSubmit }: E
                         <label className="block text-sm font-medium text-slate-700">Middle Name</label>
                         <input
                             type="text"
-                            className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                            className="py-2 px-3 mt-1 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
                             value={values.middleName ?? ""}
                             onChange={(e) => update("middleName", e.target.value)}
                             placeholder="Your middle name"
@@ -136,7 +136,7 @@ export default function EditProfileModal({ initialValues, onClose, onSubmit }: E
                         <label className="block text-sm font-medium text-slate-700">Username</label>
                         <input
                             type="text"
-                            className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                            className="py-2 px-3 mt-1 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
                             value={values.username ?? ""}
                             onChange={(e) => update("username", e.target.value)}
                             placeholder="Your username"
@@ -146,49 +146,49 @@ export default function EditProfileModal({ initialValues, onClose, onSubmit }: E
 
                     <div>
                         <label className="block text-sm font-medium text-slate-700">Email</label>
-                        <div className="mt-1 relative">
+                        <div className="relative mt-1">
                             <input
                                 type="email"
-                                className="w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 pr-9 text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                className="py-2 px-3 pr-9 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
                                 value={values.email ?? ""}
                                 onChange={(e) => update("email", e.target.value)}
                                 placeholder="Your email"
                                 required
                             />
-                            <span className="pointer-events-none absolute inset-y-0 right-2 inline-flex items-center text-slate-400"><MdOutlineEmail /></span>
+                            <span className="inline-flex absolute inset-y-0 right-2 items-center pointer-events-none text-slate-400"><MdOutlineEmail /></span>
                         </div>
                     </div>
 
                     <div>
                         <label className="block text-sm font-medium text-slate-700">Phone Number</label>
-                        <div className="mt-1 relative">
+                        <div className="relative mt-1">
                             <input
                                 type="tel"
-                                className="w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 pr-9 text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                className="py-2 px-3 pr-9 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
                                 value={values.phoneNumber ?? ""}
                                 onChange={(e) => update("phoneNumber", e.target.value)}
-                                maxLength={10}
+                                maxLength={11}
                                 placeholder="09XX XXX XXXX"
                             />
-                            <span className="pointer-events-none absolute inset-y-0 right-2 inline-flex items-center text-slate-400"><FaPhone /></span>
+                            <span className="inline-flex absolute inset-y-0 right-2 items-center pointer-events-none text-slate-400"><FaPhone /></span>
                         </div>
                     </div>
 
                     {errorMessage && (
-                        <div className="md:col-span-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                        <div className="py-2 px-3 text-sm text-red-700 bg-red-50 rounded-md border border-red-200 md:col-span-2">
                             {errorMessage}
                         </div>
                     )}
                     {successMessage && (
-                        <div className="md:col-span-2 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+                        <div className="py-2 px-3 text-sm text-green-700 bg-green-50 rounded-md border border-green-200 md:col-span-2">
                             {successMessage}
                         </div>
                     )}
 
-                    <div className="md:col-span-2 flex justify-end gap-3 pt-2">
+                    <div className="flex gap-3 justify-end pt-2 md:col-span-2">
                         <button
                             type="button"
-                            className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                            className="py-2 px-4 text-sm font-medium bg-white rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50"
                             onClick={onClose}
                         >
                             Cancel
@@ -196,7 +196,7 @@ export default function EditProfileModal({ initialValues, onClose, onSubmit }: E
                         <button
                             type="submit"
                             disabled={!isValid || isSubmitting}
-                            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+                            className="py-2 px-4 text-sm font-semibold text-white bg-blue-600 rounded-lg shadow-sm hover:bg-blue-500 disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                             {isSubmitting ? "Saving..." : "Save Changes"}
                         </button>
@@ -206,5 +206,4 @@ export default function EditProfileModal({ initialValues, onClose, onSubmit }: E
         </div>
     );
 }
-
 
