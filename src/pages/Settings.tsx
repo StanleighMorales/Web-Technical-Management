@@ -4,7 +4,7 @@ import { useUserQuery } from "../query/get/useUserQuery";
 import { FaUser, FaClock, FaPhone } from "react-icons/fa6";
 import { CiSettings } from "react-icons/ci";
 import { MdOutlineEmail } from "react-icons/md";
-import { FormatedPhoneNumber } from "../components/FormatedPhoneNumber";
+import { FormattedPhoneNumber } from "../components/FormatedPhoneNumber";
 import SettingsSkeletonLoader from "../loader/SettingsSkeletonLoader";
 import { FiEdit3, FiLock } from "react-icons/fi";
 import ChangePasswordModal from "../components/ChangePasswordModal";
@@ -193,7 +193,7 @@ export default function Settings() {
                         <div>
                           <p className="text-xs text-slate-500">Phone Number</p>
                           <p className="font-medium text-slate-900">
-                            {FormatedPhoneNumber(user.phoneNumber)}
+                            {FormattedPhoneNumber(user.phoneNumber)}
                           </p>
                         </div>
                       </div>
