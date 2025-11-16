@@ -195,6 +195,7 @@ export type TUsers = {
   status: string;
   createdAt?: string;
   updatedAt?: string;
+  position: string;
 }
 
 export type TUpdatedTeacher = {
