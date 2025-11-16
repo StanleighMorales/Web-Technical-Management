@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import CloseButton from "./CloseButton";
+import { FaUser } from "react-icons/fa6";
 import type { TUpdatedTeacher } from "../types/types";
 import { usePatchTeacherMutation } from "../query/patch/usePatchTeacherMutation";
 import { SuccessAlert } from "./SuccessAlert";
@@ -26,6 +27,9 @@ export const EditTeacher = ({
   const [middlenameError, setMiddlenameError] = useState<string>("");
   const [departmentError, setDepartmentError] = useState<string>("");
   const [showAlert, setShowAlert] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [successMessage, setSuccessMessage] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { mutate } = usePatchTeacherMutation();
 
   const [formData, setFormData] = useState<TUpdatedTeacher>({
@@ -61,8 +65,9 @@ export const EditTeacher = ({
     }
 
     mutate({ id, formData: updatedTeacher }, {
-      onSuccess: () => {
+      onSuccess: (message) => {
         setShowAlert(true);
+        setSuccessMessage(message.message);
         setTimeout(() => {
           setShowAlert(false);
           onClose();
@@ -75,122 +80,98 @@ export const EditTeacher = ({
   };
 
   return (
-    <div className="fixed animate-fadeIn inset-0 z-50 flex items-center justify-center bg-gray-900/60">
-      {showAlert && <SuccessAlert message="Teacher updated successfully!" />}
-      <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-3xl relative animate-fadeInUp">
-        <button
-          className="absolute top-4 right-4 text-2xl text-[#64748b] hover:text-[#2563eb] transition-colors"
-          aria-label="Close"
-          onClick={onClose}
-        >
-          <CloseButton onClick={onClose} />
-        </button>
-        <h2 className="text-3xl font-extrabold text-[#1e293b] mb-6 text-center tracking-tight">
-          Edit Teacher
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <label
-                htmlFor="firstName"
-                className="block text-[#2563eb] font-semibold mb-1"
-              >
-                First Name <span className="text-red-500">*</span>
-              </label>
+    <div className="flex fixed inset-0 justify-center items-center z-[60]">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="relative z-10 p-6 w-full max-w-2xl rounded-2xl border shadow-2xl border-white/60 bg-white/80 backdrop-blur">
+        <h3 className="mb-4 text-lg font-semibold text-slate-900">Edit Profile</h3>
+
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <label className="block text-sm font-medium text-slate-700">First Name</label>
+            <div className="relative mt-1">
               <input
                 type="text"
-                id="firstName"
+                className="py-2 px-3 pr-9 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
+                value={formData.firstName ?? ""}
                 name="firstName"
-                className={`w-full px-4 py-3 rounded-xl border ${firstnameError ? "border-red-500" : "border-[#e0e7ef]"
-                  } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                value={formData.firstName}
                 onChange={handleInputChange}
-                placeholder="Enter first name"
+                placeholder="Your firstname"
+                required
               />
-              {firstnameError && (
-                <p className="text-red-500 text-sm mt-1">{firstnameError}</p>
-              )}
+              <span className="inline-flex absolute inset-y-0 right-2 items-center pointer-events-none text-slate-400"><FaUser /></span>
             </div>
+          </div>
 
-            <div className="flex-1">
-              <label
-                htmlFor="lastName"
-                className="block text-[#2563eb] font-semibold mb-1"
-              >
-                Last Name <span className="text-red-500">*</span>
-              </label>
+          <div>
+            <label className="block text-sm font-medium text-slate-700">Last Name</label>
+            <div className="relative mt-1">
               <input
                 type="text"
-                id="lastName"
+                className="py-2 px-3 pr-9 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
+                value={formData.lastName ?? ""}
                 name="lastName"
-                className={`w-full px-4 py-3 rounded-xl border ${lastnameError ? "border-red-500" : "border-[#e0e7ef]"
-                  } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                value={formData.lastName}
                 onChange={handleInputChange}
-                placeholder="Enter last name"
+                placeholder="Your lastname"
+                required
               />
-              {lastnameError && (
-                <p className="text-red-500 text-sm mt-1">{lastnameError}</p>
-              )}
-            </div>
-
-            <div className="flex-1">
-              <label
-                htmlFor="middleName"
-                className="block text-[#2563eb] font-semibold mb-1"
-              >
-                Middle Name <span className="text-gray-400/50">(Optional)</span>
-              </label>
-              <input
-                type="text"
-                id="middleName"
-                name="middleName"
-                className={`w-full px-4 py-3 rounded-xl border ${middlenameError ? "border-red-500" : "border-[#e0e7ef]"
-                  } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                value={formData.middleName}
-                onChange={handleInputChange}
-                placeholder="Enter Middle Initial"
-              />
-              {middlenameError && (
-                <p className="text-red-500 text-sm mt-1">{middlenameError}</p>
-              )}
+              <span className="inline-flex absolute inset-y-0 right-2 items-center pointer-events-none text-slate-400"><FaUser /></span>
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <label
-                htmlFor="department"
-                className="block text-[#2563eb] font-semibold mb-1"
-              >
-                Department <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                id="department"
-                name="department"
-                className={`w-full px-4 py-3 rounded-xl border ${departmentError ? "border-red-500" : "border-[#e0e7ef]"
-                  } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                value={formData.department}
-                onChange={handleInputChange}
-                placeholder="Enter department"
-              />
-              {departmentError && (
-                <p className="text-red-500 text-sm mt-1">{departmentError}</p>
-              )}
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700">Middle Name</label>
+            <input
+              type="text"
+              className="py-2 px-3 mt-1 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
+              value={formData.middleName ?? ""}
+              name="middleName"
+              onChange={handleInputChange}
+              placeholder="Your middle name"
+            />
           </div>
 
-          <div className="flex justify-center pt-2">
+          <div>
+            <label className="block text-sm font-medium text-slate-700">Middle Name</label>
+            <input
+              type="text"
+              className="py-2 px-3 mt-1 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
+              value={formData.department ?? ""}
+              name="department"
+              onChange={handleInputChange}
+              placeholder="Your middle name"
+            />
+          </div>
+
+
+          {errorMessage && (
+            <div className="py-2 px-3 text-sm text-red-700 bg-red-50 rounded-md border border-red-200 md:col-span-2">
+              {errorMessage}
+            </div>
+          )}
+          {successMessage && (
+            <div className="py-2 px-3 text-sm text-green-700 bg-green-50 rounded-md border border-green-200 md:col-span-2">
+              {successMessage}
+            </div>
+          )}
+
+          <div className="flex gap-3 justify-end pt-2 md:col-span-2">
+            <button
+              type="button"
+              className="py-2 px-4 text-sm font-medium bg-white rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50"
+              onClick={onClose}
+            >
+              Cancel
+            </button>
             <button
               type="submit"
-              className="px-8 py-3 bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white font-bold rounded-xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-150 cursor-pointer"
+              disabled={isSubmitting}
+              className="py-2 px-4 text-sm font-semibold text-white bg-blue-600 rounded-lg shadow-sm hover:bg-blue-500 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Save
+              {isSubmitting ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </form>
       </div>
     </div>
   );
-};
+}
