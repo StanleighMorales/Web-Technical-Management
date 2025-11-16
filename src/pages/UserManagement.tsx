@@ -251,15 +251,8 @@ export default function UserManagement() {
       {
         isEditUserOpen && selectedUser && (
           <EditUser
+            user={selectedUser}
             onClose={() => setIsEditUserOpen(false)}
-            Id={selectedUserId}
-            firstName={selectedUser.firstName}
-            lastName={selectedUser.lastName}
-            middleName={selectedUser.middleName}
-            username={selectedUser.username}
-            email={selectedUser.email}
-            phoneNumber={selectedUser.phoneNumber}
-            position={selectedUser.userRole}
           />
         )
       }
