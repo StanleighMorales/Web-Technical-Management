@@ -153,25 +153,25 @@ export const EditStudent = ({
     };
 
     return (
-        <div className="fixed animate-fadeIn inset-0 z-50 flex items-center justify-center bg-gray-900/60">
+        <div className="flex fixed inset-0 z-50 justify-center items-center animate-fadeIn bg-gray-900/60">
             {showAlert && <SuccessAlert message="Student updated successfully!" />}
-            <div className="scrollbar-none bg-white rounded-3xl shadow-2xl p-8 w-full max-w-5xl relative animate-fadeInUp max-h-[90vh] overflow-y-auto">
+            <div className="overflow-y-auto relative p-8 w-full max-w-5xl bg-white rounded-3xl shadow-2xl scrollbar-none animate-fadeInUp max-h-[90vh]">
                 <button
-                    className="absolute top-4 right-4 text-2xl text-[#64748b] hover:text-[#2563eb] transition-colors"
+                    className="absolute top-4 right-4 text-2xl transition-colors text-[#64748b] hover:text-[#2563eb]"
                     aria-label="Close"
                     onClick={onClose}
                 >
                     <CloseButton onClick={onClose} />
                 </button>
-                <h2 className="text-3xl font-extrabold text-[#1e293b] mb-6 text-center tracking-tight">
+                <h2 className="mb-6 text-3xl font-extrabold tracking-tight text-center text-[#1e293b]">
                     Edit Student
                 </h2>
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex flex-col gap-4 md:flex-row">
                         <div className="flex-1">
                             <label
                                 htmlFor="firstName"
-                                className="block text-[#2563eb] font-semibold mb-1"
+                                className="block mb-1 font-semibold text-[#2563eb]"
                             >
                                 First Name <span className="text-red-500">*</span>
                             </label>
@@ -186,14 +186,14 @@ export const EditStudent = ({
                                 placeholder="Enter first name"
                             />
                             {firstnameError && (
-                                <p className="text-red-500 text-sm mt-1">{firstnameError}</p>
+                                <p className="mt-1 text-sm text-red-500">{firstnameError}</p>
                             )}
                         </div>
 
                         <div className="flex-1">
                             <label
                                 htmlFor="lastName"
-                                className="block text-[#2563eb] font-semibold mb-1"
+                                className="block mb-1 font-semibold text-[#2563eb]"
                             >
                                 Last Name <span className="text-red-500">*</span>
                             </label>
@@ -208,14 +208,14 @@ export const EditStudent = ({
                                 placeholder="Enter last name"
                             />
                             {lastnameError && (
-                                <p className="text-red-500 text-sm mt-1">{lastnameError}</p>
+                                <p className="mt-1 text-sm text-red-500">{lastnameError}</p>
                             )}
                         </div>
 
                         <div className="flex-1">
                             <label
                                 htmlFor="middleName"
-                                className="block text-[#2563eb] font-semibold mb-1"
+                                className="block mb-1 font-semibold text-[#2563eb]"
                             >
                                 Middle Name <span className="text-gray-400/50">(Optional)</span>
                             </label>
@@ -230,16 +230,16 @@ export const EditStudent = ({
                                 placeholder="Enter Middle Initial"
                             />
                             {middlenameError && (
-                                <p className="text-red-500 text-sm mt-1">{middlenameError}</p>
+                                <p className="mt-1 text-sm text-red-500">{middlenameError}</p>
                             )}
                         </div>
                     </div>
 
-                    <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex flex-col gap-4 md:flex-row">
                         <div className="flex-1">
                             <label
                                 htmlFor="studentIdNumber"
-                                className="block text-[#2563eb] font-semibold mb-1"
+                                className="block mb-1 font-semibold text-[#2563eb]"
                             >
                                 Student ID Number <span className="text-red-500">*</span>
                             </label>
@@ -254,13 +254,13 @@ export const EditStudent = ({
                                 placeholder="Enter student ID number"
                             />
                             {studentIdError && (
-                                <p className="text-red-500 text-sm mt-1">{studentIdError}</p>
+                                <p className="mt-1 text-sm text-red-500">{studentIdError}</p>
                             )}
                         </div>
                         <div className="flex-1">
                             <label
                                 htmlFor="course"
-                                className="block text-[#2563eb] font-semibold mb-1"
+                                className="block mb-1 font-semibold text-[#2563eb]"
                             >
                                 Course <span className="text-red-500">*</span>
                             </label>
@@ -275,16 +275,16 @@ export const EditStudent = ({
                                 placeholder="Enter course"
                             />
                             {courseError && (
-                                <p className="text-red-500 text-sm mt-1">{courseError}</p>
+                                <p className="mt-1 text-sm text-red-500">{courseError}</p>
                             )}
                         </div>
                     </div>
 
-                    <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex flex-col gap-4 md:flex-row">
                         <div className="flex-1">
                             <label
                                 htmlFor="section"
-                                className="block text-[#2563eb] font-semibold mb-1"
+                                className="block mb-1 font-semibold text-[#2563eb]"
                             >
                                 Section <span className="text-red-500">*</span>
                             </label>
@@ -299,13 +299,13 @@ export const EditStudent = ({
                                 placeholder="Enter section"
                             />
                             {sectionError && (
-                                <p className="text-red-500 text-sm mt-1">{sectionError}</p>
+                                <p className="mt-1 text-sm text-red-500">{sectionError}</p>
                             )}
                         </div>
                         <div className="flex-1">
                             <label
                                 htmlFor="year"
-                                className="block text-[#2563eb] font-semibold mb-1"
+                                className="block mb-1 font-semibold text-[#2563eb]"
                             >
                                 Year <span className="text-red-500">*</span>
                             </label>
@@ -320,19 +320,19 @@ export const EditStudent = ({
                                 placeholder="Enter year"
                             />
                             {yearError && (
-                                <p className="text-red-500 text-sm mt-1">{yearError}</p>
+                                <p className="mt-1 text-sm text-red-500">{yearError}</p>
                             )}
                         </div>
                     </div>
 
                     {/* Contact Information Section */}
-                    <div className="border-t pt-6">
-                        <h3 className="text-xl font-bold text-[#1e293b] mb-4">Contact Information</h3>
-                        <div className="flex flex-col md:flex-row gap-4">
+                    <div className="pt-6 border-t">
+                        <h3 className="mb-4 text-xl font-bold text-[#1e293b]">Contact Information</h3>
+                        <div className="flex flex-col gap-4 md:flex-row">
                             <div className="flex-1">
                                 <label
                                     htmlFor="resetPhoneNumber"
-                                    className="block text-[#2563eb] font-semibold mb-1"
+                                    className="block mb-1 font-semibold text-[#2563eb]"
                                 >
                                     Phone Number <span className="text-red-500">*</span>
                                 </label>
@@ -347,13 +347,13 @@ export const EditStudent = ({
                                     placeholder="Enter phone number"
                                 />
                                 {phoneError && (
-                                    <p className="text-red-500 text-sm mt-1">{phoneError}</p>
+                                    <p className="mt-1 text-sm text-red-500">{phoneError}</p>
                                 )}
                             </div>
                             <div className="flex-1">
                                 <label
                                     htmlFor="resetEmail"
-                                    className="block text-[#2563eb] font-semibold mb-1"
+                                    className="block mb-1 font-semibold text-[#2563eb]"
                                 >
                                     Email Address <span className="text-red-500">*</span>
                                 </label>
@@ -368,15 +368,15 @@ export const EditStudent = ({
                                     placeholder="Enter email address"
                                 />
                                 {emailError && (
-                                    <p className="text-red-500 text-sm mt-1">{emailError}</p>
+                                    <p className="mt-1 text-sm text-red-500">{emailError}</p>
                                 )}
                             </div>
                         </div>
-                        <div className="flex flex-col md:flex-row gap-4 mt-4">
+                        <div className="flex flex-col gap-4 mt-4 md:flex-row">
                             <div className="flex-1">
                                 <label
                                     htmlFor="resetUsername"
-                                    className="block text-[#2563eb] font-semibold mb-1"
+                                    className="block mb-1 font-semibold text-[#2563eb]"
                                 >
                                     Username <span className="text-red-500">*</span>
                                 </label>
@@ -391,20 +391,20 @@ export const EditStudent = ({
                                     placeholder="Enter username"
                                 />
                                 {usernameError && (
-                                    <p className="text-red-500 text-sm mt-1">{usernameError}</p>
+                                    <p className="mt-1 text-sm text-red-500">{usernameError}</p>
                                 )}
                             </div>
                         </div>
                     </div>
 
                     {/* Address Section */}
-                    <div className="border-t pt-6">
-                        <h3 className="text-xl font-bold text-[#1e293b] mb-4">Address Information</h3>
-                        <div className="flex flex-col md:flex-row gap-4">
+                    <div className="pt-6 border-t">
+                        <h3 className="mb-4 text-xl font-bold text-[#1e293b]">Address Information</h3>
+                        <div className="flex flex-col gap-4 md:flex-row">
                             <div className="flex-1">
                                 <label
                                     htmlFor="street"
-                                    className="block text-[#2563eb] font-semibold mb-1"
+                                    className="block mb-1 font-semibold text-[#2563eb]"
                                 >
                                     Street Address <span className="text-red-500">*</span>
                                 </label>
@@ -419,13 +419,13 @@ export const EditStudent = ({
                                     placeholder="Enter street address"
                                 />
                                 {streetError && (
-                                    <p className="text-red-500 text-sm mt-1">{streetError}</p>
+                                    <p className="mt-1 text-sm text-red-500">{streetError}</p>
                                 )}
                             </div>
                             <div className="flex-1">
                                 <label
                                     htmlFor="cityMunicipality"
-                                    className="block text-[#2563eb] font-semibold mb-1"
+                                    className="block mb-1 font-semibold text-[#2563eb]"
                                 >
                                     City/Municipality <span className="text-red-500">*</span>
                                 </label>
@@ -440,15 +440,15 @@ export const EditStudent = ({
                                     placeholder="Enter city/municipality"
                                 />
                                 {cityError && (
-                                    <p className="text-red-500 text-sm mt-1">{cityError}</p>
+                                    <p className="mt-1 text-sm text-red-500">{cityError}</p>
                                 )}
                             </div>
                         </div>
-                        <div className="flex flex-col md:flex-row gap-4 mt-4">
+                        <div className="flex flex-col gap-4 mt-4 md:flex-row">
                             <div className="flex-1">
                                 <label
                                     htmlFor="province"
-                                    className="block text-[#2563eb] font-semibold mb-1"
+                                    className="block mb-1 font-semibold text-[#2563eb]"
                                 >
                                     Province <span className="text-red-500">*</span>
                                 </label>
@@ -463,13 +463,13 @@ export const EditStudent = ({
                                     placeholder="Enter province"
                                 />
                                 {provinceError && (
-                                    <p className="text-red-500 text-sm mt-1">{provinceError}</p>
+                                    <p className="mt-1 text-sm text-red-500">{provinceError}</p>
                                 )}
                             </div>
                             <div className="flex-1">
                                 <label
                                     htmlFor="postalCode"
-                                    className="block text-[#2563eb] font-semibold mb-1"
+                                    className="block mb-1 font-semibold text-[#2563eb]"
                                 >
                                     Postal Code <span className="text-red-500">*</span>
                                 </label>
@@ -484,7 +484,7 @@ export const EditStudent = ({
                                     placeholder="Enter postal code"
                                 />
                                 {postalCodeError && (
-                                    <p className="text-red-500 text-sm mt-1">{postalCodeError}</p>
+                                    <p className="mt-1 text-sm text-red-500">{postalCodeError}</p>
                                 )}
                             </div>
                         </div>
@@ -493,9 +493,9 @@ export const EditStudent = ({
                     <div className="flex justify-center pt-2">
                         <button
                             type="submit"
-                            className="px-8 py-3 bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white font-bold rounded-xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-150 cursor-pointer"
+                            className="py-3 px-8 font-bold text-white bg-gradient-to-r rounded-xl shadow-lg transition-all duration-150 cursor-pointer hover:shadow-2xl hover:scale-105 from-[#2563eb] to-[#38bdf8]"
                         >
-                            Save
+                            Save Changes
                         </button>
                     </div>
                 </form>
