@@ -3,7 +3,7 @@ import SearchBar from "../components/SearchBar";
 import { useQuery } from "@tanstack/react-query";
 import { DashboardSkeletonLoader } from "../loader/DashboardSkeletonLoader";
 import DashboardBadges from "../components/DashboardBadges";
-// import ErrorTable from "../components/ErrorTables";
+import ErrorTable from "../components/ErrorTables";
 import type { TRecentBorrowItemProps } from "../types/types";
 import Pagination from "../components/Pagination";
 import { RecentBorrowedItemsTable } from "../components/RecentBorrowedItemsTable";
@@ -34,7 +34,7 @@ export default function Dashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const { data: recentBorrowData, isLoading: isBorrowedItemLoading } = useQuery(useBorrowedItemsQuery());
+  const { data: recentBorrowData, isLoading: isBorrowedItemLoading, isError: isBorrowedItemError } = useQuery(useBorrowedItemsQuery());
   const { data: summaryData } = useQuery(useSummaryDataQuery());
 
   const badges = [
@@ -129,6 +129,7 @@ export default function Dashboard() {
         </div>
 
         <div className="overflow-x-auto rounded-xl shadow-inner h-[55vh] bg-white/95">
+        {isBorrowedItemError ? <ErrorTable /> : (
           <table className="relative w-full text-left border-collapse">
             <thead>
               <tr>
@@ -176,6 +177,7 @@ export default function Dashboard() {
               ))}
             </tbody>
           </table>
+        )}
         </div>
       </div>
 
