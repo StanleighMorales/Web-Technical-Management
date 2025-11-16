@@ -4,6 +4,7 @@ import { FaBox, FaTag, FaCalendarAlt } from "react-icons/fa";
 import { useViewArchiveItemDetails } from "../query/get/useViewArchiveItemDetails";
 import { FormattedDateTime } from "./FormatedDateTime";
 import ErrorTable from "../components/ErrorTables.tsx"
+import CloseButton from "./CloseButton.tsx";
 
 type TArchiveItemDetailsPopupProps = {
     itemId: string;
@@ -73,15 +74,7 @@ export default function ArchiveItemDetailsPopup({
                                 <p className="text-sm text-gray-500">Archived on</p>
                                 <p className="text-sm font-medium text-gray-900">{FormattedDateTime(item.archivedAt)}</p>
                             </div>
-                            <button
-                                onClick={() => {
-                                    onClose();
-                                }}
-                                className="text-gray-400 transition-colors hover:text-gray-600"
-                                title="Close"
-                            >
-                                <MdClose className="text-2xl" />
-                            </button>
+                            <CloseButton onClick={onClose} />
                         </div>
                     </div>
                 </div>
