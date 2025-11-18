@@ -11,9 +11,9 @@ import { UserData } from "../utils/usersData/userData";
 import PopUpModal from "./PopUpModal";
 
 type checkIfUserAdminProps = {
-  userRole?: string,
-  onHandleArchiveItem: () => void
-}
+  userRole?: string;
+  onHandleArchiveItem: () => void;
+};
 
 type InventoryTableProps = {
   id?: string;
@@ -29,22 +29,21 @@ type InventoryTableProps = {
 };
 
 export const InventoryTable: FC<Required<InventoryTableProps>> = (props) => {
-
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
-  const data = UserData()
-  const userRole = data.userRole
+  const [isConfirmOpen, setIsConfirmOpen] = useState<boolean>(false);
+  const data = UserData();
+  const userRole = data.userRole;
 
   const handleArchiveItem = () => {
-    setIsConfirmOpen(true)
-  }
+    setIsConfirmOpen(true);
+  };
 
   const handleConfirmArchive = () => {
     props.onMutate(props.id!);
-  }
+  };
 
   const handleCancelArchive = () => {
-    setIsConfirmOpen(false)
-  }
+    setIsConfirmOpen(false);
+  };
 
   const ShowButtonIfUserAdmin: FC<checkIfUserAdminProps> = ({
     userRole,
@@ -114,4 +113,4 @@ export const InventoryTable: FC<Required<InventoryTableProps>> = (props) => {
       )}
     </>
   );
-}
+};
