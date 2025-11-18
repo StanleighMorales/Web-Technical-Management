@@ -21,18 +21,12 @@ const PatchUser = async ({ id, formData }: PatchUserProps) => {
   const VERSION = "v1";
   const END_POINT = `/api/${VERSION}/users/admin-or-staff/profile`;
 
-  const token = getToken();
-  if (!token) {
-    throw new Error("Not authenticated. Please log in again.");
-  }
-
   const updatedUser = JSON.stringify(formData);
-
   const res = await fetch(`${BASE_URL}${END_POINT}/${id}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${getToken()}`
     },
     body: updatedUser
   });
@@ -42,37 +36,11 @@ const PatchUser = async ({ id, formData }: PatchUserProps) => {
     return;
   }
 
-  let data: unknown = null;
-  const contentType = res.headers.get("content-type") || "";
-  if (contentType.includes("application/json")) {
-    try {
-      data = await res.json();
-    } catch {
-      data = null;
-    }
-  } else {
-    const text = await res.text();
-    data = text ? { message: text } : null;
-  }
-
-  if (!res.ok) {
-    const getMessage = () => {
-      if (typeof data === "string") return data;
-      if (data && typeof data === "object") {
-        const maybeMessage = (data as Record<string, unknown>)["message"];
-        const maybeError = (data as Record<string, unknown>)["error"];
-        if (typeof maybeMessage === "string") return maybeMessage;
-        if (typeof maybeError === "string") return maybeError;
-      }
-      return undefined;
-    };
-    const message = getMessage() || `Update user failed (${res.status})`;
-    throw new Error(message);
-  }
-
+  const data = await res.text()
+  if (!res.ok) throw new Error(data)
   return data;
-}
 
+}
 export const usePatchUserMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -80,6 +48,7 @@ export const usePatchUserMutation = () => {
     mutationFn: PatchUser,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["me"] })
+      queryClient.invalidateQueries({queryKey: ["users"]})
     }
   })
 }
