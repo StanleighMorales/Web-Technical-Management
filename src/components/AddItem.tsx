@@ -127,7 +127,7 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
         setTimeout(() => {
           setShowAlert(false);
           onClose();
-        }, 1000);
+        }, 3500);
         setFormData({
           serialNumber: "",
           image: null,
@@ -149,7 +149,7 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
 
   return (
     <>
-      <div className="animate-fadeIn fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
         {showAlert && <SuccessAlert message={"Item Created Successfully"} />}
         <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-2xl relative animate-fadeInUp">
           <button
@@ -177,12 +177,13 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
                   Item Name <span className="text-red-500">*</span>
                 </label>
                 <input
-                  className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${formData.itemName === "" && itemNameError
-                    ? "border-red-500"
-                    : itemNameError
+                  className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${
+                    formData.itemName === "" && itemNameError
                       ? "border-red-500"
-                      : ""
-                    }`}
+                      : itemNameError
+                        ? "border-red-500"
+                        : ""
+                  }`}
                   type="text"
                   id="itemName"
                   name="itemName"
@@ -203,12 +204,13 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
                   Serial Number <span className="text-red-500">*</span>
                 </label>
                 <input
-                  className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg" ${formData.serialNumber === "" && serialNumberError
-                    ? "border-red-500"
-                    : serialNumberError
+                  className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg" ${
+                    formData.serialNumber === "" && serialNumberError
                       ? "border-red-500"
-                      : ""
-                    }`}
+                      : serialNumberError
+                        ? "border-red-500"
+                        : ""
+                  }`}
                   type="text"
                   id="serialNumber"
                   name="serialNumber"
@@ -304,12 +306,13 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
                   Item Model <span className="text-red-500">*</span>
                 </label>
                 <input
-                  className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${formData.itemModel === "" && itemModelError
-                    ? "border-red-500"
-                    : itemModelError
+                  className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${
+                    formData.itemModel === "" && itemModelError
                       ? "border-red-500"
-                      : ""
-                    }`}
+                      : itemModelError
+                        ? "border-red-500"
+                        : ""
+                  }`}
                   type="text"
                   id="itemModel"
                   name="itemModel"
@@ -332,12 +335,13 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
                   Item Make <span className="text-red-500">*</span>
                 </label>
                 <input
-                  className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${formData.itemMake === "" && itemMakeError
-                    ? "border-red-500"
-                    : itemMakeError
+                  className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${
+                    formData.itemMake === "" && itemMakeError
                       ? "border-red-500"
-                      : ""
-                    }`}
+                      : itemMakeError
+                        ? "border-red-500"
+                        : ""
+                  }`}
                   type="text"
                   id="itemMake"
                   name="itemMake"
@@ -358,12 +362,13 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
                   Description <span className="text-red-500">*</span>
                 </label>
                 <input
-                  className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${formData.description === "" && descriptionError
-                    ? "border-red-500"
-                    : descriptionError
+                  className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${
+                    formData.description === "" && descriptionError
                       ? "border-red-500"
-                      : ""
-                    }`}
+                      : descriptionError
+                        ? "border-red-500"
+                        : ""
+                  }`}
                   type="text"
                   id="description"
                   name="description"
@@ -388,12 +393,13 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
                   Item Image
                 </label>
                 <input
-                  className={`w-full px-4 py-2 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-base ${formData.image === null && imageError
-                    ? "border-red-500"
-                    : imageError
+                  className={`w-full px-4 py-2 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-base ${
+                    formData.image === null && imageError
                       ? "border-red-500"
-                      : ""
-                    }`}
+                      : imageError
+                        ? "border-red-500"
+                        : ""
+                  }`}
                   type="file"
                   id="image"
                   name="image"
