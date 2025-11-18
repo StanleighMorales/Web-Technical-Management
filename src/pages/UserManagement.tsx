@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AddUsers } from "../components/AddUser";
 import Button from "../components/Button";
 import EditUser from "../components/EditUser";
@@ -13,10 +13,16 @@ import UserTable from "../components/UserTable";
 import ErrorTable from "../components/ErrorTables";
 import PopUpModal from "../components/PopUpModal";
 import ViewUserCredentials from "../components/ViewUserCredentials";
+import { SuccessAlert } from "../components/SuccessAlert";
+import { ErrorAlert } from "../components/ErrorAlert";
 
-type TNewUserTypes = Omit<TUsers, "course" | "section" | "year">
+type TNewUserTypes = Omit<TUsers, "course" | "section" | "year">;
 
 export default function UserManagement() {
+  const [ShowSuccessAlert, setShowSuccessAlert] = useState<boolean>(false);
+  const [ShowErrorAlert, setErrorShowAlert] = useState<boolean>(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState<string>("");
+  const [showErrorMessage, setShowErrorMessage] = useState<string>("");
   const [isAddUserOpen, setIsAddUserOpen] = useState<boolean>(false);
   const [isEditUserOpen, setIsEditUserOpen] = useState<boolean>(false);
   const [isViewCredentialsOpen, setIsViewCredentialsOpen] = useState(false);
@@ -27,6 +33,9 @@ export default function UserManagement() {
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [archiveUserId, setArchiveUserId] = useState<string>("");
   const [users, setUsers] = useState<TNewUserTypes[]>([]);
+
+  const { data, isPending, isError } = useQuery(useAllUsersQuery());
+  const { mutate } = useArchiveUserMutation();
 
   const selectedUser = useMemo(() => {
     return users.find((u) => u.id === selectedUserId);
@@ -65,17 +74,33 @@ export default function UserManagement() {
           userStatus.includes(searchValue)
         );
       }),
-    [searchUser, selectedStatus, selectedRole, users],
+    [searchUser, selectedStatus, selectedRole, users]
   );
 
-  const { data, isPending, isError } = useQuery(useAllUsersQuery());
-  const { mutate } = useArchiveUserMutation();
-
-  const confirmArchiveUser = () => {
-    mutate(archiveUserId);
-    setIsArchiveModalOpen(false);
-    setArchiveUserId("");
-  };
+  const confirmArchiveUser = useCallback(() => {
+    mutate(archiveUserId, {
+      onError: () => {
+        setIsArchiveModalOpen(false);
+        setErrorShowAlert(true);
+        setArchiveUserId("");
+        setShowErrorMessage("You cannot delete the logged-in user!");
+        setTimeout(() => {
+          setErrorShowAlert(false);
+          setShowErrorMessage("");
+        }, 3500);
+      },
+      onSuccess: (d) => {
+        setIsArchiveModalOpen(false);
+        setShowSuccessAlert(true);
+        setArchiveUserId("");
+        setShowSuccessMessage(d.message);
+        setTimeout(() => {
+          setShowSuccessAlert(false);
+          setShowSuccessMessage("");
+        }, 3500);
+      },
+    });
+  }, [archiveUserId, mutate]);
 
   const cancelArchiveUser = () => {
     setIsArchiveModalOpen(false);
@@ -93,21 +118,27 @@ export default function UserManagement() {
   }
 
   return (
-    <div className="flex flex-col items-center py-10 px-2 w-full min-h-screen bg-linear-to-br animate-fadeIn from-[#eef2ff] via-[#e2e8f0] to-[#c7d2fe]">
+    <div className="flex flex-col items-center py-10 px-2 w-full min-h-screen bg-linear-to-br animate-fadeIn ">
+      {ShowSuccessAlert ? <SuccessAlert message={showSuccessMessage} /> : ""}
+      {ShowErrorAlert ? <ErrorAlert message={showErrorMessage} /> : ""}
       <div className="relative p-6 w-full rounded-3xl ring-1 shadow-xl md:p-10 max-w-[2000px] bg-white/80 backdrop-blur-md ring-black/5">
         <div className="flex flex-col gap-4 mb-8 md:flex-row md:justify-between md:items-end">
           <div>
-            <h1 className="mb-2 text-3xl font-extrabold tracking-tight md:text-4xl text-[#0f172a]">
+            <h1 className="mb-2 text-5xl mt-10 lg:mt-0 md:mt-0 font-extrabold tracking-tight text-[#1e293b] drop-shadow-lg">
               User Management
             </h1>
-            <p className="text-sm md:text-base text-[#475569]">
+            <p className="text-md md:text-lg text-[#475569]">
               Manage staff, search users, and update statuses with ease.
             </p>
           </div>
           <div className="flex gap-2 items-center text-[#475569]">
             <span className="inline-flex gap-2 items-center py-1 px-3 text-sm font-medium rounded-full bg-[#eef2ff] text-[#3730a3]">
               <span className="w-2 h-2 rounded-full bg-[#22c55e]"></span>
-              {users.length} total users
+              {
+                users.filter((user) => user.status.toLowerCase() === "online")
+                  .length
+              }{" "}
+              total online
             </span>
             <span className="hidden md:inline text-[#94a3b8]">|</span>
             <span className="hidden text-sm md:inline text-[#64748b]">
@@ -124,30 +155,33 @@ export default function UserManagement() {
             <div className="flex flex-row gap-2 -mt-5">
               <button
                 onClick={() => setSelectedRole("all")}
-                className={` px-6 py-3.5 max-sm:px-4 max-sm:py-3 rounded-md font-medium transition-all duration-200 ${selectedRole === "all"
-                  ? " bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white shadow-md"
-                  : "bg-white text-[#64748b] border border-[#e5e7eb] hover:bg-[#f8fafc] hover:border-[#d1d5db]"
-                  }`}
+                className={` px-6 py-2.5 max-sm:px-4 max-sm:py-3 rounded-md font-medium transition-all duration-200 ${
+                  selectedRole === "all"
+                    ? "bg-blue-500 text-white shadow-md"
+                    : "bg-white text-[#64748b] border-2 border-[#e5e7eb] hover:border-[#2563eb] hover:text-[#2563eb]"
+                }`}
               >
-                All
+                <label htmlFor="">All</label>
               </button>
               <button
                 onClick={() => setSelectedRole("admin")}
-                className={` px-6 py-3.5 max-sm:px-4 max-sm:py-3 rounded-md font-medium transition-all duration-200 ${selectedRole === "admin"
-                  ? " bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white shadow-md"
-                  : "bg-white text-[#64748b] border border-[#e5e7eb] hover:bg-[#f8fafc] hover:border-[#d1d5db]"
-                  }`}
+                className={` px-6 py-2.5 max-sm:px-4 max-sm:py-3 rounded-md font-medium transition-all duration-200 ${
+                  selectedRole === "admin"
+                    ? "bg-blue-500  text-white shadow-md"
+                    : "bg-white text-[#64748b] border-2 border-[#e5e7eb]  hover:border-[#2563eb] hover:text-[#2563eb]"
+                }`}
               >
-                Admin
+                <label htmlFor="">Admin</label>
               </button>
               <button
                 onClick={() => setSelectedRole("staff")}
-                className={` px-6 py-3.5 max-sm:px-4 lg:-mr-12 max-sm:mr-10 max-sm:py-3 rounded-md font-medium transition-all duration-200 ${selectedRole === "staff"
-                  ? " bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white shadow-md"
-                  : "bg-white text-[#64748b] border border-[#e5e7eb] hover:bg-[#f8fafc] hover:border-[#d1d5db]"
-                  }`}
+                className={` px-6 py-2.5 max-sm:px-4 lg:-mr-12 max-sm:mr-10 max-sm:py-3 rounded-md font-medium transition-all duration-200 ${
+                  selectedRole === "staff"
+                    ? "bg-blue-500 text-white shadow-md"
+                    : "bg-white text-[#64748b] border-2 border-[#e5e7eb] hover:border-[#2563eb] hover:text-[#2563eb]"
+                }`}
               >
-                Staff
+                <label htmlFor="">Staff</label>
               </button>
               {/* Select Component */}
               <div className="-mr-12 sm:min-w-[200px]">
@@ -210,7 +244,10 @@ export default function UserManagement() {
               </thead>
               <tbody>
                 {filteredUser
-                  .filter((user) => user.userRole === "Admin" || user.userRole === "Staff")
+                  .filter(
+                    (user) =>
+                      user.userRole === "Admin" || user.userRole === "Staff"
+                  )
                   .map((user) => (
                     <tr key={user.id}>
                       <UserTable
@@ -248,26 +285,22 @@ export default function UserManagement() {
         </p>
       </div>
       {isAddUserOpen && <AddUsers onClose={() => setIsAddUserOpen(false)} />}
-      {
-        isEditUserOpen && selectedUser && (
-          <EditUser
-            user={selectedUser}
-            onClose={() => setIsEditUserOpen(false)}
-          />
-        )
-      }
-      {
-        isArchiveModalOpen && (
-          <PopUpModal
-            title="Archive User"
-            label="archive"
-            noun="user"
-            destination="archive"
-            onHandleCancleAction={cancelArchiveUser}
-            onHandleConfirmAction={confirmArchiveUser}
-          />
-        )
-      }
+      {isEditUserOpen && selectedUser && (
+        <EditUser
+          user={selectedUser}
+          onClose={() => setIsEditUserOpen(false)}
+        />
+      )}
+      {isArchiveModalOpen && (
+        <PopUpModal
+          title="Archive User"
+          label="archive"
+          noun="user"
+          destination="archive"
+          onHandleCancleAction={cancelArchiveUser}
+          onHandleConfirmAction={confirmArchiveUser}
+        />
+      )}
       {selectedUser && isViewCredentialsOpen && (
         <ViewUserCredentials
           user={selectedUser}
@@ -275,6 +308,6 @@ export default function UserManagement() {
           onClose={() => setIsViewCredentialsOpen(false)}
         />
       )}
-    </div >
+    </div>
   );
 }
