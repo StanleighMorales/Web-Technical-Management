@@ -20,9 +20,8 @@ const restoreItem = async (id: string) => {
 
   const data = await res.json();
   if (!res.ok) {
-    throw new Error(data.message || "Failed to restore item");
+    throw new Error(data.errors || "Failed to restore item");
   }
-
   return data;
 };
 
