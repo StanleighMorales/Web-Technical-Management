@@ -11,6 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useItemDetailsQuery } from "../query/get/useItemDetailsQuery";
 import { usePatchItemMutation } from "../query/patch/usePatchItemMutation";
 import { SuccessAlert } from "./SuccessAlert";
+import { ErrorAlert } from "./ErrorAlert";
 
 type EditItemFormProps = {
   onClose: () => void;
@@ -21,6 +22,7 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
   const { data, isLoading, error } = useQuery(useItemDetailsQuery(id));
   const [originalData, setOriginalData] = useState<TItemForm | null>(null);
   const [showAlert, setShowAlert] = useState<boolean>(false);
+  const [showAlertFailed, setShowAlertFailed] = useState<boolean>(false);
   const [itemNameError, setItemNameError] = useState<string>("");
   const [itemTypeError, setItemTypeError] = useState<string>("");
   const [itemModelError, setItemModelError] = useState<string>("");
@@ -118,7 +120,6 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
       return;
     }
 
-
     if (!formData.itemType) {
       setItemTypeError("Item Type is required");
       return;
@@ -169,7 +170,7 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
           setTimeout(() => {
             setShowAlert(false);
             onClose();
-          }, 1000);
+          }, 3500);
           setFormData({
             serialNumber: "",
             image: null,
@@ -183,8 +184,11 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
             preview: null,
           });
         },
-        onError: (error: Error) => {
-          console.log(error.message);
+        onError: () => {
+          setShowAlertFailed(true);
+          setTimeout(() => {
+            setShowAlertFailed(false);
+          }, 3500);
         },
       },
     );
@@ -192,8 +196,9 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
 
   return (
     <>
-      <div className="animate-fadeIn fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
         {showAlert && <SuccessAlert message={"Item Updated Successfully"} />}
+        {showAlertFailed && <ErrorAlert message={"Update Failed"} />}
         <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-2xl relative animate-fadeInUp">
           <button
             className="absolute top-4 right-4 text-2xl text-[#64748b] hover:text-[#2563eb] transition-colors"
@@ -445,7 +450,7 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
               <div className="flex justify-center pt-2">
                 <button
                   type="submit"
-                  className={`px-8 py-3 bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white font-bold rounded-xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-150 flex items-center gap-2 cursor-pointer ${!hasChanges ? "hover:cursor-not-allowed" : ""}`}
+                  className={`px-8 py-3 bg-blue-500 text-white font-bold rounded-xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-150 flex items-center gap-2 cursor-pointer ${!hasChanges ? "hover:cursor-not-allowed" : ""}`}
                   data-testid="editItem-button"
                   disabled={!hasChanges}
                 >
