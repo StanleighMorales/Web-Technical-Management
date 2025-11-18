@@ -56,6 +56,7 @@ export const EditTeacher = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     const updatedTeacher = {
       firstName: formData.firstName,
@@ -65,16 +66,20 @@ export const EditTeacher = ({
     }
 
     mutate({ id, formData: updatedTeacher }, {
-      onSuccess: (message) => {
+      onSuccess: (data) => {
         setShowAlert(true);
-        setSuccessMessage(message.message);
+        setSuccessMessage(data.message);
         setTimeout(() => {
           setShowAlert(false);
           onClose();
-        }, 1500);
+          setIsSubmitting(false)
+        }, 3500);
       },
-      onError: (error) => {
-        console.log(error.message);
+      onError: (error:unknown) => {
+        setIsSubmitting(false)
+        if(error instanceof Error) {
+          setSuccessMessage(error.message)
+        }
       }
     });
   };
@@ -131,7 +136,7 @@ export const EditTeacher = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700">Middle Name</label>
+            <label className="block text-sm font-medium text-slate-700">Department</label>
             <input
               type="text"
               className="py-2 px-3 mt-1 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
