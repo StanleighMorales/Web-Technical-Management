@@ -1,37 +1,32 @@
 import React, { useState } from "react";
 import type { TUpdateUsers } from "../types/types";
-import { useAllUsersQuery } from "../query/get/useAllUsersQuery";
-import { useQuery } from "@tanstack/react-query";
 import { usePatchUserMutation } from "../query/patch/usePatchUserMutation";
 import { FaUser, FaPhone } from "react-icons/fa6";
 import { MdOutlineEmail } from "react-icons/md";
+import { SuccessAlert } from "./SuccessAlert";
 
-type TPathUserTypes = Omit<TUpdateUsers, 'id'>
+type TPathUserTypes = Omit<TUpdateUsers, "id">;
 
 type EditItemProps = {
   onClose(): void;
-  user: TUpdateUsers
+  user: TUpdateUsers;
 };
 
 type formData = {
   firstName: string;
   lastName: string;
   middleName: string;
-  username: string,
-  email: string,
-  phoneNumber: string,
+  username: string;
+  email: string;
+  phoneNumber: string;
   position: string;
-}
+};
 
-export default function EditUser({ user, onClose, }: EditItemProps) {
-  const [firstnameError, setFirstnameError] = useState<string>("");
-  const [lastnameError, setLastnameError] = useState<string>("");
-  const [middlenameError, setMiddlenameError] = useState<string>("");
-  const [roleError, setPositionError] = useState<string>("");
-  const [errorMessage, setErrorMessage] = useState<string>("");
+export default function EditUser({ user, onClose }: EditItemProps) {
+  const [ShowAlert, setShowAlert] = useState<boolean>(false);
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const { mutate } = usePatchUserMutation()
+  const { mutate } = usePatchUserMutation();
 
   const [formData, setFormData] = useState<formData>({
     firstName: user.firstName,
@@ -44,18 +39,13 @@ export default function EditUser({ user, onClose, }: EditItemProps) {
   });
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-
-    if (name === "firstName") return setFirstnameError("");
-    if (name === "lastName") return setLastnameError("");
-    if (name === "middleName") return setMiddlenameError("");
-    if (name === "position") return setPositionError("");
   };
 
   const PathUserProps: TPathUserTypes = {
@@ -65,31 +55,51 @@ export default function EditUser({ user, onClose, }: EditItemProps) {
     username: formData.username,
     email: formData.email,
     phoneNumber: formData.phoneNumber,
-    position: formData.position
-  }
+    position: formData.position,
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
+    setIsSubmitting(true);
     e.preventDefault();
-    mutate({ id: user.id, formData: PathUserProps }, {
-      onSuccess: () => {
-        onClose();
+    mutate(
+      { id: user.id, formData: PathUserProps },
+      {
+        onSuccess: () => {
+          setIsSubmitting(false);
+          setShowAlert(true);
+          setSuccessMessage("User Profile updated.");
+          setTimeout(() => {
+            setShowAlert(false);
+            setSuccessMessage("");
+            onClose();
+          }, 3500);
+        },
+        onError: (error) => {
+          console.log(error.message);
+          setErrorMessage(error.message);
+          setIsSubmitting(false);
+        },
       },
-      onError: (error) => {
-        console.log(error.message)
-        setErrorMessage(error.message)
-      }
-    })
+    );
   };
 
   return (
     <div className="flex fixed inset-0 justify-center items-center z-[60]">
+      {ShowAlert && <SuccessAlert message={successMessage} />}
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative z-10 p-6 w-full max-w-2xl rounded-2xl border shadow-2xl border-white/60 bg-white/80 backdrop-blur">
-        <h3 className="mb-4 text-lg font-semibold text-slate-900">Edit Profile</h3>
+        <h3 className="mb-4 text-lg font-semibold text-slate-900">
+          Edit Profile
+        </h3>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 gap-4 md:grid-cols-2"
+        >
           <div>
-            <label className="block text-sm font-medium text-slate-700">First Name</label>
+            <label className="block text-sm font-medium text-slate-700">
+              First Name
+            </label>
             <div className="relative mt-1">
               <input
                 type="text"
@@ -100,12 +110,16 @@ export default function EditUser({ user, onClose, }: EditItemProps) {
                 placeholder="Your firstname"
                 required
               />
-              <span className="inline-flex absolute inset-y-0 right-2 items-center pointer-events-none text-slate-400"><FaUser /></span>
+              <span className="inline-flex absolute inset-y-0 right-2 items-center pointer-events-none text-slate-400">
+                <FaUser />
+              </span>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700">Last Name</label>
+            <label className="block text-sm font-medium text-slate-700">
+              Last Name
+            </label>
             <div className="relative mt-1">
               <input
                 type="text"
@@ -116,12 +130,16 @@ export default function EditUser({ user, onClose, }: EditItemProps) {
                 placeholder="Your lastname"
                 required
               />
-              <span className="inline-flex absolute inset-y-0 right-2 items-center pointer-events-none text-slate-400"><FaUser /></span>
+              <span className="inline-flex absolute inset-y-0 right-2 items-center pointer-events-none text-slate-400">
+                <FaUser />
+              </span>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700">Middle Name</label>
+            <label className="block text-sm font-medium text-slate-700">
+              Middle Name
+            </label>
             <input
               type="text"
               className="py-2 px-3 mt-1 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
@@ -133,7 +151,9 @@ export default function EditUser({ user, onClose, }: EditItemProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700">Username</label>
+            <label className="block text-sm font-medium text-slate-700">
+              Username
+            </label>
             <input
               type="text"
               className="py-2 px-3 mt-1 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
@@ -146,7 +166,9 @@ export default function EditUser({ user, onClose, }: EditItemProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700">Email</label>
+            <label className="block text-sm font-medium text-slate-700">
+              Email
+            </label>
             <div className="relative mt-1">
               <input
                 type="email"
@@ -157,12 +179,16 @@ export default function EditUser({ user, onClose, }: EditItemProps) {
                 placeholder="Your email"
                 required
               />
-              <span className="inline-flex absolute inset-y-0 right-2 items-center pointer-events-none text-slate-400"><MdOutlineEmail /></span>
+              <span className="inline-flex absolute inset-y-0 right-2 items-center pointer-events-none text-slate-400">
+                <MdOutlineEmail />
+              </span>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700">Phone Number</label>
+            <label className="block text-sm font-medium text-slate-700">
+              Phone Number
+            </label>
             <div className="relative mt-1">
               <input
                 type="tel"
@@ -173,21 +199,11 @@ export default function EditUser({ user, onClose, }: EditItemProps) {
                 maxLength={10}
                 placeholder="09XX XXX XXXX"
               />
-              <span className="inline-flex absolute inset-y-0 right-2 items-center pointer-events-none text-slate-400"><FaPhone /></span>
+              <span className="inline-flex absolute inset-y-0 right-2 items-center pointer-events-none text-slate-400">
+                <FaPhone />
+              </span>
             </div>
           </div>
-
-          {errorMessage && (
-            <div className="py-2 px-3 text-sm text-red-700 bg-red-50 rounded-md border border-red-200 md:col-span-2">
-              {errorMessage}
-            </div>
-          )}
-          {successMessage && (
-            <div className="py-2 px-3 text-sm text-green-700 bg-green-50 rounded-md border border-green-200 md:col-span-2">
-              {successMessage}
-            </div>
-          )}
-
           <div className="flex gap-3 justify-end pt-2 md:col-span-2">
             <button
               type="button"
