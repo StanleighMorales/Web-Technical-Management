@@ -76,7 +76,7 @@ export default function ViewItem() {
               />
             ) : (
               <div className="flex flex-col justify-center items-center w-64 h-64 bg-gray-100 rounded-lg border-2 border-gray-300 border-dashed">
-                <svg
+                <span
                   className="mb-2 w-12 h-12 text-gray-400"
                   fill="none"
                   stroke="currentColor"
@@ -88,7 +88,7 @@ export default function ViewItem() {
                     strokeWidth={1.5}
                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                   />
-                </svg>
+                </span>
                 <span className="text-sm text-gray-500">
                   No Image Available
                 </span>
@@ -202,13 +202,11 @@ export default function ViewItem() {
           <div className="flex flex-1 p-4 mt-6 bg-white rounded-lg shadow-md">
             <div className="flex justify-center items-center w-full">
               {itemDetails.barcodeImage ? (
-                <a href="" target="_blank">
-                  <img
+                  (<img
                     src={itemDetails.barcodeImage}
-                    alt="Barcode"
+                    alt={itemDetails.serialNumber}
                     className="w-96 h-40"
-                  />
-                </a>
+                  />)
               ) : (
                 <p className="text-gray-600/50">
                   Don't have generated BarCode.
