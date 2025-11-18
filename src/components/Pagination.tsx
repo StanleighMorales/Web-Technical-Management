@@ -14,11 +14,11 @@ export default function Pagination({
   handleShowAll,
 }: PaginationProps) {
   return (
-    <div className="flex flex-row gap-2 items-center md:ml-12 md:-mt-6 lg:ml-12 lg:-mt-6">
+    <div className="flex flex-row gap-2 items-center md:ml-12 md:-mt-6 lg:ml-12 lg:-mt-8">
       {/* Reset back to all items Button */}
       {selectedCategory && selectedCategory !== "" && (
         <button
-          className="py-3 px-4 font-semibold rounded disabled:opacity-50 bg-[#e0e7ef] text-[#2563eb]"
+          className="py-3 px-4 font-semibold rounded disabled:opacity-50 bg-gray-200 text-[#2563eb]"
           onClick={handleShowAll}
         >
           All
@@ -26,7 +26,7 @@ export default function Pagination({
       )}
       {/* Decreament the Page */}
       <button
-        className="py-3 px-4 font-semibold rounded disabled:opacity-50 bg-[#e0e7ef] text-[#2563eb]"
+        className="py-3 px-4 font-semibold rounded disabled:opacity-50 bg-gray-200 text-[#2563eb]"
         onClick={() => handlePageChange(currentPage - 1)}
         disabled={currentPage === 1}
       >
@@ -38,7 +38,7 @@ export default function Pagination({
           key={idx + 1}
           className={`px-4 py-3 rounded font-semibold ${currentPage === idx + 1
             ? "bg-[#2563eb] text-white"
-            : "bg-[#e0e7ef] text-[#2563eb]"
+            : "bg-gray-200 text-[#2563eb]"
             }`}
           onClick={() => handlePageChange(idx + 1)}
         >
@@ -47,7 +47,7 @@ export default function Pagination({
       ))}
       {/* Increament the Page */}
       <button
-        className="py-3 px-4 font-semibold rounded disabled:opacity-50 bg-[#e0e7ef] text-[#2563eb]"
+        className="py-3 px-4 font-semibold rounded disabled:opacity-50 bg-gray-200 text-[#2563eb]"
         onClick={() => handlePageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
       >
