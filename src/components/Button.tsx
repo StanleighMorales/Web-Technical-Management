@@ -8,7 +8,7 @@ type ButtonProps = {
 export default function Button({ onClick, name }: ButtonProps) {
   return (
     <button
-      className="flex items-center gap-2 px-5 py-3 cursor-pointer bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white font-semibold rounded-xl shadow-md hover:scale-100 hover:shadow-2xl transition-all duration-150"
+      className="flex items-center gap-2 px-5 py-2.5 cursor-pointer bg-blue-500 text-white font-semibold rounded-md shadow-md hover:scale-100 hover:shadow-sm transition-all duration-150"
       type="button"
       onClick={onClick}
       data-testid="button"
