@@ -4,8 +4,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type TeacherPatchProps = {
   id: string;
-  formData: TUpdatedTeacher
-}
+  formData: TUpdatedTeacher;
+};
 const TeacherPatch = async ({ id, formData }: TeacherPatchProps) => {
   try {
     const BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -17,27 +17,29 @@ const TeacherPatch = async ({ id, formData }: TeacherPatchProps) => {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${getToken()}`
+        Authorization: `Bearer ${getToken()}`,
       },
-      body: updateTeacher
-    })
+      body: updateTeacher,
+    });
 
     if (res.status === 401) {
       removeToken();
       return;
     }
 
+    if (res.status === 404) {
+      throw new Error("Submission failed");
+    }
+
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Submission failed");
 
     return data;
-
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.log(error.message);
     }
   }
-}
+};
 
 export const usePatchTeacherMutation = () => {
   const queryClient = useQueryClient();
@@ -46,7 +48,7 @@ export const usePatchTeacherMutation = () => {
     mutationKey: ["profile"],
     mutationFn: TeacherPatch,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["teachers"] })
-    }
+      queryClient.invalidateQueries({ queryKey: ["teachers"] });
+    },
   });
-}
+};
