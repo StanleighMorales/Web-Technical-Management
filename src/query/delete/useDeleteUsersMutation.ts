@@ -4,9 +4,9 @@ import { getToken, removeToken } from "../../utils/token";
 const useDeleteUser = async (id: string) => {
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const VERSION = "v1";
-  const END_POINT = `/api/${VERSION}/archiveusers/permanent-delete`;
+  const END_POINT = `/api/${VERSION}/archiveusers`;
 
-  const res = await fetch(`${BASE_URL}${END_POINT}${id}`, {
+  const res = await fetch(`${BASE_URL}${END_POINT}/${id}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${getToken()}`
