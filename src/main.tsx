@@ -1,6 +1,11 @@
-import { StrictMode, lazy } from "react";
+import { StrictMode, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ProtectedRoute, PublicRoute } from "./utils/middleware/accessAuth.tsx";
+import Login from "./auth/Login.tsx";
+
 const App = lazy(() => import("./App.tsx"));
 const Home = lazy(() => import("./layout/Home.tsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
@@ -13,20 +18,30 @@ const Archive = lazy(() => import("./pages/Archive.tsx"));
 const BorrowItem = lazy(() => import("./pages/BorrowItem.tsx"));
 const Registration = lazy(() => import("./pages/Registration.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ProtectedRoute } from "./utils/middleware/accessAuth.tsx";
-import Login from "./auth/Login.tsx";
+
+import { DashboardSkeletonLoader } from "./loader/DashboardSkeletonLoader.tsx";
+import InventoryListSkeletonLoader from "./loader/InventoryListSkeletonLoader.tsx";
+import { UserSkeletonLoader } from "./loader/UserSkeletonLoader.tsx";
+import HistoryListSkeletonLoader from "./loader/HistoryListSkeletonLoader.tsx";
+import ArchiveSkeletonLoader from "./loader/ArchiveSkeletonLoader.tsx";
+import SettingsSkeletonLoader from "./loader/SettingsSkeletonLoader.tsx";
+import BorrowItemSkeletonLoader from "./loader/BorrowItemSkeletonLoader.tsx";
+import RegistrationModuleSkeletonLoader from "./loader/RegistrationModuleSkeletonLoader.tsx";
 
 const routes = createBrowserRouter([
   // Public routes
   {
     path: "/",
-    element: <App />,
+    element: (
+      <PublicRoute>
+        <App />
+      </PublicRoute>
+    ),
     children: [
       {
         index: true,
-        element: <Login />,
+        element:
+          <Login />
       },
     ],
   },
@@ -39,14 +54,55 @@ const routes = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-      { path: "dashboard", element: <Dashboard /> },
-      { path: "inventory-list", element: <InventoryList /> },
-      { path: "user-management", element: <UserManagement /> },
-      { path: "history-list", element: <HistoryList /> },
-      { path: "archive-table", element: <Archive /> },
-      { path: "borrow-item", element: <BorrowItem /> },
-      { path: "settings", element: <Settings /> },
-      { path: "registration-module", element: <Registration /> },
+      {
+        path: "dashboard", element:
+          <Suspense fallback={<DashboardSkeletonLoader />}>
+            <Dashboard />
+          </Suspense>
+      },
+      {
+        path: "inventory-list", element:
+          <Suspense fallback={<InventoryListSkeletonLoader />}>
+            <InventoryList />
+          </Suspense>
+
+      },
+      {
+        path: "user-management", element:
+          <Suspense fallback={<UserSkeletonLoader />}>
+            <UserManagement />
+          </Suspense>
+      },
+      {
+        path: "history-list", element:
+          <Suspense fallback={<HistoryListSkeletonLoader />}>
+            <HistoryList />
+          </Suspense>
+      },
+      {
+        path: "archive-table", element:
+          <Suspense fallback={<ArchiveSkeletonLoader />}>
+            <Archive />
+          </Suspense>
+      },
+      {
+        path: "borrow-item", element:
+          <Suspense fallback={<BorrowItemSkeletonLoader />}>
+            <BorrowItem />
+          </Suspense>
+      },
+      {
+        path: "settings", element:
+          <Suspense fallback={<SettingsSkeletonLoader />}>
+            <Settings />
+          </Suspense>
+      },
+      {
+        path: "registration-module", element:
+          <Suspense fallback={<RegistrationModuleSkeletonLoader />}>
+            <Registration />
+          </Suspense>
+      },
     ],
   },
 

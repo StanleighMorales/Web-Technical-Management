@@ -5,12 +5,12 @@ import { UserData } from "../utils/usersData/userData";
 import { type FC } from "react";
 import { MdVisibility } from "react-icons/md";
 
-type ArchiveTableProps = {
+type TArchiveTableProps = {
     id: string;
     archivedAt: string;
     itemName: string;
     serialNumber: string;
-    image: string;
+    image: string | null;
     itemType: string;
     itemModel: string;
     itemMake: string;
@@ -25,33 +25,17 @@ type ArchiveTableProps = {
     isDeleting: boolean;
 };
 
-export default function ArchiveItemTable({
-    id,
-    archivedAt,
-    itemName,
-    serialNumber,
-    image,
-    itemType,
-    itemModel,
-    itemMake,
-    description,
-    category,
-    condition,
-    barcodeImage,
-    onView,
-    onDelete,
-    onRestore,
-    isRestoring,
-    isDeleting
-}: ArchiveTableProps) {
+type TArchiveItemNewProps = Omit<TArchiveTableProps, "itemType" | "itemModel" | "itemMake">
+
+export const ArchiveItemTable: FC<TArchiveItemNewProps> = (props) => {
 
     type checkIfUserAdminProps = {
         userRole?: string,
         onHandleRestoreItem: () => void,
         onHandleDeleteItem: () => void
     }
-    const data = UserData()
 
+    const data = UserData()
 
     const ShowButtonIfUserAdmin: FC<checkIfUserAdminProps> = ({ userRole, onHandleRestoreItem, onHandleDeleteItem }) => {
         if (userRole !== "Admin") return null;
@@ -59,18 +43,18 @@ export default function ArchiveItemTable({
             <>
                 <button
                     onClick={onHandleDeleteItem}
-                    disabled={isDeleting}
+                    disabled={props.isDeleting}
                     title="Delete item"
-                    className="text-red-600 text-2xl cursor-pointer mr-2"
+                    className="mr-2 text-2xl text-red-600 cursor-pointer"
                 >
                     <FaTrash />
                 </button>
 
                 <button
                     onClick={onHandleRestoreItem}
-                    disabled={isRestoring}
+                    disabled={props.isRestoring}
                     title="Restore item"
-                    className="text-orange-300 text-2xl cursor-pointer"
+                    className="text-2xl text-orange-300 cursor-pointer"
                 >
                     <FaTrashRestore />
                 </button>
@@ -80,52 +64,56 @@ export default function ArchiveItemTable({
 
     return (
         <>
-            <td className="py-3 px-4 font-semibold">{serialNumber}</td>
+            <td className="py-3 px-4 font-semibold">{props.serialNumber}</td>
             <td className="py-3 px-4">
-                <img
-                    src={
-                        typeof image === "string" ? image : ""
-                    }
-                    alt={itemName}
-                    className="w-10 h-10 rounded-xl"
-                />
+                {props.image ? (
+                    <img
+                        src={props.image}
+                        alt={props.itemName}
+                        className="object-cover w-10 h-10 rounded-xl"
+                        onError={(e) => {
+                            // Fallback to placeholder if image fails to load
+                            const target = e.target as HTMLImageElement;
+                            target.src = '/placeholder-item.png';
+                            target.alt = 'Image not available';
+                        }}
+                    />
+                ) : (
+                    <div className="flex justify-center items-center w-10 h-10 bg-gray-200 rounded-xl">
+                        <span className="text-xs text-gray-500">No Image</span>
+                    </div>
+                )}
             </td>
-            <td className="py-3 px-4">{itemName}</td>
-            <td className="py-3 px-4">{itemType}</td>
-            <td className="py-3 px-4">{itemModel}</td>
-            <td className="py-3 px-4">{itemMake}</td>
-            <td className="py-3 px-4 max-w-xs truncate" title={description}>
-                {description}
-            </td>
-            <td className="py-3 px-4">{category}</td>
+            <td className="py-3 px-4">{props.itemName}</td>
+            <td className="py-3 px-4">{props.category}</td>
             <td className="py-3 px-4">
                 <span
-                    className={`px-3 py-1 rounded-full text-sm font-semibold ${SlugCondition(condition)}`}
+                    className={`px-3 py-1 rounded-full text-sm font-semibold ${SlugCondition(props.condition)}`}
                 >
-                    {condition}
+                    {props.condition}
                 </span>
             </td>
             <td className="py-3 px-4 font-mono text-sm">
-                {barcodeImage && <img
-                    src={barcodeImage}
+                {props.barcodeImage && <img
+                    src={props.barcodeImage}
                     alt="Barcode"
                     className="w-14 h-10"
                 />}
 
             </td>
-            <td className="py-3 px-4">{FormattedDateTime(archivedAt)}</td>
+            <td className="py-3 px-4">{FormattedDateTime(props.archivedAt)}</td>
             <td className="py-3 text-center">
                 <button
-                    onClick={() => onView(id)}
-                    className="mr-2 text-green-500 text-2xl hover:text-green-700 transition-colors"
+                    onClick={() => props.onView(props.id)}
+                    className="mr-2 text-2xl text-green-500 transition-colors hover:text-green-700"
                     title="View student credentials"
                 >
                     <MdVisibility />
                 </button>
                 <ShowButtonIfUserAdmin
                     userRole={data.userRole}
-                    onHandleDeleteItem={() => onDelete(id)}
-                    onHandleRestoreItem={() => onRestore(id)}
+                    onHandleDeleteItem={() => props.onDelete(props.id)}
+                    onHandleRestoreItem={() => props.onRestore(props.id)}
                 />
             </td>
 

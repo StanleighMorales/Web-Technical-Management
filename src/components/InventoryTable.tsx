@@ -5,14 +5,15 @@ import { IoArchive } from "react-icons/io5";
 import logo from "../assets/img/aclcLogo.webp";
 import { FormattedDateTime } from "./FormatedDateTime";
 import { SlugCondition } from "./SlugCondition";
-import { MdOutlineGridView } from "react-icons/md";
+import { SlugStatus } from "./SlugStatus";
+import { MdVisibility } from "react-icons/md";
 import { UserData } from "../utils/usersData/userData";
 import PopUpModal from "./PopUpModal";
 
 type checkIfUserAdminProps = {
-  userRole?: string,
-  onHandleArchiveItem: () => void
-}
+  userRole?: string;
+  onHandleArchiveItem: () => void;
+};
 
 type InventoryTableProps = {
   id?: string;
@@ -23,35 +24,26 @@ type InventoryTableProps = {
   ItemType: string;
   Category: string;
   Condition: string;
+  Status: string;
   onMutate: (value: string) => void;
 };
 
-export default function InventoryTable({
-  id,
-  createdAt,
-  ItemName,
-  SerialNumber,
-  Image,
-  Category,
-  Condition,
-  onMutate,
-}: InventoryTableProps) {
-
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
-  const data = UserData()
-  const userRole = data.userRole
+export const InventoryTable: FC<Required<InventoryTableProps>> = (props) => {
+  const [isConfirmOpen, setIsConfirmOpen] = useState<boolean>(false);
+  const data = UserData();
+  const userRole = data.userRole;
 
   const handleArchiveItem = () => {
-    setIsConfirmOpen(true)
-  }
+    setIsConfirmOpen(true);
+  };
 
   const handleConfirmArchive = () => {
-    onMutate(id!);
-  }
+    props.onMutate(props.id!);
+  };
 
   const handleCancelArchive = () => {
-    setIsConfirmOpen(false)
-  }
+    setIsConfirmOpen(false);
+  };
 
   const ShowButtonIfUserAdmin: FC<checkIfUserAdminProps> = ({
     userRole,
@@ -62,7 +54,7 @@ export default function InventoryTable({
       <button
         onClick={onHandleArchiveItem}
         title="Archive item"
-        className="text-orange-600 text-2xl cursor-pointer hover:text-orange-700 transition-colors"
+        className="text-2xl text-orange-600 transition-colors cursor-pointer hover:text-orange-700"
       >
         <IoArchive />
       </button>
@@ -71,31 +63,38 @@ export default function InventoryTable({
 
   return (
     <>
-      <td className="py-3 px-4 font-semibold">{SerialNumber}</td>
+      <td className="py-3 px-4">{props.SerialNumber}</td>
       <td className="py-3 px-4">
         <img
-          src={typeof Image === "string" ? Image : logo}
-          alt={ItemName}
+          src={typeof props.Image === "string" ? props.Image : logo}
+          alt={props.ItemName}
           className="w-10 h-10 rounded-xl"
         />
       </td>
-      <td className="py-3 px-4">{ItemName}</td>
-      <td className="py-3 px-4">{Category}</td>
+      <td className="py-3 px-4">{props.ItemName}</td>
+      <td className="py-3 px-4">{props.Category}</td>
       <td className="py-3 px-4">
         <span
-          className={`px-3 py-1 rounded-full text-sm font-semibold ${SlugCondition(Condition)}`}
+          className={`px-3 py-1 rounded-full text-sm ${SlugCondition(props.Condition)}`}
         >
-          {Condition}
+          {props.Condition}
         </span>
       </td>
-      <td className="py-3 px-4">{FormattedDateTime(createdAt)}</td>
-      <td className="py-3 px-4 flex flex-row ">
-        <Link
-          to={`/item/${id}`}
-          title="View more"
-          className="mr-2 text-blue-500 text-2xl"
+      <td className="py-3 px-4">{FormattedDateTime(props.createdAt)}</td>
+      <td className="py-3 px-4">
+        <span
+          className={`px-3 py-1 rounded-full text-sm ${SlugStatus(props.Status)}`}
         >
-          <MdOutlineGridView />
+          {props.Status}
+        </span>
+      </td>
+      <td className="flex flex-row py-3 px-4">
+        <Link
+          to={`/item/${props.id}`}
+          title="View more"
+          className="mr-2 text-2xl text-green-500"
+        >
+          <MdVisibility />
         </Link>
         <ShowButtonIfUserAdmin
           userRole={userRole}
@@ -114,4 +113,4 @@ export default function InventoryTable({
       )}
     </>
   );
-}
+};

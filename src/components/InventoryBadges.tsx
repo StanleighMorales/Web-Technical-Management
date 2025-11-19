@@ -1,4 +1,5 @@
 import { memo } from "react";
+
 type InventoryBadgesProps = {
   name: string;
   total: number;
@@ -9,32 +10,49 @@ type InventoryBadgesProps = {
 export const InventoryBadges = memo(
   ({ name, total, onClick, isSelected = false }: InventoryBadgesProps) => {
     return (
-      <>
-        <div
-          key={name}
-          onClick={onClick}
-          className={`bg-white/90 shadow-md rounded-2xl p-6 w-full max-w-[350px] flex flex-col items-center justify-center hover:scale-105 hover:shadow-2xl transition-all duration-200 border cursor-pointer ${
+      <div
+        onClick={onClick}
+        className={`
+          group
+          flex flex-col flex-nowrap items-center justify-center
+          p-8
+          rounded-2xl
+          bg-white/60 backdrop-blur-md
+          border
+          shadow-sm
+          transition-all duration-300
+          cursor-pointer
+          w-full min-w-[140px] max-w-[350px]
+
+          hover:shadow-lg hover:-translate-y-1
+
+          ${
             isSelected
-              ? "border-[#2563eb] bg-blue-50/90 shadow-blue-200"
-              : "border-[#e0e7ef] hover:border-[#2563eb]"
-          }`}
+              ? "border-[#2563eb] shadow-md"
+              : "border-[#e5e7eb]"
+          }
+        `}
+      >
+        <h2
+          className={`
+            text-base font-medium
+            ${isSelected ? "text-[#1e40af]" : "text-[#475569]"}
+            transition-colors
+          `}
         >
-          <span
-            className={`stat-title font-semibold text-lg mb-2 ${
-              isSelected ? "text-[#2563eb]" : "text-[#64748b]"
-            }`}
-          >
-            {name}
-          </span>
-          <span
-            className={`text-4xl font-bold ${
-              isSelected ? "text-[#1d4ed8]" : "text-[#2563eb]"
-            }`}
-          >
-            {total}
-          </span>
-        </div>
-      </>
+          {name}
+        </h2>
+
+        <p
+          className={`
+            mt-4 text-5xl font-extrabold tracking-tight
+            ${isSelected ? "text-[#1e3a8a]" : "text-[#2563eb]"}
+            transition-colors
+          `}
+        >
+          {total}
+        </p>
+      </div>
     );
-  },
+  }
 );

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AddUsers } from "../components/AddUser";
 import Button from "../components/Button";
 import EditUser from "../components/EditUser";
@@ -12,21 +12,34 @@ import { useArchiveUserMutation } from "../query/delete/useArchiveUserMutation";
 import UserTable from "../components/UserTable";
 import ErrorTable from "../components/ErrorTables";
 import PopUpModal from "../components/PopUpModal";
+import ViewUserCredentials from "../components/ViewUserCredentials";
+import { SuccessAlert } from "../components/SuccessAlert";
+import { ErrorAlert } from "../components/ErrorAlert";
+
+type TNewUserTypes = Omit<TUsers, "course" | "section" | "year">;
 
 export default function UserManagement() {
+  const [ShowSuccessAlert, setShowSuccessAlert] = useState<boolean>(false);
+  const [ShowErrorAlert, setErrorShowAlert] = useState<boolean>(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState<string>("");
+  const [showErrorMessage, setShowErrorMessage] = useState<string>("");
   const [isAddUserOpen, setIsAddUserOpen] = useState<boolean>(false);
   const [isEditUserOpen, setIsEditUserOpen] = useState<boolean>(false);
+  const [isViewCredentialsOpen, setIsViewCredentialsOpen] = useState(false);
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState<boolean>(false);
   const [searchUser, setSearchUser] = useState<string>("");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [selectedRole, setSelectedRole] = useState<string>("all");
-  const [editUserId, setEditUserId] = useState<string>("");
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [archiveUserId, setArchiveUserId] = useState<string>("");
-  const [users, setUsers] = useState<TUsers[]>([]);
+  const [users, setUsers] = useState<TNewUserTypes[]>([]);
+
+  const { data, isPending, isError } = useQuery(useAllUsersQuery());
+  const { mutate } = useArchiveUserMutation();
 
   const selectedUser = useMemo(() => {
-    return users.find((u) => u.id === editUserId);
-  }, [users, editUserId]);
+    return users.find((u) => u.id === selectedUserId);
+  }, [users, selectedUserId]);
 
   const filteredUser = useMemo(
     () =>
@@ -61,22 +74,33 @@ export default function UserManagement() {
           userStatus.includes(searchValue)
         );
       }),
-    [searchUser, selectedStatus, selectedRole, users],
+    [searchUser, selectedStatus, selectedRole, users]
   );
 
-  const { data, isPending, isError } = useQuery(useAllUsersQuery());
-  const { mutate } = useArchiveUserMutation();
-
-  const handleArchiveUser = (userId: string) => {
-    setArchiveUserId(userId);
-    setIsArchiveModalOpen(true);
-  };
-
-  const confirmArchiveUser = () => {
-    mutate(archiveUserId);
-    setIsArchiveModalOpen(false);
-    setArchiveUserId("");
-  };
+  const confirmArchiveUser = useCallback(() => {
+    mutate(archiveUserId, {
+      onError: () => {
+        setIsArchiveModalOpen(false);
+        setErrorShowAlert(true);
+        setArchiveUserId("");
+        setShowErrorMessage("You cannot delete the logged-in user!");
+        setTimeout(() => {
+          setErrorShowAlert(false);
+          setShowErrorMessage("");
+        }, 3500);
+      },
+      onSuccess: (d) => {
+        setIsArchiveModalOpen(false);
+        setShowSuccessAlert(true);
+        setArchiveUserId("");
+        setShowSuccessMessage(d.message);
+        setTimeout(() => {
+          setShowSuccessAlert(false);
+          setShowSuccessMessage("");
+        }, 3500);
+      },
+    });
+  }, [archiveUserId, mutate]);
 
   const cancelArchiveUser = () => {
     setIsArchiveModalOpen(false);
@@ -94,69 +118,75 @@ export default function UserManagement() {
   }
 
   return (
-    <div className="animate-fadeIn min-h-screen w-full bg-gradient-to-br from-[#eef2ff] via-[#e2e8f0] to-[#c7d2fe] flex flex-col items-center py-10 px-2">
-      <div className="w-full max-w-[2000px] bg-white/80 backdrop-blur-md shadow-xl rounded-3xl p-6 md:p-10 relative ring-1 ring-black/5">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-8 gap-4">
+    <div className="flex flex-col items-center py-10 px-2 w-full min-h-screen bg-linear-to-br animate-fadeIn ">
+      {ShowSuccessAlert ? <SuccessAlert message={showSuccessMessage} /> : ""}
+      {ShowErrorAlert ? <ErrorAlert message={showErrorMessage} /> : ""}
+      <div className="relative p-6 w-full rounded-3xl ring-1 shadow-xl md:p-10 max-w-[2000px] bg-white/80 backdrop-blur-md ring-black/5">
+        <div className="flex flex-col gap-4 mb-8 md:flex-row md:justify-between md:items-end">
           <div>
-            <h1 className="text-3xl md:text-4xl font-extrabold text-[#0f172a] mb-2 tracking-tight">
+            <h1 className="mb-2 text-5xl mt-10 lg:mt-0 md:mt-0 font-extrabold tracking-tight text-[#1e293b] drop-shadow-lg">
               User Management
             </h1>
-            <p className="text-sm md:text-base text-[#475569]">
+            <p className="text-md md:text-lg text-[#475569]">
               Manage staff, search users, and update statuses with ease.
             </p>
           </div>
-          <div className="flex items-center gap-2 text-[#475569]">
-            <span className="inline-flex items-center gap-2 rounded-full bg-[#eef2ff] px-3 py-1 text-sm font-medium text-[#3730a3]">
-              <span className="h-2 w-2 rounded-full bg-[#22c55e]"></span>
-              {users.length} total users
+          <div className="flex gap-2 items-center text-[#475569]">
+            <span className="inline-flex gap-2 items-center py-1 px-3 text-sm font-medium rounded-full bg-[#eef2ff] text-[#3730a3]">
+              <span className="w-2 h-2 rounded-full bg-[#22c55e]"></span>
+              {
+                users.filter((user) => user.status.toLowerCase() === "online")
+                  .length
+              }{" "}
+              total online
             </span>
             <span className="hidden md:inline text-[#94a3b8]">|</span>
-            <span className="hidden md:inline text-sm text-[#64748b]">
+            <span className="hidden text-sm md:inline text-[#64748b]">
               {filteredUser.length} shown
             </span>
           </div>
         </div>
-        <section className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 mb-6">
+        <section className="flex flex-col gap-3 mb-6 md:flex-row md:gap-4 md:justify-between md:items-center">
           <div className="order-2 md:order-1">
             <Button onClick={() => setIsAddUserOpen(true)} name={"New User"} />
           </div>
-          <div className="order-1 md:order-2 flex w-full md:w-auto flex-col sm:flex-row sm:items-center gap-2">
+          <div className="flex flex-col order-1 gap-2 w-full sm:flex-row sm:items-center md:order-2 md:w-auto">
             {/* Role Filter Buttons */}
-            <div className="-mt-5 flex flex-row gap-2">
+            <div className="flex flex-row gap-2 -mt-5">
               <button
                 onClick={() => setSelectedRole("all")}
-                className={` px-6 py-3.5 rounded-md font-medium transition-all duration-200 ${
+                className={` px-6 py-2.5 max-sm:px-4 max-sm:py-3 rounded-md font-medium transition-all duration-200 ${
                   selectedRole === "all"
-                    ? " bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white shadow-md"
-                    : "bg-white text-[#64748b] border border-[#e5e7eb] hover:bg-[#f8fafc] hover:border-[#d1d5db]"
+                    ? "bg-blue-500 text-white shadow-md"
+                    : "bg-white text-[#64748b] border-2 border-[#e5e7eb] hover:border-[#2563eb] hover:text-[#2563eb]"
                 }`}
               >
-                All
+                <label htmlFor="">All</label>
               </button>
               <button
                 onClick={() => setSelectedRole("admin")}
-                className={` px-6 py-3.5 rounded-md font-medium transition-all duration-200 ${
+                className={` px-6 py-2.5 max-sm:px-4 max-sm:py-3 rounded-md font-medium transition-all duration-200 ${
                   selectedRole === "admin"
-                    ? " bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white shadow-md"
-                    : "bg-white text-[#64748b] border border-[#e5e7eb] hover:bg-[#f8fafc] hover:border-[#d1d5db]"
+                    ? "bg-blue-500  text-white shadow-md"
+                    : "bg-white text-[#64748b] border-2 border-[#e5e7eb]  hover:border-[#2563eb] hover:text-[#2563eb]"
                 }`}
               >
-                Admin
+                <label htmlFor="">Admin</label>
               </button>
               <button
                 onClick={() => setSelectedRole("staff")}
-                className={` px-6 py-3.5 rounded-md font-medium transition-all duration-200 ${
+                className={` px-6 py-2.5 max-sm:px-4 lg:-mr-12 max-sm:mr-10 max-sm:py-3 rounded-md font-medium transition-all duration-200 ${
                   selectedRole === "staff"
-                    ? " bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white shadow-md"
-                    : "bg-white text-[#64748b] border border-[#e5e7eb] hover:bg-[#f8fafc] hover:border-[#d1d5db]"
+                    ? "bg-blue-500 text-white shadow-md"
+                    : "bg-white text-[#64748b] border-2 border-[#e5e7eb] hover:border-[#2563eb] hover:text-[#2563eb]"
                 }`}
               >
-                Staff
+                <label htmlFor="">Staff</label>
               </button>
-            </div>
-            {/* Select Component */}
-            <div className="sm:min-w-[200px] -mr-12">
-              <SelectUserStatus onChangeStatus={setSelectedStatus} />
+              {/* Select Component */}
+              <div className="-mr-12 sm:min-w-[200px]">
+                <SelectUserStatus onChangeStatus={setSelectedStatus} />
+              </div>
             </div>
             {/* Search Bar Component */}
             <div className="flex-1">
@@ -170,79 +200,86 @@ export default function UserManagement() {
         </section>
 
         {/* User Table / Empty State */}
-        <div className="h-[60vh] overflow-x-auto rounded-2xl shadow-lg bg-white/95 border border-[#e5e7eb]">
+        <div className="overflow-x-auto rounded-2xl border shadow-lg h-[60vh] bg-white/95 border-[#e5e7eb]">
           {isError ? (
             <ErrorTable />
           ) : filteredUser.length === 0 ? (
-            <div className="h-full w-full flex flex-col items-center justify-center text-center p-8">
-              <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#eef2ff] text-[#3730a3]">
+            <div className="flex flex-col justify-center items-center p-8 w-full h-full text-center">
+              <div className="inline-flex justify-center items-center mb-3 w-12 h-12 rounded-full bg-[#eef2ff] text-[#3730a3]">
                 {/* magnifier icon substitute */}
                 <span className="text-xl">🔎</span>
               </div>
-              <p className="text-[#0f172a] font-semibold">No users found</p>
-              <p className="text-[#64748b] text-sm max-w-md">
+              <p className="font-semibold text-[#0f172a]">No users found</p>
+              <p className="max-w-md text-sm text-[#64748b]">
                 Try adjusting your filters or search query. You can also add a
                 new user.
               </p>
             </div>
           ) : (
-            <table className="w-full border-collapse text-left">
+            <table className="w-full text-left border-collapse">
               <thead>
                 <tr>
-                  <th className="bg-[#f8fafc]/90 backdrop-blur sticky top-0 z-10 font-semibold py-3 md:py-4 px-4 md:px-6 border-b border-[#e6e6e6] text-[#2563eb]">
-                    ID
-                  </th>
-                  <th className="bg-[#f8fafc]/90 backdrop-blur sticky top-0 z-10 font-semibold py-3 md:py-4 px-4 md:px-6 border-b border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold tracking-wider text-left uppercase border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                     Firstname
                   </th>
-                  <th className="bg-[#f8fafc]/90 backdrop-blur sticky top-0 z-10 font-semibold py-3 md:py-4 px-4 md:px-6 border-b border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold tracking-wider text-left uppercase border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                     Lastname
                   </th>
-                  <th className="bg-[#f8fafc]/90 backdrop-blur sticky top-0 z-10 font-semibold py-3 md:py-4 px-4 md:px-6 border-b border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold tracking-wider text-left uppercase border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                     Username
                   </th>
-                  <th className="bg-[#f8fafc]/90 backdrop-blur sticky top-0 z-10 font-semibold py-3 md:py-4 px-4 md:px-6 border-b border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold tracking-wider text-left uppercase border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                     Email
                   </th>
-                  <th className="bg-[#f8fafc]/90 backdrop-blur sticky top-0 z-10 font-semibold py-3 md:py-4 px-4 md:px-6 border-b border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold tracking-wider text-left uppercase border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                     Role
                   </th>
-                  <th className="bg-[#f8fafc]/90 backdrop-blur sticky top-0 z-10 font-semibold py-3 md:py-4 px-4 md:px-6 border-b border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold tracking-wider text-left uppercase border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                     Status
                   </th>
-                  <th className="bg-[#f8fafc]/90 backdrop-blur sticky top-0 z-10 font-semibold py-3 md:py-4 px-4 md:px-6 border-b border-[#e6e6e6] text-[#2563eb]">
+                  <th className="sticky top-0 z-10 py-3 px-4 font-semibold tracking-wider text-left uppercase border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur text-[#64748b]">
                     Action
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {filteredUser.map((user) => (
-                  <tr
-                    key={user.id}
-                    className="hover:bg-[#f1f5f9] transition-colors odd:bg-white even:bg-[#f8fafc]"
-                  >
-                    {/* User Table Component*/}
-                    <UserTable
-                      id={user.id}
-                      firstName={user.firstName}
-                      lastName={user.lastName}
-                      username={user.username}
-                      email={user.email}
-                      userRole={user.userRole}
-                      status={user.status}
-                      onSetEditUserId={() => setEditUserId(user.id)}
-                      onSetIsEditUserOpen={() => setIsEditUserOpen(true)}
-                      onMutate={() => handleArchiveUser(user.id)}
-                    />
-                  </tr>
-                ))}
+                {filteredUser
+                  .filter(
+                    (user) =>
+                      user.userRole === "Admin" || user.userRole === "Staff"
+                  )
+                  .map((user) => (
+                    <tr key={user.id}>
+                      <UserTable
+                        key={user.id}
+                        id={user.id}
+                        firstName={user.firstName}
+                        lastName={user.lastName}
+                        username={user.username}
+                        email={user.email}
+                        userRole={user.userRole}
+                        status={user.status}
+                        onSetEditUserId={(userId) => {
+                          setSelectedUserId(userId);
+                          setIsEditUserOpen(true);
+                        }}
+                        onSetIsEditUserOpen={setIsEditUserOpen}
+                        onSetViewUserId={(userId) => setSelectedUserId(userId)}
+                        onSetIsViewUserOpen={setIsViewCredentialsOpen}
+                        onMutate={(userId) => {
+                          setArchiveUserId(userId);
+                          setIsArchiveModalOpen(true);
+                        }}
+                      />
+                    </tr>
+                  ))}
               </tbody>
             </table>
           )}
         </div>
 
         {/* Description */}
-        <p className="mt-6 text-[#64748b] text-sm text-center">
+        <p className="mt-6 text-sm text-center text-[#64748b]">
           <span className="font-semibold">Tip:</span> Use role filters, status
           filters, and search to quickly locate users.
         </p>
@@ -250,15 +287,8 @@ export default function UserManagement() {
       {isAddUserOpen && <AddUsers onClose={() => setIsAddUserOpen(false)} />}
       {isEditUserOpen && selectedUser && (
         <EditUser
+          user={selectedUser}
           onClose={() => setIsEditUserOpen(false)}
-          Id={editUserId}
-          firstName={selectedUser.firstName}
-          lastName={selectedUser.lastName}
-          middleName={selectedUser.middleName}
-          username={selectedUser.username}
-          email={selectedUser.email}
-          phoneNumber={selectedUser.phoneNumber}
-          position={selectedUser.userRole}
         />
       )}
       {isArchiveModalOpen && (
@@ -269,6 +299,13 @@ export default function UserManagement() {
           destination="archive"
           onHandleCancleAction={cancelArchiveUser}
           onHandleConfirmAction={confirmArchiveUser}
+        />
+      )}
+      {selectedUser && isViewCredentialsOpen && (
+        <ViewUserCredentials
+          user={selectedUser}
+          isOpen={isViewCredentialsOpen}
+          onClose={() => setIsViewCredentialsOpen(false)}
         />
       )}
     </div>

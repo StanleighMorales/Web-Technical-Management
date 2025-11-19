@@ -1,214 +1,193 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import SearchBar from "../components/SearchBar";
-import type { TBorrowedItems } from "../types/types";
-import { useQueries } from "@tanstack/react-query";
-import { useBorrowedItemsQuery } from "../query/get/useBorrwedItemsQuery";
+import { useQuery } from "@tanstack/react-query";
 import { DashboardSkeletonLoader } from "../loader/DashboardSkeletonLoader";
 import DashboardBadges from "../components/DashboardBadges";
 import ErrorTable from "../components/ErrorTables";
+import type { TRecentBorrowItemProps } from "../types/types";
 import Pagination from "../components/Pagination";
-import RecentBorrowedItemsTable from "../components/RecentBorrowedItemsTable";
+import { RecentBorrowedItemsTable } from "../components/RecentBorrowedItemsTable";
 import { useSummaryDataQuery } from "../query/get/useSummaryDataQuery";
+import { useBorrowedItemsQuery } from "../query/get/useBorrwedItemsQuery";
+import { ViewRecentBorrowItems } from "../components/ViewRecentBorrowItems";
 
-type summary = {
-  totalItems: number;
-  totalActiveUsers: number;
-  totalLentItems: number;
-  totalItemsCategories: number;
+type Summary = {
+  totalItems: number | null;
+  totalActiveUsers: number | null;
+  totalLentItems: number | null;
+  totalItemsCategories: number | null;
 };
 
 export default function Dashboard() {
-  const [dataSummary, setDataSummary] = useState<summary>({
+  const [dataSummary, setDataSummary] = useState<Summary>({
     totalItems: 0,
     totalActiveUsers: 0,
     totalLentItems: 0,
     totalItemsCategories: 0,
   });
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [currentPage, setCurrentPage] = useState<number>(1);
+
+  const [onViewBorrowItemOpen, setOnViewBorrowItemOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const [borrowedItemData, setBorrowedItemData] = useState<TRecentBorrowItemProps[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  const { data: recentBorrowData, isLoading: isBorrowedItemLoading, isError: isBorrowedItemError } = useQuery(useBorrowedItemsQuery());
+  const { data: summaryData } = useQuery(useSummaryDataQuery());
+
   const badges = [
-    {
-      name: "Total Items",
-      data: dataSummary.totalItems,
-      link: "/home/inventory-list",
-    },
-    {
-      name: "Categories",
-      data: dataSummary.totalItemsCategories,
-      link: "/home/inventory-list",
-    },
-    {
-      name: "Active Users",
-      data: dataSummary.totalActiveUsers,
-      link: "/home/user-management",
-    },
-    {
-      name: "Total Borrowed",
-      data: dataSummary.totalLentItems,
-      link: "/home/history-list",
-    },
+    { name: "Total Items", data: dataSummary.totalItems, link: "/home/inventory-list" },
+    { name: "Categories", data: dataSummary.totalItemsCategories, link: "/home/inventory-list" },
+    { name: "Active Users", data: dataSummary.totalActiveUsers, link: "/home/user-management" },
+    { name: "Total Borrowed", data: dataSummary.totalLentItems, link: "/home/history-list" },
   ];
 
-  const results = useQueries({
-    queries: [useBorrowedItemsQuery(), useSummaryDataQuery()],
-  });
-
-  const borrowedItemsResult = results[0];
-  const summaryData = results[1];
-
-  const borrowedItemsData: TBorrowedItems[] = useMemo(() => {
-    return borrowedItemsResult.data ?? [];
-  }, [borrowedItemsResult]);
-
+  // Filter logic
   const filteredData = useMemo(
     () =>
-      borrowedItemsData.filter((item) =>
-        item.item.toLowerCase().includes(searchTerm.toLowerCase()),
+      borrowedItemData.filter(
+        (item) =>
+          item.item.itemName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.item.serialNumber?.toLowerCase().includes(searchTerm.toLowerCase())
       ),
-    [borrowedItemsData, searchTerm],
+    [borrowedItemData, searchTerm]
   );
 
+  // Pagination logic
   const paginatedData = useMemo(
     () =>
-      filteredData.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage,
-      ),
-    [filteredData, currentPage],
+      filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage),
+    [filteredData, currentPage]
   );
 
   const totalPages = useMemo(
     () => Math.ceil(filteredData.length / itemsPerPage),
-    [filteredData],
+    [filteredData]
   );
 
-  const handlePageChange = useCallback((page: number) => {
-    setCurrentPage(page);
-  }, []);
+  const handlePageChange = useCallback((page: number) => setCurrentPage(page), []);
 
+  const handleViewBorrowItemOpen = (id: string) => {
+    setSelectedId(id);
+    setOnViewBorrowItemOpen(true);
+  };
+
+  const handleViewBorrowItemClose = () => {
+    setSelectedId(null);
+    setOnViewBorrowItemOpen(false);
+  };
+
+  // Update summary data
   useEffect(() => {
     if (!summaryData) return;
-
-    setDataSummary((prev) => {
-      const newTotalItems = summaryData.data?.data.totalItems;
-      const newTotalActiveUsers = summaryData.data?.data.totalActiveUsers;
-      const newTotalCategories = summaryData.data?.data.totalItemsCategories;
-      const newTotalLentItems = summaryData.data?.data.totalLentItems;
-
-      if (
-        prev.totalItems === newTotalItems &&
-        prev.totalActiveUsers === newTotalActiveUsers &&
-        prev.totalItemsCategories === newTotalCategories &&
-        prev.totalLentItems === newTotalLentItems
-      ) {
-        return prev;
-      }
-
-      return {
-        ...prev,
-        totalItems: newTotalItems,
-        totalActiveUsers: newTotalActiveUsers,
-        totalItemsCategories: newTotalCategories,
-        totalLentItems: newTotalLentItems,
-      };
-    });
+    setDataSummary((prev) => ({
+      ...prev,
+      totalItems: summaryData.totalItems,
+      totalActiveUsers: summaryData.totalActiveUsers,
+      totalItemsCategories: summaryData.totalItemsCategories,
+      totalLentItems: summaryData.totalLentItems,
+    }));
   }, [summaryData]);
 
-  const isLoading = borrowedItemsResult.isLoading;
-  const isError = borrowedItemsResult.error;
+  // Update borrowed items
+  useEffect(() => {
+    if (!recentBorrowData) return;
+    setBorrowedItemData(recentBorrowData);
+  }, [recentBorrowData]);
 
-  if (isLoading) return <DashboardSkeletonLoader />;
+  if (isBorrowedItemLoading) return <DashboardSkeletonLoader />;
 
   return (
-    <div className="animate-fadeIn min-h-screen w-full bg-gradient-to-br from-[#f8fafc] via-[#e0e7ef] to-[#c7d2fe] flex flex-col items-center py-10 px-2">
-      {/* Stats Badges */}
-      <div className="w-full max-w-7xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+    <div className="flex z-40 flex-col items-center py-10 px-2 w-full min-h-screen animate-fadeIn bg-linear-to-br from-[#f8fafc] via-[#e0e7ef] to-[#c7d2fe]">
+      <div className="grid grid-cols-1 gap-8 mb-8 w-full max-w-7xl sm:grid-cols-2 lg:grid-cols-4">
         {badges.map((item, index) => (
-          <div key={index}>
-            <DashboardBadges
-              name={item.name}
-              link={item.link}
-              data={item.data}
-            />
-          </div>
+          <DashboardBadges key={index} name={item.name} link={item.link} data={item.data} />
         ))}
       </div>
 
-      {/* Table Borrowed Section */}
-      <div className="w-full max-w-7xl bg-white/90 shadow-md rounded-2xl p-8 border border-[#e0e7ef]">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
-          <h1 className="font-bold text-[#1e293b] text-2xl -mt-10">
+      <div className="p-8 w-full rounded-2xl border shadow-md bg-white/90 border-[#e0e7ef]">
+        <div className="flex flex-col gap-4 mb-4 md:flex-row md:justify-between md:items-center">
+          <h1 className="-mt-10 text-2xl font-bold max-sm:-mt-1 text-[#1e293b]">
             Recently Borrowed Items
           </h1>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4">
+          <div className="flex flex-col sm:flex-row sm:gap-4 sm:items-center">
             {totalPages > 1 && (
-              // Pagination Component
               <Pagination
                 totalPages={totalPages}
                 currentPage={currentPage}
                 handlePageChange={handlePageChange}
               />
             )}
-            {/* Search Bar Component */}
             <SearchBar
               onChangeValue={(value) => setSearchTerm(value)}
-              name={"search"}
-              placeholder={"Search items..."}
+              name="search"
+              placeholder="Search items..."
             />
           </div>
         </div>
-        <div className="h-[55vh] overflow-x-auto rounded-xl shadow-inner bg-white/95">
-          {isError ? (
-            <ErrorTable />
-          ) : (
-            <table className="relative w-full border-collapse text-left">
-              <thead>
-                <tr>
-                  <th className="bg-[#f8fafc] sticky top-0 font-semibold py-4 px-6 border-b border-[#e6e6e6] text-[#2563eb]">
-                    Date & Time
-                  </th>
-                  <th className="bg-[#f8fafc] sticky top-0 font-semibold py-4 px-6 border-b border-[#e6e6e6] text-[#2563eb]">
-                    Teacher
-                  </th>
-                  <th className="bg-[#f8fafc] sticky top-0 font-semibold py-4 px-6 border-b border-[#e6e6e6] text-[#2563eb]">
-                    Room
-                  </th>
-                  <th className="bg-[#f8fafc] sticky top-0 font-semibold py-4 px-6 border-b border-[#e6e6e6] text-[#2563eb]">
-                    Item
-                  </th>
-                  <th className="bg-[#f8fafc] sticky top-0 font-semibold py-4 px-6 border-b border-[#e6e6e6] text-[#2563eb]">
-                    Occupied By
-                  </th>
-                  <th className="bg-[#f8fafc] sticky top-0 font-semibold py-4 px-6 border-b border-[#e6e6e6] text-[#2563eb]">
-                    Remarks
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedData.map((item) => (
-                  <tr
-                    key={item.id}
-                    className="hover:bg-[#f1f5f9] transition-colors odd:bg-white even:bg-[#f8fafc]"
+
+        <div className="overflow-x-auto rounded-xl shadow-inner h-[55vh] bg-white/95">
+        {isBorrowedItemError ? <ErrorTable /> : (
+          <table className="relative w-full text-left border-collapse">
+            <thead>
+              <tr>
+                {[
+                  "Serial Number",
+                  "Image",
+                  "Item",
+                  "Occupied By",
+                  "Teacher",
+                  "Room",
+                  "Remarks",
+                  "DateTime",
+                  "Status",
+                  "Action",
+                ].map((header) => (
+                  <th
+                    key={header}
+                    className="sticky top-0 py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]"
                   >
-                    {/* Borrowers Table Component */}
-                    <RecentBorrowedItemsTable
-                      id={item.id}
-                      datetime={item.datetime}
-                      teacher={item.teacher}
-                      room={item.room}
-                      item={item.item}
-                      occupied={item.occupied}
-                      status={item.status}
-                    />
-                  </tr>
+                    {header}
+                  </th>
                 ))}
-              </tbody>
-            </table>
-          )}
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedData.map((item) => (
+                <tr
+                  key={item.item.serialNumber}
+                  className="transition-colors odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9]"
+                >
+                  <RecentBorrowedItemsTable
+                    id={item.id}
+                    image={item.item.image}
+                    itemName={item.item.itemName}
+                    serialNumber={item.item.serialNumber}
+                    borrowerFullName={item.borrowerFullName}
+                    room={item.room}
+                    teacherFullName={item.teacherFullName}
+                    remarks={item.remarks}
+                    createdAt={item.item.createdAt}
+                    status={item.status}
+                    onView={() => handleViewBorrowItemOpen(item.id)}
+                  />
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
         </div>
       </div>
+
+      {onViewBorrowItemOpen && selectedId && (
+        <ViewRecentBorrowItems
+          itemId={selectedId}
+          isOpen={onViewBorrowItemOpen}
+          onClose={handleViewBorrowItemClose}
+        />
+      )}
     </div>
   );
 }

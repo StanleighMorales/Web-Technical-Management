@@ -1,10 +1,10 @@
 export default function SidebarSkeletonLoader() {
   return (
-    <aside className="animate-fadeIn h-screen w-[75px] bg-white border-r border-[#e5e7eb] flex flex-col justify-between shadow-xl left-0 top-0 z-30">
+    <aside className="hidden top-0 left-0 z-30 flex-col justify-between h-screen bg-white border-r shadow-xl lg:flex animate-fadeIn w-[75px] border-[#e5e7eb]">
       {/* Logo and Title Skeleton */}
       <div className="flex flex-col items-center py-8">
         {/* Logo skeleton */}
-        <div className="w-20 h-20 mb-2 bg-gray-200 rounded-full animate-pulse"></div>
+        <div className="mb-2 w-20 h-20 bg-gray-200 rounded-full animate-pulse"></div>
         {/* Title skeleton */}
       </div>
 
@@ -14,8 +14,8 @@ export default function SidebarSkeletonLoader() {
           {/* Navigation items skeleton */}
           {[...Array(6)].map((_, index) => (
             <li key={index}>
-              <div className="flex items-center gap-3 px-auto py-3 rounded-lg">
-                <div className="h-4 min-w-[30px] bg-gray-200 rounded animate-pulse"></div>
+              <div className="flex gap-3 items-center py-3 rounded-lg px-auto">
+                <div className="h-4 bg-gray-200 rounded animate-pulse min-w-[30px]"></div>
               </div>
             </li>
           ))}
@@ -23,10 +23,10 @@ export default function SidebarSkeletonLoader() {
       </nav>
 
       {/* Logout Button Skeleton */}
-      <footer className="px-4 py-8">
-        <div className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#f1f5f9] rounded-lg shadow">
-          <div className="h-5 w-5 bg-gray-200 rounded animate-pulse"></div>
-          <div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div>
+      <footer className="py-8 px-4">
+        <div className="flex gap-2 justify-center items-center py-3 px-4 w-full rounded-lg shadow bg-[#f1f5f9]">
+          <div className="w-5 h-5 bg-gray-200 rounded animate-pulse"></div>
+          <div className="w-16 h-4 bg-gray-200 rounded animate-pulse"></div>
         </div>
       </footer>
     </aside>

@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
-import { getToken } from "../utils/token";
+import { getToken, removeToken } from "../utils/token";
 
 const getAccessTokenKey = () => import.meta.env.VITE_ACCESS_TOKEN_KEY;
 
@@ -50,6 +50,7 @@ export const useAuth = () => {
       if (!newToken) {
         setIsAuthenticated(false);
         setLoading(false);
+        removeToken();
         return;
       }
 

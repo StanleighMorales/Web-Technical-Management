@@ -1,9 +1,10 @@
-import { getToken } from "../../utils/token";
+import { getToken, removeToken } from "../../utils/token";
 import { queryOptions } from "@tanstack/react-query";
 
 const fetchUserData = async () => {
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const END_POINT = "/api/v1/auth/me";
+  const VERSION = "v1";
+  const END_POINT = `/api/${VERSION}/auth/me`;
 
   const res = await fetch(`${BASE_URL}${END_POINT}`, {
     method: "GET",
@@ -11,6 +12,11 @@ const fetchUserData = async () => {
       Authorization: `Bearer ${getToken()}`,
     },
   });
+
+  if (res.status === 401) {
+    removeToken();
+    return;
+  }
 
   const data = await res.json();
   if (!res.ok) {
@@ -23,6 +29,5 @@ export const useUserQuery = () => {
   return queryOptions({
     queryKey: ["me"],
     queryFn: fetchUserData,
-    staleTime: Infinity,
   });
 };

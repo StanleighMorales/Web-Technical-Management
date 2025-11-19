@@ -1,4 +1,4 @@
-import { getToken } from "../../utils/token/index.tsx";
+import { getToken, removeToken } from "../../utils/token/index.tsx";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type TUpdatedStudentData = {
@@ -27,7 +27,8 @@ type StudentPatchProps = {
 const StudentPatch = async ({ id, formData }: StudentPatchProps) => {
   try {
     const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    const END_POINT = "/api/v1/users/students/profile";
+    const VERSION = "v1";
+    const END_POINT = `/api/${VERSION}/users/students/profile`;
 
     const formDataObj = new FormData();
     formDataObj.append('FirstName', formData.firstName);
@@ -47,13 +48,18 @@ const StudentPatch = async ({ id, formData }: StudentPatchProps) => {
     formDataObj.append('UserRole', formData.userRole);
     formDataObj.append('Status', formData.status);
 
-    const res = await fetch(`${BASE_URL}${END_POINT}${id}`, {
+    const res = await fetch(`${BASE_URL}${END_POINT}/${id}`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${getToken()}`
       },
       body: formDataObj
     })
+
+    if (res.status === 401) {
+      removeToken();
+      return;
+    }
 
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || "Submission failed");

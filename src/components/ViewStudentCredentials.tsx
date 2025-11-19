@@ -27,131 +27,131 @@ const ViewStudentCredentials: FC<ViewStudentCredentialsProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-            <div className="scrollbar-none bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex fixed inset-0 z-50 justify-center items-center p-4 bg-black/40">
+            <div className="overflow-y-auto w-full max-w-4xl bg-white rounded-lg shadow-xl scrollbar-none max-h-[90vh]">
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <div className="flex justify-between items-center p-6 border-b border-gray-200">
                     <div className="flex items-center space-x-3">
-                        <div className="bg-green-100 p-2 rounded-full">
-                            <MdPerson className="text-green-600 text-2xl" />
+                        <div className="p-2 bg-green-100 rounded-full">
+                            <MdPerson className="text-2xl text-green-600" />
                         </div>
                         <div>
-                             <h2 className="text-2xl font-bold text-gray-900">Student Credentials</h2>
+                            <h2 className="text-2xl font-bold text-gray-900">Student Credentials</h2>
                             <p className="text-gray-600">Complete student information</p>
                         </div>
                     </div>
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        className="text-gray-400 transition-colors hover:text-gray-600"
                     >
-                        <FaPlus data-testid="closebutton" className="transform rotate-45 transition-all duration-200 text-2xl text-gray-400 cursor-pointer w-[32px] h-[32px] items-center justify-center rounded-full hover:text-white hover:bg-red-500 hover:rotate-180" />
+                        <FaPlus data-testid="closebutton" className="justify-center items-center text-2xl text-gray-400 rounded-full transition-all duration-200 transform rotate-45 cursor-pointer hover:text-white hover:bg-red-500 hover:rotate-180 w-[32px] h-[32px]" />
                     </button>
                 </div>
 
                 {/* Content */}
                 <div className="p-6 space-y-6">
                     {/* Personal Information */}
-                    <div className="bg-gray-50 rounded-lg p-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <div className="p-6 bg-gray-50 rounded-lg">
+                        <h3 className="flex items-center mb-4 text-lg font-semibold text-gray-900">
                             <MdPerson className="mr-2 text-blue-600" />
                             Personal Information
                         </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                                <p className="text-gray-900 font-medium">{getFullName()}</p>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">Full Name</label>
+                                <p className="font-medium text-gray-900">{getFullName() || "N/A"}</p>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                                <p className="text-gray-900">{student.username}</p>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">Username</label>
+                                <p className="text-gray-900">{student.username || "N/A"}</p>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">Email</label>
                                 <div className="flex items-center">
-                                    <MdEmail className="text-gray-400 mr-2" />
-                                    <p className="text-gray-900">{student.email}</p>
+                                    <MdEmail className="mr-2 text-gray-400" />
+                                    <p className="text-gray-900">{student.email || "N/A"}</p>
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">Phone Number</label>
                                 <div className="flex items-center">
-                                    <MdPhone className="text-gray-400 mr-2" />
-                                    <p className="text-gray-900">{student.phoneNumber}</p>
+                                    <MdPhone className="mr-2 text-gray-400" />
+                                    <p className="text-gray-900">{student.phoneNumber || "N/A"}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Student Information */}
-                    <div className="bg-blue-50 rounded-lg p-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <div className="p-6 bg-blue-50 rounded-lg">
+                        <h3 className="flex items-center mb-4 text-lg font-semibold text-gray-900">
                             <MdSchool className="mr-2 text-blue-600" />
                             Student Information
                         </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Student ID Number</label>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">Student ID Number</label>
                                 <div className="flex items-center">
-                                    <MdBadge className="text-gray-400 mr-2" />
-                                    <p className="text-gray-900 font-mono">{student.studentIdNumber}</p>
+                                    <MdBadge className="mr-2 text-gray-400" />
+                                    <p className="font-mono text-gray-900">{student.studentIdNumber || "N/A"}</p>
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Course</label>
-                                <p className="text-gray-900">{student.course}</p>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">Course</label>
+                                <p className="text-gray-900">{student.course || "N/A"}</p>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Section</label>
-                                <p className="text-gray-900">{student.section}</p>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">Section</label>
+                                <p className="text-gray-900">{student.section || "N/A"}</p>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Year Level</label>
-                                <p className="text-gray-900">{student.year}</p>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">Year Level</label>
+                                <p className="text-gray-900">{student.year || "N/A"}</p>
                             </div>
                         </div>
                     </div>
 
                     {/* Address Information */}
-                    <div className="bg-green-50 rounded-lg p-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <div className="p-6 bg-green-50 rounded-lg">
+                        <h3 className="flex items-center mb-4 text-lg font-semibold text-gray-900">
                             <MdLocationOn className="mr-2 text-green-600" />
                             Address Information
                         </h3>
                         <div className="space-y-3">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Street</label>
-                                <p className="text-gray-900">{student.street}</p>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">Street</label>
+                                <p className="text-gray-900">{student.street || "N/A"}</p>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">City/Municipality</label>
-                                    <p className="text-gray-900">{student.cityMunicipality}</p>
+                                    <label className="block mb-1 text-sm font-medium text-gray-700">City/Municipality</label>
+                                    <p className="text-gray-900">{student.cityMunicipality || "N/A"}</p>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Province</label>
-                                    <p className="text-gray-900">{student.province}</p>
+                                    <label className="block mb-1 text-sm font-medium text-gray-700">Province</label>
+                                    <p className="text-gray-900">{student.province || "N/A"}</p>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
-                                    <p className="text-gray-900">{student.postalCode}</p>
+                                    <label className="block mb-1 text-sm font-medium text-gray-700">Postal Code</label>
+                                    <p className="text-gray-900">{student.postalCode || "N/A"}</p>
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Complete Address</label>
-                                <p className="text-gray-900">{getFullAddress()}</p>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">Complete Address</label>
+                                <p className="text-gray-900">{getFullAddress() || "N/A"}</p>
                             </div>
                         </div>
                     </div>
 
                     {/* Account Information */}
-                    <div className="bg-purple-50 rounded-lg p-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <div className="p-6 bg-purple-50 rounded-lg">
+                        <h3 className="flex items-center mb-4 text-lg font-semibold text-gray-900">
                             <IoIdCard className="mr-2 text-purple-600" />
                             Account Information
                         </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">User Role</label>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">User Role</label>
                                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${student.userRole === 'Admin'
                                     ? 'bg-red-100 text-red-800'
                                     : 'bg-blue-100 text-blue-800'
@@ -160,7 +160,7 @@ const ViewStudentCredentials: FC<ViewStudentCredentialsProps> = ({
                                 </span>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">Status</label>
                                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${student.status === 'Active'
                                     ? 'bg-green-100 text-green-800'
                                     : 'bg-gray-100 text-gray-800'

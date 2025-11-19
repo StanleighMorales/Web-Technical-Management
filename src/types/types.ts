@@ -50,21 +50,6 @@ export type TStudentFormData = {
   ProfilePicture?: string;
 };
 
-export type TUsers = {
-  id: string;
-  username: string;
-  lastName: string;
-  middleName: string;
-  firstName: string;
-  course?: string,
-  section?: string,
-  year?: string,
-  email: string;
-  phoneNumber: string;
-  userRole: string;
-  status: string;
-};
-
 export type TUpdateUsers = {
   id: string;
   firstName: string,
@@ -104,6 +89,7 @@ export type TItemList = {
   description: string;
   category: string;
   condition: string;
+  status: string;
   barcode: "",
   barcodeImage: "",
   createdAt: string;
@@ -113,26 +99,6 @@ export type TItemList = {
 export type TEditItemForm = {
   Id: number;
   SerialNumber: string;
-};
-
-export type TBorrowedItems = {
-  id: number;
-  datetime: string;
-  teacher: string;
-  room: string;
-  item: string;
-  occupied: string;
-  status: string;
-};
-
-export type TRecentBorrowedItemsTableProps = {
-  id: number;
-  datetime: string;
-  teacher: string;
-  room: string;
-  item: string;
-  occupied: string;
-  status: string;
 };
 
 export type THistoryBorrwedItems = {
@@ -214,6 +180,24 @@ export type TTeacher = {
   createdAt?: string;
   updatedAt?: string;
 };
+export type TUsers = {
+  id: string;
+  username: string;
+  lastName: string;
+  middleName: string;
+  firstName: string;
+  email: string;
+  phoneNumber: string;
+  course: string;
+  section: string;
+  year: string;
+  userRole: string;
+  status: string;
+  createdAt?: string;
+  updatedAt?: string;
+  position: string;
+}
+
 export type TUpdatedTeacher = {
   lastName: string,
   middleName: string,
@@ -263,3 +247,41 @@ export type TArchiveTeacher = {
   userRole: string;
   username: string;
 };
+
+export type TUpdatePassword = {
+  newPassword: string;
+  confirmPassword: string;
+}
+
+
+export type TRecentBorrowItemProps = {
+  id: string;
+  userId: null,
+  teacherId: string,
+  borrowerFullName: string,
+  borrowerRole: string,
+  teacherFullName: string,
+  room: string,
+  subjectTimeSchedule: string,
+  lentAt: string,
+  returnedAt: string,
+  status: string,
+  remarks: null,
+  isHiddenFromUser: boolean,
+  item: {
+    id: string;
+    serialNumber: string;
+    barcode: null;
+    barcodeImage: null;
+    image: null;
+    itemName: string;
+    itemType: string;
+    itemModel: string;
+    itemMake: string;
+    description: string;
+    category: string;
+    condition: string;
+    createdAt: string;
+    updatedAt: string;
+  }
+}

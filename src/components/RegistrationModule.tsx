@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { AddTeacher } from "./AddTeacher";
 import { AddStudent } from "./AddStudent";
 import { EditTeacher } from "./EditTeacher";
@@ -7,17 +7,21 @@ import SearchBar from "./SearchBar";
 import type { TStudent, TTeacher } from "../types/types";
 import { useQuery } from "@tanstack/react-query";
 import { useAllStudentsQuery } from "../query/get/useAllStudentsQuery";
+import { useAllTeachersQuery } from "../query/get/useAllTeachersQuery";
 import { useArchiveStudentMutation } from "../query/delete/useArchiveStudentMutation";
 import { useArchiveTeacherMutation } from "../query/delete/useArchiveTeacherMutation";
-import StudentTable from "./StudentTable";
+import { StudentTable } from "./StudentTable";
 import TeacherTable from "./TeacherTable";
 import ViewStudentCredentials from "./ViewStudentCredentials";
 import ViewTeacherCredentials from "./ViewTeacherCredentials";
 import { FaChalkboardTeacher, FaGraduationCap } from "react-icons/fa";
-import { useAllTeachersQuery } from "../query/get/useAllTeachersQuery";
 import PopUpModal from "./PopUpModal";
+import ErrorTable from "./ErrorTables.tsx";
+import { SuccessAlert } from "./SuccessAlert.tsx";
 
 export default function RegistrationModule() {
+  const [ShowAlert, setShowAlert] = useState<boolean>(false);
+  const [showMessage, setShowMessage] = useState<string>("");
   const [isAddTeacherOpen, setIsAddTeacherOpen] = useState<boolean>(false);
   const [isAddStudentOpen, setIsAddStudentOpen] = useState<boolean>(false);
   const [isEditTeacherOpen, setIsEditTeacherOpen] = useState<boolean>(false);
@@ -28,8 +32,8 @@ export default function RegistrationModule() {
     useState<boolean>(false);
   const [isArchiveTeacherOpen, setIsArchiveTeacherOpen] =
     useState<boolean>(false);
-  const [archiveStudentId, setArchiveStudentId] = useState<string>("");
-  const [archiveTeacherId, setArchiveTeacherId] = useState<string>("");
+  const [archiveStudentId, setArchiveStudentId] = useState<string | null>(null);
+  const [archiveTeacherId, setArchiveTeacherId] = useState<string | null>(null);
   const [searchUser, setSearchUser] = useState<string>("");
   const [selectedRole, setSelectedRole] = useState<string>("Teacher");
   const [editTeacherId, setEditTeacherId] = useState<string>("");
@@ -38,6 +42,15 @@ export default function RegistrationModule() {
   const [viewTeacherId, setViewTeacherId] = useState<string>("");
   const [students, setStudents] = useState<TStudent[]>([]);
   const [teachers, setTeachers] = useState<TTeacher[]>([]);
+
+  const { data: studentsData, isError: isStudentStudentIsError } = useQuery(
+    useAllStudentsQuery()
+  );
+  const { data: teachersData, isError: isTeacherDataIsError } = useQuery(
+    useAllTeachersQuery()
+  );
+  const { mutate: archiveStudent } = useArchiveStudentMutation();
+  const { mutate: archiveTeacher } = useArchiveTeacherMutation();
 
   const selectedViewStudent = useMemo(() => {
     return students.find((s) => s.id === viewStudentId);
@@ -55,11 +68,6 @@ export default function RegistrationModule() {
     return students.find((s) => s.id === editStudentId);
   }, [students, editStudentId]);
 
-  const { data: studentsData } = useQuery(useAllStudentsQuery());
-  const { data: teachersData } = useQuery(useAllTeachersQuery());
-  const { mutate: archiveStudent } = useArchiveStudentMutation();
-  const { mutate: archiveTeacher } = useArchiveTeacherMutation();
-
   useEffect(() => {
     if (studentsData && Array.isArray(studentsData)) {
       setStudents(studentsData);
@@ -74,60 +82,88 @@ export default function RegistrationModule() {
 
   const filteredStudents = useMemo(() => {
     let filtered = students;
-
     // Filter by search term
     if (searchUser) {
-      filtered = filtered.filter(
-        (student) =>
-          student.firstName.toLowerCase().includes(searchUser.toLowerCase()) ||
-          student.lastName.toLowerCase().includes(searchUser.toLowerCase()) ||
-          student.course.toLowerCase().includes(searchUser.toLowerCase()),
-      );
+      if (selectedRole === "Student") {
+        filtered = filtered.filter(
+          (student) =>
+            String(student.studentIdNumber || "")
+              .toLowerCase()
+              .includes(searchUser.toLowerCase()) ||
+            student.firstName
+              .toLowerCase()
+              .includes(searchUser.toLowerCase()) ||
+            student.lastName.toLowerCase().includes(searchUser.toLowerCase())
+        );
+      }
     }
-
     return filtered;
-  }, [students, searchUser]);
+  }, [students, searchUser, selectedRole]);
 
   const filteredTeachers = useMemo(() => {
     let filtered = teachers;
 
     // Filter by search term
     if (searchUser) {
-      filtered = filtered.filter(
-        (teacher) =>
-          teacher.firstName.toLowerCase().includes(searchUser.toLowerCase()) ||
-          teacher.lastName.toLowerCase().includes(searchUser.toLowerCase()),
-      );
+      if (selectedRole === "Teacher") {
+        filtered = filtered.filter(
+          (teacher) =>
+            teacher.firstName
+              .toLowerCase()
+              .includes(searchUser.toLowerCase()) ||
+            teacher.lastName.toLowerCase().includes(searchUser.toLowerCase()) ||
+            String(teacher.department || "")
+              .toLowerCase()
+              .includes(searchUser.toLowerCase())
+        );
+      }
     }
-
     return filtered;
-  }, [teachers, searchUser]);
-
-  // const handleAddTeacher = () => {
-  //     setIsAddTeacherOpen(true);
-  // };
-
-  // const handleAddStudent = () => {
-  //     setIsAddStudentOpen(true);
-  // };
+  }, [teachers, searchUser, selectedRole]);
 
   const handleRestoreStudent = (id: string) => {
     setArchiveStudentId(id);
     setIsArchiveStudentOpen(true);
   };
 
-  const handleCancelRestore = () => {
+  const handleCancelArchiveStudent = () => {
     setIsArchiveStudentOpen(false);
     setArchiveStudentId("");
   };
 
-  const handleConfirmRestoreItem = () => {
+  const handleConfirmArchiveStudent = useCallback(() => {
     if (archiveStudentId) {
-      archiveStudent(archiveStudentId);
-      setIsArchiveStudentOpen(false);
-      setArchiveStudentId("");
+      archiveStudent(archiveStudentId, {
+        onSuccess: (data) => {
+          setIsArchiveStudentOpen(false);
+          setArchiveStudentId(null);
+          setShowAlert(true);
+          setShowMessage(data.message);
+          setTimeout(() => {
+            setShowAlert(false);
+            setShowMessage("");
+          }, 3500);
+        },
+      });
     }
-  };
+  }, [archiveStudentId, archiveStudent]);
+
+  const handleConfirmArchiveTeacher = useCallback(() => {
+    if (archiveTeacherId) {
+      archiveTeacher(archiveTeacherId, {
+        onSuccess: (data) => {
+          setIsArchiveTeacherOpen(false);
+          setArchiveTeacherId(null);
+          setShowAlert(true);
+          setShowMessage(data.message);
+          setTimeout(() => {
+            setShowAlert(false);
+            setShowMessage("");
+          }, 3500);
+        },
+      });
+    }
+  }, [archiveTeacherId, archiveTeacher]);
 
   const handleArchiveTeacher = (id: string) => {
     setArchiveTeacherId(id);
@@ -139,53 +175,34 @@ export default function RegistrationModule() {
     setArchiveTeacherId("");
   };
 
-  const handleConfirmArchiveTeacher = () => {
-    if (archiveTeacherId) {
-      archiveTeacher(archiveTeacherId);
-      setIsArchiveTeacherOpen(false);
-      setArchiveTeacherId("");
-    }
-  };
-
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-[#f8fafc] to-[#e2e8f0] p-6">
-      <div className="w-full max-w-8xl mx-auto">
+    <div className="p-6 w-full min-h-screen bg-gradient-to-br from-[#f8fafc] to-[#e2e8f0]">
+      {ShowAlert && <SuccessAlert message={showMessage} />}
+      <div className="mx-auto w-full max-w-8xl">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-[#1e293b] mb-2">
-            Registration Module
+          <h1 className="mb-2 text-5xl mt-10 lg:mt-0 md:mt-0 font-extrabold tracking-tight text-[#1e293b] drop-shadow-lg">
+            Registeration Module
           </h1>
-          <p className="text-[#64748b] text-lg">
+          <p className="text-lg text-[#64748b]">
             Manage teachers and students registration
           </p>
         </div>
 
-        {/* Action Buttons */}
-        {/* <div className="flex flex-wrap gap-4 mb-6">
-                    <Button
-                        onClick={handleAddTeacher}
-                        name="New Teacher"
-                    />
-                    <Button
-                        onClick={handleAddStudent}
-                        name="New Student"
-                    />
-                </div> */}
-
         {/* Filters */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+        <div className="p-6 mb-6 bg-white rounded-2xl shadow-lg">
+          <div className="flex flex-col gap-4 items-start md:flex-row lg:flex-row lg:items-center">
             {/* Role Filter Buttons */}
-            <div className="flex flex-wrap gap-2">
-              <span className="text-[#64748b] font-semibold mr-2">
+            <div className="flex lg:flex-wrap gap-2">
+              <span className="mr-2 font-semibold text-[#64748b]">
                 Filter by Role:
               </span>
               <button
                 onClick={() => setSelectedRole("Teacher")}
                 className={`px-4 py-2 rounded-lg font-medium transition-all duration-150 ${
                   selectedRole === "Teacher"
-                    ? "bg-[#1827f9] text-white shadow-md"
-                    : "bg-[#f1f5f9] text-[#64748b] hover:bg-[#e2e8f0]"
+                    ? "bg-blue-500 text-white shadow-md"
+                    : "bg-[#f1f5f9] text-gray-500 border-2 border-white/30 hover:border-[#2563eb] hover:text-[#2563eb]"
                 }`}
               >
                 Teachers
@@ -194,8 +211,8 @@ export default function RegistrationModule() {
                 onClick={() => setSelectedRole("Student")}
                 className={`px-4 py-2 rounded-lg font-medium transition-all duration-150 ${
                   selectedRole === "Student"
-                    ? "bg-[#ed3a3a] text-white shadow-md"
-                    : "bg-[#f1f5f9] text-[#64748b] hover:bg-[#e2e8f0]"
+                    ? "bg-blue-500 text-white shadow-md"
+                    : "bg-[#f1f5f9] text-gray-500 border-2 border-white/30 hover:border-[#2563eb] hover:text-[#2563eb]"
                 }`}
               >
                 Students
@@ -203,7 +220,7 @@ export default function RegistrationModule() {
             </div>
 
             {/* Search */}
-            <div className="flex flex-col sm:flex-row gap-4 ml-auto">
+            <div className="flex flex-col gap-4 ml-auto sm:flex-row">
               <SearchBar
                 onChangeValue={setSearchUser}
                 placeholder="Search by name"
@@ -213,10 +230,10 @@ export default function RegistrationModule() {
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-xl shadow-lg p-4">
+        <div className="grid grid-cols-1 gap-4 mb-6 md:grid-cols-4">
+          <div className="p-4 bg-white rounded-xl shadow-lg">
             <div className="flex items-center">
-              <div className="p-2 bg-[#059669]/10 rounded-lg">
+              <div className="p-2 rounded-lg bg-[#059669]/10">
                 <FaChalkboardTeacher className="text-2xl text-[#059669]" />
               </div>
               <div className="ml-3">
@@ -227,9 +244,9 @@ export default function RegistrationModule() {
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow-lg p-4">
+          <div className="p-4 bg-white rounded-xl shadow-lg">
             <div className="flex items-center">
-              <div className="p-2 bg-[#7c3aed]/10 rounded-lg">
+              <div className="p-2 rounded-lg bg-[#7c3aed]/10">
                 <FaGraduationCap className="text-2xl text-[#7c3aed]" />
               </div>
               <div className="ml-3">
@@ -243,26 +260,26 @@ export default function RegistrationModule() {
         </div>
 
         {/* Users/Students Table */}
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div className="overflow-hidden bg-white rounded-2xl shadow-lg">
           <div className="p-6 border-b border-[#e2e8f0]">
             <h2 className="text-2xl font-bold text-[#1e293b]">
               {selectedRole === "Student" ? "Students" : "Teachers"}
-              <span className="text-[#64748b] font-normal ml-2">
+              <span className="ml-2 font-normal text-[#64748b]">
                 (
                 {selectedRole === "Student"
                   ? filteredStudents.filter(
-                      (student) => student.userRole === "Student",
+                      (student) => student.userRole === "Student"
                     ).length
                   : filteredTeachers.filter(
-                      (teacher) => teacher.userRole === "Teacher",
+                      (teacher) => teacher.userRole === "Teacher"
                     ).length}{" "}
                 {selectedRole === "Student"
                   ? filteredStudents.length === 1
                     ? "student"
                     : "students"
                   : filteredTeachers.length === 1
-                    ? "teacher"
-                    : "teachers"}
+                  ? "teacher"
+                  : "teachers"}
                 )
               </span>
             </h2>
@@ -271,12 +288,12 @@ export default function RegistrationModule() {
           {selectedRole === "Student" ? (
             filteredStudents.length === 0 ? (
               <div className="p-12 text-center">
-                <div className="text-6xl text-[#cbd5e1] mb-4">
-                  <div className="flex items-center justify-center">
+                <div className="mb-4 text-6xl text-[#cbd5e1]">
+                  <div className="flex justify-center items-center">
                     <FaGraduationCap className="text-center" />
                   </div>
                 </div>
-                <h3 className="text-xl font-semibold text-[#64748b] mb-2">
+                <h3 className="mb-2 text-xl font-semibold text-[#64748b]">
                   No students found
                 </h3>
                 <p className="text-[#94a3b8]">
@@ -290,25 +307,25 @@ export default function RegistrationModule() {
                 <table className="w-full">
                   <thead className="bg-[#f8fafc]">
                     <tr>
-                      <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
+                      <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
                         Student ID
                       </th>
-                      <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
+                      <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
                         Full Name
                       </th>
-                      <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
+                      <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
                         Course
                       </th>
-                      <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
+                      <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
                         Section
                       </th>
-                      <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
+                      <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
                         Year
                       </th>
-                      <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
+                      <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
                         Role
                       </th>
-                      <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
+                      <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
                         Actions
                       </th>
                     </tr>
@@ -319,23 +336,12 @@ export default function RegistrationModule() {
                       .map((student) => (
                         <tr
                           key={student.id}
-                          className="hover:bg-[#f1f5f9] transition-colors odd:bg-white even:bg-[#f8fafc]"
+                          className="transition-colors odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9]"
                         >
                           <StudentTable
                             id={student.id}
-                            frontStudentIdPicture={
-                              student.frontStudentIdPicture
-                            }
-                            backStudentIdPicture={student.backStudentIdPicture}
                             phoneNumber={student.phoneNumber}
-                            street={student.street}
-                            cityMunicipality={student.cityMunicipality}
-                            province={student.province}
-                            postalCode={student.postalCode}
-                            username={student.username}
-                            email={student.email}
                             userRole={student.userRole}
-                            status={student.status}
                             firstName={student.firstName}
                             middleName={student.middleName}
                             lastName={student.lastName}
@@ -343,8 +349,7 @@ export default function RegistrationModule() {
                             course={student.course}
                             section={student.section}
                             year={student.year}
-                            profilePicture={student.profilePicture}
-                            onSetIsEditStudentrOpen={() =>
+                            onSetIsEditStudentOpen={() =>
                               setIsEditStudentOpen(true)
                             }
                             onSetEditUserId={() => setEditStudentId(student.id)}
@@ -364,12 +369,12 @@ export default function RegistrationModule() {
             )
           ) : filteredTeachers.length === 0 ? (
             <div className="p-12 text-center">
-              <div className="text-6xl text-[#cbd5e1] mb-4">
-                <div className="flex items-center justify-center">
+              <div className="mb-4 text-6xl text-[#cbd5e1]">
+                <div className="flex justify-center items-center">
                   <FaChalkboardTeacher className="text-center" />
                 </div>
               </div>
-              <h3 className="text-xl font-semibold text-[#64748b] mb-2">
+              <h3 className="mb-2 text-xl font-semibold text-[#64748b]">
                 No teachers found
               </h3>
               <p className="text-[#94a3b8]">
@@ -380,66 +385,71 @@ export default function RegistrationModule() {
             </div>
           ) : (
             <div className="overflow-x-auto h-[22rem]">
-              <table className="w-full">
-                <thead className="bg-[#f8fafc]">
-                  <tr>
-                    <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
-                      ID
-                    </th>
-                    <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
-                      Full Name
-                    </th>
-                    <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
-                      Username
-                    </th>
-                    <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
-                      Role
-                    </th>
-                    <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
-                      Department
-                    </th>
-                    <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="py-4 px-6 text-left text-sm font-semibold text-[#64748b] uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredTeachers
-                    .filter((teacher) => teacher.userRole === "Teacher")
-                    .map((teacher) => (
-                      <tr
-                        key={teacher.id}
-                        className="hover:bg-[#f1f5f9] transition-colors odd:bg-white even:bg-[#f8fafc]"
-                      >
-                        <TeacherTable
-                          id={teacher.id}
-                          firstName={teacher.firstName}
-                          lastName={teacher.lastName}
-                          middleName={teacher.middleName}
-                          username={teacher.username}
-                          email={teacher.email}
-                          userRole={teacher.userRole}
-                          department={teacher.department}
-                          status={teacher.status}
-                          onSetEditUserId={() => setEditTeacherId(teacher.id)}
-                          onSetIsEditUserOpen={() => setIsEditTeacherOpen(true)}
-                          onSetViewUserId={() => setViewTeacherId(teacher.id)}
-                          onSetIsViewUserOpen={() => setIsViewTeacherOpen(true)}
-                          onMutate={() => handleArchiveTeacher(teacher.id)}
-                        />
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
+              {isTeacherDataIsError ? (
+                <ErrorTable />
+              ) : (
+                <table className="w-full">
+                  <thead className="bg-[#f8fafc]">
+                    <tr>
+                      <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
+                        Full Name
+                      </th>
+                      <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
+                        Username
+                      </th>
+                      <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
+                        Role
+                      </th>
+                      <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
+                        Department
+                      </th>
+                      <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
+                        Status
+                      </th>
+                      <th className="py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredTeachers
+                      .filter((teacher) => teacher.userRole === "Teacher")
+                      .map((teacher) => (
+                        <tr
+                          key={teacher.id}
+                          className="transition-colors odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9]"
+                        >
+                          <TeacherTable
+                            id={teacher.id}
+                            firstName={teacher.firstName}
+                            lastName={teacher.lastName}
+                            middleName={teacher.middleName}
+                            username={teacher.username}
+                            email={teacher.email}
+                            userRole={teacher.userRole}
+                            department={teacher.department}
+                            status={teacher.status}
+                            onSetEditUserId={() => setEditTeacherId(teacher.id)}
+                            onSetIsEditUserOpen={() =>
+                              setIsEditTeacherOpen(true)
+                            }
+                            onSetViewUserId={() => setViewTeacherId(teacher.id)}
+                            onSetIsViewUserOpen={() =>
+                              setIsViewTeacherOpen(true)
+                            }
+                            onMutate={() => handleArchiveTeacher(teacher.id)}
+                          />
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           )}
         </div>
 
         {/* Description */}
-        <p className="mt-6 text-[#64748b] text-sm text-center">
+        <p className="mt-6 text-sm text-center text-[#64748b]">
           <span className="font-semibold">Tip:</span> Use filters and search to
           quickly locate users by role.
         </p>
@@ -452,8 +462,8 @@ export default function RegistrationModule() {
           label={"restore"}
           noun={"student"}
           destination={"archive"}
-          onHandleCancleAction={handleCancelRestore}
-          onHandleConfirmAction={handleConfirmRestoreItem}
+          onHandleCancleAction={handleCancelArchiveStudent}
+          onHandleConfirmAction={handleConfirmArchiveStudent}
         />
       )}
       {isArchiveTeacherOpen && (

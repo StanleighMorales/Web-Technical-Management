@@ -3,29 +3,25 @@ import type { TLoginUser } from "../../types/types";
 
 const LoginUser = async (formData: TLoginUser) => {
 
-  try {
-    const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    const END_POINT = "/api/v1/auth/login";
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const VERSION = "v1";
+  const END_POINT = `/api/${VERSION}/auth/login`;
 
-    const userFormData = JSON.stringify(formData)
-    const res = await fetch(`${BASE_URL}${END_POINT}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: userFormData,
-      credentials: "include",
-    });
-    const data = await res.json();
+  const userFormData = JSON.stringify(formData)
+  const res = await fetch(`${BASE_URL}${END_POINT}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: userFormData,
+    credentials: "include",
+  });
+  const data = await res.json();
 
-    if (!res.ok) {
-      throw new Error(data.message || "Failed to login user");
-    }
-    return data;
-
-  } catch (error) {
-    console.log(error);
+  if (!res.ok) {
+    throw new Error(data.Errors || "Failed to login user");
   }
+  return data;
 };
 
 export const usePostLoginMutation = () => {

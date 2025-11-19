@@ -1,10 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getToken } from "../../utils/token";
+import { getToken, removeToken } from "../../utils/token";
 
 const ArchiveUser = async (id: string) => {
   try {
     const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    const END_POINT = "/api/v1/users/archive";
+    const VERSION = "v1";
+    const END_POINT = `/api/${VERSION}/users/archive`;
 
     const res = await fetch(`${BASE_URL}${END_POINT}/${id}`, {
       method: "DELETE",
@@ -12,15 +13,20 @@ const ArchiveUser = async (id: string) => {
         Authorization: `Bearer ${getToken()}`,
       }
     });
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error("Failed to delete item");
+
+    if (res.status === 401) {
+      removeToken();
+      return;
     }
-    console.log(data);
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.errors);
 
     return data;
-  } catch {
-    return null;
+  } catch(error) {
+    if(error instanceof Error){
+      console.log(error)
+    }
   }
 };
 

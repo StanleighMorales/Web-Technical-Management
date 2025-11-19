@@ -1,9 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getToken } from "../../utils/token";
+import { getToken, removeToken } from "../../utils/token";
 
 const restoreItem = async (id: string) => {
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const END_POINT = "/api/v1/archiveitems/restore";
+  const VERSION = "v1";
+  const END_POINT = `/api/${VERSION}/archiveitems/restore`;
 
   const res = await fetch(`${BASE_URL}${END_POINT}/${id}`, {
     method: "DELETE",
@@ -11,12 +12,16 @@ const restoreItem = async (id: string) => {
       Authorization: `Bearer ${getToken()}`,
     },
   });
-  const data = await res.json();
 
-  if (!res.ok) {
-    throw new Error(data.message || "Failed to restore item");
+  if (res.status === 401) {
+    removeToken();
+    return;
   }
 
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.errors || "Failed to restore item");
+  }
   return data;
 };
 

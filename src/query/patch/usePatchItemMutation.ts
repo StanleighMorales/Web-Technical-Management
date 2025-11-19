@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getToken } from "../../utils/token";
+import { getToken, removeToken } from "../../utils/token";
 
 type updateItem = {
   serialNumber: string,
@@ -20,7 +20,8 @@ type PatchItemProps = {
 
 const PatchItem = async ({ id, formData }: PatchItemProps) => {
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const END_POINT = "/api/v1/items";
+  const VERSION = "v1";
+  const END_POINT = `/api/${VERSION}/items`;
 
   const body = new FormData();
   body.append("ItemMake", formData.itemMake);
@@ -43,6 +44,10 @@ const PatchItem = async ({ id, formData }: PatchItemProps) => {
     body: body,
   });
 
+  if (res.status === 401) {
+    removeToken();
+    return;
+  }
 
   const text = await res.text();
   const data = text ? JSON.parse(text) : {};
@@ -58,8 +63,8 @@ export const usePatchItemMutation = () => {
   return useMutation({
     mutationKey: ["items"],
     mutationFn: PatchItem,
-    onSuccess: ()=> {
-      queryClient.invalidateQueries({queryKey: ["Item"]})
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["Item"] })
     }
   });
 };

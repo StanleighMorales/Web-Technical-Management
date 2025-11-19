@@ -1,263 +1,223 @@
 import React, { useState } from "react";
-import CloseButton from "./CloseButton";
 import type { TUpdateUsers } from "../types/types";
-import { useAllUsersQuery } from "../query/get/useAllUsersQuery";
-import { useQuery } from "@tanstack/react-query";
 import { usePatchUserMutation } from "../query/patch/usePatchUserMutation";
+import { FaUser, FaPhone } from "react-icons/fa6";
+import { MdOutlineEmail } from "react-icons/md";
+import { SuccessAlert } from "./SuccessAlert";
+
+type TPathUserTypes = Omit<TUpdateUsers, "id">;
 
 type EditItemProps = {
   onClose(): void;
-  Id: string;
+  user: TUpdateUsers;
+};
+
+type formData = {
   firstName: string;
   lastName: string;
   middleName: string;
-  username: string,
-  email: string,
-  phoneNumber: string,
+  username: string;
+  email: string;
+  phoneNumber: string;
   position: string;
 };
 
-export default function EditUser({ onClose, Id, firstName, lastName, middleName, username, email, phoneNumber, position }: EditItemProps) {
-  const [firstnameError, setFirstnameError] = useState<string>("");
-  const [lastnameError, setLastnameError] = useState<string>("");
-  const [middlenameError, setMiddlenameError] = useState<string>("");
-  const [roleError, setPositionError] = useState<string>("");
-  const { mutate } = usePatchUserMutation()
+export default function EditUser({ user, onClose }: EditItemProps) {
+  const [ShowAlert, setShowAlert] = useState<boolean>(false);
+  const [successMessage, setSuccessMessage] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const { mutate } = usePatchUserMutation();
 
-  const [formData, setFormData] = useState<TUpdateUsers>({
-    id: Id,
-    firstName,
-    lastName,
-    middleName,
-    username,
-    email,
-    phoneNumber,
-    position,
+  const [formData, setFormData] = useState<formData>({
+    firstName: user.firstName,
+    lastName: user.lastName,
+    middleName: user.middleName,
+    username: user.username,
+    email: user.email,
+    phoneNumber: user.phoneNumber,
+    position: user.position,
   });
 
-  const { data } = useQuery(useAllUsersQuery());
-  if (data) console.log(data)
-
-
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-
-    if (name === "firstName") return setFirstnameError("");
-    if (name === "lastName") return setLastnameError("");
-    if (name === "middleName") return setMiddlenameError("");
-    if (name === "position") return setPositionError("");
   };
 
-  const PathUserProps = {
+  const PathUserProps: TPathUserTypes = {
     firstName: formData.firstName,
     lastName: formData.lastName,
     middleName: formData.middleName,
     username: formData.username,
     email: formData.email,
     phoneNumber: formData.phoneNumber,
-    position: formData.position
-  }
+    position: formData.position,
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
+    setIsSubmitting(true);
     e.preventDefault();
-    mutate({ formData: PathUserProps }, {
-      onSuccess: () => {
-        onClose();
+    mutate(
+      { id: user.id, formData: PathUserProps },
+      {
+        onSuccess: () => {
+          setIsSubmitting(false);
+          setShowAlert(true);
+          setSuccessMessage("User Profile updated.");
+          setTimeout(() => {
+            setShowAlert(false);
+            setSuccessMessage("");
+            onClose();
+          }, 3500);
+        },
+        onError: (error) => {
+          console.log(error.message);
+          setErrorMessage(error.message);
+          setIsSubmitting(false);
+        },
       },
-      onError: (error) => {
-        console.log(error.message)
-      }
-    })
+    );
   };
 
   return (
-    <div className="fixed animate-fadeIn inset-0 z-50 flex items-center justify-center bg-gray-900/60">
-      <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-3xl relative animate-fadeInUp">
-        <button
-          className="absolute top-4 right-4 text-2xl text-[#64748b] hover:text-[#2563eb] transition-colors"
-          aria-label="Close"
-          onClick={onClose}
+    <div className="flex fixed inset-0 justify-center items-center z-[60]">
+      {ShowAlert && <SuccessAlert message={successMessage} />}
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="relative z-10 p-6 w-full max-w-2xl rounded-2xl border shadow-2xl border-white/60 bg-white/80 backdrop-blur">
+        <h3 className="mb-4 text-lg font-semibold text-slate-900">
+          Edit Profile
+        </h3>
+
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 gap-4 md:grid-cols-2"
         >
-          <CloseButton onClick={onClose} />
-        </button>
-        <h2 className="text-3xl font-extrabold text-[#1e293b] mb-6 text-center tracking-tight">
-          Edit User
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <label
-                htmlFor="firstName"
-                className="block text-[#2563eb] font-semibold mb-1"
-              >
-                First Name <span className="text-red-500">*</span>
-              </label>
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              First Name
+            </label>
+            <div className="relative mt-1">
               <input
                 type="text"
-                id="firstName"
+                className="py-2 px-3 pr-9 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
+                value={formData.firstName ?? ""}
                 name="firstName"
-                className={`w-full px-4 py-3 rounded-xl border ${firstnameError ? "border-red-500" : "border-[#e0e7ef]"
-                  } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                value={formData.firstName}
                 onChange={handleInputChange}
-                placeholder="Enter first name"
+                placeholder="Your firstname"
+                required
               />
-              {firstnameError && (
-                <p className="text-red-500 text-sm mt-1">{firstnameError}</p>
-              )}
-            </div>
-
-            <div className="flex-1">
-              <label
-                htmlFor="lastName"
-                className="block text-[#2563eb] font-semibold mb-1"
-              >
-                Last Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                className={`w-full px-4 py-3 rounded-xl border ${lastnameError ? "border-red-500" : "border-[#e0e7ef]"
-                  } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                value={formData.lastName}
-                onChange={handleInputChange}
-                placeholder="Enter last name"
-              />
-              {lastnameError && (
-                <p className="text-red-500 text-sm mt-1">{lastnameError}</p>
-              )}
-            </div>
-
-            <div className="flex-1">
-              <label
-                htmlFor="middleName"
-                className="block text-[#2563eb] font-semibold mb-1"
-              >
-                Middle Name <span className="text-gray-400/50">(Optional)</span>
-              </label>
-              <input
-                type="text"
-                id="middleName"
-                name="middleName"
-                className={`w-full px-4 py-3 rounded-xl border ${middlenameError ? "border-red-500" : "border-[#e0e7ef]"
-                  } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                value={formData.middleName}
-                onChange={handleInputChange}
-                placeholder="Enter middle name"
-              />
-              {middlenameError && (
-                <p className="text-red-500 text-sm mt-1">{middlenameError}</p>
-              )}
+              <span className="inline-flex absolute inset-y-0 right-2 items-center pointer-events-none text-slate-400">
+                <FaUser />
+              </span>
             </div>
           </div>
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <label
-                htmlFor="username"
-                className="block text-[#2563eb] font-semibold mb-1"
-              >
-                Username <span className="text-gray-400/50">(Optional)</span>
-              </label>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              Last Name
+            </label>
+            <div className="relative mt-1">
               <input
                 type="text"
-                id="username"
-                name="username"
-                className={`w-full px-4 py-3 rounded-xl border ${middlenameError ? "border-red-500" : "border-[#e0e7ef]"
-                  } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                value={formData.username}
+                className="py-2 px-3 pr-9 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
+                value={formData.lastName ?? ""}
+                name="lastName"
                 onChange={handleInputChange}
-                placeholder="Enter username"
+                placeholder="Your lastname"
+                required
               />
-              {middlenameError && (
-                <p className="text-red-500 text-sm mt-1">{middlenameError}</p>
-              )}
+              <span className="inline-flex absolute inset-y-0 right-2 items-center pointer-events-none text-slate-400">
+                <FaUser />
+              </span>
             </div>
+          </div>
 
-            <div className="flex-1">
-              <label
-                htmlFor="username"
-                className="block text-[#2563eb] font-semibold mb-1"
-              >
-                Email <span className="text-gray-400/50">(Optional)</span>
-              </label>
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              Middle Name
+            </label>
+            <input
+              type="text"
+              className="py-2 px-3 mt-1 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
+              value={formData.middleName ?? ""}
+              name="middleName"
+              onChange={handleInputChange}
+              placeholder="Your middle name"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              Username
+            </label>
+            <input
+              type="text"
+              className="py-2 px-3 mt-1 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
+              value={formData.username ?? ""}
+              name="username"
+              onChange={handleInputChange}
+              placeholder="Your username"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              Email
+            </label>
+            <div className="relative mt-1">
               <input
                 type="email"
-                id="email"
+                className="py-2 px-3 pr-9 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
+                value={formData.email ?? ""}
                 name="email"
-                className={`w-full px-4 py-3 rounded-xl border ${middlenameError ? "border-red-500" : "border-[#e0e7ef]"
-                  } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                value={formData.email}
                 onChange={handleInputChange}
-                placeholder="Enter Email"
+                placeholder="Your email"
+                required
               />
-              {middlenameError && (
-                <p className="text-red-500 text-sm mt-1">{middlenameError}</p>
-              )}
+              <span className="inline-flex absolute inset-y-0 right-2 items-center pointer-events-none text-slate-400">
+                <MdOutlineEmail />
+              </span>
             </div>
+          </div>
 
-            <div className="flex-1">
-              <label
-                htmlFor="username"
-                className="block text-[#2563eb] font-semibold mb-1"
-              >
-                Phone Number <span className="text-gray-400/50">(Optional)</span>
-              </label>
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              Phone Number
+            </label>
+            <div className="relative mt-1">
               <input
                 type="tel"
-                id="phoneNumber"
+                className="py-2 px-3 pr-9 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
+                value={formData.phoneNumber ?? ""}
                 name="phoneNumber"
-                className={`w-full px-4 py-3 rounded-xl border ${middlenameError ? "border-red-500" : "border-[#e0e7ef]"
-                  } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                value={formData.phoneNumber}
                 onChange={handleInputChange}
-                placeholder="9XXXXXXXXX"
+                maxLength={10}
+                placeholder="09XX XXX XXXX"
               />
-              {middlenameError && (
-                <p className="text-red-500 text-sm mt-1">{middlenameError}</p>
-              )}
-            </div>
-
-          </div>
-
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <label
-                htmlFor="role"
-                className="block text-[#2563eb] font-semibold mb-1"
-              >
-                Role <span className="text-red-500">*</span>
-              </label>
-              <select
-                id="role"
-                name="role"
-                className={`w-full px-4 py-3 rounded-xl border ${roleError ? "border-red-500" : "border-[#e0e7ef]"
-                  } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                value={formData.position}
-                onChange={handleInputChange}
-              >
-                <option value="">Select Role</option>
-                <option value="Admin">Admin</option>
-                <option value="Staff">Staff</option>
-              </select>
-              {roleError && (
-                <p className="text-red-500 text-sm mt-1">{roleError}</p>
-              )}
+              <span className="inline-flex absolute inset-y-0 right-2 items-center pointer-events-none text-slate-400">
+                <FaPhone />
+              </span>
             </div>
           </div>
-
-          <div className="flex justify-center pt-2">
+          <div className="flex gap-3 justify-end pt-2 md:col-span-2">
+            <button
+              type="button"
+              className="py-2 px-4 text-sm font-medium bg-white rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50"
+              onClick={onClose}
+            >
+              Cancel
+            </button>
             <button
               type="submit"
-              className="px-8 py-3 bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white font-bold rounded-xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-150 cursor-pointer"
+              disabled={isSubmitting}
+              className="py-2 px-4 text-sm font-semibold text-white bg-blue-600 rounded-lg shadow-sm hover:bg-blue-500 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Save User
+              {isSubmitting ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </form>
