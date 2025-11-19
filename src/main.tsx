@@ -40,8 +40,7 @@ const routes = createBrowserRouter([
     children: [
       {
         index: true,
-        element:
-          <Login />
+        element: <Login />,
       },
     ],
   },
@@ -55,53 +54,68 @@ const routes = createBrowserRouter([
     ),
     children: [
       {
-        path: "dashboard", element:
+        path: "dashboard",
+        element: (
           <Suspense fallback={<DashboardSkeletonLoader />}>
             <Dashboard />
           </Suspense>
+        ),
       },
       {
-        path: "inventory-list", element:
+        path: "inventory-list",
+        element: (
           <Suspense fallback={<InventoryListSkeletonLoader />}>
             <InventoryList />
           </Suspense>
-
+        ),
       },
       {
-        path: "user-management", element:
+        path: "user-management",
+        element: (
           <Suspense fallback={<UserSkeletonLoader />}>
             <UserManagement />
           </Suspense>
+        ),
       },
       {
-        path: "history-list", element:
+        path: "history-list",
+        element: (
           <Suspense fallback={<HistoryListSkeletonLoader />}>
             <HistoryList />
           </Suspense>
+        ),
       },
       {
-        path: "archive-table", element:
+        path: "archive-table",
+        element: (
           <Suspense fallback={<ArchiveSkeletonLoader />}>
             <Archive />
           </Suspense>
+        ),
       },
       {
-        path: "borrow-item", element:
+        path: "borrow-item",
+        element: (
           <Suspense fallback={<BorrowItemSkeletonLoader />}>
             <BorrowItem />
           </Suspense>
+        ),
       },
       {
-        path: "settings", element:
+        path: "settings",
+        element: (
           <Suspense fallback={<SettingsSkeletonLoader />}>
             <Settings />
           </Suspense>
+        ),
       },
       {
-        path: "registration-module", element:
+        path: "registration-module",
+        element: (
           <Suspense fallback={<RegistrationModuleSkeletonLoader />}>
             <Registration />
           </Suspense>
+        ),
       },
     ],
   },
