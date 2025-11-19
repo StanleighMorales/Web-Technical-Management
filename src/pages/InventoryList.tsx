@@ -22,7 +22,9 @@ export default function InventoryList() {
   const [searchItem, setSearchItem] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [activeTab, setActiveTab] = useState<'inventory' | 'pending' | 'reservation'>('inventory');
+  const [activeTab, setActiveTab] = useState<
+    "inventory" | "pending" | "reservation"
+  >("inventory");
   const itemsPerPage = 10;
   const [items, setItems] = useState<TItemList[]>([]);
 
@@ -95,6 +97,7 @@ export default function InventoryList() {
   return (
     <div className="flex flex-col w-full antialiased bg-linear-to-br animate-fadeIn inventory-list-container min-h-svh from-[#f8fafc] via-[#e8eef7] to-[#dbeafe]">
       {ShowAlert && <SuccessAlert message={ShowMessage} />}
+
       <header className="flex sticky top-0 z-30 flex-col items-center px-8 pt-8 pb-6 border-b shadow-sm inventory-header bg-white/70 backdrop-blur-md border-[#e5e9f2]">
         <h1 className="mb-2 text-5xl mt-10 lg:mt-0 md:mt-0 font-extrabold tracking-tight text-[#1e293b] drop-shadow-lg">
           Inventory List
@@ -107,29 +110,34 @@ export default function InventoryList() {
         {/* Tabs */}
         <div className="mt-6 flex gap-2 bg-white/90 p-1.5 rounded-xl shadow-md">
           <button
-            onClick={() => setActiveTab('inventory')}
-            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === 'inventory'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
-              }`}
+            onClick={() => setActiveTab("inventory")}
+            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${
+              activeTab === "inventory"
+                ? "bg-blue-600 text-white shadow-md"
+                : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+            }`}
           >
             Inventory List
           </button>
+
           <button
-            onClick={() => setActiveTab('pending')}
-            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === 'pending'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
-              }`}
+            onClick={() => setActiveTab("pending")}
+            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${
+              activeTab === "pending"
+                ? "bg-blue-600 text-white shadow-md"
+                : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+            }`}
           >
             Pending
           </button>
+
           <button
-            onClick={() => setActiveTab('reservation')}
-            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === 'reservation'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
-              }`}
+            onClick={() => setActiveTab("reservation")}
+            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${
+              activeTab === "reservation"
+                ? "bg-blue-600 text-white shadow-md"
+                : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+            }`}
           >
             Reservation
           </button>
@@ -137,7 +145,7 @@ export default function InventoryList() {
       </header>
 
       <div className="overflow-auto h-full">
-        {activeTab === 'inventory' && (
+        {activeTab === "inventory" && (
           <>
             {/* Inventory Stats */}
             <section className="py-6 px-8 mx-auto w-full scrollbar-none">
@@ -145,7 +153,7 @@ export default function InventoryList() {
                 {Array.from(new Set(items.map((item) => item.category))).map(
                   (category) => {
                     const itemsInCategory = items.filter(
-                      (item) => item.category === category
+                      (item) => item.category === category,
                     );
                     return (
                       <InventoryBadges
@@ -156,137 +164,138 @@ export default function InventoryList() {
                         isSelected={selectedCategory === category}
                       />
                     );
-                  }
+                  },
                 )}
               </div>
             </section>
 
-        {/* Inventory Items Table */}
-        <section className="px-8">
-          <div className="overflow-x-auto p-4 rounded-2xl ring-1 shadow-xl bg-white/90 h-[60vh] ring-[#e0e7ef]/80">
-            <section className="flex flex-col gap-3 justify-between mb-4 lg:flex-row md:flex-row">
-              <div className="flex flex-row gap-4">
-                <div>
-                  <Button
-                    onClick={() => setIsAddItemFormOpen(true)}
-                    name={"New Item"}
-                  />
-                </div>
-                <ExcelImportButton />
-              </div>
-              <div className="flex flex-col gap-2 items-center md:flex-row lg:flex-row">
-                {/*Pagination Component*/}
-                {filteredItems.length > 0 && (
-                  <div className="flex pt-2 -ml-30">
-                    <Pagination
-                      totalPages={totalPages}
-                      currentPage={currentPage}
-                      handlePageChange={handlePageChange}
-                      selectedCategory={selectedCategory}
-                      handleShowAll={handleShowAll}
+            {/* Inventory Table Section */}
+            <section className="px-8">
+              <div className="overflow-x-auto p-4 rounded-2xl ring-1 shadow-xl bg-white/90 h-[60vh] ring-[#e0e7ef]/80">
+                {/* Top Controls */}
+                <section className="flex flex-col gap-3 justify-between mb-4 lg:flex-row md:flex-row">
+                  <div className="flex flex-row gap-4">
+                    <div>
+                      <Button
+                        onClick={() => setIsAddItemFormOpen(true)}
+                        name={"New Item"}
+                      />
+                    </div>
+                    <ExcelImportButton />
+                  </div>
+
+                  <div className="flex flex-col gap-2 items-center md:flex-row lg:flex-row">
+                    {filteredItems.length > 0 && (
+                      <div className="flex pt-2 -ml-30">
+                        <Pagination
+                          totalPages={totalPages}
+                          currentPage={currentPage}
+                          handlePageChange={handlePageChange}
+                          selectedCategory={selectedCategory}
+                          handleShowAll={handleShowAll}
+                        />
+                      </div>
+                    )}
+
+                    <SearchBar
+                      onChangeValue={(value) => setSearchItem(value)}
+                      name={"search"}
+                      placeholder={"Search your items..."}
                     />
                   </div>
-                )}
-                {/* Search Bar Component */}
-                <SearchBar
-                  onChangeValue={(value) => setSearchItem(value)}
-                  name={"search"}
-                  placeholder={"Search your items..."}
-                />
+                </section>
+
+                {/* Table */}
+                <div className="overflow-x-auto rounded-lg shadow-inner h-[46vh] bg-white/95">
+                  {isError ? (
+                    <ErrorTable />
+                  ) : (
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="sticky top-0 bg-white/90 backdrop-blur-sm">
+                          <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
+                            Serial Num
+                          </th>
+                          <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
+                            Image
+                          </th>
+                          <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
+                            Name
+                          </th>
+                          <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
+                            Category
+                          </th>
+                          <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
+                            Condition
+                          </th>
+                          <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
+                            DateTime
+                          </th>
+                          <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
+                            Status
+                          </th>
+                          <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
+                            Action
+                          </th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {paginatedData.map((item) => (
+                          <tr
+                            key={item.serialNumber}
+                            className="transition-colors cursor-pointer py-4 odd:bg-white even:bg-[#f9fbff] hover:bg-[#f8fafc]"
+                          >
+                            <InventoryTable
+                              id={item.id}
+                              createdAt={item.createdAt}
+                              ItemName={item.itemName}
+                              SerialNumber={item.serialNumber}
+                              Image={item.image || logo}
+                              ItemType={item.itemType}
+                              Category={item.category}
+                              Condition={item.condition}
+                              Status={item.status}
+                              onMutate={() =>
+                                mutate(item.id, {
+                                  onSuccess: (data) => {
+                                    setShowAlert(true);
+                                    setShowMessage(data.message);
+                                    setTimeout(() => {
+                                      setShowAlert(false);
+                                      setShowMessage("");
+                                    }, 3500);
+                                  },
+                                })
+                              }
+                            />
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+
+                  {paginatedData.length === 0 && (
+                    <div className="flex justify-center items-center mt-16 w-full">
+                      <div className="max-w-md text-center">
+                        <div className="mb-3 text-5xl text-[#94a3b8]">📦</div>
+                        <h3 className="mb-2 text-2xl font-semibold text-[#0f172a]">
+                          No items found
+                        </h3>
+                        <p className="text-base text-[#64748b]">
+                          Try adjusting your search or filters. New items will
+                          appear here once created.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </section>
-            <div className="overflow-x-auto rounded-lg shadow-inner h-[46vh] bg-white/95">
-              {/* Check if the response from the QUERY is error cause for internet connection etc, will return a ERROR TABLE COMPONENTS */}
-              {isError ? (
-                <ErrorTable />
-              ) : (
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="sticky top-0 bg-white/90 backdrop-blur-sm">
-                      <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
-                        Serial Num
-                      </th>
-                      <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
-                        Image
-                      </th>
-                      <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
-                        Name
-                      </th>
-                      <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
-                        Category
-                      </th>
-                      <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
-                        Condition
-                      </th>
-                      <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
-                        DateTime
-                      </th>
-                      <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
-                        Status
-                      </th>
-                      <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
-                        Action
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {/* Check if the paginated item is equal to ZERO  */}
-                    {
-                      // Mapping all the items created
-                      paginatedData.map((item) => (
-                        <tr
-                          key={item.serialNumber}
-                          className="transition-colors cursor-pointer py-4 odd:bg-white even:bg-[#f9fbff] hover:bg-[#f8fafc]"
-                        >
-                          <InventoryTable
-                            id={item.id}
-                            createdAt={item.createdAt}
-                            ItemName={item.itemName}
-                            SerialNumber={item.serialNumber}
-                            Image={item.image || logo}
-                            ItemType={item.itemType}
-                            Category={item.category}
-                            Condition={item.condition}
-                            Status={item.status}
-                            onMutate={() =>
-                              mutate(item.id, {
-                                onSuccess: (data) => {
-                                  setShowAlert(true);
-                                  setShowMessage(data.message);
-                                  setTimeout(() => {
-                                    setShowAlert(false);
-                                    setShowMessage("");
-                                  }, 3500);
-                                },
-                              })
-                            }
-                          />
-                        </tr>
-                      ))
-                    }
-                  </tbody>
-                </table>
-              )}
-              {paginatedData.length == 0 && (
-                <div className="flex justify-center items-center mt-16 w-full">
-                  <div className="max-w-md text-center">
-                    <div className="mb-3 text-5xl text-[#94a3b8]">📦</div>
-                    <h3 className="mb-2 text-2xl font-semibold text-[#0f172a]">
-                      No items found
-                    </h3>
-                    <p className="text-base text-[#64748b]">
-                      Try adjusting your search or filters. New items will
-                      appear here once created.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
+          </>
+        )}
       </div>
 
-      {/* Check if the add item form is true then it will show */}
       {isAddItemFormOpen && (
         <AddItemForm onClose={() => setIsAddItemFormOpen(false)} />
       )}
