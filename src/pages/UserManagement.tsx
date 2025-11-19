@@ -74,7 +74,7 @@ export default function UserManagement() {
           userStatus.includes(searchValue)
         );
       }),
-    [searchUser, selectedStatus, selectedRole, users]
+    [searchUser, selectedStatus, selectedRole, users],
   );
 
   const confirmArchiveUser = useCallback(() => {
@@ -148,7 +148,12 @@ export default function UserManagement() {
         </div>
         <section className="flex flex-col gap-3 mb-6 md:flex-row md:gap-4 md:justify-between md:items-center">
           <div className="order-2 md:order-1">
-            <Button onClick={() => setIsAddUserOpen(true)} name={"New User"} />
+            <div>
+              <Button
+                onClick={() => setIsAddUserOpen(true)}
+                name={"New User"}
+              />
+            </div>
           </div>
           <div className="flex flex-col order-1 gap-2 w-full sm:flex-row sm:items-center md:order-2 md:w-auto">
             {/* Role Filter Buttons */}
@@ -246,7 +251,7 @@ export default function UserManagement() {
                 {filteredUser
                   .filter(
                     (user) =>
-                      user.userRole === "Admin" || user.userRole === "Staff"
+                      user.userRole === "Admin" || user.userRole === "Staff",
                   )
                   .map((user) => (
                     <tr key={user.id}>
