@@ -22,6 +22,7 @@ export default function InventoryList() {
   const [searchItem, setSearchItem] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [activeTab, setActiveTab] = useState<'inventory' | 'pending' | 'reservation'>('inventory');
   const itemsPerPage = 10;
   const [items, setItems] = useState<TItemList[]>([]);
 
@@ -102,33 +103,66 @@ export default function InventoryList() {
           Overview of assets and availability. Track counts by category, staff
           status, and items currently borrowed.
         </p>
+
+        {/* Tabs */}
+        <div className="mt-6 flex gap-2 bg-white/90 p-1.5 rounded-xl shadow-md">
+          <button
+            onClick={() => setActiveTab('inventory')}
+            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === 'inventory'
+              ? 'bg-blue-600 text-white shadow-md'
+              : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+              }`}
+          >
+            Inventory List
+          </button>
+          <button
+            onClick={() => setActiveTab('pending')}
+            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === 'pending'
+              ? 'bg-blue-600 text-white shadow-md'
+              : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+              }`}
+          >
+            Pending
+          </button>
+          <button
+            onClick={() => setActiveTab('reservation')}
+            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === 'reservation'
+              ? 'bg-blue-600 text-white shadow-md'
+              : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+              }`}
+          >
+            Reservation
+          </button>
+        </div>
       </header>
 
-      <div className="overflow-x-auto h-full">
-        {/* Inventory Stats */}
-        <section className="py-2 px-8 mx-auto w-full scrollbar-none">
-          <div className="flex flex-row overflow-x-auto gap-3 pb-2 w-full scrollbar-none">
-            {Array.from(new Set(items.map((item) => item.category))).map(
-              (category) => {
-                const itemsInCategory = items.filter(
-                  (item) => item.category === category,
-                );
-                return (
-                  <InventoryBadges
-                    key={category}
-                    name={category}
-                    total={itemsInCategory.length}
-                    onClick={() => handleCategoryClick(category)}
-                    isSelected={selectedCategory === category}
-                  />
-                );
-              },
-            )}
-          </div>
-        </section>
+      <div className="overflow-auto h-full">
+        {activeTab === 'inventory' && (
+          <>
+            {/* Inventory Stats */}
+            <section className="py-6 px-8 mx-auto w-full scrollbar-none">
+              <div className="flex flex-row overflow-x-auto gap-3 pb-2 w-full scrollbar-none">
+                {Array.from(new Set(items.map((item) => item.category))).map(
+                  (category) => {
+                    const itemsInCategory = items.filter(
+                      (item) => item.category === category
+                    );
+                    return (
+                      <InventoryBadges
+                        key={category}
+                        name={category}
+                        total={itemsInCategory.length}
+                        onClick={() => handleCategoryClick(category)}
+                        isSelected={selectedCategory === category}
+                      />
+                    );
+                  }
+                )}
+              </div>
+            </section>
 
         {/* Inventory Items Table */}
-        <section className="px-4">
+        <section className="px-8">
           <div className="overflow-x-auto p-4 rounded-2xl ring-1 shadow-xl bg-white/90 h-[60vh] ring-[#e0e7ef]/80">
             <section className="flex flex-col gap-3 justify-between mb-4 lg:flex-row md:flex-row">
               <div className="flex flex-row gap-4">

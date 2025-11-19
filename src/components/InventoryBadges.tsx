@@ -14,44 +14,44 @@ export const InventoryBadges = memo(
         onClick={onClick}
         className={`
           group
-          flex flex-col flex-nowrap items-center justify-center
-          p-8
-          rounded-2xl
-          bg-white/60 backdrop-blur-md
+          flex flex-row items-center gap-3
+          px-4 py-2.5
+          rounded-xl
+          bg-white/70 backdrop-blur-sm
           border
           shadow-sm
-          transition-all duration-300
+          transition-all duration-200
           cursor-pointer
-          w-full min-w-[140px] max-w-[350px]
+          min-w-fit
+          whitespace-nowrap
 
-          hover:shadow-lg hover:-translate-y-1
+          hover:shadow-md hover:scale-105
 
-          ${
-            isSelected
-              ? "border-[#2563eb] shadow-md"
-              : "border-[#e5e7eb]"
+          ${isSelected
+            ? "border-[#2563eb] bg-blue-50/80 shadow-md"
+            : "border-[#e5e7eb] hover:border-[#cbd5e1]"
           }
         `}
       >
-        <h2
-          className={`
-            text-base font-medium
-            ${isSelected ? "text-[#1e40af]" : "text-[#475569]"}
-            transition-colors
-          `}
-        >
-          {name}
-        </h2>
-
         <p
           className={`
-            mt-4 text-5xl font-extrabold tracking-tight
+            text-2xl font-bold
             ${isSelected ? "text-[#1e3a8a]" : "text-[#2563eb]"}
             transition-colors
           `}
         >
           {total}
         </p>
+
+        <h2
+          className={`
+            text-sm font-semibold
+            ${isSelected ? "text-[#1e40af]" : "text-[#64748b]"}
+            transition-colors
+          `}
+        >
+          {name}
+        </h2>
       </div>
     );
   }
