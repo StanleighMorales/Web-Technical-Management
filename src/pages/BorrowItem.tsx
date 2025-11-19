@@ -5,6 +5,7 @@ import { ErrorAlert } from '../components/ErrorAlert';
 import { useQuery } from '@tanstack/react-query';
 import { useAllItemsQuery } from '../query/get/useAllItemsQuery';
 import { usePostBorrowItemMutation } from '../query/post/usePostBorrowItemMutation';
+import { useReturnItemMutation } from '../query/patch/useReturnItemMutation';
 import SearchBar from '../components/SearchBar';
 import Pagination from '../components/Pagination';
 import { InventoryBadges } from '../components/InventoryBadges';
@@ -897,6 +898,14 @@ export default function BorrowItem() {
     const [prefilledItemId, setPrefilledItemId] = useState<string>("");
     const [prefilledItemName, setPrefilledItemName] = useState<string>("");
     const [scannedItem, setScannedItem] = useState<TItemList | null>(null);
+    const [showReturnModal, setShowReturnModal] = useState<boolean>(false);
+    const [returnBarcode, setReturnBarcode] = useState<string>("");
+    const [returnError, setReturnError] = useState<string>("");
+    const [returnSuccess, setReturnSuccess] = useState<boolean>(false);
+    const [returnErrorMessage, setReturnErrorMessage] = useState<string>("");
+    const [showReturnError, setShowReturnError] = useState<boolean>(false);
+
+    const returnItemMutation = useReturnItemMutation();
 
     const handleBorrowClick = (itemId: string, itemName: string) => {
         setPrefilledItemId(itemId);
@@ -908,8 +917,121 @@ export default function BorrowItem() {
         setScannedItem(item);
     };
 
+    const handleReturnSubmit = async () => {
+        setReturnError("");
+        const barcode = returnBarcode.trim();
+
+        if (!barcode) {
+            setReturnError("Please enter a barcode");
+            return;
+        }
+
+        try {
+            await returnItemMutation.mutateAsync({ barcode });
+
+            setShowReturnModal(false);
+            setReturnBarcode("");
+            setReturnError("");
+            setReturnSuccess(true);
+
+            setTimeout(() => {
+                setReturnSuccess(false);
+            }, 3000);
+        } catch (error: any) {
+            setReturnErrorMessage(error.message || "Failed to return item");
+            setShowReturnError(true);
+            setShowReturnModal(false);
+            setReturnBarcode("");
+
+            setTimeout(() => {
+                setShowReturnError(false);
+            }, 5000);
+        }
+    };
+
     return (
         <div className="h-screen w-full bg-gradient-to-br from-[#f8fafc] via-[#e8eef7] to-[#dbeafe] flex flex-col overflow-hidden">
+            {/* Return Success Alert */}
+            {returnSuccess && <SuccessAlert message="Item returned successfully!" />}
+            {showReturnError && <ErrorAlert message={returnErrorMessage} />}
+
+            {/* Return Item Modal */}
+            {showReturnModal && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setShowReturnModal(false)}>
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+                        {/* Modal Header */}
+                        <div className="border-b border-gray-200 px-6 py-4 flex justify-between items-center rounded-t-2xl">
+                            <h2 className="text-xl font-bold text-gray-900">Return Item</h2>
+                            <button
+                                onClick={() => setShowReturnModal(false)}
+                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <IoMdClose className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        {/* Modal Content */}
+                        <div className="p-6">
+                            <p className="text-sm text-gray-600 mb-4">
+                                Scan the <strong>item barcode</strong> to mark it as returned. The system will automatically find and update the active borrowed record. If the scanner cannot read the barcode, you may manually enter it below.
+                            </p>
+                            <input
+                                type="text"
+                                autoFocus
+                                value={returnBarcode}
+                                onChange={(e) => {
+                                    setReturnBarcode(e.target.value);
+                                    setReturnError("");
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        handleReturnSubmit();
+                                    }
+                                }}
+                                placeholder="Scan or enter item barcode (e.g., ITEM-SN-12345)"
+                                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${returnError
+                                    ? 'border-red-500 focus:ring-red-500'
+                                    : 'border-gray-300 focus:ring-blue-500'
+                                    }`}
+                            />
+                            {returnError && (
+                                <p className="text-red-500 text-sm mt-2">{returnError}</p>
+                            )}
+
+                            {/* Modal Actions */}
+                            <div className="flex gap-3 mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowReturnModal(false)}
+                                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleReturnSubmit}
+                                    disabled={returnItemMutation.isPending}
+                                    className={`flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors ${returnItemMutation.isPending ? 'opacity-50 cursor-not-allowed' : ''
+                                        }`}
+                                >
+                                    {returnItemMutation.isPending ? (
+                                        <span className="flex items-center justify-center gap-2">
+                                            <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Processing...
+                                        </span>
+                                    ) : (
+                                        'Confirm Return'
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Header */}
             <header className="flex-shrink-0 pt-6 md:pt-8 px-4 md:px-8 pb-4 md:pb-6 bg-white/70 backdrop-blur-md shadow-sm border-b border-[#e5e9f2] flex flex-col items-center">
                 <h1 className="text-[#1e293b] text-3xl md:text-5xl mb-2 font-extrabold tracking-tight drop-shadow-lg">
@@ -967,6 +1089,38 @@ export default function BorrowItem() {
                     onBorrow={handleBorrowClick}
                 />
             )}
+
+            {/* Floating Return Button */}
+            <button
+                onClick={() => setShowReturnModal(true)}
+                className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-40 group"
+                title="Return Item"
+            >
+                <div className="relative">
+                    {/* Button - Icon only on browse tab, full button on form tab */}
+                    <div className={`flex items-center gap-3 bg-orange-600 hover:bg-orange-700 text-white rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 ${activeTab === 'browse'
+                        ? 'p-3 md:p-4'
+                        : 'px-4 py-3 md:px-5 md:py-4'
+                        }`}>
+                        <svg className="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                        </svg>
+                        {activeTab === 'form' && (
+                            <span className="hidden md:inline font-semibold text-sm md:text-base whitespace-nowrap">
+                                Return Item
+                            </span>
+                        )}
+                    </div>
+
+                    {/* Tooltip - Always show on hover when icon only */}
+                    <div className={`absolute bottom-full right-0 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 pointer-events-none whitespace-nowrap ${activeTab === 'browse'
+                        ? 'opacity-0 group-hover:opacity-100'
+                        : 'hidden'
+                        }`}>
+                        Return Item
+                    </div>
+                </div>
+            </button>
         </div>
     );
 }
