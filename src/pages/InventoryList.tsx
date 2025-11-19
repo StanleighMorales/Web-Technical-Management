@@ -39,7 +39,7 @@ export default function InventoryList() {
 
         return matchesSearch && matchesCategory;
       }),
-    [items, searchItem, selectedCategory]
+    [items, searchItem, selectedCategory],
   );
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
@@ -51,9 +51,9 @@ export default function InventoryList() {
     () =>
       filteredItems.slice(
         (validCurrentPage - 1) * itemsPerPage,
-        validCurrentPage * itemsPerPage
+        validCurrentPage * itemsPerPage,
       ),
-    [filteredItems, itemsPerPage, validCurrentPage]
+    [filteredItems, itemsPerPage, validCurrentPage],
   );
 
   // this func will handle all the page triggered in the button to set either to 1 to 2 or 3 etc
@@ -67,7 +67,7 @@ export default function InventoryList() {
       setSelectedCategory(selectedCategory === category ? "" : category);
       setCurrentPage(1);
     },
-    [selectedCategory]
+    [selectedCategory],
   );
 
   // this func return to display all the items when the selectedCategory is executed
@@ -104,14 +104,14 @@ export default function InventoryList() {
         </p>
       </header>
 
-      <div className="overflow-auto h-full">
+      <div className="overflow-x-auto h-full">
         {/* Inventory Stats */}
-        <section className="py-6 px-8 mx-auto w-full scrollbar-none">
+        <section className="py-2 px-8 mx-auto w-full scrollbar-none">
           <div className="flex flex-row overflow-x-auto gap-3 pb-2 w-full scrollbar-none">
             {Array.from(new Set(items.map((item) => item.category))).map(
               (category) => {
                 const itemsInCategory = items.filter(
-                  (item) => item.category === category
+                  (item) => item.category === category,
                 );
                 return (
                   <InventoryBadges
@@ -122,13 +122,13 @@ export default function InventoryList() {
                     isSelected={selectedCategory === category}
                   />
                 );
-              }
+              },
             )}
           </div>
         </section>
 
         {/* Inventory Items Table */}
-        <section className="px-8">
+        <section className="px-4">
           <div className="overflow-x-auto p-4 rounded-2xl ring-1 shadow-xl bg-white/90 h-[60vh] ring-[#e0e7ef]/80">
             <section className="flex flex-col gap-3 justify-between mb-4 lg:flex-row md:flex-row">
               <div className="flex flex-row gap-4">
