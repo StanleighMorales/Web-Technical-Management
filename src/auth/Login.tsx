@@ -104,8 +104,9 @@ export default function Login() {
           >
             <div className="flex relative flex-col">
               <input
-                className={`w-[400px] h-[55px] rounded-md outline-none border mb-8 border-black/34 bg-white/78 pl-4 text-base hover:bg-white/93 focus:bg-white/93 max-lg:w-[90vw] max-lg:max-w-[98%] max-lg:min-w-[220px] max-sm:w-[98vw] max-sm:max-w-full max-sm:min-w-[120px] max-sm:text-base ${usernameError ? "border-2 border-red-500" : ""
-                  } ${Error && error instanceof Error && "border-2 border-red-500"}`}
+                className={`w-[400px] h-[55px] rounded-md outline-none border mb-8 border-black/34 bg-white/78 pl-4 text-base hover:bg-white/93 focus:bg-white/93 max-lg:w-[90vw] max-lg:max-w-[98%] max-lg:min-w-[220px] max-sm:w-[98vw] max-sm:max-w-full max-sm:min-w-[120px] max-sm:text-base ${
+                  usernameError ? "border-2 border-red-500" : ""
+                } ${Error && error instanceof Error && "border-2 border-red-500"}`}
                 autoFocus
                 type="text"
                 name="identifier"
@@ -123,8 +124,12 @@ export default function Login() {
             </div>
             <div className="flex relative flex-col">
               <input
-                className={`w-[400px] h-[55px] rounded-md outline-none border border-black/34 bg-white/78 pl-4 text-base hover:bg-white/93 focus:bg-white/93 max-lg:w-[90vw] max-lg:max-w-[98%] max-lg:min-w-[220px] max-sm:w-[98vw] max-sm:max-w-full max-sm:min-w-[120px] max-sm:text-base ${passwordError ? "border-2 border-red-500" : ""
-                  } ${Error && error instanceof Error && "border-2 border-red-500"}`}
+                className={`w-[400px] h-[55px] rounded-md outline-none border border-black/34 bg-white/78 pl-4 pr-12 text-base hover:bg-white/93 focus:bg-white/93 
+      max-lg:w-[90vw] max-lg:max-w-[98%] max-lg:min-w-[220px] 
+      max-sm:w-[98vw] max-sm:max-w-full max-sm:min-w-[120px] max-sm:text-base
+      ${passwordError ? "border-2 border-red-500" : ""} 
+      ${Error && error instanceof Error && "border-2 border-red-500"}
+    `}
                 type={isShowPassword ? "text" : "password"}
                 name="password"
                 placeholder="Password"
@@ -133,27 +138,26 @@ export default function Login() {
                 data-testid="password"
                 disabled={isPending}
               />
+
               {passwordError && (
                 <p className="relative text-base text-red-500">
                   {passwordError}
                 </p>
               )}
-              <div className="absolute w-[10%] flex justify-center items-center float-right mt-3.5 ml-[22.5rem] max-lg:-mt-16 max-lg:ml-[80%] max-sm:mt-3 max-sm:ml-[90%] max-sm:text-[1.2rem]">
-                {submitForm.password.length > 0 && (
-                  isShowPassword ? (
-                    <FaEye
-                      className="mr-4 text-gray-400 cursor-pointer text-[1.6rem]"
-                      onClick={() => setIsShowPassword((prev) => !prev)}
-                    />
-                  ) : (
-                    <FaEyeSlash
-                      className="mr-4 text-gray-400 cursor-pointer text-[1.6rem]"
-                      onClick={() => setIsShowPassword((prev) => !prev)}
-                    />
-                  )
-                )}
 
-              </div>
+              {/* FIXED ICON POSITION */}
+              {submitForm.password.length > 0 && (
+                <div
+                  className="absolute right-3 top-[14px] text-gray-400 cursor-pointer"
+                  onClick={() => setIsShowPassword((prev) => !prev)}
+                >
+                  {isShowPassword ? (
+                    <FaEye className="text-[1.6rem]" />
+                  ) : (
+                    <FaEyeSlash className="text-[1.6rem]" />
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="mt-20 max-sm:mt-4">
