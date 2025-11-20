@@ -12,7 +12,7 @@ import { InventoryBadges } from "../components/InventoryBadges";
 import Pagination from "../components/Pagination";
 import { InventoryTable } from "../components/InventoryTable";
 import ErrorTable from "../components/ErrorTables";
-import ExcelImportButton from "../components/ExcelImportButton";
+import ExcelImportItemButton from "../components/ExcelImportItemButton";
 import { SuccessAlert } from "../components/SuccessAlert";
 
 export default function InventoryList() {
@@ -111,33 +111,30 @@ export default function InventoryList() {
         <div className="mt-6 flex gap-2 bg-white/90 p-1.5 rounded-xl shadow-md">
           <button
             onClick={() => setActiveTab("inventory")}
-            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${
-              activeTab === "inventory"
-                ? "bg-blue-600 text-white shadow-md"
-                : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-            }`}
+            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === "inventory"
+              ? "bg-blue-600 text-white shadow-md"
+              : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+              }`}
           >
             Inventory List
           </button>
 
           <button
             onClick={() => setActiveTab("pending")}
-            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${
-              activeTab === "pending"
-                ? "bg-blue-600 text-white shadow-md"
-                : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-            }`}
+            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === "pending"
+              ? "bg-blue-600 text-white shadow-md"
+              : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+              }`}
           >
             Pending
           </button>
 
           <button
             onClick={() => setActiveTab("reservation")}
-            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${
-              activeTab === "reservation"
-                ? "bg-blue-600 text-white shadow-md"
-                : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-            }`}
+            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === "reservation"
+              ? "bg-blue-600 text-white shadow-md"
+              : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+              }`}
           >
             Reservation
           </button>
@@ -181,7 +178,7 @@ export default function InventoryList() {
                         name={"New Item"}
                       />
                     </div>
-                    <ExcelImportButton />
+                    <ExcelImportItemButton />
                   </div>
 
                   <div className="flex flex-col gap-2 items-center md:flex-row lg:flex-row">
