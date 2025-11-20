@@ -3,14 +3,14 @@ type PopUpModalProps = {
     label: string,
     noun: string
     destination?: string,
-    onHandleCancleAction: () => void,
+    onHandleCancelAction: () => void,
     onHandleConfirmAction: () => void
 };
 
-export default function PopUpModal({ title,label,noun, destination, onHandleCancleAction, onHandleConfirmAction }: PopUpModalProps) {
+export default function PopUpModal({ title, label, noun, destination, onHandleCancelAction, onHandleConfirmAction }: PopUpModalProps) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="absolute inset-0 bg-black/50" onClick={onHandleCancleAction} />
+            <div className="absolute inset-0 bg-black/50" onClick={onHandleCancelAction} />
             <div className="relative z-10 w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
                 <h3 className="mb-2 text-lg font-semibold">{title}</h3>
                 <p className="mb-6 text-sm text-gray-600">Are you sure you want to {label} this {noun}? This action can be reversed from the {destination}.</p>
@@ -18,7 +18,7 @@ export default function PopUpModal({ title,label,noun, destination, onHandleCanc
                     <button
                         type="button"
                         className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
-                        onClick={onHandleCancleAction}
+                        onClick={onHandleCancelAction}
                         title="Cancel"
                     >
                         Cancel
