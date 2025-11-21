@@ -493,7 +493,7 @@ export const EditStudent = ({
                     <div className="flex justify-center pt-2">
                         <button
                             type="submit"
-                            className="py-3 px-8 font-bold text-white bg-gradient-to-r rounded-xl shadow-lg transition-all duration-150 cursor-pointer hover:shadow-2xl hover:scale-105 from-[#2563eb] to-[#38bdf8]"
+                            className="py-3 px-8 font-bold text-white bg-blue-500 rounded-xl shadow-lg transition-all duration-150 cursor-pointer hover:shadow-2xl hover:scale-105 "
                         >
                             Save Changes
                         </button>
