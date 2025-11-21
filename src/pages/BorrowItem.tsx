@@ -687,7 +687,7 @@ const BorrowItemsTable = ({ onBorrowClick }: { onBorrowClick: (itemId: string, i
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [items, setItems] = useState<TItemList[]>([]);
     const [selectedItem, setSelectedItem] = useState<TItemList | null>(null);
-    const itemsPerPage = 5;
+    const itemsPerPage = 10;
 
     const { data, isPending, isError } = useQuery(useAllItemsQuery());
 
@@ -1097,7 +1097,6 @@ export default function BorrowItem() {
                 title="Return Item"
             >
                 <div className="relative">
-                    {/* Button - Icon only on browse tab, full button on form tab */}
                     <div className={`flex items-center gap-3 bg-orange-600 hover:bg-orange-700 text-white rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 ${activeTab === 'browse'
                         ? 'p-3 md:p-4'
                         : 'px-4 py-3 md:px-5 md:py-4'
@@ -1112,7 +1111,6 @@ export default function BorrowItem() {
                         )}
                     </div>
 
-                    {/* Tooltip - Always show on hover when icon only */}
                     <div className={`absolute bottom-full right-0 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 pointer-events-none whitespace-nowrap ${activeTab === 'browse'
                         ? 'opacity-0 group-hover:opacity-100'
                         : 'hidden'

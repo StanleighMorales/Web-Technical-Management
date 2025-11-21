@@ -101,7 +101,7 @@ export default function Dashboard() {
 
   return (
     <div className="flex z-40 flex-col items-center py-10 px-2 w-full min-h-screen animate-fadeIn bg-linear-to-br from-[#f8fafc] via-[#e0e7ef] to-[#c7d2fe]">
-      <div className="grid grid-cols-1 gap-8 mb-8 w-full max-w-7xl sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 justify-items-center gap-8 mb-8 w-full max-w-7xl sm:grid-cols-2 lg:grid-cols-4">
         {badges.map((item, index) => (
           <DashboardBadges key={index} name={item.name} link={item.link} data={item.data} />
         ))}
@@ -129,55 +129,55 @@ export default function Dashboard() {
         </div>
 
         <div className="overflow-x-auto rounded-xl shadow-inner h-[55vh] bg-white/95">
-        {isBorrowedItemError ? <ErrorTable /> : (
-          <table className="relative w-full text-left border-collapse">
-            <thead>
-              <tr>
-                {[
-                  "Serial Number",
-                  "Image",
-                  "Item",
-                  "Occupied By",
-                  "Teacher",
-                  "Room",
-                  "Remarks",
-                  "DateTime",
-                  "Status",
-                  "Action",
-                ].map((header) => (
-                  <th
-                    key={header}
-                    className="sticky top-0 py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]"
-                  >
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedData.map((item) => (
-                <tr
-                  key={item.item.serialNumber}
-                  className="transition-colors odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9]"
-                >
-                  <RecentBorrowedItemsTable
-                    id={item.id}
-                    image={item.item.image}
-                    itemName={item.item.itemName}
-                    serialNumber={item.item.serialNumber}
-                    borrowerFullName={item.borrowerFullName}
-                    room={item.room}
-                    teacherFullName={item.teacherFullName}
-                    remarks={item.remarks}
-                    createdAt={item.item.createdAt}
-                    status={item.status}
-                    onView={() => handleViewBorrowItemOpen(item.id)}
-                  />
+          {isBorrowedItemError ? <ErrorTable /> : (
+            <table className="relative w-full text-left border-collapse">
+              <thead>
+                <tr>
+                  {[
+                    "Serial Number",
+                    "Image",
+                    "Item",
+                    "Occupied By",
+                    "Teacher",
+                    "Room",
+                    "Remarks",
+                    "DateTime",
+                    "Status",
+                    "Action",
+                  ].map((header) => (
+                    <th
+                      key={header}
+                      className="sticky top-0 py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]"
+                    >
+                      {header}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+              </thead>
+              <tbody>
+                {paginatedData.map((item) => (
+                  <tr
+                    key={item.item.serialNumber}
+                    className="transition-colors odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9]"
+                  >
+                    <RecentBorrowedItemsTable
+                      id={item.id}
+                      image={item.item.image}
+                      itemName={item.item.itemName}
+                      serialNumber={item.item.serialNumber}
+                      borrowerFullName={item.borrowerFullName}
+                      room={item.room}
+                      teacherFullName={item.teacherFullName}
+                      remarks={item.remarks}
+                      createdAt={item.item.createdAt}
+                      status={item.status}
+                      onView={() => handleViewBorrowItemOpen(item.id)}
+                    />
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 

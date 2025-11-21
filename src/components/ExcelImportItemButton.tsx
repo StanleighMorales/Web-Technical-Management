@@ -5,7 +5,7 @@ import { usePostImportMutation } from "../query/post/usePostImportMutation";
 import { SuccessAlert } from "./SuccessAlert";
 import { ErrorAlert } from "./ErrorAlert";
 
-export default function ExcelImportButton() {
+export default function ExcelImportItemButton() {
   const [showAlertSuccess, setShowAlertSuccess] = useState<boolean>(false);
   const [showAlertFailed, setShowAlertFailed] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -41,17 +41,17 @@ export default function ExcelImportButton() {
 
     importItem(form, {
       onSuccess: () => {
-         setShowAlertSuccess(true);
-          setTimeout(() => {
-            setShowAlertSuccess(false);
-          }, 1500);
+        setShowAlertSuccess(true);
+        setTimeout(() => {
+          setShowAlertSuccess(false);
+        }, 1500);
       },
       onError: (error) => {
         console.error(error.message);
         setShowAlertFailed(true);
-          setTimeout(() => {
-            setShowAlertFailed(false);
-          }, 3000);
+        setTimeout(() => {
+          setShowAlertFailed(false);
+        }, 3000);
       },
     });
   };

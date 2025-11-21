@@ -12,6 +12,7 @@ import { InventoryBadges } from "../components/InventoryBadges";
 import Pagination from "../components/Pagination";
 import { InventoryTable } from "../components/InventoryTable";
 import ErrorTable from "../components/ErrorTables";
+import ExcelImportItemButton from "../components/ExcelImportItemButton";
 import { SuccessAlert } from "../components/SuccessAlert";
 import { ErrorAlert } from "../components/ErrorAlert";
 import * as XLSX from "xlsx";
@@ -24,7 +25,9 @@ export default function InventoryList() {
   const [searchItem, setSearchItem] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [activeTab, setActiveTab] = useState<'inventory' | 'pending' | 'reservation'>('inventory');
+  const [activeTab, setActiveTab] = useState<
+    "inventory" | "pending" | "reservation"
+  >("inventory");
   const itemsPerPage = 10;
   const [items, setItems] = useState<TItemList[]>([]);
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
@@ -52,7 +55,7 @@ export default function InventoryList() {
 
         return matchesSearch && matchesCategory;
       }),
-    [items, searchItem, selectedCategory]
+    [items, searchItem, selectedCategory],
   );
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
@@ -64,9 +67,9 @@ export default function InventoryList() {
     () =>
       filteredItems.slice(
         (validCurrentPage - 1) * itemsPerPage,
-        validCurrentPage * itemsPerPage
+        validCurrentPage * itemsPerPage,
       ),
-    [filteredItems, itemsPerPage, validCurrentPage]
+    [filteredItems, itemsPerPage, validCurrentPage],
   );
 
   // this func will handle all the page triggered in the button to set either to 1 to 2 or 3 etc
@@ -80,7 +83,7 @@ export default function InventoryList() {
       setSelectedCategory(selectedCategory === category ? "" : category);
       setCurrentPage(1);
     },
-    [selectedCategory]
+    [selectedCategory],
   );
 
   // this func return to display all the items when the selectedCategory is executed
@@ -299,87 +302,7 @@ export default function InventoryList() {
   return (
     <div className="flex flex-col w-full antialiased bg-linear-to-br animate-fadeIn inventory-list-container min-h-svh from-[#f8fafc] via-[#e8eef7] to-[#dbeafe]">
       {ShowAlert && <SuccessAlert message={ShowMessage} />}
-      {showAlertSuccess && <SuccessAlert message="Excel imported successfully!" />}
-      {showAlertFailed && <ErrorAlert message="Excel imported failed" />}
 
-      {/* Hidden file input for import */}
-      <input
-        type="file"
-        accept=".xlsx,.xls"
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        className="hidden"
-      />
-
-      {/* Print styles */}
-      <style>{`
-        @media print {
-          @page {
-            size: A4 portrait;
-            margin: 10mm 8mm;
-          }
-          
-          * {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-          
-          body * {
-            visibility: hidden;
-          }
-          
-          #barcode-print-area,
-          #barcode-print-area * {
-            visibility: visible;
-          }
-          
-          #barcode-print-area {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
-            max-width: 210mm !important;
-            display: grid !important;
-            grid-template-columns: repeat(5, 1fr) !important;
-            grid-template-rows: repeat(3, 1fr) !important;
-            gap: 6px !important;
-            padding: 0 !important;
-            margin: 0 !important;
-          }
-          
-          #barcode-print-area > div {
-            break-inside: avoid !important;
-            page-break-inside: avoid !important;
-            box-sizing: border-box !important;
-            height: auto !important;
-            padding: 4px !important;
-            border: 1px solid #999 !important;
-            border-radius: 2px !important;
-            background: white !important;
-          }
-          
-          #barcode-print-area > div > div:first-child {
-            margin-bottom: 3px !important;
-          }
-          
-          #barcode-print-area > div > div:first-child h3 {
-            font-size: 9px !important;
-            font-weight: 600 !important;
-            margin: 0 !important;
-            padding: 0 !important;
-          }
-          
-          #barcode-print-area > div img {
-            height: 48px !important;
-            width: 100% !important;
-            object-fit: contain !important;
-          }
-          
-          #barcode-print-area > div > div:last-child {
-            height: 48px !important;
-          }
-        }
-      `}</style>
       <header className="flex sticky top-0 z-30 flex-col items-center px-8 pt-8 pb-6 border-b shadow-sm inventory-header bg-white/70 backdrop-blur-md border-[#e5e9f2]">
         <h1 className="mb-2 text-5xl mt-10 lg:mt-0 md:mt-0 font-extrabold tracking-tight text-[#1e293b] drop-shadow-lg">
           Inventory List
@@ -392,28 +315,30 @@ export default function InventoryList() {
         {/* Tabs */}
         <div className="mt-6 flex gap-2 bg-white/90 p-1.5 rounded-xl shadow-md">
           <button
-            onClick={() => setActiveTab('inventory')}
-            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === 'inventory'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+            onClick={() => setActiveTab("inventory")}
+            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === "inventory"
+              ? "bg-blue-600 text-white shadow-md"
+              : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
               }`}
           >
             Inventory List
           </button>
+
           <button
-            onClick={() => setActiveTab('pending')}
-            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === 'pending'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+            onClick={() => setActiveTab("pending")}
+            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === "pending"
+              ? "bg-blue-600 text-white shadow-md"
+              : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
               }`}
           >
             Pending
           </button>
+
           <button
-            onClick={() => setActiveTab('reservation')}
-            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === 'reservation'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+            onClick={() => setActiveTab("reservation")}
+            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === "reservation"
+              ? "bg-blue-600 text-white shadow-md"
+              : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
               }`}
           >
             Reservation
@@ -422,7 +347,7 @@ export default function InventoryList() {
       </header>
 
       <div className="overflow-auto h-full">
-        {activeTab === 'inventory' && (
+        {activeTab === "inventory" && (
           <>
             {/* Inventory Stats */}
             <section className="py-6 px-8 mx-auto w-full scrollbar-none">
@@ -430,7 +355,7 @@ export default function InventoryList() {
                 {Array.from(new Set(items.map((item) => item.category))).map(
                   (category) => {
                     const itemsInCategory = items.filter(
-                      (item) => item.category === category
+                      (item) => item.category === category,
                     );
                     return (
                       <InventoryBadges
@@ -441,14 +366,15 @@ export default function InventoryList() {
                         isSelected={selectedCategory === category}
                       />
                     );
-                  }
+                  },
                 )}
               </div>
             </section>
 
-            {/* Inventory Items Table */}
+            {/* Inventory Table Section */}
             <section className="px-8">
               <div className="overflow-x-auto p-4 rounded-2xl ring-1 shadow-xl bg-white/90 h-[60vh] ring-[#e0e7ef]/80">
+                {/* Top Controls */}
                 <section className="flex flex-col gap-3 justify-between mb-4 lg:flex-row md:flex-row">
                   <div className="flex flex-row gap-4">
                     <div>
@@ -457,93 +383,10 @@ export default function InventoryList() {
                         name={"New Item"}
                       />
                     </div>
-
-                    {/* More Menu (3 dots) */}
-                    <div className="relative" ref={moreMenuRef}>
-                      <button
-                        onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
-                        className="flex items-center justify-center w-10 h-10 text-gray-600 bg-white rounded-lg hover:bg-gray-100 transition-colors duration-200 shadow-md border border-gray-200"
-                        aria-label="More options"
-                      >
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
-                        </svg>
-                      </button>
-
-                      {isMoreMenuOpen && (
-                        <div className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 z-50">
-                          <div className="py-1">
-                            <button
-                              onClick={() => {
-                                fileInputRef.current?.click();
-                                setIsMoreMenuOpen(false);
-                              }}
-                              disabled={isImporting}
-                              className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              {isImporting ? (
-                                <>
-                                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                  </svg>
-                                  Importing...
-                                </>
-                              ) : (
-                                <>
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                  </svg>
-                                  Import Items
-                                </>
-                              )}
-                            </button>
-                            <div className="border-t border-gray-100 my-1"></div>
-                            <button
-                              onClick={() => {
-                                setShowPrintBarcodeModal(true);
-                                setIsMoreMenuOpen(false);
-                              }}
-                              disabled={filteredItems.length === 0}
-                              className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                              </svg>
-                              Print Barcodes {filteredItems.length > 0 && `(${filteredItems.length})`}
-                            </button>
-                            <button
-                              onClick={() => {
-                                handleExportItems();
-                                setIsMoreMenuOpen(false);
-                              }}
-                              disabled={isExporting || filteredItems.length === 0}
-                              className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              {isExporting ? (
-                                <>
-                                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                  </svg>
-                                  Exporting...
-                                </>
-                              ) : (
-                                <>
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                  </svg>
-                                  Export Items {filteredItems.length > 0 && `(${filteredItems.length})`}
-                                </>
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                    <ExcelImportItemButton />
                   </div>
+
                   <div className="flex flex-col gap-2 items-center md:flex-row lg:flex-row">
-                    {/*Pagination Component*/}
                     {filteredItems.length > 0 && (
                       <div className="flex pt-2 -ml-30">
                         <Pagination
@@ -555,7 +398,7 @@ export default function InventoryList() {
                         />
                       </div>
                     )}
-                    {/* Search Bar Component */}
+
                     <SearchBar
                       onChangeValue={(value) => setSearchItem(value)}
                       name={"search"}
@@ -563,79 +406,78 @@ export default function InventoryList() {
                     />
                   </div>
                 </section>
+
+                {/* Table */}
                 <div className="overflow-x-auto rounded-lg shadow-inner h-[46vh] bg-white/95">
-                  {/* Check if the response from the QUERY is error cause for internet connection etc, will return a ERROR TABLE COMPONENTS */}
                   {isError ? (
                     <ErrorTable />
                   ) : (
                     <table className="w-full text-left border-collapse">
                       <thead>
                         <tr className="sticky top-0 bg-white/90 backdrop-blur-sm">
-                          <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
+                          <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
                             Serial Num
                           </th>
-                          <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
+                          <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
                             Image
                           </th>
-                          <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
+                          <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
                             Name
                           </th>
-                          <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
+                          <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
                             Category
                           </th>
-                          <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
+                          <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
                             Condition
                           </th>
-                          <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
+                          <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
                             DateTime
                           </th>
-                          <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
+                          <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
                             Status
                           </th>
-                          <th className="py-3 px-4 text-xs font-semibold tracking-wider text-left uppercase bg-transparent border-b border-[#e6e6e6] text-[#64748b]">
+                          <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
                             Action
                           </th>
                         </tr>
                       </thead>
+
                       <tbody>
-                        {/* Check if the paginated item is equal to ZERO  */}
-                        {
-                          // Mapping all the items created
-                          paginatedData.map((item) => (
-                            <tr
-                              key={item.serialNumber}
-                              className="transition-colors cursor-pointer py-4 odd:bg-white even:bg-[#f9fbff] hover:bg-[#f8fafc]"
-                            >
-                              <InventoryTable
-                                id={item.id}
-                                createdAt={item.createdAt}
-                                ItemName={item.itemName}
-                                SerialNumber={item.serialNumber}
-                                Image={item.image || logo}
-                                ItemType={item.itemType}
-                                Category={item.category}
-                                Condition={item.condition}
-                                Status={item.status}
-                                onMutate={() =>
-                                  mutate(item.id, {
-                                    onSuccess: (data) => {
-                                      setShowAlert(true);
-                                      setShowMessage(data.message);
-                                      setTimeout(() => {
-                                        setShowAlert(false);
-                                        setShowMessage("");
-                                      }, 3500);
-                                    },
-                                  })
-                                }
-                              />
-                            </tr>
-                          ))
-                        }
+                        {paginatedData.map((item) => (
+                          <tr
+                            key={item.serialNumber}
+                            className="transition-colors cursor-pointer py-4 odd:bg-white even:bg-[#f9fbff] hover:bg-[#f8fafc]"
+                          >
+                            <InventoryTable
+                              id={item.id}
+                              createdAt={item.createdAt}
+                              ItemName={item.itemName}
+                              SerialNumber={item.serialNumber}
+                              Image={item.image || logo}
+                              ItemType={item.itemType}
+                              Category={item.category}
+                              Condition={item.condition}
+                              Status={item.status}
+                              onMutate={() =>
+                                mutate(item.id, {
+                                  onSuccess: (data) => {
+                                    setShowAlert(true);
+                                    setShowMessage(data.message);
+                                    setTimeout(() => {
+                                      setShowAlert(false);
+                                      setShowMessage("");
+                                    }, 3500);
+                                  },
+                                })
+                              }
+                            />
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   )}
-                  {paginatedData.length == 0 && (
+
+                  {paginatedData.length === 0 && (
                     <div className="flex justify-center items-center mt-16 w-full">
                       <div className="max-w-md text-center">
                         <div className="mb-3 text-5xl text-[#94a3b8]">📦</div>
@@ -654,180 +496,11 @@ export default function InventoryList() {
             </section>
           </>
         )}
-
-        {activeTab === 'pending' && (
-          <section className="px-8 py-6">
-            <div className="overflow-x-auto p-8 rounded-2xl ring-1 shadow-xl bg-white/90 h-[60vh] ring-[#e0e7ef]/80">
-              <div className="flex flex-col items-center justify-center h-full">
-                <div className="text-center max-w-md">
-                  <div className="mb-4 text-6xl text-[#94a3b8]">⏳</div>
-                  <h3 className="mb-3 text-3xl font-semibold text-[#0f172a]">
-                    Pending Items
-                  </h3>
-                  <p className="text-lg text-[#64748b]">
-                    Items awaiting approval or processing will appear here.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {activeTab === 'reservation' && (
-          <section className="px-8 py-6">
-            <div className="overflow-x-auto p-8 rounded-2xl ring-1 shadow-xl bg-white/90 h-[60vh] ring-[#e0e7ef]/80">
-              <div className="flex flex-col items-center justify-center h-full">
-                <div className="text-center max-w-md">
-                  <div className="mb-4 text-6xl text-[#94a3b8]">📅</div>
-                  <h3 className="mb-3 text-3xl font-semibold text-[#0f172a]">
-                    Reservations
-                  </h3>
-                  <p className="text-lg text-[#64748b]">
-                    Reserved items and upcoming bookings will be displayed here.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
       </div>
 
-      {/* Check if the add item form is true then it will show */}
       {isAddItemFormOpen && (
         <AddItemForm onClose={() => setIsAddItemFormOpen(false)} />
       )}
-
-      {/* Print Barcode Modal */}
-      {showPrintBarcodeModal && (() => {
-        const totalPrintPages = Math.ceil(filteredItems.length / itemsPerPrintPage);
-        const startIndex = (printCurrentPage - 1) * itemsPerPrintPage;
-        const endIndex = startIndex + itemsPerPrintPage;
-        const currentPageItems = filteredItems.slice(startIndex, endIndex);
-
-        return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white rounded-lg shadow-xl w-[90vw] h-[90vh] flex flex-col">
-              {/* Modal Header */}
-              <div className="flex items-center justify-between p-6 border-b">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Print Barcodes</h2>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Page {printCurrentPage} of {totalPrintPages} • {filteredItems.length} total item{filteredItems.length !== 1 ? 's' : ''}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => window.print()}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
-                    Print This Page
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowPrintBarcodeModal(false);
-                      setPrintCurrentPage(1);
-                    }}
-                    className="flex items-center justify-center w-10 h-10 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              {/* Modal Content */}
-              <div className="flex-1 overflow-auto p-6">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4" id="barcode-print-area">
-                  {currentPageItems.map((item) => (
-                    <div
-                      key={item.id}
-                      className="border border-gray-200 rounded p-3 bg-white shadow-sm"
-                    >
-                      <div className="text-center mb-2">
-                        <h3 className="font-semibold text-gray-900 text-sm truncate">
-                          {item.itemName}
-                        </h3>
-                      </div>
-
-                      {item.barcodeImage ? (
-                        <div className="flex justify-center items-center bg-white rounded">
-                          <img
-                            src={item.barcodeImage}
-                            alt={`Barcode for ${item.serialNumber}`}
-                            className="w-full h-24 object-contain"
-                          />
-                        </div>
-                      ) : (
-                        <div className="flex justify-center items-center bg-gray-50 rounded h-24">
-                          <p className="text-xs text-gray-400">No barcode</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-
-                {currentPageItems.length === 0 && (
-                  <div className="flex flex-col items-center justify-center h-full">
-                    <div className="text-center">
-                      <div className="mb-4 text-6xl text-gray-300">📦</div>
-                      <h3 className="mb-2 text-xl font-semibold text-gray-900">
-                        No items to print
-                      </h3>
-                      <p className="text-gray-600">
-                        Add items to your inventory to print their barcodes.
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Pagination Controls */}
-                {totalPrintPages > 1 && (
-                  <div className="flex items-center justify-center gap-2 mt-6 print:hidden">
-                    <button
-                      onClick={() => setPrintCurrentPage(prev => Math.max(1, prev - 1))}
-                      disabled={printCurrentPage === 1}
-                      className="flex items-center justify-center w-10 h-10 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                      </svg>
-                    </button>
-
-                    <div className="flex gap-1">
-                      {Array.from({ length: totalPrintPages }, (_, i) => i + 1).map((page) => (
-                        <button
-                          key={page}
-                          onClick={() => setPrintCurrentPage(page)}
-                          className={`w-10 h-10 rounded-lg font-medium transition-colors ${page === printCurrentPage
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
-                            }`}
-                        >
-                          {page}
-                        </button>
-                      ))}
-                    </div>
-
-                    <button
-                      onClick={() => setPrintCurrentPage(prev => Math.min(totalPrintPages, prev + 1))}
-                      disabled={printCurrentPage === totalPrintPages}
-                      className="flex items-center justify-center w-10 h-10 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        );
-      })()}
     </div>
   );
 }
