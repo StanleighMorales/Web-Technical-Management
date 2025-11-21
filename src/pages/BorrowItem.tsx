@@ -10,7 +10,7 @@ import SearchBar from '../components/SearchBar';
 import Pagination from '../components/Pagination';
 import { InventoryBadges } from '../components/InventoryBadges';
 import logo from '../assets/img/aclcLogo.webp';
-import { FormattedDateTime } from '../components/FormatedDateTime';
+import { FormattedDateTime } from '../components/FormattedDateTime';
 import { SlugCondition } from '../components/SlugCondition';
 import InventoryListSkeletonLoader from '../loader/InventoryListSkeletonLoader';
 import ErrorTable from '../components/ErrorTables';
