@@ -1,9 +1,8 @@
 import { FaTrashRestore, FaTrash } from "react-icons/fa";
-import { FormattedDateTime } from "./FormatedDateTime";
+import { FormattedDateTime } from "./FormattedDateTime";
 import { SlugCondition } from "./SlugCondition";
 import { UserData } from "../utils/usersData/userData";
 import { type FC } from "react";
-import { MdVisibility } from "react-icons/md";
 
 type TArchiveTableProps = {
     id: string;
@@ -18,7 +17,6 @@ type TArchiveTableProps = {
     category: string;
     condition: string;
     barcodeImage: string;
-    onView: (id: string) => void;
     onDelete: (id: string) => void;
     onRestore: (id: string) => void;
     isRestoring: boolean;
@@ -42,7 +40,7 @@ export const ArchiveItemTable: FC<TArchiveItemNewProps> = (props) => {
         return (
             <>
                 <button
-                    onClick={onHandleDeleteItem}
+                    onClick={(e) => { e.stopPropagation(); onHandleDeleteItem(); }}
                     disabled={props.isDeleting}
                     title="Delete item"
                     className="mr-2 text-2xl text-red-600 cursor-pointer"
@@ -51,7 +49,7 @@ export const ArchiveItemTable: FC<TArchiveItemNewProps> = (props) => {
                 </button>
 
                 <button
-                    onClick={onHandleRestoreItem}
+                    onClick={(e) => { e.stopPropagation(); onHandleRestoreItem(); }}
                     disabled={props.isRestoring}
                     title="Restore item"
                     className="text-2xl text-orange-300 cursor-pointer"
@@ -72,7 +70,6 @@ export const ArchiveItemTable: FC<TArchiveItemNewProps> = (props) => {
                         alt={props.itemName}
                         className="object-cover w-10 h-10 rounded-xl"
                         onError={(e) => {
-                            // Fallback to placeholder if image fails to load
                             const target = e.target as HTMLImageElement;
                             target.src = '/placeholder-item.png';
                             target.alt = 'Image not available';
@@ -103,13 +100,6 @@ export const ArchiveItemTable: FC<TArchiveItemNewProps> = (props) => {
             </td>
             <td className="py-3 px-4">{FormattedDateTime(props.archivedAt)}</td>
             <td className="py-3 text-center">
-                <button
-                    onClick={() => props.onView(props.id)}
-                    className="mr-2 text-2xl text-green-500 transition-colors hover:text-green-700"
-                    title="View student credentials"
-                >
-                    <MdVisibility />
-                </button>
                 <ShowButtonIfUserAdmin
                     userRole={data.userRole}
                     onHandleDeleteItem={() => props.onDelete(props.id)}
