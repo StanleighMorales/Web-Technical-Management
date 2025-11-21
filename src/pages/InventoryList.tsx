@@ -307,6 +307,21 @@ export default function InventoryList() {
 
       {/* Print styles */}
       <style>{`
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-slideIn {
+          animation: slideIn 0.2s ease-out;
+        }
+        
         @media print {
           @page {
             size: A4 portrait;
@@ -476,22 +491,25 @@ export default function InventoryList() {
                     <div className="relative flex-shrink-0" ref={moreMenuRef}>
                       <button
                         onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
-                        className="flex items-center justify-center h-10 w-10 text-blue-600 bg-white rounded-lg hover:bg-gray-100 transition-colors duration-200 shadow-md border border-gray-200"
+                        className={`flex items-center justify-center h-10 w-10 text-blue-600 bg-white rounded-lg transition-all duration-200 shadow-md border border-gray-200 hover:shadow-lg hover:scale-105 active:scale-95 ${isMoreMenuOpen ? 'bg-blue-50 border-blue-300 shadow-lg' : 'hover:bg-gray-100'
+                          }`}
                         aria-label="More options"
                         title="More options"
                       >
                         <svg
-                          className={`w-5 h-5 transition-transform duration-200 ${isMoreMenuOpen ? 'rotate-180' : ''}`}
-                          fill="none"
-                          stroke="currentColor"
+                          className={`w-5 h-5 transition-transform duration-300 ${isMoreMenuOpen ? 'rotate-90' : ''
+                            }`}
                           viewBox="0 0 24 24"
+                          fill="currentColor"
                         >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          <circle cx="6" cy="12" r="2" />
+                          <circle cx="12" cy="12" r="2" />
+                          <circle cx="18" cy="12" r="2" />
                         </svg>
                       </button>
 
                       {isMoreMenuOpen && (
-                        <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 z-50">
+                        <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 z-50 animate-slideIn">
                           <div className="py-1">
                             <button
                               onClick={() => {
