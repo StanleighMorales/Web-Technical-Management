@@ -35,6 +35,8 @@ export default function InventoryList() {
   const [showPrintBarcodeModal, setShowPrintBarcodeModal] = useState<boolean>(false);
   const [printCurrentPage, setPrintCurrentPage] = useState<number>(1);
   const itemsPerPrintPage = 15; // 5x3 grid optimized for A4 paper printing
+  const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [isImporting, setIsImporting] = useState<boolean>(false);
 
   // this func use a useMemo to filtered item either its itemName or the Category and also for the Matches Category and return items,searchItem and selectedCategory
   const filteredItems = useMemo(
@@ -100,6 +102,20 @@ export default function InventoryList() {
     setItems(data);
   }, [data]);
 
+  // Close print modal and reset page when data changes
+  useEffect(() => {
+    if (showPrintBarcodeModal && data) {
+      // If items were added/removed while modal is open, close it
+      const currentFilteredCount = filteredItems.length;
+      const maxPage = Math.ceil(currentFilteredCount / itemsPerPrintPage);
+
+      // Reset to page 1 if current page is now out of bounds
+      if (printCurrentPage > maxPage && maxPage > 0) {
+        setPrintCurrentPage(1);
+      }
+    }
+  }, [data, showPrintBarcodeModal, filteredItems.length, printCurrentPage, itemsPerPrintPage]);
+
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -116,6 +132,37 @@ export default function InventoryList() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Validate file type
+    const validTypes = [
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-excel'
+    ];
+    if (!validTypes.includes(file.type)) {
+      setShowAlert(true);
+      setShowMessage("Invalid file type. Please upload an Excel file (.xlsx or .xls)");
+      setTimeout(() => {
+        setShowAlert(false);
+        setShowMessage("");
+      }, 3000);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    // Validate file size (5MB limit)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      setShowAlert(true);
+      setShowMessage("File size exceeds 5MB limit. Please upload a smaller file.");
+      setTimeout(() => {
+        setShowAlert(false);
+        setShowMessage("");
+      }, 3000);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    setIsImporting(true);
 
     const reader = new FileReader();
 
@@ -137,16 +184,20 @@ export default function InventoryList() {
 
     importItem(form, {
       onSuccess: () => {
+        setIsImporting(false);
         setShowAlertSuccess(true);
         setTimeout(() => {
           setShowAlertSuccess(false);
         }, 1500);
       },
       onError: (error) => {
+        setIsImporting(false);
         console.error(error.message);
-        setShowAlertFailed(true);
+        setShowAlert(true);
+        setShowMessage(`Import failed: ${error.message || 'Unknown error'}`);
         setTimeout(() => {
-          setShowAlertFailed(false);
+          setShowAlert(false);
+          setShowMessage("");
         }, 3000);
       },
     });
@@ -154,6 +205,90 @@ export default function InventoryList() {
     // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
+    }
+  };
+
+  // Handle export items to Excel
+  const handleExportItems = async () => {
+    // Check if there are items to export
+    if (filteredItems.length === 0) {
+      setShowAlert(true);
+      setShowMessage("No items to export. Please add items to your inventory first.");
+      setTimeout(() => {
+        setShowAlert(false);
+        setShowMessage("");
+      }, 3000);
+      return;
+    }
+
+    setIsExporting(true);
+
+    try {
+      // Small delay to show loading state
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // Prepare data for export using exact column names that match import format
+      const exportData = filteredItems.map((item) => ({
+        'SerialNumber': item.serialNumber,
+        'ItemName': item.itemName,
+        'ItemType': item.itemType,
+        'ItemMake': item.itemMake,
+        'ItemModel': item.itemModel || '',
+        'Description': item.description || '',
+        'Category': item.category,
+        'Condition': item.condition,
+        'Status': item.status,
+        'Image': '', // Empty - images not exported
+        'CreatedDate': new Date(item.createdAt).toLocaleDateString(), // For reference only, ignored on import
+      }));
+
+      // Create worksheet
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+      // Set column widths for better readability
+      const columnWidths = [
+        { wch: 15 }, // SerialNumber
+        { wch: 25 }, // ItemName
+        { wch: 15 }, // ItemType
+        { wch: 15 }, // ItemMake
+        { wch: 15 }, // ItemModel
+        { wch: 30 }, // Description
+        { wch: 15 }, // Category
+        { wch: 15 }, // Condition
+        { wch: 12 }, // Status
+        { wch: 20 }, // Image
+        { wch: 15 }, // CreatedDate
+      ];
+      worksheet['!cols'] = columnWidths;
+
+      // Create workbook
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Inventory Items');
+
+      // Generate filename with current date
+      const date = new Date().toISOString().split('T')[0];
+      const filename = `inventory_export_${date}.xlsx`;
+
+      // Download file
+      XLSX.writeFile(workbook, filename);
+
+      // Show success message
+      setShowAlert(true);
+      setShowMessage(`Successfully exported ${exportData.length} item${exportData.length !== 1 ? 's' : ''} to ${filename}`);
+      setTimeout(() => {
+        setShowAlert(false);
+        setShowMessage("");
+      }, 3000);
+    } catch (error) {
+      console.error('Export error:', error);
+      setShowAlert(true);
+      setShowMessage(`Export failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setTimeout(() => {
+        setShowAlert(false);
+        setShowMessage("");
+      }, 3000);
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -343,12 +478,25 @@ export default function InventoryList() {
                                 fileInputRef.current?.click();
                                 setIsMoreMenuOpen(false);
                               }}
-                              className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                              disabled={isImporting}
+                              className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                              </svg>
-                              Import Items
+                              {isImporting ? (
+                                <>
+                                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  </svg>
+                                  Importing...
+                                </>
+                              ) : (
+                                <>
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                  </svg>
+                                  Import Items
+                                </>
+                              )}
                             </button>
                             <div className="border-t border-gray-100 my-1"></div>
                             <button
@@ -356,25 +504,38 @@ export default function InventoryList() {
                                 setShowPrintBarcodeModal(true);
                                 setIsMoreMenuOpen(false);
                               }}
-                              className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                              disabled={filteredItems.length === 0}
+                              className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                               </svg>
-                              Print Barcodes
+                              Print Barcodes {filteredItems.length > 0 && `(${filteredItems.length})`}
                             </button>
                             <button
                               onClick={() => {
-                                // TODO: Add export items functionality
-                                console.log('Export Items clicked');
+                                handleExportItems();
                                 setIsMoreMenuOpen(false);
                               }}
-                              className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                              disabled={isExporting || filteredItems.length === 0}
+                              className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                              </svg>
-                              Export Items
+                              {isExporting ? (
+                                <>
+                                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  </svg>
+                                  Exporting...
+                                </>
+                              ) : (
+                                <>
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                  </svg>
+                                  Export Items {filteredItems.length > 0 && `(${filteredItems.length})`}
+                                </>
+                              )}
                             </button>
                           </div>
                         </div>
