@@ -12,7 +12,6 @@ import { InventoryBadges } from "../components/InventoryBadges";
 import Pagination from "../components/Pagination";
 import { InventoryTable } from "../components/InventoryTable";
 import ErrorTable from "../components/ErrorTables";
-import ExcelImportItemButton from "../components/ExcelImportItemButton";
 import { SuccessAlert } from "../components/SuccessAlert";
 import { ErrorAlert } from "../components/ErrorAlert";
 import * as XLSX from "xlsx";
@@ -37,7 +36,7 @@ export default function InventoryList() {
   const [showAlertFailed, setShowAlertFailed] = useState<boolean>(false);
   const [showPrintBarcodeModal, setShowPrintBarcodeModal] = useState<boolean>(false);
   const [printCurrentPage, setPrintCurrentPage] = useState<number>(1);
-  const itemsPerPrintPage = 15; // 5x3 grid optimized for A4 paper printing
+  const itemsPerPrintPage = 20; // 4x5 grid optimized for A4 paper printing
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [isImporting, setIsImporting] = useState<boolean>(false);
 
@@ -142,11 +141,9 @@ export default function InventoryList() {
       'application/vnd.ms-excel'
     ];
     if (!validTypes.includes(file.type)) {
-      setShowAlert(true);
-      setShowMessage("Invalid file type. Please upload an Excel file (.xlsx or .xls)");
+      setShowAlertFailed(true);
       setTimeout(() => {
-        setShowAlert(false);
-        setShowMessage("");
+        setShowAlertFailed(false);
       }, 3000);
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
@@ -155,11 +152,9 @@ export default function InventoryList() {
     // Validate file size (5MB limit)
     const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
-      setShowAlert(true);
-      setShowMessage("File size exceeds 5MB limit. Please upload a smaller file.");
+      setShowAlertFailed(true);
       setTimeout(() => {
-        setShowAlert(false);
-        setShowMessage("");
+        setShowAlertFailed(false);
       }, 3000);
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
@@ -196,11 +191,9 @@ export default function InventoryList() {
       onError: (error) => {
         setIsImporting(false);
         console.error(error.message);
-        setShowAlert(true);
-        setShowMessage(`Import failed: ${error.message || 'Unknown error'}`);
+        setShowAlertFailed(true);
         setTimeout(() => {
-          setShowAlert(false);
-          setShowMessage("");
+          setShowAlertFailed(false);
         }, 3000);
       },
     });
@@ -302,6 +295,101 @@ export default function InventoryList() {
   return (
     <div className="flex flex-col w-full antialiased bg-linear-to-br animate-fadeIn inventory-list-container min-h-svh from-[#f8fafc] via-[#e8eef7] to-[#dbeafe]">
       {ShowAlert && <SuccessAlert message={ShowMessage} />}
+      {showAlertSuccess && <SuccessAlert message="Excel imported successfully!" />}
+      {showAlertFailed && <ErrorAlert message="Import failed. Please check your file format and try again." />}
+
+      {/* Hidden file input for import */}
+      <input
+        type="file"
+        accept=".xlsx,.xls"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        className="hidden"
+      />
+
+      {/* Print styles */}
+      <style>{`
+        @media print {
+          @page {
+            size: A4 portrait;
+            margin: 8mm;
+          }
+          
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          
+          body * {
+            visibility: hidden;
+          }
+          
+          #barcode-print-area,
+          #barcode-print-area * {
+            visibility: visible;
+          }
+          
+          #barcode-print-area {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            max-width: 210mm !important;
+            height: calc(297mm - 16mm) !important;
+            display: grid !important;
+            grid-template-columns: repeat(4, 1fr) !important;
+            grid-template-rows: repeat(5, 1fr) !important;
+            gap: 5mm !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+          
+          #barcode-print-area > div {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+            box-sizing: border-box !important;
+            padding: 0 !important;
+            border: none !important;
+            background: white !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+          }
+          
+          #barcode-print-area > div > div:first-child {
+            flex-shrink: 0 !important;
+            margin-bottom: 2mm !important;
+            width: 100% !important;
+          }
+          
+          #barcode-print-area > div > div:first-child h3 {
+            font-size: 9px !important;
+            font-weight: 700 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            line-height: 1.2 !important;
+            text-align: center !important;
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important;
+            -webkit-box-orient: vertical !important;
+            overflow: hidden !important;
+          }
+          
+          #barcode-print-area > div > div:last-child {
+            width: 100% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+          }
+          
+          #barcode-print-area > div img {
+            width: 100% !important;
+            height: 45mm !important;
+            object-fit: contain !important;
+          }
+        }
+      `}</style>
 
       <header className="flex sticky top-0 z-30 flex-col items-center px-8 pt-8 pb-6 border-b shadow-sm inventory-header bg-white/70 backdrop-blur-md border-[#e5e9f2]">
         <h1 className="mb-2 text-5xl mt-10 lg:mt-0 md:mt-0 font-extrabold tracking-tight text-[#1e293b] drop-shadow-lg">
@@ -374,21 +462,113 @@ export default function InventoryList() {
             {/* Inventory Table Section */}
             <section className="px-8">
               <div className="overflow-x-auto p-4 rounded-2xl ring-1 shadow-xl bg-white/90 h-[60vh] ring-[#e0e7ef]/80">
-                {/* Top Controls */}
-                <section className="flex flex-col gap-3 justify-between mb-4 lg:flex-row md:flex-row">
-                  <div className="flex flex-row gap-4">
+                {/* Top Controls - Add button with dropdown menu on left, Pagination and Search on right */}
+                <section className="flex flex-col gap-3 justify-between mb-6 lg:flex-row md:flex-row">
+                  {/* Left Side: Add New Item and Dropdown Menu */}
+                  <div className="flex flex-row gap-3 items-center">
+                    {/* Add New Item Button */}
                     <div>
                       <Button
                         onClick={() => setIsAddItemFormOpen(true)}
                         name={"New Item"}
                       />
                     </div>
-                    <ExcelImportItemButton />
+
+                    {/* Dropdown Menu Button with Down Arrow */}
+                    <div className="relative flex-shrink-0" ref={moreMenuRef}>
+                      <button
+                        onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
+                        className="flex items-center justify-center h-10 w-10 text-blue-600 bg-white rounded-lg hover:bg-gray-100 transition-colors duration-200 shadow-md border border-gray-200"
+                        aria-label="More options"
+                        title="More options"
+                      >
+                        <svg
+                          className={`w-5 h-5 transition-transform duration-200 ${isMoreMenuOpen ? 'rotate-180' : ''}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+
+                      {isMoreMenuOpen && (
+                        <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 z-50">
+                          <div className="py-1">
+                            <button
+                              onClick={() => {
+                                fileInputRef.current?.click();
+                                setIsMoreMenuOpen(false);
+                              }}
+                              disabled={isImporting}
+                              className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {isImporting ? (
+                                <>
+                                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  </svg>
+                                  Importing...
+                                </>
+                              ) : (
+                                <>
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                  </svg>
+                                  Import Items
+                                </>
+                              )}
+                            </button>
+                            <div className="border-t border-gray-100 my-1"></div>
+                            <button
+                              onClick={() => {
+                                setShowPrintBarcodeModal(true);
+                                setIsMoreMenuOpen(false);
+                              }}
+                              disabled={filteredItems.length === 0}
+                              className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                              </svg>
+                              Print Barcodes {filteredItems.length > 0 && `(${filteredItems.length})`}
+                            </button>
+                            <button
+                              onClick={() => {
+                                handleExportItems();
+                                setIsMoreMenuOpen(false);
+                              }}
+                              disabled={isExporting || filteredItems.length === 0}
+                              className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {isExporting ? (
+                                <>
+                                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  </svg>
+                                  Exporting...
+                                </>
+                              ) : (
+                                <>
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                  </svg>
+                                  Export Items {filteredItems.length > 0 && `(${filteredItems.length})`}
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="flex flex-col gap-2 items-center md:flex-row lg:flex-row">
+                  {/* Right Side: Pagination and Search */}
+                  <div className="flex flex-col gap-2 items-center md:flex-row lg:flex-row md:items-center">
                     {filteredItems.length > 0 && (
-                      <div className="flex pt-2 -ml-30">
+                      <div className="flex">
                         <Pagination
                           totalPages={totalPages}
                           currentPage={currentPage}
@@ -501,6 +681,138 @@ export default function InventoryList() {
       {isAddItemFormOpen && (
         <AddItemForm onClose={() => setIsAddItemFormOpen(false)} />
       )}
+
+      {/* Print Barcode Modal */}
+      {showPrintBarcodeModal && (() => {
+        const totalPrintPages = Math.ceil(filteredItems.length / itemsPerPrintPage);
+        const startIndex = (printCurrentPage - 1) * itemsPerPrintPage;
+        const endIndex = startIndex + itemsPerPrintPage;
+        const currentPageItems = filteredItems.slice(startIndex, endIndex);
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white rounded-lg shadow-xl w-[90vw] h-[90vh] flex flex-col">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-6 border-b">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Print Barcodes</h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Page {printCurrentPage} of {totalPrintPages} • {filteredItems.length} total item{filteredItems.length !== 1 ? 's' : ''}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => window.print()}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    Print This Page
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowPrintBarcodeModal(false);
+                      setPrintCurrentPage(1);
+                    }}
+                    className="flex items-center justify-center w-10 h-10 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Modal Content */}
+              <div className="flex-1 overflow-auto p-6">
+                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3" id="barcode-print-area">
+                  {currentPageItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="border-2 border-gray-300 rounded-lg p-3 bg-white shadow-md flex flex-col h-full"
+                    >
+                      <div className="text-center mb-2 flex-shrink-0">
+                        <h3 className="font-bold text-gray-900 text-sm leading-tight line-clamp-2">
+                          {item.itemName}
+                        </h3>
+                      </div>
+
+                      {item.barcodeImage ? (
+                        <div className="flex-1 flex justify-center items-center bg-white rounded min-h-[120px]">
+                          <img
+                            src={item.barcodeImage}
+                            alt={`Barcode for ${item.serialNumber}`}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex-1 flex justify-center items-center bg-gray-50 rounded min-h-[120px]">
+                          <p className="text-sm text-gray-400">No barcode</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {currentPageItems.length === 0 && (
+                  <div className="flex flex-col items-center justify-center h-full">
+                    <div className="text-center">
+                      <div className="mb-4 text-6xl text-gray-300">📦</div>
+                      <h3 className="mb-2 text-xl font-semibold text-gray-900">
+                        No items to print
+                      </h3>
+                      <p className="text-gray-600">
+                        Add items to your inventory to print their barcodes.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Pagination Controls */}
+                {totalPrintPages > 1 && (
+                  <div className="flex items-center justify-center gap-2 mt-6 print:hidden">
+                    <button
+                      onClick={() => setPrintCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={printCurrentPage === 1}
+                      className="flex items-center justify-center w-10 h-10 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+
+                    <div className="flex gap-1">
+                      {Array.from({ length: totalPrintPages }, (_, i) => i + 1).map((page) => (
+                        <button
+                          key={page}
+                          onClick={() => setPrintCurrentPage(page)}
+                          className={`w-10 h-10 rounded-lg font-medium transition-colors ${page === printCurrentPage
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+                            }`}
+                        >
+                          {page}
+                        </button>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => setPrintCurrentPage(prev => Math.min(totalPrintPages, prev + 1))}
+                      disabled={printCurrentPage === totalPrintPages}
+                      className="flex items-center justify-center w-10 h-10 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
