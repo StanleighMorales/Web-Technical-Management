@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import AddItemForm from "../components/AddItem";
 import Button from "../components/Button";
 import SearchBar from "../components/SearchBar";
@@ -12,8 +12,10 @@ import { InventoryBadges } from "../components/InventoryBadges";
 import Pagination from "../components/Pagination";
 import { InventoryTable } from "../components/InventoryTable";
 import ErrorTable from "../components/ErrorTables";
-import ExcelImportButton from "../components/ExcelImportButton";
 import { SuccessAlert } from "../components/SuccessAlert";
+import { ErrorAlert } from "../components/ErrorAlert";
+import * as XLSX from "xlsx";
+import { usePostImportMutation } from "../query/post/usePostImportMutation";
 
 export default function InventoryList() {
   const [ShowAlert, setShowAlert] = useState<boolean>(false);
@@ -25,6 +27,11 @@ export default function InventoryList() {
   const [activeTab, setActiveTab] = useState<'inventory' | 'pending' | 'reservation'>('inventory');
   const itemsPerPage = 10;
   const [items, setItems] = useState<TItemList[]>([]);
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [showAlertSuccess, setShowAlertSuccess] = useState<boolean>(false);
+  const [showAlertFailed, setShowAlertFailed] = useState<boolean>(false);
 
   // this func use a useMemo to filtered item either its itemName or the Category and also for the Matches Category and return items,searchItem and selectedCategory
   const filteredItems = useMemo(
@@ -81,12 +88,71 @@ export default function InventoryList() {
   const { data, isPending, isError } = useQuery(useAllItemsQuery());
   // this mutate func will return the ID of the item and to to deleted
   const { mutate } = useArchiveItemMutation();
+  // Import mutation
+  const { mutate: importItem } = usePostImportMutation();
 
   // this Effect will automatically updated the data of the items response
   useEffect(() => {
     if (!data) return;
     setItems(data);
   }, [data]);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (moreMenuRef.current && !moreMenuRef.current.contains(event.target as Node)) {
+        setIsMoreMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Handle file import
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      const arrayBuffer = event.target?.result;
+      if (!arrayBuffer) return;
+
+      const data = new Uint8Array(arrayBuffer as ArrayBuffer);
+      const workbook = XLSX.read(data, { type: "array" });
+
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      XLSX.utils.sheet_to_json(worksheet);
+    };
+
+    reader.readAsArrayBuffer(file);
+
+    const form = new FormData();
+    form.append("file", file);
+
+    importItem(form, {
+      onSuccess: () => {
+        setShowAlertSuccess(true);
+        setTimeout(() => {
+          setShowAlertSuccess(false);
+        }, 1500);
+      },
+      onError: (error) => {
+        console.error(error.message);
+        setShowAlertFailed(true);
+        setTimeout(() => {
+          setShowAlertFailed(false);
+        }, 3000);
+      },
+    });
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   if (isPending) {
     return <InventoryListSkeletonLoader />;
@@ -95,6 +161,17 @@ export default function InventoryList() {
   return (
     <div className="flex flex-col w-full antialiased bg-linear-to-br animate-fadeIn inventory-list-container min-h-svh from-[#f8fafc] via-[#e8eef7] to-[#dbeafe]">
       {ShowAlert && <SuccessAlert message={ShowMessage} />}
+      {showAlertSuccess && <SuccessAlert message="Excel imported successfully!" />}
+      {showAlertFailed && <ErrorAlert message="Excel imported failed" />}
+
+      {/* Hidden file input for import */}
+      <input
+        type="file"
+        accept=".xlsx,.xls"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        className="hidden"
+      />
       <header className="flex sticky top-0 z-30 flex-col items-center px-8 pt-8 pb-6 border-b shadow-sm inventory-header bg-white/70 backdrop-blur-md border-[#e5e9f2]">
         <h1 className="mb-2 text-5xl mt-10 lg:mt-0 md:mt-0 font-extrabold tracking-tight text-[#1e293b] drop-shadow-lg">
           Inventory List
@@ -172,7 +249,65 @@ export default function InventoryList() {
                         name={"New Item"}
                       />
                     </div>
-                    <ExcelImportButton />
+
+                    {/* More Menu (3 dots) */}
+                    <div className="relative" ref={moreMenuRef}>
+                      <button
+                        onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
+                        className="flex items-center justify-center w-10 h-10 text-gray-600 bg-white rounded-lg hover:bg-gray-100 transition-colors duration-200 shadow-md border border-gray-200"
+                        aria-label="More options"
+                      >
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+                        </svg>
+                      </button>
+
+                      {isMoreMenuOpen && (
+                        <div className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 z-50">
+                          <div className="py-1">
+                            <button
+                              onClick={() => {
+                                fileInputRef.current?.click();
+                                setIsMoreMenuOpen(false);
+                              }}
+                              className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                              </svg>
+                              Import Items
+                            </button>
+                            <div className="border-t border-gray-100 my-1"></div>
+                            <button
+                              onClick={() => {
+                                // TODO: Add print barcodes functionality
+                                console.log('Print Barcodes clicked');
+                                setIsMoreMenuOpen(false);
+                              }}
+                              className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                              </svg>
+                              Print Barcodes
+                            </button>
+                            <button
+                              onClick={() => {
+                                // TODO: Add export items functionality
+                                console.log('Export Items clicked');
+                                setIsMoreMenuOpen(false);
+                              }}
+                              className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              Export Items
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="flex flex-col gap-2 items-center md:flex-row lg:flex-row">
                     {/*Pagination Component*/}
