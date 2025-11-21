@@ -233,7 +233,6 @@ export default function InventoryList() {
         'Description': item.description || '',
         'Category': item.category,
         'Condition': item.condition,
-        'Status': item.status,
         'Image': '', // Empty - images not exported
         'CreatedDate': new Date(item.createdAt).toLocaleDateString(), // For reference only, ignored on import
       }));
@@ -251,7 +250,6 @@ export default function InventoryList() {
         { wch: 30 }, // Description
         { wch: 15 }, // Category
         { wch: 15 }, // Condition
-        { wch: 12 }, // Status
         { wch: 20 }, // Image
         { wch: 15 }, // CreatedDate
       ];
