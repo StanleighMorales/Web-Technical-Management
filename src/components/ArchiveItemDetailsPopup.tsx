@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { MdClose, MdInventory, MdCategory, MdBuild, MdDescription, MdCode, MdImage, MdQrCode, MdArchive } from "react-icons/md";
+import { MdInventory, MdCategory, MdBuild, MdDescription, MdCode, MdImage, MdQrCode, MdArchive } from "react-icons/md";
 import { FaBox, FaTag, FaCalendarAlt } from "react-icons/fa";
 import { useViewArchiveItemDetails } from "../query/get/useViewArchiveItemDetails";
-import { FormattedDateTime } from "./FormatedDateTime";
+import { FormattedDateTime } from "./FormattedDateTime.ts";
 import ErrorTable from "../components/ErrorTables.tsx"
 import CloseButton from "./CloseButton.tsx";
 
