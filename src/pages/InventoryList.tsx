@@ -32,6 +32,9 @@ export default function InventoryList() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [showAlertSuccess, setShowAlertSuccess] = useState<boolean>(false);
   const [showAlertFailed, setShowAlertFailed] = useState<boolean>(false);
+  const [showPrintBarcodeModal, setShowPrintBarcodeModal] = useState<boolean>(false);
+  const [printCurrentPage, setPrintCurrentPage] = useState<number>(1);
+  const itemsPerPrintPage = 15; // 5x3 grid optimized for A4 paper printing
 
   // this func use a useMemo to filtered item either its itemName or the Category and also for the Matches Category and return items,searchItem and selectedCategory
   const filteredItems = useMemo(
@@ -172,6 +175,76 @@ export default function InventoryList() {
         onChange={handleFileChange}
         className="hidden"
       />
+
+      {/* Print styles */}
+      <style>{`
+        @media print {
+          @page {
+            size: A4 portrait;
+            margin: 10mm 8mm;
+          }
+          
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          
+          body * {
+            visibility: hidden;
+          }
+          
+          #barcode-print-area,
+          #barcode-print-area * {
+            visibility: visible;
+          }
+          
+          #barcode-print-area {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            max-width: 210mm !important;
+            display: grid !important;
+            grid-template-columns: repeat(5, 1fr) !important;
+            grid-template-rows: repeat(3, 1fr) !important;
+            gap: 6px !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+          
+          #barcode-print-area > div {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+            box-sizing: border-box !important;
+            height: auto !important;
+            padding: 4px !important;
+            border: 1px solid #999 !important;
+            border-radius: 2px !important;
+            background: white !important;
+          }
+          
+          #barcode-print-area > div > div:first-child {
+            margin-bottom: 3px !important;
+          }
+          
+          #barcode-print-area > div > div:first-child h3 {
+            font-size: 9px !important;
+            font-weight: 600 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          
+          #barcode-print-area > div img {
+            height: 48px !important;
+            width: 100% !important;
+            object-fit: contain !important;
+          }
+          
+          #barcode-print-area > div > div:last-child {
+            height: 48px !important;
+          }
+        }
+      `}</style>
       <header className="flex sticky top-0 z-30 flex-col items-center px-8 pt-8 pb-6 border-b shadow-sm inventory-header bg-white/70 backdrop-blur-md border-[#e5e9f2]">
         <h1 className="mb-2 text-5xl mt-10 lg:mt-0 md:mt-0 font-extrabold tracking-tight text-[#1e293b] drop-shadow-lg">
           Inventory List
@@ -280,8 +353,7 @@ export default function InventoryList() {
                             <div className="border-t border-gray-100 my-1"></div>
                             <button
                               onClick={() => {
-                                // TODO: Add print barcodes functionality
-                                console.log('Print Barcodes clicked');
+                                setShowPrintBarcodeModal(true);
                                 setIsMoreMenuOpen(false);
                               }}
                               className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
@@ -463,6 +535,138 @@ export default function InventoryList() {
       {isAddItemFormOpen && (
         <AddItemForm onClose={() => setIsAddItemFormOpen(false)} />
       )}
+
+      {/* Print Barcode Modal */}
+      {showPrintBarcodeModal && (() => {
+        const totalPrintPages = Math.ceil(filteredItems.length / itemsPerPrintPage);
+        const startIndex = (printCurrentPage - 1) * itemsPerPrintPage;
+        const endIndex = startIndex + itemsPerPrintPage;
+        const currentPageItems = filteredItems.slice(startIndex, endIndex);
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white rounded-lg shadow-xl w-[90vw] h-[90vh] flex flex-col">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-6 border-b">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Print Barcodes</h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Page {printCurrentPage} of {totalPrintPages} • {filteredItems.length} total item{filteredItems.length !== 1 ? 's' : ''}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => window.print()}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    Print This Page
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowPrintBarcodeModal(false);
+                      setPrintCurrentPage(1);
+                    }}
+                    className="flex items-center justify-center w-10 h-10 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Modal Content */}
+              <div className="flex-1 overflow-auto p-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4" id="barcode-print-area">
+                  {currentPageItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="border border-gray-200 rounded p-3 bg-white shadow-sm"
+                    >
+                      <div className="text-center mb-2">
+                        <h3 className="font-semibold text-gray-900 text-sm truncate">
+                          {item.itemName}
+                        </h3>
+                      </div>
+
+                      {item.barcodeImage ? (
+                        <div className="flex justify-center items-center bg-white rounded">
+                          <img
+                            src={item.barcodeImage}
+                            alt={`Barcode for ${item.serialNumber}`}
+                            className="w-full h-24 object-contain"
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex justify-center items-center bg-gray-50 rounded h-24">
+                          <p className="text-xs text-gray-400">No barcode</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {currentPageItems.length === 0 && (
+                  <div className="flex flex-col items-center justify-center h-full">
+                    <div className="text-center">
+                      <div className="mb-4 text-6xl text-gray-300">📦</div>
+                      <h3 className="mb-2 text-xl font-semibold text-gray-900">
+                        No items to print
+                      </h3>
+                      <p className="text-gray-600">
+                        Add items to your inventory to print their barcodes.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Pagination Controls */}
+                {totalPrintPages > 1 && (
+                  <div className="flex items-center justify-center gap-2 mt-6 print:hidden">
+                    <button
+                      onClick={() => setPrintCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={printCurrentPage === 1}
+                      className="flex items-center justify-center w-10 h-10 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+
+                    <div className="flex gap-1">
+                      {Array.from({ length: totalPrintPages }, (_, i) => i + 1).map((page) => (
+                        <button
+                          key={page}
+                          onClick={() => setPrintCurrentPage(page)}
+                          className={`w-10 h-10 rounded-lg font-medium transition-colors ${page === printCurrentPage
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+                            }`}
+                        >
+                          {page}
+                        </button>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => setPrintCurrentPage(prev => Math.min(totalPrintPages, prev + 1))}
+                      disabled={printCurrentPage === totalPrintPages}
+                      className="flex items-center justify-center w-10 h-10 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
