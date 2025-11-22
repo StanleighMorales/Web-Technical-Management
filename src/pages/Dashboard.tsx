@@ -154,26 +154,28 @@ export default function Dashboard() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {paginatedData.filter((s) => s.status === "Borrowed").map((item) => (
-                                    <tr
-                                        key={item.item.serialNumber}
-                                        className="transition-colors odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9] cursor-pointer"
-                                        onClick={() => handleViewBorrowItemOpen(item.id)}
-                                    >
-                                        <RecentBorrowedItemsTable
-                                            id={item.id}
-                                            image={item.item.image}
-                                            itemName={item.item.itemName}
-                                            serialNumber={item.item.serialNumber}
-                                            borrowerFullName={item.borrowerFullName}
-                                            room={item.room}
-                                            teacherFullName={item.teacherFullName}
-                                            remarks={item.remarks}
-                                            createdAt={item.item.createdAt}
-                                            status={item.status}
-                                        />
-                                    </tr>
-                                ))}
+                                {paginatedData.filter((s) => s.status === "Borrowed")
+                                    .sort((a, b) => new Date(b.item.createdAt).getTime() - new Date(a.item.createdAt).getTime())
+                                    .map((item) => (
+                                        <tr
+                                            key={item.item.serialNumber}
+                                            className="transition-colors odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9] cursor-pointer"
+                                            onClick={() => handleViewBorrowItemOpen(item.id)}
+                                        >
+                                            <RecentBorrowedItemsTable
+                                                id={item.id}
+                                                image={item.item.image}
+                                                itemName={item.item.itemName}
+                                                serialNumber={item.item.serialNumber}
+                                                borrowerFullName={item.borrowerFullName}
+                                                room={item.room}
+                                                teacherFullName={item.teacherFullName}
+                                                remarks={item.remarks}
+                                                createdAt={item.item.createdAt}
+                                                status={item.status}
+                                            />
+                                        </tr>
+                                    ))}
                             </tbody>
                         </table>
                     )}
