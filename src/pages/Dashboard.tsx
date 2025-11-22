@@ -146,7 +146,7 @@ export default function Dashboard() {
                                     ].map((header) => (
                                         <th
                                             key={header}
-                                            className="sticky top-0 py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]"
+                                            className="sticky bg-white top-0 py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]"
                                         >
                                             {header}
                                         </th>
@@ -154,7 +154,7 @@ export default function Dashboard() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {paginatedData.map((item) => (
+                                {paginatedData.filter((s) => s.status === "Borrowed").map((item) => (
                                     <tr
                                         key={item.item.serialNumber}
                                         className="transition-colors odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9] cursor-pointer"
