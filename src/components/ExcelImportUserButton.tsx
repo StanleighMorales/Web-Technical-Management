@@ -1,17 +1,17 @@
 import { useRef, useState } from "react";
 import { FaFileImport } from "react-icons/fa6";
 import * as XLSX from "xlsx";
-import { usePostImportMutation } from "../query/post/usePostImportMutation";
+import { usePostImportExcelUserMutation } from "../query/post/usePostImportUserMutation";
 import { SuccessAlert } from "./SuccessAlert";
 import { ErrorAlert } from "./ErrorAlert";
 
-export default function ExcelImportItemButton() {
+export default function ExcelImportUserButton() {
     const [showAlertSuccess, setShowAlertSuccess] = useState<boolean>(false);
     const [showAlertFailed, setShowAlertFailed] = useState<boolean>(false);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [fileData, setFileData] = useState<File | null>(null);
 
-    const { mutate: importItem } = usePostImportMutation();
+    const { mutate: importUser } = usePostImportExcelUserMutation();
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -39,7 +39,7 @@ export default function ExcelImportItemButton() {
         const form = new FormData();
         form.append("file", file);
 
-        importItem(form, {
+        importUser(form, {
             onSuccess: () => {
                 setShowAlertSuccess(true);
                 setTimeout(() => {
@@ -73,7 +73,7 @@ export default function ExcelImportItemButton() {
                 onClick={() => fileInputRef.current?.click()}
                 className="flex items-center gap-2 px-5 py-2.5 cursor-pointer bg-green-500 text-white font-semibold rounded-md shadow-md hover:scale-100 hover:shadow-sm transition-all duration-150"
             >
-                <FaFileImport className="text-md font-bold mr-1" /> Import Items
+                <FaFileImport className="text-md font-bold mr-1" /> Import Students
             </button>
         </div>
     );

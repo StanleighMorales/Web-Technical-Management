@@ -2,7 +2,7 @@ import { useViewArchiveUserCredentials } from "../query/get/useViewArchiveUserCr
 import { useQuery } from "@tanstack/react-query";
 import { MdEmail, MdPhone, MdLocationOn, MdSchool, MdPerson, MdBadge, MdArchive } from "react-icons/md";
 import { IoIdCard } from "react-icons/io5";
-import { FormattedDateTime } from "./FormatedDateTime";
+import { FormattedDateTime } from "./FormattedDateTime";
 import type { TArchiveStudent } from "../types/types";
 import CloseButton from "./CloseButton";
 

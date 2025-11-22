@@ -1,4 +1,3 @@
-import { MdVisibility } from "react-icons/md";
 import { IoArchive } from "react-icons/io5";
 import type { FC } from "react";
 import { CiEdit } from "react-icons/ci";
@@ -27,12 +26,10 @@ type StudentTableProps = {
     firstName: string
     onSetEditUserId: (value: string) => void,
     onSetIsEditStudentOpen: (value: boolean) => void;
-    onSetViewStudentId: (value: string) => void;
-    onSetIsViewStudentOpen: (value: boolean) => void;
     onMutate: (value: string) => void;
 };
 
-type TStudentNewTypes = Pick<StudentTableProps, "id" | "studentIdNumber" | "userRole" | "lastName" | "phoneNumber" | "middleName" | "firstName" | "course" | "section" | "year" | "onSetIsEditStudentOpen" | "onSetEditUserId" | "onSetViewStudentId" | "onSetIsViewStudentOpen" | "onMutate">
+type TStudentNewTypes = Pick<StudentTableProps, "id" | "studentIdNumber" | "userRole" | "lastName" | "phoneNumber" | "middleName" | "firstName" | "course" | "section" | "year" | "onSetIsEditStudentOpen" | "onSetEditUserId" | "onMutate">
 
 export const StudentTable: FC<TStudentNewTypes> = (props) => {
 
@@ -46,10 +43,6 @@ export const StudentTable: FC<TStudentNewTypes> = (props) => {
         props.onSetEditUserId(id);
         props.onSetIsEditStudentOpen(true);
     }
-    const handleViewStudent = (id: string) => {
-        props.onSetViewStudentId(id);
-        props.onSetIsViewStudentOpen(true);
-    };
 
     type ShowButtonIfUserAdminProps = {
         userRole?: string;
@@ -63,7 +56,7 @@ export const StudentTable: FC<TStudentNewTypes> = (props) => {
         if (userRole !== "Admin") return null;
         return (
             <button
-                onClick={onHandleArchiveStudent}
+                onClick={(e) => { e.stopPropagation(); onHandleArchiveStudent() }}
                 title="Archive student"
                 className="text-2xl text-orange-600 transition-colors cursor-pointer hover:text-orange-700"
             >
@@ -87,15 +80,8 @@ export const StudentTable: FC<TStudentNewTypes> = (props) => {
             <td className="py-3 px-6">{props.userRole}</td>
             <td className="flex flex-row py-3 px-6">
                 <button
-                    className="mr-2 text-2xl text-green-500 transition-colors hover:text-green-700"
-                    onClick={() => handleViewStudent(props.id)}
-                    title="View student credentials"
-                >
-                    <MdVisibility />
-                </button>
-                <button
                     className="mr-2 text-2xl text-blue-500 transition-colors hover:text-blue-700"
-                    onClick={() => handleEditStudent(props.id)}
+                    onClick={(e) => { e.stopPropagation(); handleEditStudent(props.id) }}
                     title="Edit user"
                 >
                     <CiEdit />
