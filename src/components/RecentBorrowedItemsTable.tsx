@@ -13,13 +13,9 @@ type TRecentBorrowedItemsTableProps = {
     remarks: string | null;
     createdAt: string;
     status: string;
-    // onView?: (id: string) => void;
 };
 
 export const RecentBorrowedItemsTable: FC<TRecentBorrowedItemsTableProps> = (props) => {
-    // const handleViewBorrowItemDetails = (id: string) => {
-    //   props.onView?.(id);
-    // };
 
     return (
         <>
@@ -43,15 +39,6 @@ export const RecentBorrowedItemsTable: FC<TRecentBorrowedItemsTableProps> = (pro
                     {props.status}
                 </span>
             </td>
-            {/* <td className="py-4 px-6 font-semibold"> */}
-            {/*     <button */}
-            {/*         onClick={() => handleViewBorrowItemDetails(props.id)} */}
-            {/*         className="mr-2 text-2xl text-green-500 hover:text-green-600" */}
-            {/*         title="View more" */}
-            {/*     > */}
-            {/*         <MdVisibility /> */}
-            {/*     </button> */}
-            {/* </td> */}
         </>
     );
 };
