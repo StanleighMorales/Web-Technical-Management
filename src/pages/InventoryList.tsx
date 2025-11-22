@@ -394,7 +394,7 @@ export default function InventoryList() {
                                         <div className="relative flex-shrink-0" ref={moreMenuRef}>
                                             <button
                                                 onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
-                                                className={`flex items-center justify-center h-10 w-10 text-blue-600 bg-white rounded-lg transition-all duration-200 shadow-md border border-gray-200 hover:shadow-lg hover:scale-105 active:scale-95 ${isMoreMenuOpen ? 'bg-blue-50 border-blue-300 shadow-lg' : 'hover:bg-gray-100'
+                                                className={`flex items-center justify-center h-11.5 w-12 text-blue-600 bg-white rounded-lg transition-all duration-200 border border-gray-200 hover:shadow-sm hover:scale-100 active:scale-95 cursor-pointer ${isMoreMenuOpen ? 'bg-blue-50 border-blue-300 shadow-md' : 'hover:bg-gray-100'
                                                     }`}
                                                 aria-label="More options"
                                                 title="More options"
@@ -412,7 +412,7 @@ export default function InventoryList() {
                                             </button>
 
                                             {isMoreMenuOpen && (
-                                                <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 z-50 animate-slideIn">
+                                                <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg ring-1 ring-blue-500 ring-opacity-5 z-50 animate-slideIn">
                                                     <div className="py-1">
                                                         <button
                                                             onClick={() => {
@@ -420,7 +420,7 @@ export default function InventoryList() {
                                                                 setIsMoreMenuOpen(false);
                                                             }}
                                                             disabled={isImporting}
-                                                            className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                            className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                         >
                                                             {isImporting ? (
                                                                 <>
