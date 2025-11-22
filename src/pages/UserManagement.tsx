@@ -131,7 +131,7 @@ export default function UserManagement() {
                 <div className="flex flex-col gap-4 mb-8 md:flex-row md:justify-between md:items-end">
                     <div>
                         <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[#1e293b] drop-shadow-lg mb-2">
-                            User Management
+                            Technical User Management
                         </h1>
                         <p className="text-sm sm:text-lg text-[#475569]">
                             Manage staff, search users, and update statuses with ease.
