@@ -18,11 +18,11 @@ export default function Sidebar() {
     const sideBarList = [
         { label: "Dashboard", link: "dashboard", icon: MdDashboardCustomize },
         { label: "Inventory List", link: "inventory-list", icon: GiArchiveRegister },
-        { label: "User Management", link: "user-management", icon: CiUser },
+        { label: "Technical Management", link: "user-management", icon: CiUser },
         { label: "Your Archive", link: "archive-table", icon: MdInventory },
         { label: "Your History", link: "history-list", icon: MdHistory },
         { label: "Borrow Items", link: "borrow-item", icon: GrStorage },
-        { label: "Registration Module", link: "registration-module", icon: MdAppRegistration },
+        { label: "Registered Module", link: "registration-module", icon: MdAppRegistration },
         { label: "Your Settings", link: "settings", icon: CiSettings },
     ];
 
