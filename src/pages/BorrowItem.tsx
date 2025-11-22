@@ -6,6 +6,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useAllItemsQuery } from '../query/get/useAllItemsQuery';
 import { usePostBorrowItemMutation } from '../query/post/usePostBorrowItemMutation';
 import { useReturnItemMutation } from '../query/patch/useReturnItemMutation';
+
+import { getToken } from '../utils/token';
 import SearchBar from '../components/SearchBar';
 import Pagination from '../components/Pagination';
 import { InventoryBadges } from '../components/InventoryBadges';
@@ -165,7 +167,181 @@ const ItemDetailsModal: React.FC<ItemDetailsModalProps> = ({ item, onClose, onBo
     );
 };
 
-const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onItemScanned }: { prefilledItemId?: string; prefilledItemName?: string; onItemScanned?: (item: TItemList) => void }) => {
+type LentItemDetailsModalProps = {
+    lentItem: any;
+    onClose: () => void;
+};
+
+const LentItemDetailsModal: React.FC<LentItemDetailsModalProps> = ({ lentItem, onClose }) => {
+    // Fetch student details if borrower is a student
+    const isStudent = lentItem.borrowerRole?.toLowerCase() === 'student';
+
+    // Handle both camelCase and PascalCase field names
+    const studentIdNumber = lentItem.studentIdNumber || (lentItem as any).StudentIdNumber;
+
+    // Get the front ID picture from the lent item response (already included in the API response)
+    const frontStudentIdPicture = lentItem.frontStudentIdPicture || (lentItem as any).FrontStudentIdPicture;
+
+    return (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
+            <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                {/* Header */}
+                <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center rounded-t-2xl z-10">
+                    <h2 className="text-xl md:text-2xl font-bold text-gray-900">Lent Item Details</h2>
+                    <button
+                        onClick={onClose}
+                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                        <IoMdClose className="w-6 h-6" />
+                    </button>
+                </div>
+
+                {/* Content */}
+                <div className="p-4 md:p-6">
+                    {/* Title */}
+                    <div className="text-center mb-4">
+                        <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">{lentItem.itemName}</h3>
+                        <p className="text-gray-600 font-semibold">Barcode: {lentItem.barcode}</p>
+                    </div>
+
+                    {/* Student ID Picture - Only show for students */}
+                    {isStudent && frontStudentIdPicture && (
+                        <div className="mb-6">
+                            <div className="text-center">
+                                <h4 className="text-lg font-semibold text-gray-900 mb-3">Student ID Picture</h4>
+                                <div className="inline-block bg-gray-50 rounded-lg p-4 shadow-md">
+                                    <img
+                                        src={frontStudentIdPicture}
+                                        alt={`${lentItem.borrowerFullName} - Student ID`}
+                                        className="max-w-sm max-h-64 object-contain rounded-lg shadow-sm"
+                                        onError={(e) => {
+                                            const target = e.target as HTMLImageElement;
+                                            target.style.display = 'none';
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Details Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                        <div className="bg-gray-50 rounded-lg p-3">
+                            <div className="flex items-center mb-2">
+                                <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center mr-3">
+                                    <FaHashtag className="text-white w-4 h-4" />
+                                </div>
+                                <h4 className="font-semibold text-gray-900 text-sm">Borrower</h4>
+                            </div>
+                            <p className="text-gray-600 ml-11 text-sm">{lentItem.borrowerFullName}</p>
+                        </div>
+
+                        <div className="bg-gray-50 rounded-lg p-3">
+                            <div className="flex items-center mb-2">
+                                <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center mr-3">
+                                    <FaCheckCircle className="text-white w-4 h-4" />
+                                </div>
+                                <h4 className="font-semibold text-gray-900 text-sm">Role</h4>
+                            </div>
+                            <p className="text-gray-600 ml-11 text-sm">{lentItem.borrowerRole}</p>
+                        </div>
+
+                        {studentIdNumber && (
+                            <div className="bg-gray-50 rounded-lg p-3">
+                                <div className="flex items-center mb-2">
+                                    <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
+                                        <FaHashtag className="text-white w-4 h-4" />
+                                    </div>
+                                    <h4 className="font-semibold text-gray-900 text-sm">Student ID</h4>
+                                </div>
+                                <p className="text-gray-600 ml-11 text-sm">{studentIdNumber}</p>
+                            </div>
+                        )}
+
+                        <div className="bg-gray-50 rounded-lg p-3">
+                            <div className="flex items-center mb-2">
+                                <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mr-3">
+                                    <FaTools className="text-white w-4 h-4" />
+                                </div>
+                                <h4 className="font-semibold text-gray-900 text-sm">Room</h4>
+                            </div>
+                            <p className="text-gray-600 ml-11 text-sm">{lentItem.room}</p>
+                        </div>
+
+                        <div className="bg-gray-50 rounded-lg p-3">
+                            <div className="flex items-center mb-2">
+                                <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center mr-3">
+                                    <BsCalendar2Date className="text-white w-4 h-4" />
+                                </div>
+                                <h4 className="font-semibold text-gray-900 text-sm">Schedule</h4>
+                            </div>
+                            <p className="text-gray-600 ml-11 text-sm">{lentItem.subjectTimeSchedule}</p>
+                        </div>
+
+                        <div className="bg-gray-50 rounded-lg p-3">
+                            <div className="flex items-center mb-2">
+                                <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center mr-3">
+                                    <BsCalendar2Date className="text-white w-4 h-4" />
+                                </div>
+                                <h4 className="font-semibold text-gray-900 text-sm">Lent At</h4>
+                            </div>
+                            <p className="text-gray-600 ml-11 text-sm">{FormattedDateTime(lentItem.lentAt)}</p>
+                        </div>
+
+                        {lentItem.returnedAt && (
+                            <div className="bg-gray-50 rounded-lg p-3">
+                                <div className="flex items-center mb-2">
+                                    <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mr-3">
+                                        <BsCalendar2Date className="text-white w-4 h-4" />
+                                    </div>
+                                    <h4 className="font-semibold text-gray-900 text-sm">Returned At</h4>
+                                </div>
+                                <p className="text-gray-600 ml-11 text-sm">{FormattedDateTime(lentItem.returnedAt)}</p>
+                            </div>
+                        )}
+
+                        <div className="bg-gray-50 rounded-lg p-3">
+                            <div className="flex items-center mb-2">
+                                <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center mr-3">
+                                    <FaCheckCircle className="text-white w-4 h-4" />
+                                </div>
+                                <h4 className="font-semibold text-gray-900 text-sm">Status</h4>
+                            </div>
+                            <p className="text-gray-600 ml-11 text-sm">
+                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${lentItem.status === 'Returned' ? 'bg-green-100 text-green-800' :
+                                    lentItem.status === 'Borrowed' ? 'bg-blue-100 text-blue-800' :
+                                        lentItem.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                                            lentItem.status === 'Approved' ? 'bg-emerald-100 text-emerald-800' :
+                                                lentItem.status === 'Canceled' ? 'bg-red-100 text-red-800' :
+                                                    'bg-gray-100 text-gray-800'
+                                    }`}>
+                                    {lentItem.status}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Remarks */}
+                    {lentItem.remarks && (
+                        <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                            <div className="flex items-center mb-2">
+                                <div className="w-8 h-8 bg-gray-500 rounded-lg flex items-center justify-center mr-3">
+                                    <MdOutlineDescription className="text-white w-4 h-4" />
+                                </div>
+                                <h4 className="font-semibold text-gray-900 text-sm">Remarks</h4>
+                            </div>
+                            <p className="text-gray-600 ml-11 text-sm">{lentItem.remarks}</p>
+                        </div>
+                    )}
+
+
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onLentItemScanned }: { prefilledItemId?: string; prefilledItemName?: string; onLentItemScanned?: (lentItem: any) => void }) => {
     const [showAlert, setShowAlert] = useState<boolean>(false);
     const [showErrorAlert, setShowErrorAlert] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>("");
@@ -237,34 +413,87 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onItemScanned }: {
         if (name === "subjectTimeSchedule") setSubjectTimeScheduleError("");
     };
 
-    const handleScanSubmit = () => {
+    const handleScanSubmit = async () => {
         setScanError("");
-        const itemCode = scannedBarcode.trim();
+        const lentItemBarcode = scannedBarcode.trim();
 
-        if (!itemCode) {
-            setScanError("Please enter an item code");
+        if (!lentItemBarcode) {
+            setScanError("Please enter a lent item barcode");
             return;
         }
 
-        // Look up the item by barcode (item code)
-        const foundItem = itemName.find(item =>
-            item.barcode?.toLowerCase() === itemCode.toLowerCase() ||
-            item.serialNumber?.toLowerCase() === itemCode.toLowerCase()
-        );
-
-        if (!foundItem) {
-            setScanError("Item not found. Please check the code and try again.");
+        // Validate lent item barcode format: LENT-YYYYMMDD-XXX
+        if (!lentItemBarcode.startsWith("LENT-") || lentItemBarcode.length !== 17 ||
+            !/^LENT-\d{8}-\d{3}$/.test(lentItemBarcode)) {
+            setScanError("Invalid lent item barcode format. Expected format: LENT-YYYYMMDD-XXX");
             return;
         }
 
-        // Close modal and trigger item detail view
-        setShowScanModal(false);
-        setScannedBarcode("");
-        setScanError("");
+        try {
+            console.log("Scanning lent item barcode:", lentItemBarcode);
+            console.log("API URL:", `${import.meta.env.VITE_API_BASE_URL}/api/v1/lentItems/barcode/${lentItemBarcode}`);
 
-        // Call the callback to show item details
-        if (onItemScanned) {
-            onItemScanned(foundItem);
+            // Fetch lent item details by barcode
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/lentItems/barcode/${lentItemBarcode}`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            console.log("Response status:", response.status);
+            console.log("Response headers:", Object.fromEntries(response.headers.entries()));
+
+            // Check if response has content
+            const contentType = response.headers.get("content-type");
+            const hasJsonContent = contentType && contentType.includes("application/json");
+
+            if (!response.ok) {
+                let errorMessage = "Lent item not found";
+
+                if (hasJsonContent) {
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || errorMessage;
+                    } catch (jsonError) {
+                        // If JSON parsing fails, use default message
+                        console.error("Failed to parse error response:", jsonError);
+                    }
+                } else {
+                    // Handle non-JSON error responses
+                    const textResponse = await response.text();
+                    errorMessage = textResponse || `HTTP ${response.status}: ${response.statusText}`;
+                }
+
+                throw new Error(errorMessage);
+            }
+
+            if (!hasJsonContent) {
+                throw new Error("Invalid response format from server");
+            }
+
+            const responseData = await response.json();
+
+            // Check if the response has the expected structure
+            if (!responseData || !responseData.data) {
+                throw new Error("Invalid response structure from server");
+            }
+
+            const lentItem = responseData.data;
+
+            // Close modal and trigger lent item detail view
+            setShowScanModal(false);
+            setScannedBarcode("");
+            setScanError("");
+
+            // Call the callback to show lent item details
+            if (onLentItemScanned) {
+                onLentItemScanned(lentItem);
+            }
+        } catch (error: any) {
+            console.error("Scan error:", error);
+            setScanError(error.message || "Failed to fetch lent item details");
         }
     };
 
@@ -372,7 +601,7 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onItemScanned }: {
                     <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
                         {/* Modal Header */}
                         <div className="border-b border-gray-200 px-6 py-4 flex justify-between items-center rounded-t-2xl">
-                            <h2 className="text-xl font-bold text-gray-900">Scan Item</h2>
+                            <h2 className="text-xl font-bold text-gray-900">Scan Lent Item</h2>
                             <button
                                 onClick={() => setShowScanModal(false)}
                                 className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -384,7 +613,7 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onItemScanned }: {
                         {/* Modal Content */}
                         <div className="p-6">
                             <p className="text-sm text-gray-600 mb-4">
-                                If the scanner cannot read the barcode, you may manually enter the item code below.
+                                Scan the lent item barcode to view its details. If the scanner cannot read the barcode, you may manually enter it below.
                             </p>
                             <input
                                 type="text"
@@ -399,7 +628,7 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onItemScanned }: {
                                         handleScanSubmit();
                                     }
                                 }}
-                                placeholder="Scan or enter item code (e.g., ITEM-SN-12345)"
+                                placeholder="Scan or enter lent item barcode (e.g., LENT-20251101-003)"
                                 className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${scanError
                                     ? 'border-red-500 focus:ring-red-500'
                                     : 'border-gray-300 focus:ring-blue-500'
@@ -442,12 +671,13 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onItemScanned }: {
                     <button
                         type="button"
                         onClick={() => setShowScanModal(true)}
+                        data-scan-trigger
                         className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors shadow-sm"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                         </svg>
-                        Scan Item
+                        Scan Lent Item
                     </button>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-2">
@@ -898,12 +1128,15 @@ export default function BorrowItem() {
     const [prefilledItemId, setPrefilledItemId] = useState<string>("");
     const [prefilledItemName, setPrefilledItemName] = useState<string>("");
     const [scannedItem, setScannedItem] = useState<TItemList | null>(null);
+    const [scannedLentItem, setScannedLentItem] = useState<any>(null);
     const [showReturnModal, setShowReturnModal] = useState<boolean>(false);
     const [returnBarcode, setReturnBarcode] = useState<string>("");
     const [returnError, setReturnError] = useState<string>("");
     const [returnSuccess, setReturnSuccess] = useState<boolean>(false);
     const [returnErrorMessage, setReturnErrorMessage] = useState<string>("");
     const [showReturnError, setShowReturnError] = useState<boolean>(false);
+    const [showFloatingMenu, setShowFloatingMenu] = useState<boolean>(false);
+    const [menuOpenedByClick, setMenuOpenedByClick] = useState<boolean>(false);
 
     const returnItemMutation = useReturnItemMutation();
 
@@ -913,9 +1146,11 @@ export default function BorrowItem() {
         setActiveTab('form');
     };
 
-    const handleItemScanned = (item: TItemList) => {
-        setScannedItem(item);
+    const handleLentItemScanned = (lentItem: any) => {
+        setScannedLentItem(lentItem);
     };
+
+
 
     const handleReturnSubmit = async () => {
         setReturnError("");
@@ -1074,7 +1309,7 @@ export default function BorrowItem() {
                             <BorrowItemForm
                                 prefilledItemId={prefilledItemId}
                                 prefilledItemName={prefilledItemName}
-                                onItemScanned={handleItemScanned}
+                                onLentItemScanned={handleLentItemScanned}
                             />
                         </div>
                     </div>
@@ -1090,35 +1325,128 @@ export default function BorrowItem() {
                 />
             )}
 
-            {/* Floating Return Button */}
-            <button
-                onClick={() => setShowReturnModal(true)}
-                className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-40 group"
-                title="Return Item"
+            {/* Scanned Lent Item Details Modal */}
+            {scannedLentItem && (
+                <LentItemDetailsModal
+                    lentItem={scannedLentItem}
+                    onClose={() => setScannedLentItem(null)}
+                />
+            )}
+
+            {/* Floating Action Buttons */}
+            <div
+                className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-40"
+                onMouseEnter={() => setShowFloatingMenu(true)}
+                onMouseLeave={() => {
+                    if (!menuOpenedByClick) {
+                        setShowFloatingMenu(false);
+                    }
+                }}
             >
-                <div className="relative">
-                    <div className={`flex items-center gap-3 bg-orange-600 hover:bg-orange-700 text-white rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 ${activeTab === 'browse'
-                        ? 'p-3 md:p-4'
-                        : 'px-4 py-3 md:px-5 md:py-4'
-                        }`}>
-                        <svg className="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                        </svg>
-                        {activeTab === 'form' && (
-                            <span className="hidden md:inline font-semibold text-sm md:text-base whitespace-nowrap">
+                <div className="flex flex-col items-end gap-3">
+                    {/* Return Button - Expands to the left on hover */}
+                    <div
+                        className={`group relative transition-all duration-300 ${showFloatingMenu ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                    >
+                        {/* Return Button Label - Hidden on small screens */}
+                        <div className={`absolute right-16 top-1/2 transform -translate-y-1/2 transition-all duration-300 ease-out ${showFloatingMenu
+                            ? 'opacity-100 translate-x-0 pointer-events-auto'
+                            : 'opacity-0 translate-x-4 pointer-events-none'
+                            } hidden md:block`}>
+                            <div className="bg-white text-gray-700 px-4 py-2 rounded-lg shadow-lg border border-gray-200 whitespace-nowrap text-sm font-medium">
                                 Return Item
-                            </span>
-                        )}
+                            </div>
+                        </div>
+
+                        {/* Return Button */}
+                        <button
+                            onClick={() => {
+                                setShowReturnModal(true);
+                                setShowFloatingMenu(false);
+                                setMenuOpenedByClick(false);
+                            }}
+                            className={`bg-orange-500 hover:bg-orange-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 p-3 md:p-4 ${showFloatingMenu ? 'scale-100 opacity-100 delay-75' : 'scale-0 opacity-0'
+                                }`}
+                            title="Return Item"
+                        >
+                            <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                            </svg>
+                        </button>
                     </div>
 
-                    <div className={`absolute bottom-full right-0 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 pointer-events-none whitespace-nowrap ${activeTab === 'browse'
-                        ? 'opacity-0 group-hover:opacity-100'
-                        : 'hidden'
-                        }`}>
-                        Return Item
+                    {/* Scan Button - Expands to the left on hover */}
+                    <div
+                        className={`group relative transition-all duration-300 ${showFloatingMenu ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                    >
+                        {/* Scan Button Label - Hidden on small screens */}
+                        <div className={`absolute right-16 top-1/2 transform -translate-y-1/2 transition-all duration-300 ease-out ${showFloatingMenu
+                            ? 'opacity-100 translate-x-0 pointer-events-auto'
+                            : 'opacity-0 translate-x-4 pointer-events-none'
+                            } hidden md:block`}>
+                            <div className="bg-white text-gray-700 px-4 py-2 rounded-lg shadow-lg border border-gray-200 whitespace-nowrap text-sm font-medium">
+                                Scan Lent Item
+                            </div>
+                        </div>
+
+                        {/* Scan Button */}
+                        <button
+                            onClick={() => {
+                                setActiveTab('form');
+                                setShowFloatingMenu(false);
+                                setMenuOpenedByClick(false);
+                                // Trigger scan modal if BorrowItemForm has scan functionality
+                                setTimeout(() => {
+                                    const scanButton = document.querySelector('[data-scan-trigger]') as HTMLButtonElement;
+                                    if (scanButton) scanButton.click();
+                                }, 100);
+                            }}
+                            className={`bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 p-3 md:p-4 ${showFloatingMenu ? 'scale-100 opacity-100 delay-150' : 'scale-0 opacity-0'
+                                }`}
+                            title="Scan Lent Item"
+                        >
+                            <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    {/* Main Plus Button */}
+                    <div className="relative">
+                        <button
+                            onClick={() => {
+                                if (showFloatingMenu && menuOpenedByClick) {
+                                    // If menu is open by click, close it
+                                    setShowFloatingMenu(false);
+                                    setMenuOpenedByClick(false);
+                                } else {
+                                    // Open menu by click
+                                    setShowFloatingMenu(true);
+                                    setMenuOpenedByClick(true);
+                                }
+                            }}
+                            className={`bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 p-4 md:p-5 ${showFloatingMenu ? 'rotate-45' : 'rotate-0'
+                                }`}
+                            title="Quick Actions"
+                        >
+                            <svg className="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
-            </button>
+            </div>
+
+            {/* Click outside to close menu when opened by click */}
+            {menuOpenedByClick && showFloatingMenu && (
+                <div
+                    className="fixed inset-0 z-30"
+                    onClick={() => {
+                        setShowFloatingMenu(false);
+                        setMenuOpenedByClick(false);
+                    }}
+                />
+            )}
         </div>
     );
 }
