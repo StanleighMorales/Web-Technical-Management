@@ -170,9 +170,14 @@ const ItemDetailsModal: React.FC<ItemDetailsModalProps> = ({ item, onClose, onBo
 type LentItemDetailsModalProps = {
     lentItem: any;
     onClose: () => void;
+    onReturnSuccess?: () => void;
 };
 
-const LentItemDetailsModal: React.FC<LentItemDetailsModalProps> = ({ lentItem, onClose }) => {
+const LentItemDetailsModal: React.FC<LentItemDetailsModalProps> = ({ lentItem, onClose, onReturnSuccess }) => {
+    const [isReturning, setIsReturning] = useState(false);
+    const [returnError, setReturnError] = useState<string>("");
+    const [showReturnSuccess, setShowReturnSuccess] = useState(false);
+
     // Fetch student details if borrower is a student
     const isStudent = lentItem.borrowerRole?.toLowerCase() === 'student';
 
@@ -181,6 +186,46 @@ const LentItemDetailsModal: React.FC<LentItemDetailsModalProps> = ({ lentItem, o
 
     // Get the front ID picture from the lent item response (already included in the API response)
     const frontStudentIdPicture = lentItem.frontStudentIdPicture || (lentItem as any).FrontStudentIdPicture;
+
+    // Check if item can be returned (only Borrowed status)
+    const canReturn = lentItem.status?.toLowerCase() === 'borrowed';
+
+    const handleReturn = async () => {
+        if (!canReturn) return;
+
+        setIsReturning(true);
+        setReturnError("");
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/lentItems/scan/${lentItem.barcode}`, {
+                method: "PATCH",
+                headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    lentItemsStatus: "Returned"
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to return item");
+            }
+
+            setShowReturnSuccess(true);
+            setTimeout(() => {
+                onClose();
+                if (onReturnSuccess) {
+                    onReturnSuccess();
+                }
+            }, 1500);
+        } catch (error: any) {
+            setReturnError(error.message || "Failed to return item");
+        } finally {
+            setIsReturning(false);
+        }
+    };
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
@@ -334,6 +379,56 @@ const LentItemDetailsModal: React.FC<LentItemDetailsModalProps> = ({ lentItem, o
                         </div>
                     )}
 
+                    {/* Return Success Message */}
+                    {showReturnSuccess && (
+                        <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                            <div className="flex items-center gap-2 text-green-800">
+                                <FaCheckCircle className="text-green-600" />
+                                <span className="font-semibold">Item returned successfully!</span>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Return Error Message */}
+                    {returnError && (
+                        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                            <div className="flex items-center gap-2 text-red-800">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span className="font-semibold">{returnError}</span>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Return Button - Only show for Borrowed status */}
+                    {canReturn && (
+                        <div className="flex justify-center pt-2">
+                            <button
+                                onClick={handleReturn}
+                                disabled={isReturning}
+                                className={`flex items-center gap-2 px-6 py-3 font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg ${isReturning
+                                    ? 'bg-gray-400 cursor-not-allowed'
+                                    : 'bg-green-600 text-white hover:bg-green-700'
+                                    }`}
+                            >
+                                {isReturning ? (
+                                    <>
+                                        <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Returning...
+                                    </>
+                                ) : (
+                                    <>
+                                        <FaCheckCircle className="text-xl" />
+                                        Return Item
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    )}
 
                 </div>
             </div>
@@ -1330,6 +1425,13 @@ export default function BorrowItem() {
                 <LentItemDetailsModal
                     lentItem={scannedLentItem}
                     onClose={() => setScannedLentItem(null)}
+                    onReturnSuccess={() => {
+                        setScannedLentItem(null);
+                        setReturnSuccess(true);
+                        setTimeout(() => {
+                            setReturnSuccess(false);
+                        }, 3000);
+                    }}
                 />
             )}
 
