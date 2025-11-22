@@ -103,16 +103,7 @@ export type TEditItemForm = {
     SerialNumber: string;
 };
 
-export type THistoryBorrwedItems = {
-    id: number;
-    ItemName: string;
-    Borrowed_id: string;
-    Teacher: string;
-    Room: string;
-    Occupied: string;
-    Condition: string;
-    Event_Date: string;
-    Status: string;
+export type THistoryBorrwedItems = TRecentBorrowItemProps & {
 };
 
 export type TArchiveItem = {
