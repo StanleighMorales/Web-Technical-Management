@@ -3,52 +3,35 @@ import { FormattedDateTime } from "./FormattedDateTime";
 import { SlugStatus } from "./SlugStatus";
 
 type HistoryTableProps = {
-    id: number;
-    ItemName: string;
-    Borrowed_id: string;
-    Teacher: string;
-    Room: string;
-    Occupied: string;
-    Condition: string;
-    Event_Date: string;
-    Status: string;
-    filteredItems: THistoryBorrwedItems[];
+    items: THistoryBorrwedItems[];
 };
 
-export default function HistoryTable({
-    id,
-    ItemName,
-    Borrowed_id,
-    Teacher,
-    Room,
-    Occupied,
-    Condition,
-    Event_Date,
-    Status,
-    filteredItems,
-}: HistoryTableProps) {
+export default function HistoryTable({ items }: HistoryTableProps) {
     return (
         <>
-            {filteredItems.map((_, index) => (
+            {items.filter((s) => s.status === "Returned").map((item) => (
                 <tr
-                    key={index}
-                    className="hover:bg-[#f1f5f9] transition-colors  odd:bg-white even:bg-[#f8fafc]"
+                    key={item.id}
+                    className="hover:bg-[#f1f5f9] transition-colors odd:bg-white even:bg-[#f8fafc]"
                 >
-                    <td className="py-3 px-6">{id}</td>
-                    <td className="py-3 px-6">{ItemName}</td>
-                    <td className="py-3 px-6">{Borrowed_id}</td>
-                    <td className="py-3 px-6">{Teacher}</td>
-                    <td className="py-3 px-6">{Room}</td>
-                    <td className="py-3 px-6">{Occupied}</td>
-                    <td className="py-3 px-6">{Condition}</td>
-                    <td className="py-3 px-6">{FormattedDateTime(Event_Date)}</td>
-                    <td className="py-3 px-6">
-                        <span
-                            className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${SlugStatus(
-                                Status,
-                            )}`}
-                        >
-                            {Status}
+                    <td className="py-3 px-4">{item.item.serialNumber}</td>
+                    <td className="py-4 px-6">
+                        <img
+                            src={typeof item.item.image === "string" ? item.item.image : "-"}
+                            alt={item.borrowerFullName}
+                            className="object-cover w-10 h-10 rounded-xl"
+                            onError={(e) => (e.currentTarget.style.display = "none")}
+                        />
+                    </td>
+                    <td className="py-4 px-6">{item.item.itemName}</td>
+                    <td className="py-4 px-6">{item.borrowerFullName}</td>
+                    <td className="py-4 px-6">{item.teacherFullName || "-"}</td>
+                    <td className="py-4 px-6">{item.room || "-"}</td>
+                    <td className="py-4 px-6">{item.remarks || "-"}</td>
+                    <td className="py-4 px-6">{FormattedDateTime(item.item.createdAt)}</td>
+                    <td className="py-4 px-6">
+                        <span className={`px-3 py-1 rounded-full text-sm ${SlugStatus((item.status))}`}>
+                            {item.status}
                         </span>
                     </td>
                 </tr>
