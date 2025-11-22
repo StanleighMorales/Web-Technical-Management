@@ -1040,7 +1040,9 @@ export default function BorrowItem() {
                 <p className="text-[#64748b] text-sm md:text-base lg:text-lg font-medium max-w-2xl text-center px-4">
                     Browse available items or submit a borrow request for technical equipment.
                 </p>
-
+                <p className="text-[#64748b] text-sm md:text-base lg:text-md font-medium max-w-2xl text-center px-4">
+                    Note: If the item have <b>Defective</b> condition you cannot borrow it.
+                </p>
                 {/* Tabs */}
                 <div className="mt-4 md:mt-6 flex gap-2 bg-white/90 p-1.5 rounded-xl shadow-md">
                     <button
