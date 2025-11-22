@@ -65,12 +65,12 @@ export default function Login() {
     return (
         <>
             <div className="relative w-full h-screen bg-[rgb(46,111,251)] max-lg:h-auto max-lg:min-h-screen max-lg:py-4">
-                <div className="animate-fadeIn max-w-40 p-5 ml-[3%] animate-fade-in max-sm:ml-0 max-sm:p-2 max-sm:max-w-full max-sm:text-center">
-                    <a href="https://www.facebook.com/aclcmandaueph" target="_blank" title="Go to ACLC Page">
+                <div className="w-full  mb-0  flex justify-center lg:justify-start ">
+                    <a href="https://www.facebook.com/aclcmandaueph" className="ml-[4%] mt-[2%]" target="_blank" title="Go to ACLC Page">
                         <img
                             src={logo}
                             alt="Logo"
-                            className="w-[106px] h-[124px] max-sm:w-20 max-sm:h-[94px] cursor-pointer"
+                            className="w-24 lg:w-30 bg-orange-500 rounded-full cursor-pointer"
                         />
                     </a>
                 </div>
