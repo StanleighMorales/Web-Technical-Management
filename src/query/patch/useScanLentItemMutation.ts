@@ -1,15 +1,29 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getToken, removeToken } from "../../utils/token";
 
+// Enum values matching backend: Pending=0, Reserved=1, Approved=2, Denied=3, Canceled=4, Borrowed=5, Returned=6
+enum LentItemsStatus {
+    Pending = 0,
+    Reserved = 1,
+    Approved = 2,
+    Denied = 3,
+    Canceled = 4,
+    Borrowed = 5,
+    Returned = 6
+}
+
 type ScanLentItemData = {
     barcode: string;
-    lentItemsStatus: string;
+    lentItemsStatus: keyof typeof LentItemsStatus;
 };
 
 const ScanLentItem = async (data: ScanLentItemData) => {
     const BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const VERSION = "v1";
     const END_POINT = `/api/${VERSION}/lentItems/scan/${data.barcode}`;
+
+    const statusValue = LentItemsStatus[data.lentItemsStatus];
+    console.log(`Sending status: ${data.lentItemsStatus} = ${statusValue}`);
 
     const res = await fetch(`${BASE_URL}${END_POINT}`, {
         method: "PATCH",
@@ -18,7 +32,7 @@ const ScanLentItem = async (data: ScanLentItemData) => {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            lentItemsStatus: data.lentItemsStatus
+            LentItemsStatus: statusValue
         }),
     });
 

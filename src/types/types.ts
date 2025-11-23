@@ -103,9 +103,6 @@ export type TEditItemForm = {
     SerialNumber: string;
 };
 
-export type THistoryBorrwedItems = TRecentBorrowItemProps & {
-};
-
 export type TArchiveItem = {
     id: string;
     serialNumber: string;
@@ -261,6 +258,8 @@ export type TRecentBorrowItemProps = {
     status: string,
     remarks: null,
     isHiddenFromUser: boolean,
+    barcode?: string | null,
+    barcodeImage?: string | null,
     item: {
         id: string;
         serialNumber: string;
@@ -278,3 +277,6 @@ export type TRecentBorrowItemProps = {
         updatedAt: string;
     }
 }
+
+export type THistoryBorrwedItems = TRecentBorrowItemProps & {
+};

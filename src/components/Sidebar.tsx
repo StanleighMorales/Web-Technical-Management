@@ -4,6 +4,8 @@ import { CiLogout, CiSettings, CiUser } from "react-icons/ci";
 import { GiArchiveRegister } from "react-icons/gi";
 import { GrStorage } from "react-icons/gr";
 import { MdHistory, MdInventory, MdDashboardCustomize, MdAppRegistration } from "react-icons/md";
+import { FaChevronDown, FaChevronRight } from "react-icons/fa";
+import { BiPackage } from "react-icons/bi";
 import { useState, useEffect } from "react";
 import SidebarSkeletonLoader from "../loader/SidebarSkeletonLoader";
 import { usePostLogoutUserMutation } from "../query/post/usePostLogoutUserMutation";
@@ -13,17 +15,25 @@ export default function Sidebar() {
     const navigate = useNavigate()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
     const [isSidebarLoading, setIsSidebarLoading] = useState<boolean>(true);
+    const [isItemsDropdownOpen, setIsItemsDropdownOpen] = useState<boolean>(false);
     const { mutate, isPending } = usePostLogoutUserMutation()
 
-    const sideBarList = [
+    const sideBarListTop = [
         { label: "Dashboard", link: "dashboard", icon: MdDashboardCustomize },
         { label: "Inventory List", link: "inventory-list", icon: GiArchiveRegister },
-        { label: "Technical Management", link: "user-management", icon: CiUser },
-        { label: "Your Archive", link: "archive-table", icon: MdInventory },
-        { label: "Your History", link: "history-list", icon: MdHistory },
+        { label: "User Management", link: "user-management", icon: CiUser },
+    ];
+
+    const sideBarListBottom = [
+        { label: "Archives", link: "archive-table", icon: MdInventory },
+        { label: "Borrow History", link: "history-list", icon: MdHistory },
+        { label: "Registration Module", link: "registration-module", icon: MdAppRegistration },
+        { label: "Settings", link: "settings", icon: CiSettings },
+    ];
+
+    const itemsSubmenu = [
         { label: "Borrow Items", link: "borrow-item", icon: GrStorage },
-        { label: "Registered Module", link: "registration-module", icon: MdAppRegistration },
-        { label: "Your Settings", link: "settings", icon: CiSettings },
+        { label: "Pending & Reservations", link: "pending-reservations", icon: MdInventory },
     ];
 
     const toggleMobileMenu = () => {
@@ -71,7 +81,68 @@ export default function Sidebar() {
                 {/* Navigation */}
                 <nav className="flex-1">
                     <ul className="flex flex-col gap-2 px-2">
-                        {sideBarList.map((item) => (
+                        {sideBarListTop.map((item) => (
+                            <li key={item.label}>
+                                <NavLink
+                                    to={item.link}
+                                    className={({ isActive }) =>
+                                        `flex items-center outline-0 gap-2.5 px-3 py-3 rounded-lg font-medium text-base transition-all duration-150 ${isActive
+                                            ? "bg-blue-600 text-white shadow"
+                                            : "text-gray-500 hover:bg-[#f1f5f9] hover:text-[#2563eb]"
+                                        }`
+                                    }
+                                >
+                                    <item.icon className="text-2xl min-w-[30px]" />
+                                    <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                                        {item.label}
+                                    </span>
+                                </NavLink>
+                            </li>
+                        ))}
+
+                        {/* Manage Borrow Items Parent Menu with Dropdown */}
+                        <li>
+                            <button
+                                onClick={() => setIsItemsDropdownOpen(!isItemsDropdownOpen)}
+                                className="flex items-center outline-0 gap-2.5 px-3 py-3 rounded-lg font-medium text-base transition-all duration-150 w-full text-gray-500 hover:bg-[#f1f5f9] hover:text-[#2563eb]"
+                            >
+                                <BiPackage className="text-2xl min-w-[30px]" />
+                                <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex-1 text-left">
+                                    Manage Borrow Items
+                                </span>
+                                {isItemsDropdownOpen ? (
+                                    <FaChevronDown className="text-sm opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                                ) : (
+                                    <FaChevronRight className="text-sm opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                                )}
+                            </button>
+
+                            {/* Dropdown Submenu */}
+                            {isItemsDropdownOpen && (
+                                <ul className="flex flex-col gap-1 mt-1 ml-4">
+                                    {itemsSubmenu.map((subItem) => (
+                                        <li key={subItem.label}>
+                                            <NavLink
+                                                to={subItem.link}
+                                                className={({ isActive }) =>
+                                                    `flex items-center outline-0 gap-2.5 px-3 py-2 rounded-lg font-medium text-sm transition-all duration-150 ${isActive
+                                                        ? "bg-blue-600 text-white shadow"
+                                                        : "text-gray-500 hover:bg-[#f1f5f9] hover:text-[#2563eb]"
+                                                    }`
+                                                }
+                                            >
+                                                <subItem.icon className="text-xl min-w-[24px]" />
+                                                <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                                                    {subItem.label}
+                                                </span>
+                                            </NavLink>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </li>
+
+                        {sideBarListBottom.map((item) => (
                             <li key={item.label}>
                                 <NavLink
                                     to={item.link}
@@ -160,7 +231,64 @@ export default function Sidebar() {
                     {/* Navigation */}
                     <nav className="overflow-y-auto flex-1">
                         <ul className="flex flex-col gap-2 py-4 px-2">
-                            {sideBarList.map((item) => (
+                            {sideBarListTop.map((item) => (
+                                <li key={item.label}>
+                                    <NavLink
+                                        to={item.link}
+                                        onClick={closeMobileMenu}
+                                        className={({ isActive }) =>
+                                            `flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-base transition-all duration-150 ${isActive
+                                                ? "bg-blue-600 text-white shadow"
+                                                : "text-gray-600 hover:bg-[#f1f5f9] hover:text-[#2563eb]"
+                                            }`
+                                        }
+                                    >
+                                        <item.icon className="text-xl min-w-[24px]" />
+                                        <span>{item.label}</span>
+                                    </NavLink>
+                                </li>
+                            ))}
+
+                            {/* Manage Borrow Items Parent Menu with Dropdown */}
+                            <li>
+                                <button
+                                    onClick={() => setIsItemsDropdownOpen(!isItemsDropdownOpen)}
+                                    className="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-base transition-all duration-150 w-full text-gray-600 hover:bg-[#f1f5f9] hover:text-[#2563eb]"
+                                >
+                                    <BiPackage className="text-xl min-w-[24px]" />
+                                    <span className="flex-1 text-left">Manage Borrow Items</span>
+                                    {isItemsDropdownOpen ? (
+                                        <FaChevronDown className="text-sm" />
+                                    ) : (
+                                        <FaChevronRight className="text-sm" />
+                                    )}
+                                </button>
+
+                                {/* Dropdown Submenu */}
+                                {isItemsDropdownOpen && (
+                                    <ul className="flex flex-col gap-1 mt-1 ml-6">
+                                        {itemsSubmenu.map((subItem) => (
+                                            <li key={subItem.label}>
+                                                <NavLink
+                                                    to={subItem.link}
+                                                    onClick={closeMobileMenu}
+                                                    className={({ isActive }) =>
+                                                        `flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm transition-all duration-150 ${isActive
+                                                            ? "bg-blue-600 text-white shadow"
+                                                            : "text-gray-600 hover:bg-[#f1f5f9] hover:text-[#2563eb]"
+                                                        }`
+                                                    }
+                                                >
+                                                    <subItem.icon className="text-lg min-w-[20px]" />
+                                                    <span>{subItem.label}</span>
+                                                </NavLink>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </li>
+
+                            {sideBarListBottom.map((item) => (
                                 <li key={item.label}>
                                     <NavLink
                                         to={item.link}

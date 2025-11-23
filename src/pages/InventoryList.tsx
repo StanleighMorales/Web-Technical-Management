@@ -24,9 +24,6 @@ export default function InventoryList() {
     const [searchItem, setSearchItem] = useState<string>("");
     const [selectedCategory, setSelectedCategory] = useState<string>("");
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const [activeTab, setActiveTab] = useState<
-        "inventory" | "pending" | "reservation"
-    >("inventory");
     const itemsPerPage = 10;
     const [items, setItems] = useState<TItemList[]>([]);
 
@@ -315,289 +312,249 @@ export default function InventoryList() {
                     Overview of assets and availability. Track counts by category, staff
                     status, and items currently borrowed.
                 </p>
-
-                {/* Tabs */}
-                <div className="mt-6 flex gap-2 bg-white/90 p-1.5 rounded-xl shadow-md">
-                    <button
-                        onClick={() => setActiveTab("inventory")}
-                        className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === "inventory"
-                            ? "bg-blue-600 text-white shadow-md"
-                            : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-                            }`}
-                    >
-                        Inventory List
-                    </button>
-
-                    <button
-                        onClick={() => setActiveTab("pending")}
-                        className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === "pending"
-                            ? "bg-blue-600 text-white shadow-md"
-                            : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-                            }`}
-                    >
-                        Pending
-                    </button>
-
-                    <button
-                        onClick={() => setActiveTab("reservation")}
-                        className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === "reservation"
-                            ? "bg-blue-600 text-white shadow-md"
-                            : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-                            }`}
-                    >
-                        Reservation
-                    </button>
-                </div>
             </header>
 
             <div className="overflow-auto h-full">
-                {activeTab === "inventory" && (
-                    <>
-                        {/* Inventory Stats */}
-                        <section className="py-6 px-8 mx-auto w-full scrollbar-none">
-                            <div className="flex flex-row overflow-x-auto gap-3 pb-2 w-full scrollbar-none">
-                                {Array.from(new Set(items.map((item) => item.category))).map(
-                                    (category) => {
-                                        const itemsInCategory = items.filter(
-                                            (item) => item.category === category,
-                                        );
-                                        return (
-                                            <InventoryBadges
-                                                key={category}
-                                                name={category}
-                                                total={itemsInCategory.length}
-                                                onClick={() => handleCategoryClick(category)}
-                                                isSelected={selectedCategory === category}
-                                            />
-                                        );
-                                    },
-                                )}
-                            </div>
-                        </section>
+                {/* Inventory Stats */}
+                <section className="py-6 px-8 mx-auto w-full scrollbar-none">
+                    <div className="flex flex-row overflow-x-auto gap-3 pb-2 w-full scrollbar-none">
+                        {Array.from(new Set(items.map((item) => item.category))).map(
+                            (category) => {
+                                const itemsInCategory = items.filter(
+                                    (item) => item.category === category,
+                                );
+                                return (
+                                    <InventoryBadges
+                                        key={category}
+                                        name={category}
+                                        total={itemsInCategory.length}
+                                        onClick={() => handleCategoryClick(category)}
+                                        isSelected={selectedCategory === category}
+                                    />
+                                );
+                            },
+                        )}
+                    </div>
+                </section>
 
-                        {/* Inventory Table Section */}
-                        <section className="px-8">
-                            <div className="overflow-x-auto p-4 rounded-2xl ring-1 shadow-xl bg-white/90 h-[60vh] ring-[#e0e7ef]/80">
-                                {/* Top Controls - Add button with dropdown menu on left, Pagination and Search on right */}
-                                <section className="flex flex-col gap-3 justify-between mb-6 lg:flex-row md:flex-row">
-                                    {/* Left Side: Add New Item and Dropdown Menu */}
-                                    <div className="flex flex-row gap-3 items-center">
-                                        {/* Add New Item Button */}
-                                        <div>
-                                            <Button
-                                                onClick={() => setIsAddItemFormOpen(true)}
-                                                name={"New Item"}
-                                            />
-                                        </div>
+                {/* Inventory Table Section */}
+                <section className="px-8">
+                    <div className="overflow-x-auto p-4 rounded-2xl ring-1 shadow-xl bg-white/90 h-[60vh] ring-[#e0e7ef]/80">
+                        {/* Top Controls - Add button with dropdown menu on left, Pagination and Search on right */}
+                        <section className="flex flex-col gap-3 justify-between mb-6 lg:flex-row md:flex-row">
+                            {/* Left Side: Add New Item and Dropdown Menu */}
+                            <div className="flex flex-row gap-3 items-center">
+                                {/* Add New Item Button */}
+                                <div>
+                                    <Button
+                                        onClick={() => setIsAddItemFormOpen(true)}
+                                        name={"New Item"}
+                                    />
+                                </div>
 
-                                        {/* Dropdown Menu Button with Down Arrow */}
-                                        <div className="relative flex-shrink-0" ref={moreMenuRef}>
-                                            <button
-                                                onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
-                                                className={`flex items-center justify-center h-11.5 w-12 text-blue-600 bg-white rounded-lg transition-all duration-200 border border-gray-200 hover:shadow-sm hover:scale-100 active:scale-95 cursor-pointer ${isMoreMenuOpen ? 'bg-blue-50 border-blue-300 shadow-md' : 'hover:bg-gray-100'
-                                                    }`}
-                                                aria-label="More options"
-                                                title="More options"
-                                            >
-                                                <svg
-                                                    className={`w-5 h-5 transition-transform duration-300 ${isMoreMenuOpen ? 'rotate-90' : ''
-                                                        }`}
-                                                    viewBox="0 0 24 24"
-                                                    fill="currentColor"
+                                {/* Dropdown Menu Button with Down Arrow */}
+                                <div className="relative flex-shrink-0" ref={moreMenuRef}>
+                                    <button
+                                        onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
+                                        className={`flex items-center justify-center h-11.5 w-12 text-blue-600 bg-white rounded-lg transition-all duration-200 border border-gray-200 hover:shadow-sm hover:scale-100 active:scale-95 cursor-pointer ${isMoreMenuOpen ? 'bg-blue-50 border-blue-300 shadow-md' : 'hover:bg-gray-100'
+                                            }`}
+                                        aria-label="More options"
+                                        title="More options"
+                                    >
+                                        <svg
+                                            className={`w-5 h-5 transition-transform duration-300 ${isMoreMenuOpen ? 'rotate-90' : ''
+                                                }`}
+                                            viewBox="0 0 24 24"
+                                            fill="currentColor"
+                                        >
+                                            <circle cx="6" cy="12" r="2" />
+                                            <circle cx="12" cy="12" r="2" />
+                                            <circle cx="18" cy="12" r="2" />
+                                        </svg>
+                                    </button>
+
+                                    {isMoreMenuOpen && (
+                                        <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg ring-1 ring-blue-500 ring-opacity-5 z-50 animate-slideIn">
+                                            <div className="py-1">
+                                                <button
+                                                    onClick={() => {
+                                                        fileInputRef.current?.click();
+                                                        setIsMoreMenuOpen(false);
+                                                    }}
+                                                    disabled={isImporting}
+                                                    className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                 >
-                                                    <circle cx="6" cy="12" r="2" />
-                                                    <circle cx="12" cy="12" r="2" />
-                                                    <circle cx="18" cy="12" r="2" />
-                                                </svg>
-                                            </button>
-
-                                            {isMoreMenuOpen && (
-                                                <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg ring-1 ring-blue-500 ring-opacity-5 z-50 animate-slideIn">
-                                                    <div className="py-1">
-                                                        <button
-                                                            onClick={() => {
-                                                                fileInputRef.current?.click();
-                                                                setIsMoreMenuOpen(false);
-                                                            }}
-                                                            disabled={isImporting}
-                                                            className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                        >
-                                                            {isImporting ? (
-                                                                <>
-                                                                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                                    </svg>
-                                                                    Importing...
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                                                    </svg>
-                                                                    Import Items
-                                                                </>
-                                                            )}
-                                                        </button>
-                                                        <div className="border-t border-gray-100 my-1"></div>
-                                                        <button
-                                                            onClick={() => {
-                                                                setShowPrintBarcodeModal(true);
-                                                                setIsMoreMenuOpen(false);
-                                                            }}
-                                                            disabled={filteredItems.length === 0}
-                                                            className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                        >
-                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                                    {isImporting ? (
+                                                        <>
+                                                            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                             </svg>
-                                                            Print Barcodes {filteredItems.length > 0 && `(${filteredItems.length})`}
-                                                        </button>
-                                                        <button
-                                                            onClick={() => {
-                                                                handleExportItems();
-                                                                setIsMoreMenuOpen(false);
-                                                            }}
-                                                            disabled={isExporting || filteredItems.length === 0}
-                                                            className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                        >
-                                                            {isExporting ? (
-                                                                <>
-                                                                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                                    </svg>
-                                                                    Exporting...
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                                    </svg>
-                                                                    Export Items {filteredItems.length > 0 && `(${filteredItems.length})`}
-                                                                </>
-                                                            )}
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Right Side: Pagination and Search */}
-                                    <div className="flex flex-col gap-2 items-center md:flex-row lg:flex-row md:items-center">
-                                        {filteredItems.length > 0 && (
-                                            <div className="flex">
-                                                <Pagination
-                                                    totalPages={totalPages}
-                                                    currentPage={currentPage}
-                                                    handlePageChange={handlePageChange}
-                                                    selectedCategory={selectedCategory}
-                                                    handleShowAll={handleShowAll}
-                                                />
-                                            </div>
-                                        )}
-
-                                        <SearchBar
-                                            onChangeValue={(value) => setSearchItem(value)}
-                                            name={"search"}
-                                            placeholder={"Search your items..."}
-                                        />
-                                    </div>
-                                </section>
-
-                                {/* Table */}
-                                <div className="overflow-x-auto rounded-lg shadow-inner h-[46vh] bg-white/95">
-                                    {isError ? (
-                                        <ErrorTable />
-                                    ) : (
-                                        <table className="w-full text-left border-collapse">
-                                            <thead>
-                                                <tr className="sticky top-0 bg-white/90 backdrop-blur-sm">
-                                                    <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
-                                                        Serial Num
-                                                    </th>
-                                                    <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
-                                                        Image
-                                                    </th>
-                                                    <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
-                                                        Name
-                                                    </th>
-                                                    <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
-                                                        Category
-                                                    </th>
-                                                    <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
-                                                        Condition
-                                                    </th>
-                                                    <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
-                                                        DateTime
-                                                    </th>
-                                                    <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
-                                                        Status
-                                                    </th>
-                                                    <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
-                                                        Action
-                                                    </th>
-                                                </tr>
-                                            </thead>
-
-                                            <tbody>
-                                                {paginatedData.map((item) => (
-                                                    < InventoryTable
-                                                        key={item.id}
-                                                        id={item.id}
-                                                        createdAt={item.createdAt}
-                                                        ItemName={item.itemName}
-                                                        SerialNumber={item.serialNumber}
-                                                        Image={item.image || logo}
-                                                        ItemType={item.itemType}
-                                                        Category={item.category}
-                                                        Condition={item.condition}
-                                                        Status={item.status}
-                                                        onMutate={() =>
-                                                            mutate(item.id, {
-                                                                onSuccess: (data) => {
-                                                                    setShowAlert(true);
-                                                                    setShowMessage(data.message);
-                                                                    setTimeout(() => {
-                                                                        setShowAlert(false);
-                                                                        setShowMessage("");
-                                                                    }, 3500);
-                                                                },
-                                                            })
-                                                        }
-                                                    />
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    )}
-                                    {paginatedData.length === 0 && (
-                                        <div className="flex justify-center items-center mt-16 w-full">
-                                            <div className="max-w-md text-center">
-                                                <div className="mb-3 text-5xl text-[#94a3b8]">📦</div>
-                                                <h3 className="mb-2 text-2xl font-semibold text-[#0f172a]">
-                                                    No items found
-                                                </h3>
-                                                <p className="text-base text-[#64748b]">
-                                                    Try adjusting your search or filters. New items will
-                                                    appear here once created.
-                                                </p>
+                                                            Importing...
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                                            </svg>
+                                                            Import Items
+                                                        </>
+                                                    )}
+                                                </button>
+                                                <div className="border-t border-gray-100 my-1"></div>
+                                                <button
+                                                    onClick={() => {
+                                                        setShowPrintBarcodeModal(true);
+                                                        setIsMoreMenuOpen(false);
+                                                    }}
+                                                    disabled={filteredItems.length === 0}
+                                                    className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                                    </svg>
+                                                    Print Barcodes {filteredItems.length > 0 && `(${filteredItems.length})`}
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        handleExportItems();
+                                                        setIsMoreMenuOpen(false);
+                                                    }}
+                                                    disabled={isExporting || filteredItems.length === 0}
+                                                    className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    {isExporting ? (
+                                                        <>
+                                                            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                            </svg>
+                                                            Exporting...
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                            </svg>
+                                                            Export Items {filteredItems.length > 0 && `(${filteredItems.length})`}
+                                                        </>
+                                                    )}
+                                                </button>
                                             </div>
                                         </div>
                                     )}
                                 </div>
                             </div>
-                        </section>
-                    </>
-                )
-                }
-            </div >
 
-            {
-                isAddItemFormOpen && (
-                    <AddItemForm onClose={() => setIsAddItemFormOpen(false)} />
-                )
-            }
-        </div >
+                            {/* Right Side: Pagination and Search */}
+                            <div className="flex flex-col gap-2 items-center md:flex-row lg:flex-row md:items-center">
+                                {filteredItems.length > 0 && (
+                                    <div className="flex">
+                                        <Pagination
+                                            totalPages={totalPages}
+                                            currentPage={currentPage}
+                                            handlePageChange={handlePageChange}
+                                            selectedCategory={selectedCategory}
+                                            handleShowAll={handleShowAll}
+                                        />
+                                    </div>
+                                )}
+
+                                <SearchBar
+                                    onChangeValue={(value) => setSearchItem(value)}
+                                    name={"search"}
+                                    placeholder={"Search your items..."}
+                                />
+                            </div>
+                        </section>
+
+                        {/* Table */}
+                        <div className="overflow-x-auto rounded-lg shadow-inner h-[46vh] bg-white/95">
+                            {isError ? (
+                                <ErrorTable />
+                            ) : (
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="sticky top-0 bg-white/90 backdrop-blur-sm">
+                                            <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
+                                                Serial Num
+                                            </th>
+                                            <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
+                                                Image
+                                            </th>
+                                            <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
+                                                Name
+                                            </th>
+                                            <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
+                                                Category
+                                            </th>
+                                            <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
+                                                Condition
+                                            </th>
+                                            <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
+                                                DateTime
+                                            </th>
+                                            <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
+                                                Status
+                                            </th>
+                                            <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">
+                                                Action
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {paginatedData.map((item) => (
+                                            < InventoryTable
+                                                key={item.id}
+                                                id={item.id}
+                                                createdAt={item.createdAt}
+                                                ItemName={item.itemName}
+                                                SerialNumber={item.serialNumber}
+                                                Image={item.image || logo}
+                                                ItemType={item.itemType}
+                                                Category={item.category}
+                                                Condition={item.condition}
+                                                Status={item.status}
+                                                onMutate={() =>
+                                                    mutate(item.id, {
+                                                        onSuccess: (data) => {
+                                                            setShowAlert(true);
+                                                            setShowMessage(data.message);
+                                                            setTimeout(() => {
+                                                                setShowAlert(false);
+                                                                setShowMessage("");
+                                                            }, 3500);
+                                                        },
+                                                    })
+                                                }
+                                            />
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+                            {paginatedData.length === 0 && (
+                                <div className="flex justify-center items-center mt-16 w-full">
+                                    <div className="max-w-md text-center">
+                                        <div className="mb-3 text-5xl text-[#94a3b8]">📦</div>
+                                        <h3 className="mb-2 text-2xl font-semibold text-[#0f172a]">
+                                            No items found
+                                        </h3>
+                                        <p className="text-base text-[#64748b]">
+                                            Try adjusting your search or filters. New items will
+                                            appear here once created.
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            {isAddItemFormOpen && (
+                <AddItemForm onClose={() => setIsAddItemFormOpen(false)} />
+            )}
+        </div>
     );
 }

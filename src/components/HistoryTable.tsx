@@ -13,7 +13,7 @@ export default function HistoryTable({ items }: HistoryTableProps) {
 
     return (
         <>
-            {sortedItems.map((item) => (
+            {items.map((item) => (
                 <tr
                     key={item.id}
                     className="hover:bg-[#f1f5f9] transition-colors odd:bg-white even:bg-[#f8fafc]"
