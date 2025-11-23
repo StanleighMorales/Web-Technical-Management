@@ -1,9 +1,20 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getToken, removeToken } from "../../utils/token";
 
+// Enum values matching backend: Pending=0, Reserved=1, Approved=2, Denied=3, Canceled=4, Borrowed=5, Returned=6
+enum LentItemsStatus {
+    Pending = 0,
+    Reserved = 1,
+    Approved = 2,
+    Denied = 3,
+    Canceled = 4,
+    Borrowed = 5,
+    Returned = 6
+}
+
 type ScanLentItemData = {
     barcode: string;
-    lentItemsStatus: string;
+    lentItemsStatus: keyof typeof LentItemsStatus;
 };
 
 const ScanLentItem = async (data: ScanLentItemData) => {
@@ -18,7 +29,7 @@ const ScanLentItem = async (data: ScanLentItemData) => {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            lentItemsStatus: data.lentItemsStatus
+            LentItemsStatus: LentItemsStatus[data.lentItemsStatus]
         }),
     });
 

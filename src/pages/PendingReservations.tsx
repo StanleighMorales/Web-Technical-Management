@@ -8,6 +8,7 @@ import type { THistoryBorrwedItems } from "../types/types";
 import PendingItemsTable from "../components/PendingItemsTable";
 import ErrorTable from "../components/ErrorTables";
 import ApproveConfirmationModal from "../components/ApproveConfirmationModal";
+import DenyConfirmationModal from "../components/DenyConfirmationModal";
 import { useScanLentItemMutation } from "../query/patch/useScanLentItemMutation";
 import { SuccessAlert } from "../components/SuccessAlert";
 import { ErrorAlert } from "../components/ErrorAlert";
@@ -19,6 +20,7 @@ export default function PendingReservations() {
     const [borrowedItem, setBorrowedItem] = useState<THistoryBorrwedItems[]>([]);
     const [selectedStatus, setSelectedStatus] = useState("all");
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDenyModalOpen, setIsDenyModalOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState<THistoryBorrwedItems | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -27,6 +29,7 @@ export default function PendingReservations() {
 
     const { data, isPending, isError } = useQuery(useBorrowedItemsQuery());
     const { mutate: approveLentItem, isPending: isApproving } = useScanLentItemMutation();
+    const { mutate: denyLentItem, isPending: isDenying } = useScanLentItemMutation();
 
     useEffect(() => {
         if (data) setBorrowedItem(data);
@@ -81,11 +84,11 @@ export default function PendingReservations() {
             return;
         }
 
-        // Use barcode if available, otherwise use serialNumber or item ID
-        const barcodeValue = selectedItem.item.barcode || selectedItem.item.serialNumber || selectedItem.item.id;
+        // Use the LENT ITEM's barcode (format: LENT-YYYYMMDD-XXX)
+        const barcodeValue = selectedItem.barcode;
 
         if (!barcodeValue) {
-            setErrorMessage("Item identifier is missing. Cannot approve.");
+            setErrorMessage("Lent item barcode is missing. Cannot approve.");
             setIsModalOpen(false);
             return;
         }
@@ -111,6 +114,51 @@ export default function PendingReservations() {
 
     const handleCancelApprove = () => {
         setIsModalOpen(false);
+        setSelectedItem(null);
+    };
+
+    const handleDenyClick = (item: THistoryBorrwedItems) => {
+        setSelectedItem(item);
+        setIsDenyModalOpen(true);
+    };
+
+    const handleConfirmDeny = () => {
+        if (!selectedItem) {
+            setErrorMessage("No item selected. Cannot deny.");
+            setIsDenyModalOpen(false);
+            return;
+        }
+
+        // Use the LENT ITEM's barcode (format: LENT-YYYYMMDD-XXX)
+        const barcodeValue = selectedItem.barcode;
+
+        if (!barcodeValue) {
+            setErrorMessage("Lent item barcode is missing. Cannot deny.");
+            setIsDenyModalOpen(false);
+            return;
+        }
+
+        denyLentItem(
+            {
+                barcode: barcodeValue,
+                lentItemsStatus: "Denied",
+            },
+            {
+                onSuccess: () => {
+                    setSuccessMessage(`Successfully denied borrow request for ${selectedItem.item.itemName}`);
+                    setIsDenyModalOpen(false);
+                    setSelectedItem(null);
+                },
+                onError: (error) => {
+                    setErrorMessage(error.message || "Failed to deny borrow request");
+                    setIsDenyModalOpen(false);
+                },
+            }
+        );
+    };
+
+    const handleCancelDeny = () => {
+        setIsDenyModalOpen(false);
         setSelectedItem(null);
     };
 
@@ -228,6 +276,7 @@ export default function PendingReservations() {
                                     <PendingItemsTable
                                         items={filteredItems}
                                         onApprove={handleApproveClick}
+                                        onDeny={handleDenyClick}
                                         onRowClick={handleRowClick}
                                     />
                                 )}
@@ -249,6 +298,14 @@ export default function PendingReservations() {
                 onConfirm={handleConfirmApprove}
                 onCancel={handleCancelApprove}
                 isLoading={isApproving}
+            />
+
+            <DenyConfirmationModal
+                isOpen={isDenyModalOpen}
+                item={selectedItem}
+                onConfirm={handleConfirmDeny}
+                onCancel={handleCancelDeny}
+                isLoading={isDenying}
             />
 
             {selectedItemId && (

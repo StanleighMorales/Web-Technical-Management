@@ -5,10 +5,11 @@ import { SlugStatus } from "./SlugStatus";
 type PendingItemsTableProps = {
     items: THistoryBorrwedItems[];
     onApprove: (item: THistoryBorrwedItems) => void;
+    onDeny: (item: THistoryBorrwedItems) => void;
     onRowClick: (itemId: string) => void;
 };
 
-export default function PendingItemsTable({ items, onApprove, onRowClick }: PendingItemsTableProps) {
+export default function PendingItemsTable({ items, onApprove, onDeny, onRowClick }: PendingItemsTableProps) {
     return (
         <>
             {items.filter((s) => s.status === "Pending").map((item) => (
@@ -38,15 +39,26 @@ export default function PendingItemsTable({ items, onApprove, onRowClick }: Pend
                         </span>
                     </td>
                     <td className="py-4 px-6">
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onApprove(item);
-                            }}
-                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm"
-                        >
-                            Approve
-                        </button>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onApprove(item);
+                                }}
+                                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm"
+                            >
+                                Approve
+                            </button>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onDeny(item);
+                                }}
+                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm"
+                            >
+                                Deny
+                            </button>
+                        </div>
                     </td>
                 </tr>
             ))}
