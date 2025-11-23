@@ -103,9 +103,6 @@ export type TEditItemForm = {
     SerialNumber: string;
 };
 
-export type THistoryBorrwedItems = TRecentBorrowItemProps & {
-};
-
 export type TArchiveItem = {
     id: string;
     serialNumber: string;
@@ -278,3 +275,6 @@ export type TRecentBorrowItemProps = {
         updatedAt: string;
     }
 }
+
+export type THistoryBorrwedItems = TRecentBorrowItemProps & {
+};

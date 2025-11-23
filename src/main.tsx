@@ -16,6 +16,7 @@ const Settings = lazy(() => import("./pages/Settings.tsx"));
 const ViewItem = lazy(() => import("./components/ViewItem.tsx"));
 const Archive = lazy(() => import("./pages/Archive.tsx"));
 const BorrowItem = lazy(() => import("./pages/BorrowItem.tsx"));
+const PendingReservations = lazy(() => import("./pages/PendingReservations.tsx"));
 const Registration = lazy(() => import("./pages/Registration.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
@@ -98,6 +99,14 @@ const routes = createBrowserRouter([
         element: (
           <Suspense fallback={<BorrowItemSkeletonLoader />}>
             <BorrowItem />
+          </Suspense>
+        ),
+      },
+      {
+        path: "pending-reservations",
+        element: (
+          <Suspense fallback={<HistoryListSkeletonLoader />}>
+            <PendingReservations />
           </Suspense>
         ),
       },
