@@ -7,6 +7,10 @@ type HistoryTableProps = {
 };
 
 export default function HistoryTable({ items }: HistoryTableProps) {
+    const sortedItems = [...items]
+        .filter((s) => s.status === "Returned")
+        .sort((a, b) => new Date(b.item.updatedAt).getTime() - new Date(a.item.updatedAt).getTime());
+
     return (
         <>
             {items.map((item) => (
@@ -28,9 +32,9 @@ export default function HistoryTable({ items }: HistoryTableProps) {
                     <td className="py-4 px-6">{item.teacherFullName || "-"}</td>
                     <td className="py-4 px-6">{item.room || "-"}</td>
                     <td className="py-4 px-6">{item.remarks || "-"}</td>
-                    <td className="py-4 px-6">{FormattedDateTime(item.item.createdAt)}</td>
+                    <td className="py-4 px-6">{FormattedDateTime(item.item.updatedAt)}</td>
                     <td className="py-4 px-6">
-                        <span className={`px-3 py-1 rounded-full text-sm ${SlugStatus((item.status))}`}>
+                        <span className={`px-3 py-1 rounded-full text-sm ${SlugStatus(item.status)}`}>
                             {item.status}
                         </span>
                     </td>

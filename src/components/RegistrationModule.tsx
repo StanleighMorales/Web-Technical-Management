@@ -191,7 +191,7 @@ export default function RegistrationModule() {
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="mb-2 text-5xl mt-10 lg:mt-0 md:mt-0 font-extrabold tracking-tight text-[#1e293b] drop-shadow-lg">
-                        Registration Module
+                        Registered Module
                     </h1>
                     <p className="text-lg text-[#64748b]">
                         Manage teachers and students registration
