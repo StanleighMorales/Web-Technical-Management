@@ -22,6 +22,9 @@ const ScanLentItem = async (data: ScanLentItemData) => {
     const VERSION = "v1";
     const END_POINT = `/api/${VERSION}/lentItems/scan/${data.barcode}`;
 
+    const statusValue = LentItemsStatus[data.lentItemsStatus];
+    console.log(`Sending status: ${data.lentItemsStatus} = ${statusValue}`);
+
     const res = await fetch(`${BASE_URL}${END_POINT}`, {
         method: "PATCH",
         headers: {
@@ -29,7 +32,7 @@ const ScanLentItem = async (data: ScanLentItemData) => {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            LentItemsStatus: LentItemsStatus[data.lentItemsStatus]
+            LentItemsStatus: statusValue
         }),
     });
 

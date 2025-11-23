@@ -9,7 +9,7 @@ type HistoryTableProps = {
 export default function HistoryTable({ items }: HistoryTableProps) {
     return (
         <>
-            {items.filter((s) => s.status === "Returned").map((item) => (
+            {items.map((item) => (
                 <tr
                     key={item.id}
                     className="hover:bg-[#f1f5f9] transition-colors odd:bg-white even:bg-[#f8fafc]"

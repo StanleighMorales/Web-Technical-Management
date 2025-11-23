@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import SearchBar from "../components/SearchBar";
-import { SelectHistoryStatus } from "../components/SelectHistoryStatus";
 import HistoryListSkeletonLoader from "../loader/HistoryListSkeletonLoader";
 import { useQuery } from "@tanstack/react-query";
 import { useBorrowedItemsQuery } from "../query/get/useBorrwedItemsQuery";
 import type { THistoryBorrwedItems } from "../types/types";
 import HistoryTable from "../components/HistoryTable";
 import ErrorTable from "../components/ErrorTables";
-import { SlugStatus } from "../components/SlugStatus";
+
+type StatusTab = "all" | "pending" | "approved" | "borrowed" | "returned" | "denied" | "canceled";
 
 export default function HistoryList({
     title = "Borrowing History",
@@ -15,7 +15,7 @@ export default function HistoryList({
 }) {
     const [searchItem, setSearchItem] = useState("");
     const [borrowedItem, setBorrowedItem] = useState<THistoryBorrwedItems[]>([]);
-    const [selectedStatus, setSelectedStatus] = useState("all");
+    const [activeTab, setActiveTab] = useState<StatusTab>("all");
 
     const { data, isPending, isError } = useQuery(useBorrowedItemsQuery());
 
@@ -23,13 +23,26 @@ export default function HistoryList({
         if (data) setBorrowedItem(data);
     }, [data]);
 
+    // Calculate counts for each status
+    const statusCounts = useMemo(() => {
+        return {
+            all: borrowedItem.length,
+            pending: borrowedItem.filter(item => item.status.toLowerCase() === "pending").length,
+            approved: borrowedItem.filter(item => item.status.toLowerCase() === "approved").length,
+            borrowed: borrowedItem.filter(item => item.status.toLowerCase() === "borrowed").length,
+            returned: borrowedItem.filter(item => item.status.toLowerCase() === "returned").length,
+            denied: borrowedItem.filter(item => item.status.toLowerCase() === "denied").length,
+            canceled: borrowedItem.filter(item => item.status.toLowerCase() === "canceled").length,
+        };
+    }, [borrowedItem]);
+
     const filteredItems = useMemo(() => {
         return borrowedItem.filter((item) => {
             const matchesSearch = item.borrowerFullName?.toLowerCase().includes(searchItem.toLowerCase());
-            const matchesStatus = selectedStatus === "all" || SlugStatus(item.status) === selectedStatus;
+            const matchesStatus = activeTab === "all" || item.status.toLowerCase() === activeTab;
             return matchesSearch && matchesStatus;
         });
-    }, [borrowedItem, searchItem, selectedStatus]);
+    }, [borrowedItem, searchItem, activeTab]);
 
     if (isPending) return <HistoryListSkeletonLoader />;
 
@@ -44,10 +57,111 @@ export default function HistoryList({
                     </div>
                 </div>
 
-                {/* Search & Filter */}
+                {/* Tabs */}
+                <div className="flex gap-2 mb-6 border-b border-gray-200 overflow-x-auto">
+                    <button
+                        onClick={() => setActiveTab("all")}
+                        className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${activeTab === "all"
+                            ? "border-blue-600 text-blue-600"
+                            : "border-transparent text-gray-500 hover:text-gray-700"
+                            }`}
+                    >
+                        All
+                        {statusCounts.all > 0 && (
+                            <span className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-600 rounded-full">
+                                {statusCounts.all}
+                            </span>
+                        )}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("pending")}
+                        className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${activeTab === "pending"
+                            ? "border-yellow-600 text-yellow-600"
+                            : "border-transparent text-gray-500 hover:text-gray-700"
+                            }`}
+                    >
+                        Pending
+                        {statusCounts.pending > 0 && (
+                            <span className="ml-2 px-2 py-1 text-xs bg-yellow-100 text-yellow-600 rounded-full">
+                                {statusCounts.pending}
+                            </span>
+                        )}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("approved")}
+                        className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${activeTab === "approved"
+                            ? "border-emerald-600 text-emerald-600"
+                            : "border-transparent text-gray-500 hover:text-gray-700"
+                            }`}
+                    >
+                        Approved
+                        {statusCounts.approved > 0 && (
+                            <span className="ml-2 px-2 py-1 text-xs bg-emerald-100 text-emerald-600 rounded-full">
+                                {statusCounts.approved}
+                            </span>
+                        )}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("borrowed")}
+                        className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${activeTab === "borrowed"
+                            ? "border-blue-600 text-blue-600"
+                            : "border-transparent text-gray-500 hover:text-gray-700"
+                            }`}
+                    >
+                        Borrowed
+                        {statusCounts.borrowed > 0 && (
+                            <span className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-600 rounded-full">
+                                {statusCounts.borrowed}
+                            </span>
+                        )}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("returned")}
+                        className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${activeTab === "returned"
+                            ? "border-green-600 text-green-600"
+                            : "border-transparent text-gray-500 hover:text-gray-700"
+                            }`}
+                    >
+                        Returned
+                        {statusCounts.returned > 0 && (
+                            <span className="ml-2 px-2 py-1 text-xs bg-green-100 text-green-600 rounded-full">
+                                {statusCounts.returned}
+                            </span>
+                        )}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("denied")}
+                        className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${activeTab === "denied"
+                            ? "border-red-600 text-red-600"
+                            : "border-transparent text-gray-500 hover:text-gray-700"
+                            }`}
+                    >
+                        Denied
+                        {statusCounts.denied > 0 && (
+                            <span className="ml-2 px-2 py-1 text-xs bg-red-100 text-red-600 rounded-full">
+                                {statusCounts.denied}
+                            </span>
+                        )}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("canceled")}
+                        className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${activeTab === "canceled"
+                            ? "border-gray-600 text-gray-600"
+                            : "border-transparent text-gray-500 hover:text-gray-700"
+                            }`}
+                    >
+                        Canceled
+                        {statusCounts.canceled > 0 && (
+                            <span className="ml-2 px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full">
+                                {statusCounts.canceled}
+                            </span>
+                        )}
+                    </button>
+                </div>
+
+                {/* Search */}
                 <div className="flex flex-row gap-2 justify-end mb-6 flex-wrap">
-                    <SelectHistoryStatus onChangeStatus={setSelectedStatus} />
-                    <SearchBar onChangeValue={setSearchItem} name="Search History" placeholder="Search by Borrowed Item" />
+                    <SearchBar onChangeValue={setSearchItem} name="Search History" placeholder="Search by borrower name" />
                 </div>
 
                 {/* Table */}
@@ -79,7 +193,15 @@ export default function HistoryList({
                                 </tr>
                             </thead>
                             <tbody>
-                                <HistoryTable items={filteredItems} />
+                                {filteredItems.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={9} className="py-8 text-center text-gray-500">
+                                            No items found for this status.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    <HistoryTable items={filteredItems} />
+                                )}
                             </tbody>
                         </table>
                     )}

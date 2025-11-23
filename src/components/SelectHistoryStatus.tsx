@@ -7,8 +7,12 @@ type SelectStatusProps = {
 
 const defaultOptions = [
     { value: "all", label: "All" },
+    { value: "pending", label: "Pending" },
+    { value: "approved", label: "Approved" },
+    { value: "borrowed", label: "Borrowed" },
     { value: "returned", label: "Returned" },
-    { value: "lost", label: "Lost" },
+    { value: "denied", label: "Denied" },
+    { value: "canceled", label: "Canceled" },
 ];
 
 export const SelectHistoryStatus = ({

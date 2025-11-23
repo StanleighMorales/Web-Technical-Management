@@ -55,7 +55,7 @@ export default function PendingReservations() {
         return borrowedItem.filter((item) => {
             const matchesSearch = item.borrowerFullName?.toLowerCase().includes(searchItem.toLowerCase()) ||
                 item.item.itemName?.toLowerCase().includes(searchItem.toLowerCase());
-            const matchesStatus = selectedStatus === "all" || item.status === selectedStatus;
+            const matchesStatus = selectedStatus === "all" || item.status.toLowerCase() === selectedStatus;
             return matchesSearch && matchesStatus && item.status === "Pending";
         });
     }, [borrowedItem, searchItem, selectedStatus]);
@@ -64,7 +64,7 @@ export default function PendingReservations() {
         return borrowedItem.filter((item) => {
             const matchesSearch = item.borrowerFullName?.toLowerCase().includes(searchItem.toLowerCase()) ||
                 item.item.itemName?.toLowerCase().includes(searchItem.toLowerCase());
-            const matchesStatus = selectedStatus === "all" || item.status === selectedStatus;
+            const matchesStatus = selectedStatus === "all" || item.status.toLowerCase() === selectedStatus;
             // Reservations are items with status "Reserved" or future scheduled items
             return matchesSearch && matchesStatus && (item.status === "Reserved" || item.status === "Scheduled");
         });
@@ -96,7 +96,7 @@ export default function PendingReservations() {
         approveLentItem(
             {
                 barcode: barcodeValue,
-                lentItemsStatus: "Borrowed",
+                lentItemsStatus: "Approved",
             },
             {
                 onSuccess: () => {
