@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import SearchBar from "../components/SearchBar";
 import HistoryListSkeletonLoader from "../loader/HistoryListSkeletonLoader";
 import { useQuery } from "@tanstack/react-query";
 import { useBorrowedItemsQuery } from "../query/get/useBorrwedItemsQuery";

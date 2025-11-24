@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../assets/aclcLogo.webp";
-import { CiLogout, CiSettings, CiUser } from "react-icons/ci";
+import { CiLogout, CiUser } from "react-icons/ci";
 import { GiArchiveRegister } from "react-icons/gi";
 import { GrStorage } from "react-icons/gr";
 import { MdHistory, MdInventory, MdDashboardCustomize, MdAppRegistration } from "react-icons/md";
