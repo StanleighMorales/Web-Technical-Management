@@ -15,10 +15,7 @@ import { SuccessAlert } from "../components/SuccessAlert";
 import { ErrorAlert } from "../components/ErrorAlert";
 import { IoMdClose } from "react-icons/io";
 import { getToken } from "../utils/token";
-import { FaHashtag, FaCheckCircle } from "react-icons/fa";
-import { BsCalendar2Date } from "react-icons/bs";
-import { MdOutlineDescription } from "react-icons/md";
-import { FormattedDateTime } from "../components/FormattedDateTime";
+import { LentItemDetailsModal } from "../components/LentItemDetailsModal";
 
 type Summary = {
     totalItems: number | null;
@@ -55,11 +52,14 @@ export default function Dashboard() {
     const [returnErrorMessage, setReturnErrorMessage] = useState<string>("");
     const [showReturnError, setShowReturnError] = useState<boolean>(false);
 
+    // Borrow item success state
+    const [borrowSuccess, setBorrowSuccess] = useState<boolean>(false);
+
     // Scan lent item states
     const [showScanModal, setShowScanModal] = useState<boolean>(false);
     const [scannedBarcode, setScannedBarcode] = useState<string>("");
     const [scanError, setScanError] = useState<string>("");
-    const [scannedLentItem, setScannedLentItem] = useState<any>(null);
+    const [scannedLentItemId, setScannedLentItemId] = useState<string | null>(null);
 
     const { data: recentBorrowData, isLoading: isBorrowedItemLoading, isError: isBorrowedItemError } = useQuery(useBorrowedItemsQuery());
     const { data: summaryData } = useQuery(useSummaryDataQuery());
@@ -241,7 +241,7 @@ export default function Dashboard() {
             setShowScanModal(false);
             setScannedBarcode("");
             setScanError("");
-            setScannedLentItem(lentItem);
+            setScannedLentItemId(lentItem.id);
         } catch (error: any) {
             console.error("Scan error:", error);
             setScanError(error.message || "Failed to fetch lent item details");
@@ -252,8 +252,9 @@ export default function Dashboard() {
 
     return (
         <div className="flex z-40 flex-col items-center py-10 px-2 w-full min-h-screen animate-fadeIn bg-linear-to-br from-[#f8fafc] via-[#e0e7ef] to-[#c7d2fe]">
-            {/* Return Success Alert */}
+            {/* Success Alerts */}
             {returnSuccess && <SuccessAlert message="Item returned successfully!" />}
+            {borrowSuccess && <SuccessAlert message="Item borrowed successfully!" />}
             {showReturnError && <ErrorAlert message={returnErrorMessage} />}
 
             {/* Return Item Modal */}
@@ -467,140 +468,19 @@ export default function Dashboard() {
             )}
 
             {/* Scanned Lent Item Details Modal */}
-            {scannedLentItem && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setScannedLentItem(null)}>
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-                        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center rounded-t-2xl z-10">
-                            <h2 className="text-xl md:text-2xl font-bold text-gray-900">Lent Item Details</h2>
-                            <button
-                                onClick={() => setScannedLentItem(null)}
-                                className="text-gray-400 hover:text-gray-600 transition-colors"
-                            >
-                                <IoMdClose className="w-6 h-6" />
-                            </button>
-                        </div>
-                        <div className="p-4 md:p-6">
-                            <div className="text-center mb-4">
-                                <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">{scannedLentItem.itemName}</h3>
-                                <p className="text-gray-600 font-semibold">Barcode: {scannedLentItem.barcode}</p>
-                            </div>
-                            {scannedLentItem.borrowerRole?.toLowerCase() === 'student' && scannedLentItem.frontStudentIdPicture && (
-                                <div className="mb-6">
-                                    <div className="text-center">
-                                        <h4 className="text-lg font-semibold text-gray-900 mb-3">Student ID Picture</h4>
-                                        <div className="inline-block bg-gray-50 rounded-lg p-4 shadow-md">
-                                            <img
-                                                src={scannedLentItem.frontStudentIdPicture}
-                                                alt={`${scannedLentItem.borrowerFullName} - Student ID`}
-                                                className="max-w-sm max-h-64 object-contain rounded-lg shadow-sm"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-                                <div className="bg-gray-50 rounded-lg p-3">
-                                    <div className="flex items-center mb-2">
-                                        <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center mr-3">
-                                            <FaHashtag className="text-white w-4 h-4" />
-                                        </div>
-                                        <h4 className="font-semibold text-gray-900 text-sm">Borrower</h4>
-                                    </div>
-                                    <p className="text-gray-600 ml-11 text-sm">{scannedLentItem.borrowerFullName}</p>
-                                </div>
-                                <div className="bg-gray-50 rounded-lg p-3">
-                                    <div className="flex items-center mb-2">
-                                        <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center mr-3">
-                                            <FaCheckCircle className="text-white w-4 h-4" />
-                                        </div>
-                                        <h4 className="font-semibold text-gray-900 text-sm">Role</h4>
-                                    </div>
-                                    <p className="text-gray-600 ml-11 text-sm">{scannedLentItem.borrowerRole}</p>
-                                </div>
-                                {scannedLentItem.studentIdNumber && (
-                                    <div className="bg-gray-50 rounded-lg p-3">
-                                        <div className="flex items-center mb-2">
-                                            <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
-                                                <FaHashtag className="text-white w-4 h-4" />
-                                            </div>
-                                            <h4 className="font-semibold text-gray-900 text-sm">Student ID</h4>
-                                        </div>
-                                        <p className="text-gray-600 ml-11 text-sm">{scannedLentItem.studentIdNumber}</p>
-                                    </div>
-                                )}
-                                <div className="bg-gray-50 rounded-lg p-3">
-                                    <div className="flex items-center mb-2">
-                                        <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mr-3">
-                                            <FaHashtag className="text-white w-4 h-4" />
-                                        </div>
-                                        <h4 className="font-semibold text-gray-900 text-sm">Room</h4>
-                                    </div>
-                                    <p className="text-gray-600 ml-11 text-sm">{scannedLentItem.room}</p>
-                                </div>
-                                <div className="bg-gray-50 rounded-lg p-3">
-                                    <div className="flex items-center mb-2">
-                                        <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center mr-3">
-                                            <BsCalendar2Date className="text-white w-4 h-4" />
-                                        </div>
-                                        <h4 className="font-semibold text-gray-900 text-sm">Schedule</h4>
-                                    </div>
-                                    <p className="text-gray-600 ml-11 text-sm">{scannedLentItem.subjectTimeSchedule}</p>
-                                </div>
-                                <div className="bg-gray-50 rounded-lg p-3">
-                                    <div className="flex items-center mb-2">
-                                        <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center mr-3">
-                                            <BsCalendar2Date className="text-white w-4 h-4" />
-                                        </div>
-                                        <h4 className="font-semibold text-gray-900 text-sm">Lent At</h4>
-                                    </div>
-                                    <p className="text-gray-600 ml-11 text-sm">{FormattedDateTime(scannedLentItem.lentAt)}</p>
-                                </div>
-                                {scannedLentItem.returnedAt && (
-                                    <div className="bg-gray-50 rounded-lg p-3">
-                                        <div className="flex items-center mb-2">
-                                            <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mr-3">
-                                                <BsCalendar2Date className="text-white w-4 h-4" />
-                                            </div>
-                                            <h4 className="font-semibold text-gray-900 text-sm">Returned At</h4>
-                                        </div>
-                                        <p className="text-gray-600 ml-11 text-sm">{FormattedDateTime(scannedLentItem.returnedAt)}</p>
-                                    </div>
-                                )}
-                                <div className="bg-gray-50 rounded-lg p-3">
-                                    <div className="flex items-center mb-2">
-                                        <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center mr-3">
-                                            <FaCheckCircle className="text-white w-4 h-4" />
-                                        </div>
-                                        <h4 className="font-semibold text-gray-900 text-sm">Status</h4>
-                                    </div>
-                                    <p className="text-gray-600 ml-11 text-sm">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${scannedLentItem.status === 'Returned' ? 'bg-green-100 text-green-800' :
-                                            scannedLentItem.status === 'Borrowed' ? 'bg-blue-100 text-blue-800' :
-                                                scannedLentItem.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                                                    scannedLentItem.status === 'Approved' ? 'bg-emerald-100 text-emerald-800' :
-                                                        scannedLentItem.status === 'Canceled' ? 'bg-red-100 text-red-800' :
-                                                            'bg-gray-100 text-gray-800'
-                                            }`}>
-                                            {scannedLentItem.status}
-                                        </span>
-                                    </p>
-                                </div>
-                            </div>
-                            {scannedLentItem.remarks && (
-                                <div className="bg-gray-50 rounded-lg p-3 mb-4">
-                                    <div className="flex items-center mb-2">
-                                        <div className="w-8 h-8 bg-gray-500 rounded-lg flex items-center justify-center mr-3">
-                                            <MdOutlineDescription className="text-white w-4 h-4" />
-                                        </div>
-                                        <h4 className="font-semibold text-gray-900 text-sm">Remarks</h4>
-                                    </div>
-                                    <p className="text-gray-600 ml-11 text-sm">{scannedLentItem.remarks}</p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
+            <LentItemDetailsModal
+                itemId={scannedLentItemId || ""}
+                isOpen={!!scannedLentItemId}
+                onClose={() => setScannedLentItemId(null)}
+                fromScan={true}
+                onProceedToScan={() => {
+                    // Show success message for borrowed item
+                    setBorrowSuccess(true);
+                    setTimeout(() => {
+                        setBorrowSuccess(false);
+                    }, 3000);
+                }}
+            />
 
             {/* Floating Action Buttons - Reverse D Shape */}
             <div
