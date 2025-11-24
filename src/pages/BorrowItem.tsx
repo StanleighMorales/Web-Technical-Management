@@ -11,7 +11,7 @@ import { getToken } from '../utils/token';
 import SearchBar from '../components/SearchBar';
 import Pagination from '../components/Pagination';
 import { InventoryBadges } from '../components/InventoryBadges';
-import logo from '../assets/img/aclcLogo.webp';
+import box from '../assets/box.webp';
 import { FormattedDateTime } from '../components/FormattedDateTime';
 import { SlugCondition } from '../components/SlugCondition';
 import InventoryListSkeletonLoader from '../loader/InventoryListSkeletonLoader';
@@ -60,7 +60,7 @@ const ItemDetailsModal: React.FC<ItemDetailsModalProps> = ({ item, onClose, onBo
                         <div className="flex justify-center">
                             {item.image ? (
                                 <img
-                                    src={typeof item.image === 'string' ? item.image : logo}
+                                    src={typeof item.image === 'string' ? item.image : box}
                                     alt={item.itemName}
                                     className="w-48 h-48 md:w-64 md:h-64 object-cover rounded-lg shadow-md"
                                 />
@@ -1159,7 +1159,7 @@ const BorrowItemsTable = ({ onBorrowClick }: { onBorrowClick: (itemId: string, i
                                             <td className="py-3 px-3 md:px-4 font-semibold text-sm">{item.serialNumber}</td>
                                             <td className="py-3 px-3 md:px-4">
                                                 <img
-                                                    src={typeof item.image === "string" ? item.image : logo}
+                                                    src={typeof item.image === "string" ? item.image : box}
                                                     alt={item.itemName}
                                                     className="w-10 h-10 rounded-xl object-cover"
                                                 />
