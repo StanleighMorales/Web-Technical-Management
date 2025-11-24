@@ -1,8 +1,11 @@
 {
-  "name": "technical-equipment-borrowing-system",
-  "compatibility_date": "2025-24-11",
+  "name": "technical-equipment-borrowing-system", 
+  "account_id": "YOUR_ACCOUNT_ID",                
+  "compatibility_date": "2025-11-24",
+
   "build": {
-    "command": "npm run build",
-    "pages_build_output_dir": "./dist"
-  }
+    "command": "npm run build"
+  },
+
+  "pages_build_output_dir": "dist"
 }
