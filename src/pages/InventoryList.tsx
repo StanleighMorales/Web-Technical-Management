@@ -42,7 +42,6 @@ export default function InventoryList() {
     const itemsPerPrintPage = 15; // Items per print page (3x5 grid for A4)
     const fileInputRef = useRef<HTMLInputElement>(null);
     const moreMenuRef = useRef<HTMLDivElement>(null);
-    const printAreaRef = useRef<HTMLDivElement>(null);
 
     // this func use a useMemo to filtered item either its itemName or the Category and also for the Matches Category and return items,searchItem and selectedCategory
     const filteredItems = useMemo(
@@ -703,7 +702,7 @@ export default function InventoryList() {
 
                         {/* Print Preview Area */}
                         <div className="flex-1 overflow-auto p-6 bg-gray-50">
-                            <div ref={printAreaRef} id="barcode-print-area" className="bg-white p-6 mx-auto max-w-[210mm] min-h-[297mm] shadow-lg">
+                            <div id="barcode-print-area" className="bg-white p-6 mx-auto max-w-[210mm] min-h-[297mm] shadow-lg">
                                 <div className="grid grid-cols-3 gap-3">
                                     {filteredItems
                                         .slice(
