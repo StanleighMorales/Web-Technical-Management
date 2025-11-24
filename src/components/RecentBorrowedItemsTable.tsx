@@ -1,7 +1,7 @@
 import { SlugStatus } from "./SlugStatus";
 import type { FC } from "react";
 import { FormattedDateTime } from "./FormattedDateTime";
-import logo from "../assets/img/aclcLogo.webp"
+import box from "../assets/img/box.webp";
 
 type TRecentBorrowedItemsTableProps = {
     id: string;
@@ -23,7 +23,7 @@ export const RecentBorrowedItemsTable: FC<TRecentBorrowedItemsTableProps> = (pro
             <td className="py-3 px-4">{props.serialNumber}</td>
             <td className="py-4 px-6">
                 <img
-                    src={typeof props.image === "string" ? props.image : logo}
+                    src={typeof props.image === "string" ? props.image : box}
                     alt={props.itemName}
                     className="object-cover w-10 h-10 rounded-xl"
                     onError={(e) => (e.currentTarget.style.display = "none")}
