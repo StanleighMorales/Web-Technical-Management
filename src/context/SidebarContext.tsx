@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState } from "react";
 
 interface SidebarContextType {
     isSidebarExpanded: boolean;
@@ -7,7 +7,7 @@ interface SidebarContextType {
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
-export function SidebarProvider({ children }: { children: ReactNode }) {
+export function SidebarProvider({ children }: { children: React.ReactNode }) {
     const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
     return (

@@ -16,7 +16,7 @@ type PendingItemsTableProps = {
 
 const ITEMS_PER_PAGE = 10;
 
-export default function PendingItemsTable({ items, onApprove, onDeny, onRowClick, searchValue, onSearchChange }: PendingItemsTableProps) {
+export default function PendingItemsTable({ items, onApprove, onDeny, onRowClick, onSearchChange }: PendingItemsTableProps) {
     const [currentPage, setCurrentPage] = useState(1);
 
     // Calculate pagination
