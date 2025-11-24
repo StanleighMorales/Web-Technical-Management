@@ -343,8 +343,9 @@ export const EditStudent = ({
                                     className={`w-full px-4 py-3 rounded-xl border ${phoneError ? "border-red-500" : "border-[#e0e7ef]"
                                         } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
                                     value={formData.phoneNumber}
+                                    maxLength={10}
                                     onChange={handleInputChange}
-                                    placeholder="Enter phone number"
+                                    placeholder="9XXXXXXXXX"
                                 />
                                 {phoneError && (
                                     <p className="mt-1 text-sm text-red-500">{phoneError}</p>
