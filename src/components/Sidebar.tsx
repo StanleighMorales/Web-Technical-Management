@@ -1,11 +1,12 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../assets/img/aclcLogo.webp";
-import { CiLogout, CiSettings, CiUser } from "react-icons/ci";
+import { CiLogout, CiUser } from "react-icons/ci";
 import { GiArchiveRegister } from "react-icons/gi";
 import { GrStorage } from "react-icons/gr";
 import { MdHistory, MdInventory, MdDashboardCustomize, MdAppRegistration } from "react-icons/md";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 import { BiPackage } from "react-icons/bi";
+import { BsPersonCircle, BsClipboardCheck } from "react-icons/bs";
 import { useState, useEffect } from "react";
 import SidebarSkeletonLoader from "../loader/SidebarSkeletonLoader";
 import { usePostLogoutUserMutation } from "../query/post/usePostLogoutUserMutation";
@@ -17,6 +18,7 @@ export default function Sidebar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
     const [isSidebarLoading, setIsSidebarLoading] = useState<boolean>(true);
     const [isItemsDropdownOpen, setIsItemsDropdownOpen] = useState<boolean>(false);
+    const [wasItemsDropdownOpen, setWasItemsDropdownOpen] = useState<boolean>(false);
     const { mutate, isPending } = usePostLogoutUserMutation()
     const { setIsSidebarExpanded } = useSidebar();
 
@@ -30,12 +32,12 @@ export default function Sidebar() {
         { label: "Archives", link: "archive-table", icon: MdInventory },
         { label: "Borrow History", link: "history-list", icon: MdHistory },
         { label: "Registration Module", link: "registration-module", icon: MdAppRegistration },
-        { label: "Settings", link: "settings", icon: CiSettings },
+        { label: "Profile", link: "settings", icon: BsPersonCircle },
     ];
 
     const itemsSubmenu = [
         { label: "Borrow Items", link: "borrow-item", icon: GrStorage },
-        { label: "Pending & Reservations", link: "pending-reservations", icon: MdInventory },
+        { label: "Pending & Reservations", link: "pending-reservations", icon: BsClipboardCheck },
     ];
 
     const toggleMobileMenu = () => {
@@ -69,8 +71,15 @@ export default function Sidebar() {
             {/* Desktop Sidebar (visible lg and above only) */}
             <aside
                 className="hidden fixed top-0 left-0 z-50 flex-col justify-between h-screen bg-white border-r shadow-xl transition-all duration-300 lg:flex group animate-fadeIn w-[75px] border-[#e5e7eb] hover:w-[270px] scrollbar-thin"
-                onMouseEnter={() => setIsSidebarExpanded(true)}
-                onMouseLeave={() => setIsSidebarExpanded(false)}
+                onMouseEnter={() => {
+                    setIsSidebarExpanded(true);
+                    setIsItemsDropdownOpen(wasItemsDropdownOpen);
+                }}
+                onMouseLeave={() => {
+                    setIsSidebarExpanded(false);
+                    setWasItemsDropdownOpen(isItemsDropdownOpen);
+                    setIsItemsDropdownOpen(false);
+                }}
             >
                 {/* Logo */}
                 <div className="flex flex-col items-center py-8">
@@ -124,7 +133,10 @@ export default function Sidebar() {
                             </button>
 
                             {/* Dropdown Submenu */}
-                            {isItemsDropdownOpen && (
+                            <div
+                                className={`overflow-hidden transition-all duration-300 ease-in-out ${isItemsDropdownOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
+                                    }`}
+                            >
                                 <ul className="flex flex-col gap-1 mt-1 ml-4">
                                     {itemsSubmenu.map((subItem) => (
                                         <li key={subItem.label}>
@@ -145,7 +157,7 @@ export default function Sidebar() {
                                         </li>
                                     ))}
                                 </ul>
-                            )}
+                            </div>
                         </li>
 
                         {sideBarListBottom.map((item) => (
@@ -271,7 +283,10 @@ export default function Sidebar() {
                                 </button>
 
                                 {/* Dropdown Submenu */}
-                                {isItemsDropdownOpen && (
+                                <div
+                                    className={`overflow-hidden transition-all duration-300 ease-in-out ${isItemsDropdownOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
+                                        }`}
+                                >
                                     <ul className="flex flex-col gap-1 mt-1 ml-6">
                                         {itemsSubmenu.map((subItem) => (
                                             <li key={subItem.label}>
@@ -291,7 +306,7 @@ export default function Sidebar() {
                                             </li>
                                         ))}
                                     </ul>
-                                )}
+                                </div>
                             </li>
 
                             {sideBarListBottom.map((item) => (
