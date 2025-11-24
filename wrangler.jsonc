@@ -1,5 +1,8 @@
 {
   "name": "technical-equipment-borrowing-system",
   "compatibility_date": "2025-11-24",
-  "pages_build_output_dir": "dist"
+  "build": {
+    "command": "npm run build",
+    "output_directory": "dist"
+  }
 }
