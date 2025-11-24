@@ -1257,6 +1257,29 @@ export default function BorrowItem() {
         }
 
         try {
+            // First, fetch the item to check its status
+            const checkResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/lentItems/scan/${barcode}`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (!checkResponse.ok) {
+                throw new Error("Item not found or unable to fetch item details");
+            }
+
+            const itemData = await checkResponse.json();
+            const itemStatus = itemData?.data?.status?.toLowerCase();
+
+            // Validate that the item status is "borrowed"
+            if (itemStatus !== 'borrowed') {
+                setReturnError(`Cannot return item with status "${itemData?.data?.status || 'Unknown'}". Only items with "Borrowed" status can be returned.`);
+                return;
+            }
+
+            // If status is valid, proceed with return
             await returnItemMutation.mutateAsync({ barcode });
 
             setShowReturnModal(false);
@@ -1437,9 +1460,9 @@ export default function BorrowItem() {
                 />
             )}
 
-            {/* Floating Action Buttons */}
+            {/* Floating Action Buttons - Reverse D Shape */}
             <div
-                className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-40"
+                className="fixed right-0 bottom-12 z-40"
                 onMouseEnter={() => setShowFloatingMenu(true)}
                 onMouseLeave={() => {
                     if (!menuOpenedByClick) {
@@ -1448,74 +1471,62 @@ export default function BorrowItem() {
                 }}
             >
                 <div className="flex flex-col items-end gap-3">
-                    {/* Return Button - Expands to the left on hover */}
-                    <div
-                        className={`group relative transition-all duration-300 ${showFloatingMenu ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                    {/* Scan Button - Slides from right */}
+                    <button
+                        onClick={() => {
+                            setActiveTab('form');
+                            setShowFloatingMenu(false);
+                            setMenuOpenedByClick(false);
+                            // Trigger scan modal if BorrowItemForm has scan functionality
+                            setTimeout(() => {
+                                const scanButton = document.querySelector('[data-scan-trigger]') as HTMLButtonElement;
+                                if (scanButton) scanButton.click();
+                            }, 100);
+                        }}
+                        className={`flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 py-3 overflow-hidden ${showFloatingMenu
+                            ? 'translate-x-0 opacity-100 pointer-events-auto delay-75 pr-4 pl-3'
+                            : 'translate-x-full opacity-0 pointer-events-none pr-0 pl-3'
+                            }`}
+                        style={{
+                            borderRadius: '9999px 0 0 9999px'
+                        }}
+                        title="Scan Lent Item"
                     >
-                        {/* Return Button Label - Hidden on small screens */}
-                        <div className={`absolute right-16 top-1/2 transform -translate-y-1/2 transition-all duration-300 ease-out ${showFloatingMenu
-                            ? 'opacity-100 translate-x-0 pointer-events-auto'
-                            : 'opacity-0 translate-x-4 pointer-events-none'
-                            } hidden md:block`}>
-                            <div className="bg-white text-gray-700 px-4 py-2 rounded-lg shadow-lg border border-gray-200 whitespace-nowrap text-sm font-medium">
-                                Return Item
-                            </div>
-                        </div>
+                        <svg className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                        </svg>
+                        <span className={`text-sm font-medium whitespace-nowrap transition-all duration-300 ${showFloatingMenu ? 'opacity-100 max-w-xs' : 'opacity-0 max-w-0'
+                            }`}>
+                            Scan Lent Item
+                        </span>
+                    </button>
 
-                        {/* Return Button */}
-                        <button
-                            onClick={() => {
-                                setShowReturnModal(true);
-                                setShowFloatingMenu(false);
-                                setMenuOpenedByClick(false);
-                            }}
-                            className={`bg-orange-500 hover:bg-orange-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 p-3 md:p-4 ${showFloatingMenu ? 'scale-100 opacity-100 delay-75' : 'scale-0 opacity-0'
-                                }`}
-                            title="Return Item"
-                        >
-                            <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    {/* Scan Button - Expands to the left on hover */}
-                    <div
-                        className={`group relative transition-all duration-300 ${showFloatingMenu ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                    {/* Return Button - Slides from right */}
+                    <button
+                        onClick={() => {
+                            setShowReturnModal(true);
+                            setShowFloatingMenu(false);
+                            setMenuOpenedByClick(false);
+                        }}
+                        className={`flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 py-3 overflow-hidden ${showFloatingMenu
+                            ? 'translate-x-0 opacity-100 pointer-events-auto delay-150 pr-4 pl-3'
+                            : 'translate-x-full opacity-0 pointer-events-none pr-0 pl-3'
+                            }`}
+                        style={{
+                            borderRadius: '9999px 0 0 9999px'
+                        }}
+                        title="Return Item"
                     >
-                        {/* Scan Button Label - Hidden on small screens */}
-                        <div className={`absolute right-16 top-1/2 transform -translate-y-1/2 transition-all duration-300 ease-out ${showFloatingMenu
-                            ? 'opacity-100 translate-x-0 pointer-events-auto'
-                            : 'opacity-0 translate-x-4 pointer-events-none'
-                            } hidden md:block`}>
-                            <div className="bg-white text-gray-700 px-4 py-2 rounded-lg shadow-lg border border-gray-200 whitespace-nowrap text-sm font-medium">
-                                Scan Lent Item
-                            </div>
-                        </div>
+                        <svg className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                        </svg>
+                        <span className={`text-sm font-medium whitespace-nowrap transition-all duration-300 ${showFloatingMenu ? 'opacity-100 max-w-xs' : 'opacity-0 max-w-0'
+                            }`}>
+                            Return Item
+                        </span>
+                    </button>
 
-                        {/* Scan Button */}
-                        <button
-                            onClick={() => {
-                                setActiveTab('form');
-                                setShowFloatingMenu(false);
-                                setMenuOpenedByClick(false);
-                                // Trigger scan modal if BorrowItemForm has scan functionality
-                                setTimeout(() => {
-                                    const scanButton = document.querySelector('[data-scan-trigger]') as HTMLButtonElement;
-                                    if (scanButton) scanButton.click();
-                                }, 100);
-                            }}
-                            className={`bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 p-3 md:p-4 ${showFloatingMenu ? 'scale-100 opacity-100 delay-150' : 'scale-0 opacity-0'
-                                }`}
-                            title="Scan Lent Item"
-                        >
-                            <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    {/* Main Plus Button */}
+                    {/* Main Plus Button - Reverse D Shape */}
                     <div className="relative">
                         <button
                             onClick={() => {
@@ -1529,11 +1540,18 @@ export default function BorrowItem() {
                                     setMenuOpenedByClick(true);
                                 }
                             }}
-                            className={`bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 p-4 md:p-5 ${showFloatingMenu ? 'rotate-45' : 'rotate-0'
-                                }`}
+                            className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-2xl transition-all duration-300 p-4 md:p-5"
+                            style={{
+                                borderRadius: '50% 0 0 50%'
+                            }}
                             title="Quick Actions"
                         >
-                            <svg className="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg
+                                className={`w-7 h-7 md:w-8 md:h-8 transition-transform duration-300 ${showFloatingMenu ? 'rotate-45' : 'rotate-0'}`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                             </svg>
                         </button>
