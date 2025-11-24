@@ -1,7 +1,7 @@
 import type { FC } from "react";
 import { useState } from "react";
 import { IoArchive } from "react-icons/io5";
-import logo from "../assets/img/aclcLogo.webp";
+import box from "../assets/img/box.webp";
 import { FormattedDateTime } from "./FormattedDateTime";
 import { SlugCondition } from "./SlugCondition";
 import { SlugStatus } from "./SlugStatus";
@@ -68,7 +68,7 @@ export const InventoryTable: FC<Required<InventoryTableProps>> = (props) => {
                 <td className="py-3 px-4">{props.SerialNumber}</td>
                 <td className="py-3 px-4">
                     <img
-                        src={typeof props.Image === "string" ? props.Image : logo}
+                        src={typeof props.Image === "string" ? props.Image : box}
                         alt={props.ItemName}
                         className="w-10 h-10 rounded-xl"
                     />
