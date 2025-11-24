@@ -112,20 +112,24 @@ export default function Dashboard() {
                     <h1 className="-mt-10 text-2xl font-bold max-sm:-mt-1 text-[#1e293b]">
                         Recently Borrowed Items
                     </h1>
-                    <div className="flex flex-col sm:flex-row sm:gap-4 sm:items-center">
-                        {totalPages > 1 && (
+                </div>
+
+                {/* Pagination & Search */}
+                <div className="flex flex-row gap-2 justify-end items-center mb-6 flex-wrap">
+                    {totalPages > 1 && (
+                        <div className="mb-6">
                             <Pagination
                                 totalPages={totalPages}
                                 currentPage={currentPage}
                                 handlePageChange={handlePageChange}
                             />
-                        )}
-                        <SearchBar
-                            onChangeValue={(value) => setSearchTerm(value)}
-                            name="search"
-                            placeholder="Search items..."
-                        />
-                    </div>
+                        </div>
+                    )}
+                    <SearchBar
+                        onChangeValue={(value) => setSearchTerm(value)}
+                        name="search"
+                        placeholder="Search items..."
+                    />
                 </div>
 
                 <div className="overflow-x-auto rounded-xl shadow-inner h-[55vh] bg-white/95">
