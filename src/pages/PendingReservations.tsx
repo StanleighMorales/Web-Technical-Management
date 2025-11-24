@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import SearchBar from "../components/SearchBar";
-import { SelectHistoryStatus } from "../components/SelectHistoryStatus";
 import HistoryListSkeletonLoader from "../loader/HistoryListSkeletonLoader";
 import { useQuery } from "@tanstack/react-query";
 import { useBorrowedItemsQuery } from "../query/get/useBorrwedItemsQuery";
@@ -18,7 +17,6 @@ export default function PendingReservations() {
     const [activeTab, setActiveTab] = useState<"pending" | "reservations">("pending");
     const [searchItem, setSearchItem] = useState("");
     const [borrowedItem, setBorrowedItem] = useState<THistoryBorrwedItems[]>([]);
-    const [selectedStatus, setSelectedStatus] = useState("all");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDenyModalOpen, setIsDenyModalOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState<THistoryBorrwedItems | null>(null);
@@ -55,20 +53,18 @@ export default function PendingReservations() {
         return borrowedItem.filter((item) => {
             const matchesSearch = item.borrowerFullName?.toLowerCase().includes(searchItem.toLowerCase()) ||
                 item.item.itemName?.toLowerCase().includes(searchItem.toLowerCase());
-            const matchesStatus = selectedStatus === "all" || item.status.toLowerCase() === selectedStatus;
-            return matchesSearch && matchesStatus && item.status === "Pending";
+            return matchesSearch && item.status === "Pending";
         });
-    }, [borrowedItem, searchItem, selectedStatus]);
+    }, [borrowedItem, searchItem]);
 
     const reservationItems = useMemo(() => {
         return borrowedItem.filter((item) => {
             const matchesSearch = item.borrowerFullName?.toLowerCase().includes(searchItem.toLowerCase()) ||
                 item.item.itemName?.toLowerCase().includes(searchItem.toLowerCase());
-            const matchesStatus = selectedStatus === "all" || item.status.toLowerCase() === selectedStatus;
             // Reservations are items with status "Reserved" or future scheduled items
-            return matchesSearch && matchesStatus && (item.status === "Reserved" || item.status === "Scheduled");
+            return matchesSearch && (item.status === "Reserved" || item.status === "Scheduled");
         });
-    }, [borrowedItem, searchItem, selectedStatus]);
+    }, [borrowedItem, searchItem]);
 
     const filteredItems = activeTab === "pending" ? pendingItems : reservationItems;
 
@@ -224,9 +220,8 @@ export default function PendingReservations() {
                     </button>
                 </div>
 
-                {/* Search & Filter */}
+                {/* Search */}
                 <div className="flex flex-row gap-2 justify-end mb-6 flex-wrap">
-                    <SelectHistoryStatus onChangeStatus={setSelectedStatus} />
                     <SearchBar
                         onChangeValue={setSearchItem}
                         name="Search Pending"
