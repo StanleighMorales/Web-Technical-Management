@@ -220,71 +220,19 @@ export default function PendingReservations() {
                     </button>
                 </div>
 
-                {/* Search */}
-                <div className="flex flex-row gap-2 justify-end mb-6 flex-wrap">
-                    <SearchBar
-                        onChangeValue={setSearchItem}
-                        name="Search Pending"
-                        placeholder="Search by borrower or item"
+                {/* Table Card */}
+                {isError ? (
+                    <ErrorTable />
+                ) : (
+                    <PendingItemsTable
+                        items={filteredItems}
+                        onApprove={handleApproveClick}
+                        onDeny={handleDenyClick}
+                        onRowClick={handleRowClick}
+                        searchValue={searchItem}
+                        onSearchChange={setSearchItem}
                     />
-                </div>
-
-                {/* Table */}
-                <div className="overflow-x-auto rounded-2xl shadow-lg h-[50vh] md:h-[60vh] bg-white/95">
-                    {isError ? (
-                        <ErrorTable />
-                    ) : (
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr>
-                                    {[
-                                        "Serial Number",
-                                        "Image",
-                                        "Item",
-                                        "Borrower",
-                                        "Teacher",
-                                        "Room",
-                                        "Remarks",
-                                        "Request Date",
-                                        "Status",
-                                        "Action",
-                                    ].map((header) => (
-                                        <th
-                                            key={header}
-                                            className="sticky bg-white top-0 py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]"
-                                        >
-                                            {header}
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredItems.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={10} className="py-8 text-center text-gray-500">
-                                            {activeTab === "pending"
-                                                ? "No pending requests found."
-                                                : "No reservations found."}
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    <PendingItemsTable
-                                        items={filteredItems}
-                                        onApprove={handleApproveClick}
-                                        onDeny={handleDenyClick}
-                                        onRowClick={handleRowClick}
-                                    />
-                                )}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
-
-                <p className="mt-6 text-sm text-center text-[#64748b]">
-                    <span className="font-semibold">Note:</span> {activeTab === "pending"
-                        ? "Click on any row to view full details including borrower information. Click 'Approve' to confirm and process pending borrow requests."
-                        : "Click on any row to view full details. Reservations are scheduled future borrows that can be approved when ready."}
-                </p>
+                )}
             </div>
 
             <ApproveConfirmationModal
