@@ -9,6 +9,7 @@ import { BiPackage } from "react-icons/bi";
 import { useState, useEffect } from "react";
 import SidebarSkeletonLoader from "../loader/SidebarSkeletonLoader";
 import { usePostLogoutUserMutation } from "../query/post/usePostLogoutUserMutation";
+import { useSidebar } from "../context/SidebarContext";
 
 
 export default function Sidebar() {
@@ -17,6 +18,7 @@ export default function Sidebar() {
     const [isSidebarLoading, setIsSidebarLoading] = useState<boolean>(true);
     const [isItemsDropdownOpen, setIsItemsDropdownOpen] = useState<boolean>(false);
     const { mutate, isPending } = usePostLogoutUserMutation()
+    const { setIsSidebarExpanded } = useSidebar();
 
     const sideBarListTop = [
         { label: "Dashboard", link: "dashboard", icon: MdDashboardCustomize },
@@ -65,7 +67,11 @@ export default function Sidebar() {
     return (
         <>
             {/* Desktop Sidebar (visible lg and above only) */}
-            <aside className="hidden top-0 left-0 z-30 flex-col justify-between h-screen bg-white border-r shadow-xl transition-all duration-300 lg:flex group animate-fadeIn w-[75px] border-[#e5e7eb] hover:w-[270px]">
+            <aside
+                className="hidden fixed top-0 left-0 z-50 flex-col justify-between h-screen bg-white border-r shadow-xl transition-all duration-300 lg:flex group animate-fadeIn w-[75px] border-[#e5e7eb] hover:w-[270px] scrollbar-thin"
+                onMouseEnter={() => setIsSidebarExpanded(true)}
+                onMouseLeave={() => setIsSidebarExpanded(false)}
+            >
                 {/* Logo */}
                 <div className="flex flex-col items-center py-8">
                     <img
@@ -79,7 +85,7 @@ export default function Sidebar() {
                 </div>
 
                 {/* Navigation */}
-                <nav className="flex-1">
+                <nav className="flex-1 overflow-y-auto scrollbar-thin">
                     <ul className="flex flex-col gap-2 px-2">
                         {sideBarListTop.map((item) => (
                             <li key={item.label}>
