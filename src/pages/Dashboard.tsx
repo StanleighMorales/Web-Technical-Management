@@ -117,13 +117,11 @@ export default function Dashboard() {
                 {/* Pagination & Search */}
                 <div className="flex flex-row gap-2 justify-end items-center mb-6 flex-wrap">
                     {totalPages > 1 && (
-                        <div className="mb-6">
-                            <Pagination
-                                totalPages={totalPages}
-                                currentPage={currentPage}
-                                handlePageChange={handlePageChange}
-                            />
-                        </div>
+                        <Pagination
+                            totalPages={totalPages}
+                            currentPage={currentPage}
+                            handlePageChange={handlePageChange}
+                        />
                     )}
                     <SearchBar
                         onChangeValue={(value) => setSearchTerm(value)}

@@ -187,13 +187,11 @@ export default function HistoryList({
                 {/* Pagination & Search */}
                 <div className="flex flex-row gap-2 justify-end items-center mb-6 flex-wrap">
                     {filteredItems.length > 0 && (
-                        <div className="mb-6">
-                            <Pagination
-                                totalPages={totalPages}
-                                currentPage={validCurrentPage}
-                                handlePageChange={handlePageChange}
-                            />
-                        </div>
+                        <Pagination
+                            totalPages={totalPages}
+                            currentPage={validCurrentPage}
+                            handlePageChange={handlePageChange}
+                        />
                     )}
                     <SearchBar onChangeValue={setSearchItem} name="Search History" placeholder="Search by borrower name" />
                 </div>
