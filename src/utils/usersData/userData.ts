@@ -4,26 +4,28 @@ import { useUserQuery } from "../../query/get/useUserQuery";
 import type { TUsers } from "../../types/types";
 
 export const UserData = () => {
-  const [userData, setUserData] = useState<TUsers>({
-    id: "",
-    username: "",
-    lastName: "",
-    middleName: "",
-    firstName: "",
-    email: "",
-    phoneNumber: "",
-    userRole: "",
-    status: "",
-  })
+    type TUserRequired = Pick<TUsers, "id" | "username" | "lastName" | "middleName" | "firstName" | "email" | "phoneNumber" | "userRole" | "status">
 
-  const { data } = useSuspenseQuery(useUserQuery())
+    const [userData, setUserData] = useState<TUserRequired>({
+        id: "",
+        username: "",
+        lastName: "",
+        middleName: "",
+        firstName: "",
+        email: "",
+        phoneNumber: "",
+        userRole: "",
+        status: "",
+    })
 
-  useEffect(() => {
-    if (!data) console.log("User not found")
-    setUserData(data)
-  }, [data])
+    const { data } = useSuspenseQuery(useUserQuery())
 
-  return userData
+    useEffect(() => {
+        if (!data) console.log("User not found")
+        setUserData(data)
+    }, [data])
+
+    return userData
 }
 
 
