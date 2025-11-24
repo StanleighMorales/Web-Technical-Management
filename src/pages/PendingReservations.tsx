@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import SearchBar from "../components/SearchBar";
-import { SelectHistoryStatus } from "../components/SelectHistoryStatus";
 import HistoryListSkeletonLoader from "../loader/HistoryListSkeletonLoader";
 import { useQuery } from "@tanstack/react-query";
 import { useBorrowedItemsQuery } from "../query/get/useBorrwedItemsQuery";
@@ -18,7 +17,6 @@ export default function PendingReservations() {
     const [activeTab, setActiveTab] = useState<"pending" | "reservations">("pending");
     const [searchItem, setSearchItem] = useState("");
     const [borrowedItem, setBorrowedItem] = useState<THistoryBorrwedItems[]>([]);
-    const [selectedStatus, setSelectedStatus] = useState("all");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDenyModalOpen, setIsDenyModalOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState<THistoryBorrwedItems | null>(null);
@@ -55,20 +53,18 @@ export default function PendingReservations() {
         return borrowedItem.filter((item) => {
             const matchesSearch = item.borrowerFullName?.toLowerCase().includes(searchItem.toLowerCase()) ||
                 item.item.itemName?.toLowerCase().includes(searchItem.toLowerCase());
-            const matchesStatus = selectedStatus === "all" || item.status.toLowerCase() === selectedStatus;
-            return matchesSearch && matchesStatus && item.status === "Pending";
+            return matchesSearch && item.status === "Pending";
         });
-    }, [borrowedItem, searchItem, selectedStatus]);
+    }, [borrowedItem, searchItem]);
 
     const reservationItems = useMemo(() => {
         return borrowedItem.filter((item) => {
             const matchesSearch = item.borrowerFullName?.toLowerCase().includes(searchItem.toLowerCase()) ||
                 item.item.itemName?.toLowerCase().includes(searchItem.toLowerCase());
-            const matchesStatus = selectedStatus === "all" || item.status.toLowerCase() === selectedStatus;
             // Reservations are items with status "Reserved" or future scheduled items
-            return matchesSearch && matchesStatus && (item.status === "Reserved" || item.status === "Scheduled");
+            return matchesSearch && (item.status === "Reserved" || item.status === "Scheduled");
         });
-    }, [borrowedItem, searchItem, selectedStatus]);
+    }, [borrowedItem, searchItem]);
 
     const filteredItems = activeTab === "pending" ? pendingItems : reservationItems;
 
@@ -224,72 +220,19 @@ export default function PendingReservations() {
                     </button>
                 </div>
 
-                {/* Search & Filter */}
-                <div className="flex flex-row gap-2 justify-end mb-6 flex-wrap">
-                    <SelectHistoryStatus onChangeStatus={setSelectedStatus} />
-                    <SearchBar
-                        onChangeValue={setSearchItem}
-                        name="Search Pending"
-                        placeholder="Search by borrower or item"
+                {/* Table Card */}
+                {isError ? (
+                    <ErrorTable />
+                ) : (
+                    <PendingItemsTable
+                        items={filteredItems}
+                        onApprove={handleApproveClick}
+                        onDeny={handleDenyClick}
+                        onRowClick={handleRowClick}
+                        searchValue={searchItem}
+                        onSearchChange={setSearchItem}
                     />
-                </div>
-
-                {/* Table */}
-                <div className="overflow-x-auto rounded-2xl shadow-lg h-[50vh] md:h-[60vh] bg-white/95">
-                    {isError ? (
-                        <ErrorTable />
-                    ) : (
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr>
-                                    {[
-                                        "Serial Number",
-                                        "Image",
-                                        "Item",
-                                        "Borrower",
-                                        "Teacher",
-                                        "Room",
-                                        "Remarks",
-                                        "Request Date",
-                                        "Status",
-                                        "Action",
-                                    ].map((header) => (
-                                        <th
-                                            key={header}
-                                            className="sticky bg-white top-0 py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]"
-                                        >
-                                            {header}
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredItems.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={10} className="py-8 text-center text-gray-500">
-                                            {activeTab === "pending"
-                                                ? "No pending requests found."
-                                                : "No reservations found."}
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    <PendingItemsTable
-                                        items={filteredItems}
-                                        onApprove={handleApproveClick}
-                                        onDeny={handleDenyClick}
-                                        onRowClick={handleRowClick}
-                                    />
-                                )}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
-
-                <p className="mt-6 text-sm text-center text-[#64748b]">
-                    <span className="font-semibold">Note:</span> {activeTab === "pending"
-                        ? "Click on any row to view full details including borrower information. Click 'Approve' to confirm and process pending borrow requests."
-                        : "Click on any row to view full details. Reservations are scheduled future borrows that can be approved when ready."}
-                </p>
+                )}
             </div>
 
             <ApproveConfirmationModal

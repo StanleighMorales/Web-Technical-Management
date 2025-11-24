@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import SearchBar from "../components/SearchBar";
 import HistoryListSkeletonLoader from "../loader/HistoryListSkeletonLoader";
 import { useQuery } from "@tanstack/react-query";
@@ -6,6 +6,7 @@ import { useBorrowedItemsQuery } from "../query/get/useBorrwedItemsQuery";
 import type { THistoryBorrwedItems } from "../types/types";
 import HistoryTable from "../components/HistoryTable";
 import ErrorTable from "../components/ErrorTables";
+import Pagination from "../components/Pagination";
 
 type StatusTab = "all" | "pending" | "approved" | "borrowed" | "returned" | "denied" | "canceled";
 
@@ -16,6 +17,8 @@ export default function HistoryList({
     const [searchItem, setSearchItem] = useState("");
     const [borrowedItem, setBorrowedItem] = useState<THistoryBorrwedItems[]>([]);
     const [activeTab, setActiveTab] = useState<StatusTab>("all");
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const itemsPerPage = 10;
 
     const { data, isPending, isError } = useQuery(useBorrowedItemsQuery());
 
@@ -44,10 +47,32 @@ export default function HistoryList({
         });
     }, [borrowedItem, searchItem, activeTab]);
 
+    const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+
+    const validCurrentPage = totalPages > 0 ? Math.min(currentPage, totalPages) : 1;
+
+    const paginatedData = useMemo(
+        () =>
+            filteredItems.slice(
+                (validCurrentPage - 1) * itemsPerPage,
+                validCurrentPage * itemsPerPage,
+            ),
+        [filteredItems, itemsPerPage, validCurrentPage],
+    );
+
+    const handlePageChange = useCallback((page: number) => {
+        setCurrentPage(page);
+    }, []);
+
+    // Reset to page 1 when tab or search changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [activeTab, searchItem]);
+
     if (isPending) return <HistoryListSkeletonLoader />;
 
     return (
-        <div className="relative flex flex-col items-center py-10 px-2 w-full min-h-screen lg:h-full bg-gradient-to-br animate-fadeIn from-[#f8fafc] via-[#e0e7ef] to-[#c7d2fe]">
+        <div className="relative flex flex-col items-center py-10 px-2 w-full min-h-screen bg-gradient-to-br animate-fadeIn from-[#f8fafc] via-[#e0e7ef] to-[#c7d2fe]">
             <div className="w-full bg-white/90 rounded-2xl p-8 relative">
                 {/* Title */}
                 <div className="flex flex-col gap-4 mb-8 md:flex-row md:justify-between md:items-center">
@@ -159,8 +184,15 @@ export default function HistoryList({
                     </button>
                 </div>
 
-                {/* Search */}
-                <div className="flex flex-row gap-2 justify-end mb-6 flex-wrap">
+                {/* Pagination & Search */}
+                <div className="flex flex-row gap-2 justify-end items-center mb-6 flex-wrap">
+                    {filteredItems.length > 0 && (
+                        <Pagination
+                            totalPages={totalPages}
+                            currentPage={validCurrentPage}
+                            handlePageChange={handlePageChange}
+                        />
+                    )}
                     <SearchBar onChangeValue={setSearchItem} name="Search History" placeholder="Search by borrower name" />
                 </div>
 
@@ -200,7 +232,7 @@ export default function HistoryList({
                                         </td>
                                     </tr>
                                 ) : (
-                                    <HistoryTable items={filteredItems} />
+                                    <HistoryTable items={paginatedData} />
                                 )}
                             </tbody>
                         </table>

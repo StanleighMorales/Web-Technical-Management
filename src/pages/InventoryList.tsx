@@ -340,20 +340,16 @@ export default function InventoryList() {
                 {/* Inventory Table Section */}
                 <section className="px-8">
                     <div className="overflow-x-auto p-4 rounded-2xl ring-1 shadow-xl bg-white/90 h-[60vh] ring-[#e0e7ef]/80">
-                        {/* Top Controls - Add button with dropdown menu on left, Pagination and Search on right */}
-                        <section className="flex flex-col gap-3 justify-between mb-6 lg:flex-row md:flex-row">
-                            {/* Left Side: Add New Item and Dropdown Menu */}
-                            <div className="flex flex-row gap-3 items-center">
-                                {/* Add New Item Button */}
-                                <div>
-                                    <Button
-                                        onClick={() => setIsAddItemFormOpen(true)}
-                                        name={"New Item"}
-                                    />
-                                </div>
-
-                                {/* Dropdown Menu Button with Down Arrow */}
-                                <div className="relative flex-shrink-0" ref={moreMenuRef}>
+                        {/* Unified Top Controls Row */}
+                        <div className="w-full flex items-center justify-between mb-6 flex-wrap gap-3">
+                            {/* LEFT: New Item + More Menu */}
+                            <div className="flex items-center gap-3">
+                                <Button
+                                    onClick={() => setIsAddItemFormOpen(true)}
+                                    name={"New Item"}
+                                />
+                                {/* More Menu Button */}
+                                <div className="relative" ref={moreMenuRef}>
                                     <button
                                         onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
                                         className={`flex items-center justify-center h-11.5 w-12 text-blue-600 bg-white rounded-lg transition-all duration-200 border border-gray-200 hover:shadow-sm hover:scale-100 active:scale-95 cursor-pointer ${isMoreMenuOpen ? 'bg-blue-50 border-blue-300 shadow-md' : 'hover:bg-gray-100'
@@ -372,7 +368,6 @@ export default function InventoryList() {
                                             <circle cx="18" cy="12" r="2" />
                                         </svg>
                                     </button>
-
                                     {isMoreMenuOpen && (
                                         <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg ring-1 ring-blue-500 ring-opacity-5 z-50 animate-slideIn">
                                             <div className="py-1">
@@ -446,27 +441,26 @@ export default function InventoryList() {
                                 </div>
                             </div>
 
-                            {/* Right Side: Pagination and Search */}
-                            <div className="flex flex-col gap-2 items-center md:flex-row lg:flex-row md:items-center">
+                            {/* RIGHT: Pagination + Search with gap */}
+                            <div className="flex items-center gap-2">
                                 {filteredItems.length > 0 && (
-                                    <div className="flex">
-                                        <Pagination
-                                            totalPages={totalPages}
-                                            currentPage={currentPage}
-                                            handlePageChange={handlePageChange}
-                                            selectedCategory={selectedCategory}
-                                            handleShowAll={handleShowAll}
-                                        />
-                                    </div>
+                                    <Pagination
+                                        totalPages={totalPages}
+                                        currentPage={currentPage}
+                                        handlePageChange={handlePageChange}
+                                        selectedCategory={selectedCategory}
+                                        handleShowAll={handleShowAll}
+                                    />
                                 )}
-
-                                <SearchBar
-                                    onChangeValue={(value) => setSearchItem(value)}
-                                    name={"search"}
-                                    placeholder={"Search your items..."}
-                                />
+                                <div className="flex-shrink-0">
+                                    <SearchBar
+                                        onChangeValue={(value) => setSearchItem(value)}
+                                        name={"search"}
+                                        placeholder={"Search your items..."}
+                                    />
+                                </div>
                             </div>
-                        </section>
+                        </div>
 
                         {/* Table */}
                         <div className="overflow-x-auto rounded-lg shadow-inner h-[46vh] bg-white/95">
