@@ -1,7 +1,7 @@
 import { SlugStatus } from "./SlugStatus";
 import type { FC } from "react";
 import { FormattedDateTime } from "./FormattedDateTime";
-import box from "../assets/img/box.webp";
+import box from "../assets/box.webp";
 
 type TRecentBorrowedItemsTableProps = {
     id: string;

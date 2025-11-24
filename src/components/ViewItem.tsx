@@ -13,7 +13,7 @@ import { FaBarcode } from "react-icons/fa6";
 import { useState } from "react";
 import { EditItemForm } from "./EditItemForm";
 import { FormattedDateTime } from "./FormattedDateTime";
-import box from "../assets/img/box.webp"
+import box from "../assets/box.webp"
 
 
 export default function ViewItem() {

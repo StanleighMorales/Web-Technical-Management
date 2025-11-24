@@ -1,7 +1,7 @@
 import type { FC } from "react";
 import { useState } from "react";
 import { IoArchive } from "react-icons/io5";
-import box from "../assets/img/box.webp";
+import box from "../assets/box.webp";
 import { FormattedDateTime } from "./FormattedDateTime";
 import { SlugCondition } from "./SlugCondition";
 import { SlugStatus } from "./SlugStatus";
