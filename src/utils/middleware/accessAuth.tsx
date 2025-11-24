@@ -1,7 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../../auth/useAuth";
 import { getToken, removeToken } from "../token";
-import logo from "../../assets/img/aclcLogo.webp"
+import logo from "../../assets/aclcLogo.webp"
 
 interface RouteProps {
     children: React.ReactNode;

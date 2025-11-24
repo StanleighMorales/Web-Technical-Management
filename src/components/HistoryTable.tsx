@@ -1,7 +1,7 @@
 import type { THistoryBorrwedItems } from "../types/types";
 import { FormattedDateTime } from "./FormattedDateTime";
 import { SlugStatus } from "./SlugStatus";
-import box from "../assets/img/box.webp"
+import box from "../assets/box.webp"
 
 type HistoryTableProps = {
     items: THistoryBorrwedItems[];

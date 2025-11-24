@@ -3,7 +3,7 @@ import AddItemForm from "../components/AddItem";
 import Button from "../components/Button";
 import SearchBar from "../components/SearchBar";
 import InventoryListSkeletonLoader from "../loader/InventoryListSkeletonLoader";
-import logo from "../assets/img/aclcLogo.webp";
+import box from "../assets/box.webp"
 import { useQuery } from "@tanstack/react-query";
 import { useArchiveItemMutation } from "../query/delete/useArchiveItemMutation";
 import type { TItemList } from "../types/types";
@@ -505,7 +505,7 @@ export default function InventoryList() {
                                                 createdAt={item.createdAt}
                                                 ItemName={item.itemName}
                                                 SerialNumber={item.serialNumber}
-                                                Image={item.image || logo}
+                                                Image={item.image || box}
                                                 ItemType={item.itemType}
                                                 Category={item.category}
                                                 Condition={item.condition}

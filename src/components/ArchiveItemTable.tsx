@@ -3,7 +3,7 @@ import { FormattedDateTime } from "./FormattedDateTime";
 import { SlugCondition } from "./SlugCondition";
 import { UserData } from "../utils/usersData/userData";
 import { type FC } from "react";
-import box from "../assets/img/box.webp";
+import box from "../assets/box.webp";
 
 type TArchiveTableProps = {
     id: string;
