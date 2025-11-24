@@ -3,6 +3,7 @@ import { FormattedDateTime } from "./FormattedDateTime";
 import { SlugCondition } from "./SlugCondition";
 import { UserData } from "../utils/usersData/userData";
 import { type FC } from "react";
+import box from "../assets/img/box.webp";
 
 type TArchiveTableProps = {
     id: string;
@@ -64,22 +65,11 @@ export const ArchiveItemTable: FC<TArchiveItemNewProps> = (props) => {
         <>
             <td className="py-3 px-4 font-semibold">{props.serialNumber}</td>
             <td className="py-3 px-4">
-                {props.image ? (
-                    <img
-                        src={props.image}
-                        alt={props.itemName}
-                        className="object-cover w-10 h-10 rounded-xl"
-                        onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = '/placeholder-item.png';
-                            target.alt = 'Image not available';
-                        }}
-                    />
-                ) : (
-                    <div className="flex justify-center items-center w-10 h-10 bg-gray-200 rounded-xl">
-                        <span className="text-xs text-gray-500">No Image</span>
-                    </div>
-                )}
+                <img
+                    src={typeof props.image === "string" ? props.image : box}
+                    alt={props.itemName}
+                    className="object-cover w-10 h-10 rounded-xl"
+                />
             </td>
             <td className="py-3 px-4">{props.itemName}</td>
             <td className="py-3 px-4">{props.category}</td>
