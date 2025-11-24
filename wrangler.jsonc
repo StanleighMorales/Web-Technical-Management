@@ -1,10 +1,6 @@
 {
   "name": "technical-equipment-borrowing-system",
-
   "compatibility_date": "2025-24-11",
-
-  "account_id": "dffa34b55632a74d82829448d8b4db63",
-
   "build": {
     "command": "npm run build",
     "pages_build_output_dir": "dist"
