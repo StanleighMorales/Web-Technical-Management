@@ -56,8 +56,6 @@ export default function Archive() {
     const [restoreSelectedItemId, setRestoreSelectedItemId] = useState<
         string | null
     >(null);
-    const [selectUserId, setSelectedUserId] = useState<string | null>(null);
-    const [isUserCredentialsOpen, setIsUserCredentialOpen] = useState<boolean>(false);
     const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
     const [isItemDetailsOpen, setIsItemDetailsOpen] = useState<boolean>(false);
     const [isDeleteConfirmOpen, setIsDeleteItemConfirmOpen] = useState(false);
@@ -256,15 +254,6 @@ export default function Archive() {
     if (isPending || isUsersPending) {
         return <ArchiveSkeletonLoader />;
     }
-
-    const handleArchiveUserCredentials = (id: string) => {
-        setSelectedUserId(id);
-        setIsUserCredentialOpen(true);
-    }
-    const handleCloseUserCredentials = () => {
-        setSelectedUserId(null);
-        setIsUserCredentialOpen(false);
-    };
 
     const viewArchiveItemCredentials = (id: string) => {
         setSelectedItemId(id);
