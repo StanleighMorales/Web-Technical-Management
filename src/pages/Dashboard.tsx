@@ -49,8 +49,9 @@ export default function Dashboard() {
         () =>
             borrowedItemData.filter(
                 (item) =>
-                    item.item.itemName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    item.item.serialNumber?.toLowerCase().includes(searchTerm.toLowerCase())
+                    item.status === "Borrowed" &&
+                    (item.item.itemName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        item.item.serialNumber?.toLowerCase().includes(searchTerm.toLowerCase()))
             ),
         [borrowedItemData, searchTerm]
     );
@@ -107,22 +108,19 @@ export default function Dashboard() {
                 ))}
             </div>
 
+            <h1 className="mb-4 w-full text-2xl font-bold text-left text-[#1e293b]">
+                Recently Borrowed Items
+            </h1>
+
             <div className="p-8 w-full rounded-2xl border shadow-md bg-white/90 border-[#e0e7ef]">
-                <div className="flex flex-col gap-4 mb-4 md:flex-row md:justify-between md:items-center">
-                    <h1 className="-mt-10 text-2xl font-bold max-sm:-mt-1 text-[#1e293b]">
-                        Recently Borrowed Items
-                    </h1>
-                </div>
 
                 {/* Pagination & Search */}
                 <div className="flex flex-row gap-2 justify-end items-center mb-6 flex-wrap">
-                    {totalPages > 1 && (
-                        <Pagination
-                            totalPages={totalPages}
-                            currentPage={currentPage}
-                            handlePageChange={handlePageChange}
-                        />
-                    )}
+                    <Pagination
+                        totalPages={totalPages || 1}
+                        currentPage={currentPage}
+                        handlePageChange={handlePageChange}
+                    />
                     <SearchBar
                         onChangeValue={(value) => setSearchTerm(value)}
                         name="search"
@@ -143,7 +141,7 @@ export default function Dashboard() {
                                         "Teacher",
                                         "Room",
                                         "Remarks",
-                                        "DateTime",
+                                        "Lent At",
                                         "Status",
                                     ].map((header) => (
                                         <th
@@ -156,8 +154,8 @@ export default function Dashboard() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {paginatedData.filter((s) => s.status === "Borrowed")
-                                    .sort((a, b) => new Date(b.item.createdAt).getTime() - new Date(a.item.createdAt).getTime())
+                                {paginatedData
+                                    .sort((a, b) => new Date(b.lentAt).getTime() - new Date(a.lentAt).getTime())
                                     .map((item) => (
                                         <tr
                                             key={item.item.serialNumber}
@@ -173,7 +171,7 @@ export default function Dashboard() {
                                                 room={item.room}
                                                 teacherFullName={item.teacherFullName}
                                                 remarks={item.remarks}
-                                                createdAt={item.item.createdAt}
+                                                createdAt={item.lentAt}
                                                 status={item.status}
                                             />
                                         </tr>
