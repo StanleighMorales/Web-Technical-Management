@@ -1,8 +1,5 @@
 {
   "name": "technical-equipment-borrowing-system",
-  "main": "src/index.ts",
   "compatibility_date": "2025-11-24",
-   "assets": {
-    "directory": "./dist"
-  }
+  "pages_build_output_dir": "dist"
 }
