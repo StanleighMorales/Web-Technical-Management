@@ -372,7 +372,7 @@ export default function Dashboard() {
                             Recently Borrowed Items
                         </h1>
                     </div>
-                    <div className="flex flex-col lg:flex-row gap-2 ">
+                    <div className="flex flex-col md:flex-row lg:flex-row gap-2 ">
                         <Pagination
                             totalPages={totalPages || 1}
                             currentPage={currentPage}
