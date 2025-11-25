@@ -615,9 +615,9 @@ export default function InventoryList() {
                             </div>
 
                             {/* RIGHT: Pagination + Search with gap */}
-                            <div className="flex flex-col lg:flex-row lg:items-center gap-2">
+                            <div className="flex flex-col md:flex-row lg:flex-row lg:items-center gap-2">
                                 {filteredItems.length > 0 && (
-                                    <div className="lg:order-1 order-2">
+                                    <div className="lg:order-1 md:order-1 order-2">
                                         <Pagination
                                             totalPages={totalPages}
                                             currentPage={currentPage}
