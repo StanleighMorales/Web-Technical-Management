@@ -37,9 +37,9 @@ export default function PendingItemsTable({ items, onApprove, onDeny, onRowClick
     };
 
     return (
-        <div className="bg-white rounded-2xl shadow-lg p-6">
+        <div>
             {/* Search Bar and Pagination Container */}
-            <div className="flex justify-end mb-6">
+            <div className="flex justify-end mb-4">
                 <div className="flex items-center gap-4">
                     <Pagination
                         totalPages={totalPages}
@@ -55,10 +55,10 @@ export default function PendingItemsTable({ items, onApprove, onDeny, onRowClick
             </div>
 
             {/* Table */}
-            <div className="overflow-x-auto rounded-2xl shadow-lg h-[50vh] md:h-[60vh] bg-white/95">
+            <div className="overflow-x-auto h-[50vh] md:h-[60vh] border border-gray-200 rounded-lg">
                 <table className="w-full text-left border-collapse">
                     <thead>
-                        <tr>
+                        <tr className="border-b border-gray-200">
                             {[
                                 "Serial Number",
                                 "Image",
@@ -73,7 +73,7 @@ export default function PendingItemsTable({ items, onApprove, onDeny, onRowClick
                             ].map((header) => (
                                 <th
                                     key={header}
-                                    className="sticky bg-white top-0 py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]"
+                                    className="sticky bg-white top-0 py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b] border-b border-gray-200"
                                 >
                                     {header}
                                 </th>
@@ -92,14 +92,14 @@ export default function PendingItemsTable({ items, onApprove, onDeny, onRowClick
                                 <tr
                                     key={item.id}
                                     onClick={() => onRowClick(item.id)}
-                                    className="hover:bg-[#f1f5f9] transition-colors odd:bg-white even:bg-[#f8fafc] cursor-pointer"
+                                    className="hover:bg-[#f1f5f9] transition-colors border-b border-gray-100 cursor-pointer"
                                 >
-                                    <td className="py-3 px-4">{item.item.serialNumber}</td>
+                                    <td className="py-3 px-6">{item.item.serialNumber}</td>
                                     <td className="py-4 px-6">
                                         <img
                                             src={typeof item.item.image === "string" ? item.item.image : "-"}
                                             alt={item.borrowerFullName}
-                                            className="object-cover w-10 h-10 rounded-xl"
+                                            className="object-cover w-10 h-10 rounded-lg"
                                             onError={(e) => (e.currentTarget.style.display = "none")}
                                         />
                                     </td>
@@ -143,7 +143,7 @@ export default function PendingItemsTable({ items, onApprove, onDeny, onRowClick
                 </table>
             </div>
 
-            <p className="mt-6 text-sm text-center text-[#64748b]">
+            <p className="mt-4 text-sm text-center text-[#64748b]">
                 <span className="font-semibold">Note:</span> Click on any row to view full details including borrower information. Click 'Approve' to confirm and process pending borrow requests.
             </p>
         </div>

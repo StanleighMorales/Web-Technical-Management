@@ -10,6 +10,12 @@ import { RecentBorrowedItemsTable } from "../components/RecentBorrowedItemsTable
 import { useSummaryDataQuery } from "../query/get/useSummaryDataQuery";
 import { useBorrowedItemsQuery } from "../query/get/useBorrwedItemsQuery";
 import { ViewRecentBorrowItems } from "../components/ViewRecentBorrowItems";
+import { useReturnItemMutation } from "../query/patch/useReturnItemMutation";
+import { SuccessAlert } from "../components/SuccessAlert";
+import { ErrorAlert } from "../components/ErrorAlert";
+import { IoMdClose } from "react-icons/io";
+import { getToken } from "../utils/token";
+import { LentItemDetailsModal } from "../components/LentItemDetailsModal";
 
 type Summary = {
     totalItems: number | null;
@@ -34,8 +40,30 @@ export default function Dashboard() {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
+    // Floating menu states
+    const [showFloatingMenu, setShowFloatingMenu] = useState<boolean>(false);
+    const [menuOpenedByClick, setMenuOpenedByClick] = useState<boolean>(false);
+
+    // Return item states
+    const [showReturnModal, setShowReturnModal] = useState<boolean>(false);
+    const [returnBarcode, setReturnBarcode] = useState<string>("");
+    const [returnError, setReturnError] = useState<string>("");
+    const [returnSuccess, setReturnSuccess] = useState<boolean>(false);
+    const [returnErrorMessage, setReturnErrorMessage] = useState<string>("");
+    const [showReturnError, setShowReturnError] = useState<boolean>(false);
+
+    // Borrow item success state
+    const [borrowSuccess, setBorrowSuccess] = useState<boolean>(false);
+
+    // Scan lent item states
+    const [showScanModal, setShowScanModal] = useState<boolean>(false);
+    const [scannedBarcode, setScannedBarcode] = useState<string>("");
+    const [scanError, setScanError] = useState<string>("");
+    const [scannedLentItemId, setScannedLentItemId] = useState<string | null>(null);
+
     const { data: recentBorrowData, isLoading: isBorrowedItemLoading, isError: isBorrowedItemError } = useQuery(useBorrowedItemsQuery());
     const { data: summaryData } = useQuery(useSummaryDataQuery());
+    const returnItemMutation = useReturnItemMutation();
 
     const badges = [
         { name: "Total Items", data: dataSummary.totalItems, link: "/home/inventory-list" },
@@ -49,8 +77,9 @@ export default function Dashboard() {
         () =>
             borrowedItemData.filter(
                 (item) =>
-                    item.item.itemName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    item.item.serialNumber?.toLowerCase().includes(searchTerm.toLowerCase())
+                    item.status === "Borrowed" &&
+                    (item.item.itemName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        item.item.serialNumber?.toLowerCase().includes(searchTerm.toLowerCase()))
             ),
         [borrowedItemData, searchTerm]
     );
@@ -97,32 +126,256 @@ export default function Dashboard() {
         setBorrowedItemData(recentBorrowData);
     }, [recentBorrowData]);
 
+    const handleReturnSubmit = async () => {
+        setReturnError("");
+        const barcode = returnBarcode.trim();
+
+        if (!barcode) {
+            setReturnError("Please enter a barcode");
+            return;
+        }
+
+        try {
+            // Proceed with return - backend will validate the item status
+            await returnItemMutation.mutateAsync({ barcode });
+
+            setShowReturnModal(false);
+            setReturnBarcode("");
+            setReturnError("");
+            setReturnSuccess(true);
+
+            setTimeout(() => {
+                setReturnSuccess(false);
+            }, 3000);
+        } catch (error: any) {
+            setReturnErrorMessage(error.message || "Failed to return item");
+            setShowReturnError(true);
+            setShowReturnModal(false);
+            setReturnBarcode("");
+
+            setTimeout(() => {
+                setShowReturnError(false);
+            }, 5000);
+        }
+    };
+
+    const handleScanSubmit = async () => {
+        setScanError("");
+        const lentItemBarcode = scannedBarcode.trim();
+
+        if (!lentItemBarcode) {
+            setScanError("Please enter a lent item barcode");
+            return;
+        }
+
+        if (!lentItemBarcode.startsWith("LENT-") || lentItemBarcode.length !== 17 ||
+            !/^LENT-\d{8}-\d{3}$/.test(lentItemBarcode)) {
+            setScanError("Invalid lent item barcode format. Expected format: LENT-YYYYMMDD-XXX");
+            return;
+        }
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/lentItems/barcode/${lentItemBarcode}`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            const contentType = response.headers.get("content-type");
+            const hasJsonContent = contentType && contentType.includes("application/json");
+
+            if (!response.ok) {
+                let errorMessage = "Lent item not found";
+
+                if (hasJsonContent) {
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || errorMessage;
+                    } catch (jsonError) {
+                        console.error("Failed to parse error response:", jsonError);
+                    }
+                } else {
+                    const textResponse = await response.text();
+                    errorMessage = textResponse || `HTTP ${response.status}: ${response.statusText}`;
+                }
+
+                throw new Error(errorMessage);
+            }
+
+            if (!hasJsonContent) {
+                throw new Error("Invalid response format from server");
+            }
+
+            const responseData = await response.json();
+
+            if (!responseData || !responseData.data) {
+                throw new Error("Invalid response structure from server");
+            }
+
+            const lentItem = responseData.data;
+
+            setShowScanModal(false);
+            setScannedBarcode("");
+            setScanError("");
+            setScannedLentItemId(lentItem.id);
+        } catch (error: any) {
+            console.error("Scan error:", error);
+            setScanError(error.message || "Failed to fetch lent item details");
+        }
+    };
+
     if (isBorrowedItemLoading) return <DashboardSkeletonLoader />;
 
     return (
         <div className="flex z-40 flex-col items-center py-10 px-2 w-full min-h-screen animate-fadeIn bg-linear-to-br from-[#f8fafc] via-[#e0e7ef] to-[#c7d2fe]">
+            {/* Success Alerts */}
+            {returnSuccess && <SuccessAlert message="Item returned successfully!" />}
+            {borrowSuccess && <SuccessAlert message="Item borrowed successfully!" />}
+            {showReturnError && <ErrorAlert message={returnErrorMessage} />}
+
+            {/* Return Item Modal */}
+            {showReturnModal && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setShowReturnModal(false)}>
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+                        <div className="border-b border-gray-200 px-6 py-4 flex justify-between items-center rounded-t-2xl">
+                            <h2 className="text-xl font-bold text-gray-900">Return Item</h2>
+                            <button
+                                onClick={() => setShowReturnModal(false)}
+                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <IoMdClose className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <div className="p-6">
+                            <p className="text-sm text-gray-600 mb-4">
+                                Scan the <strong>item barcode</strong> to mark it as returned. The system will automatically find and update the active borrowed record.
+                            </p>
+                            <input
+                                type="text"
+                                autoFocus
+                                value={returnBarcode}
+                                onChange={(e) => {
+                                    setReturnBarcode(e.target.value);
+                                    setReturnError("");
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        handleReturnSubmit();
+                                    }
+                                }}
+                                placeholder="Scan or enter item barcode"
+                                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${returnError
+                                    ? 'border-red-500 focus:ring-red-500'
+                                    : 'border-gray-300 focus:ring-blue-500'
+                                    }`}
+                            />
+                            {returnError && (
+                                <p className="text-red-500 text-sm mt-2">{returnError}</p>
+                            )}
+                            <div className="flex gap-3 mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowReturnModal(false)}
+                                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleReturnSubmit}
+                                    disabled={returnItemMutation.isPending}
+                                    className={`flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors ${returnItemMutation.isPending ? 'opacity-50 cursor-not-allowed' : ''
+                                        }`}
+                                >
+                                    {returnItemMutation.isPending ? 'Processing...' : 'Confirm Return'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Scan Lent Item Modal */}
+            {showScanModal && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setShowScanModal(false)}>
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+                        <div className="border-b border-gray-200 px-6 py-4 flex justify-between items-center rounded-t-2xl">
+                            <h2 className="text-xl font-bold text-gray-900">Scan Lent Item</h2>
+                            <button
+                                onClick={() => setShowScanModal(false)}
+                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <IoMdClose className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <div className="p-6">
+                            <p className="text-sm text-gray-600 mb-4">
+                                Scan the lent item barcode to view its details.
+                            </p>
+                            <input
+                                type="text"
+                                autoFocus
+                                value={scannedBarcode}
+                                onChange={(e) => {
+                                    setScannedBarcode(e.target.value);
+                                    setScanError("");
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        handleScanSubmit();
+                                    }
+                                }}
+                                placeholder="Scan or enter lent item barcode"
+                                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${scanError
+                                    ? 'border-red-500 focus:ring-red-500'
+                                    : 'border-gray-300 focus:ring-blue-500'
+                                    }`}
+                            />
+                            {scanError && (
+                                <p className="text-red-500 text-sm mt-2">{scanError}</p>
+                            )}
+                            <div className="flex gap-3 mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowScanModal(false)}
+                                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleScanSubmit}
+                                    className="flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                                >
+                                    Confirm
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="grid grid-cols-1 justify-items-center gap-8 mb-8 w-full max-w-7xl sm:grid-cols-2 lg:grid-cols-4">
                 {badges.map((item, index) => (
                     <DashboardBadges key={index} name={item.name} link={item.link} data={item.data} />
                 ))}
             </div>
 
+            <h1 className="mb-4 w-full text-2xl font-bold text-left text-[#1e293b]">
+                Recently Borrowed Items
+            </h1>
+
             <div className="p-8 w-full rounded-2xl border shadow-md bg-white/90 border-[#e0e7ef]">
-                <div className="flex flex-col gap-4 mb-4 md:flex-row md:justify-between md:items-center">
-                    <h1 className="-mt-10 text-2xl font-bold max-sm:-mt-1 text-[#1e293b]">
-                        Recently Borrowed Items
-                    </h1>
-                </div>
 
                 {/* Pagination & Search */}
                 <div className="flex flex-row gap-2 justify-end items-center mb-6 flex-wrap">
-                    {totalPages > 1 && (
-                        <Pagination
-                            totalPages={totalPages}
-                            currentPage={currentPage}
-                            handlePageChange={handlePageChange}
-                        />
-                    )}
+                    <Pagination
+                        totalPages={totalPages || 1}
+                        currentPage={currentPage}
+                        handlePageChange={handlePageChange}
+                    />
                     <SearchBar
                         onChangeValue={(value) => setSearchTerm(value)}
                         name="search"
@@ -143,7 +396,7 @@ export default function Dashboard() {
                                         "Teacher",
                                         "Room",
                                         "Remarks",
-                                        "DateTime",
+                                        "Lent At",
                                         "Status",
                                     ].map((header) => (
                                         <th
@@ -156,8 +409,8 @@ export default function Dashboard() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {paginatedData.filter((s) => s.status === "Borrowed")
-                                    .sort((a, b) => new Date(b.item.createdAt).getTime() - new Date(a.item.createdAt).getTime())
+                                {paginatedData
+                                    .sort((a, b) => new Date(b.lentAt).getTime() - new Date(a.lentAt).getTime())
                                     .map((item) => (
                                         <tr
                                             key={item.item.serialNumber}
@@ -173,7 +426,7 @@ export default function Dashboard() {
                                                 room={item.room}
                                                 teacherFullName={item.teacherFullName}
                                                 remarks={item.remarks}
-                                                createdAt={item.item.createdAt}
+                                                createdAt={item.lentAt}
                                                 status={item.status}
                                             />
                                         </tr>
@@ -189,6 +442,124 @@ export default function Dashboard() {
                     itemId={selectedId}
                     isOpen={onViewBorrowItemOpen}
                     onClose={handleViewBorrowItemClose}
+                />
+            )}
+
+            {/* Scanned Lent Item Details Modal */}
+            <LentItemDetailsModal
+                itemId={scannedLentItemId || ""}
+                isOpen={!!scannedLentItemId}
+                onClose={() => setScannedLentItemId(null)}
+                fromScan={true}
+                onProceedToScan={() => {
+                    // Show success message for borrowed item
+                    setBorrowSuccess(true);
+                    setTimeout(() => {
+                        setBorrowSuccess(false);
+                    }, 3000);
+                }}
+            />
+
+            {/* Floating Action Buttons - Reverse D Shape */}
+            <div
+                className="fixed right-0 bottom-12 z-40"
+                onMouseEnter={() => setShowFloatingMenu(true)}
+                onMouseLeave={() => {
+                    if (!menuOpenedByClick) {
+                        setShowFloatingMenu(false);
+                    }
+                }}
+            >
+                <div className="flex flex-col items-end gap-3">
+                    {/* Scan Button - Slides from right */}
+                    <button
+                        onClick={() => {
+                            setShowScanModal(true);
+                            setShowFloatingMenu(false);
+                            setMenuOpenedByClick(false);
+                        }}
+                        className={`flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 py-3 overflow-hidden ${showFloatingMenu
+                            ? 'translate-x-0 opacity-100 pointer-events-auto delay-75 pr-4 pl-3'
+                            : 'translate-x-full opacity-0 pointer-events-none pr-0 pl-3'
+                            }`}
+                        style={{
+                            borderRadius: '9999px 0 0 9999px'
+                        }}
+                        title="Scan Lent Item"
+                    >
+                        <svg className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                        </svg>
+                        <span className={`text-sm font-medium whitespace-nowrap transition-all duration-300 ${showFloatingMenu ? 'opacity-100 max-w-xs' : 'opacity-0 max-w-0'
+                            }`}>
+                            Scan Lent Item
+                        </span>
+                    </button>
+
+                    {/* Return Button - Slides from right */}
+                    <button
+                        onClick={() => {
+                            setShowReturnModal(true);
+                            setShowFloatingMenu(false);
+                            setMenuOpenedByClick(false);
+                        }}
+                        className={`flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 py-3 overflow-hidden ${showFloatingMenu
+                            ? 'translate-x-0 opacity-100 pointer-events-auto delay-150 pr-4 pl-3'
+                            : 'translate-x-full opacity-0 pointer-events-none pr-0 pl-3'
+                            }`}
+                        style={{
+                            borderRadius: '9999px 0 0 9999px'
+                        }}
+                        title="Return Item"
+                    >
+                        <svg className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                        </svg>
+                        <span className={`text-sm font-medium whitespace-nowrap transition-all duration-300 ${showFloatingMenu ? 'opacity-100 max-w-xs' : 'opacity-0 max-w-0'
+                            }`}>
+                            Return Item
+                        </span>
+                    </button>
+
+                    {/* Main Plus Button - Reverse D Shape */}
+                    <div className="relative">
+                        <button
+                            onClick={() => {
+                                if (showFloatingMenu && menuOpenedByClick) {
+                                    setShowFloatingMenu(false);
+                                    setMenuOpenedByClick(false);
+                                } else {
+                                    setShowFloatingMenu(true);
+                                    setMenuOpenedByClick(true);
+                                }
+                            }}
+                            className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-2xl transition-all duration-300 p-4 md:p-5"
+                            style={{
+                                borderRadius: '50% 0 0 50%'
+                            }}
+                            title="Quick Actions"
+                        >
+                            <svg
+                                className={`w-7 h-7 md:w-8 md:h-8 transition-transform duration-300 ${showFloatingMenu ? 'rotate-45' : 'rotate-0'}`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Click outside to close menu */}
+            {menuOpenedByClick && showFloatingMenu && (
+                <div
+                    className="fixed inset-0 z-30"
+                    onClick={() => {
+                        setShowFloatingMenu(false);
+                        setMenuOpenedByClick(false);
+                    }}
                 />
             )}
         </div>

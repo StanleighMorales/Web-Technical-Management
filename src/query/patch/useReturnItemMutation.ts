@@ -9,7 +9,8 @@ const ReturnItem = async (data: ReturnItemData) => {
     const BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const VERSION = "v1";
     // Use the item barcode endpoint to return by item barcode instead of lent item barcode
-    const END_POINT = `/api/${VERSION}/lentItems/return/item/${data.barcode}`;
+    const encodedBarcode = encodeURIComponent(data.barcode);
+    const END_POINT = `/api/${VERSION}/lentItems/return/item/${encodedBarcode}`;
 
     const res = await fetch(`${BASE_URL}${END_POINT}`, {
         method: "PATCH",

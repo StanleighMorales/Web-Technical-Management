@@ -1,6 +1,6 @@
-@import "tailwindcss";
-
 @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+@import "tailwindcss";
 
 * {
   font-family: Arial, Poppins;
@@ -100,7 +100,7 @@ body {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 8mm;
+    margin: 10mm;
   }
 
   * {
@@ -122,59 +122,75 @@ body {
     left: 0 !important;
     top: 0 !important;
     width: 100% !important;
-    max-width: 210mm !important;
-    height: calc(297mm - 16mm) !important;
+    max-width: 190mm !important;
+    height: calc(277mm) !important;
     display: grid !important;
-    grid-template-columns: repeat(4, 1fr) !important;
+    grid-template-columns: repeat(3, 1fr) !important;
     grid-template-rows: repeat(5, 1fr) !important;
-    gap: 5mm !important;
+    gap: 4mm !important;
     padding: 0 !important;
     margin: 0 !important;
+    box-shadow: none !important;
   }
 
   #barcode-print-area>div {
     break-inside: avoid !important;
     page-break-inside: avoid !important;
     box-sizing: border-box !important;
-    padding: 0 !important;
-    border: none !important;
+    padding: 3mm !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 2mm !important;
     background: white !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
-    justify-content: center !important;
+    justify-content: space-between !important;
+    height: 100% !important;
   }
 
   #barcode-print-area>div>div:first-child {
     flex-shrink: 0 !important;
-    margin-bottom: 2mm !important;
     width: 100% !important;
-  }
-
-  #barcode-print-area>div>div:first-child h3 {
-    font-size: 9px !important;
-    font-weight: 700 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    line-height: 1.2 !important;
     text-align: center !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+    margin-bottom: 2mm !important;
+    overflow: hidden !important;
     display: -webkit-box !important;
     -webkit-line-clamp: 2 !important;
-    line-clamp: 2 !important;
     -webkit-box-orient: vertical !important;
-    overflow: hidden !important;
   }
 
-  #barcode-print-area>div>div:last-child {
+  #barcode-print-area>div>div:nth-child(2) {
+    flex: 1 !important;
     width: 100% !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    margin: 2mm 0 !important;
   }
 
   #barcode-print-area>div img {
-    width: 100% !important;
-    height: 45mm !important;
+    max-width: 100% !important;
+    max-height: 35mm !important;
+    height: auto !important;
+    width: auto !important;
     object-fit: contain !important;
+  }
+
+  #barcode-print-area>div>div:nth-child(3),
+  #barcode-print-area>div>div:nth-child(4) {
+    flex-shrink: 0 !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 8px !important;
+    line-height: 1.2 !important;
+    margin-top: 1mm !important;
+  }
+
+  #barcode-print-area>div>div:nth-child(3) {
+    font-weight: 500 !important;
+    font-size: 9px !important;
   }
 }
