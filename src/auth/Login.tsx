@@ -81,7 +81,7 @@ export default function Login() {
                         </h1>
                     </div>
                     <p className="lg:text-lg max-sm:text-center text-white/75">
-                        Managing digital resources, while tracking
+                        Managing resources, while tracking
                         items and borrowers. Ensures smooth lifecycle management.
                     </p>
                 </div>
