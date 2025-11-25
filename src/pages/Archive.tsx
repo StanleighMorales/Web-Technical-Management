@@ -355,7 +355,7 @@ export default function Archive() {
     };
 
     return (
-        <div className="flex flex-col w-full bg-gradient-to-br animate-fadeIn archive-list-container from-[#f8fafc] via-[#e0e7ef] to-[#c7d2fe]">
+        <div className="flex flex-col w-full min-h-screen bg-gradient-to-br animate-fadeIn archive-list-container from-[#f8fafc] via-[#e0e7ef] to-[#c7d2fe]">
             {ShowAlert && <SuccessAlert message={showMessage} />}
             <header className="flex z-30 flex-col items-center px-8 pt-8 pb-8 shadow-md archive-header bg-white/80">
                 <h1 className="mb-2 text-5xl mt-10 lg:mt-0 md:mt-0 font-extrabold tracking-tight text-[#1e293b] drop-shadow-lg">
