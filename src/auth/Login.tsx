@@ -64,8 +64,8 @@ export default function Login() {
 
     return (
         <>
-            <div className="relative w-full h-screen bg-[rgb(46,111,251)] max-lg:h-auto max-lg:min-h-screen max-lg:py-4">
-                <div className="w-full  mb-0  flex justify-center lg:justify-start ">
+            <div className="relative w-full min-h-screen bg-blue-600 lg:py-4">
+                <div className="animate-fadeIn w-full mb-0 flex justify-center lg:justify-start ">
                     <a href="https://www.facebook.com/aclcmandaueph" className="ml-[4%] mt-[2%]" target="_blank" title="Go to ACLC Page">
                         <img
                             src={logo}
@@ -75,12 +75,12 @@ export default function Login() {
                     </a>
                 </div>
                 <div className="animate-fadeIn max-w-[1000px] mx-[4%] mt-[7%] mb-[4%] animate-fade-in max-lg:mx-[2%] max-lg:mt-[4%] max-lg:mb-[2%] max-lg:max-w-full max-sm:mx-[1%] max-sm:mt-[2%] max-sm:mb-[1%] max-sm:p-0">
-                    <div className="max-w-[650px] max-sm:max-w-full max-sm:text-center">
-                        <h1 className="m-0 mb-4 font-bold text-white text-[65px] drop-shadow-[0_4px_12px_rgba(0,0,0,0.45)] leading-[4.2rem] animate-fade-in max-sm:text-[2.2rem] max-sm:leading-[2.7rem]">
+                    <div className="flex max-w-2xl w-full justify-center items-center">
+                        <h1 className="m-0 mb-4 font-bold text-center lg:text-left text-white text-[65px] drop-shadow-[0_4px_12px_rgba(0,0,0,0.45)] leading-[4.2rem] animate-fade-in max-sm:text-[2.2rem] max-sm:leading-[2.7rem]">
                             Technical Equipment Borrowing System
                         </h1>
                     </div>
-                    <p className="lg:text-lg max-sm:text-center text-white/75">
+                    <p className="text-lg text-center lg:text-left text-white/75">
                         Managing resources, while tracking
                         items and borrowers. Ensures smooth lifecycle management.
                     </p>
@@ -148,7 +148,7 @@ export default function Login() {
                             {/* FIXED ICON POSITION */}
                             {submitForm.password.length > 0 && (
                                 <div
-                                    className="absolute right-3 top-[14px] text-gray-400 cursor-pointer"
+                                    className="absolute right-3 top-3.5 text-gray-400 cursor-pointer"
                                     onClick={() => setIsShowPassword((prev) => !prev)}
                                 >
                                     {isShowPassword ? (
@@ -164,7 +164,7 @@ export default function Login() {
                             <button
                                 type="submit"
                                 disabled={isPending}
-                                className="w-[420px] h-[55px] outline-none border-0 rounded-md text-lg font-medium text-white bg-[rgb(46,111,251)] cursor-pointer hover:bg-[rgb(54,117,253)] disabled:opacity-50 max-lg:w-[90vw] max-lg:max-w-[98%] max-lg:min-w-[220px] max-sm:w-[98vw] max-sm:max-w-full max-sm:min-w-[120px] max-sm:text-base"
+                                className="w-[400px] h-[55px] outline-none border-0 rounded-md text-lg font-medium text-white bg-blue-500 cursor-pointer hover:bg-[rgb(54,117,253)] disabled:opacity-50 max-lg:w-[90vw] max-lg:max-w-[98%] max-lg:min-w-[220px] max-sm:w-[98vw] max-sm:max-w-full max-sm:min-w-[120px] max-sm:text-base"
                                 data-testid="login-button"
                             >
                                 {isPending ? (
