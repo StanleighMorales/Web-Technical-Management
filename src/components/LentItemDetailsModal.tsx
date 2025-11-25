@@ -499,8 +499,8 @@ export const LentItemDetailsModal = ({
                         )}
                     </div>
 
-                    {/* Footer with Proceed Button - Only show when opened from scan */}
-                    {fromScan && (
+                    {/* Footer with Proceed Button - Only show when opened from scan and status is Pending or Approved */}
+                    {fromScan && (itemData.status.toLowerCase() === 'pending' || itemData.status.toLowerCase() === 'approved') && (
                         <div className="p-6 bg-gray-50 border-t border-gray-200">
                             <div className="flex justify-end gap-3">
                                 <button

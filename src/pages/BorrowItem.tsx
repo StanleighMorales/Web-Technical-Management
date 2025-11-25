@@ -21,6 +21,7 @@ import { IoMdClose } from 'react-icons/io';
 import { FaHashtag, FaTools, FaCheckCircle } from 'react-icons/fa';
 import { BsCalendar2Date } from 'react-icons/bs';
 import { MdOutlineDescription } from 'react-icons/md';
+import { FaClock } from 'react-icons/fa';
 
 type ItemDetailsModalProps = {
     item: TItemList;
@@ -437,13 +438,16 @@ const LentItemDetailsModal: React.FC<LentItemDetailsModalProps> = ({ lentItem, o
     );
 };
 
-const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onLentItemScanned }: { prefilledItemId?: string; prefilledItemName?: string; onLentItemScanned?: (lentItem: any) => void }) => {
+const BorrowItemForm = ({ prefilledItemId, prefilledItemName }: { prefilledItemId?: string; prefilledItemName?: string; onLentItemScanned?: (lentItem: any) => void }) => {
     const [showAlert, setShowAlert] = useState<boolean>(false);
+    const [successMessage, setSuccessMessage] = useState<string>("");
     const [showErrorAlert, setShowErrorAlert] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>("");
     const [showScanModal, setShowScanModal] = useState<boolean>(false);
     const [scannedBarcode, setScannedBarcode] = useState<string>("");
     const [scanError, setScanError] = useState<string>("");
+    const [scannedItemDetails, setScannedItemDetails] = useState<TItemList | null>(null);
+    const [isScannedItem, setIsScannedItem] = useState<boolean>(false);
     const [itemIdError, setItemIdError] = useState<string>("");
     const [borrowerFirstNameError, setBorrowerFirstNameError] = useState<string>("");
     const [borrowerLastNameError, setBorrowerLastNameError] = useState<string>("");
@@ -454,6 +458,11 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onLentItemScanned 
     const [roomError, setRoomError] = useState<string>("");
     const [subjectTimeScheduleError, setSubjectTimeScheduleError] = useState<string>("");
     const [itemName, setItemName] = useState<TItemList[]>([]);
+    const [showReservationModal, setShowReservationModal] = useState<boolean>(false);
+    const [reservationDate, setReservationDate] = useState<string>("");
+    const [reservationTime, setReservationTime] = useState<string>("07:30");
+    const [reservationDateError, setReservationDateError] = useState<string>("");
+    const [reservationTimeError, setReservationTimeError] = useState<string>("");
     const [formData, setFormData] = useState<TBorrowItemForm>({
         itemId: prefilledItemId || "",
         itemName: prefilledItemName || "",
@@ -466,6 +475,7 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onLentItemScanned 
         subjectTimeSchedule: "",
         remarks: "",
         studentIdNumber: "",
+        reservedFor: null,
     });
 
     const borrowItemMutation = usePostBorrowItemMutation();
@@ -493,10 +503,26 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onLentItemScanned 
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
     ) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value === "" ? null : value,
-        }));
+
+        // If borrower role changes to Teacher, clear student-specific fields
+        if (name === "borrowerRole" && value === "Teacher") {
+            setFormData((prev) => ({
+                ...prev,
+                borrowerRole: value,
+                studentIdNumber: null,
+                teacherFirstName: null,
+                teacherLastName: null,
+            }));
+            // Clear errors for these fields
+            setBorrowerStudentIdNumberError("");
+            setBorrowerTeacherFirstNameError("");
+            setBorrowerTeacherLastNameError("");
+        } else {
+            setFormData((prev) => ({
+                ...prev,
+                [name]: value === "" ? null : value,
+            }));
+        }
 
         if (name === "itemId") setItemIdError("");
         if (name === "borrowerFirstName") setBorrowerFirstNameError("");
@@ -511,89 +537,138 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onLentItemScanned 
 
     const handleScanSubmit = async () => {
         setScanError("");
-        const lentItemBarcode = scannedBarcode.trim();
+        const barcodeInput = scannedBarcode.trim();
 
-        if (!lentItemBarcode) {
-            setScanError("Please enter a lent item barcode");
-            return;
-        }
-
-        // Validate lent item barcode format: LENT-YYYYMMDD-XXX
-        if (!lentItemBarcode.startsWith("LENT-") || lentItemBarcode.length !== 17 ||
-            !/^LENT-\d{8}-\d{3}$/.test(lentItemBarcode)) {
-            setScanError("Invalid lent item barcode format. Expected format: LENT-YYYYMMDD-XXX");
+        if (!barcodeInput) {
+            setScanError("Please enter a barcode");
             return;
         }
 
         try {
-            console.log("Scanning lent item barcode:", lentItemBarcode);
-            console.log("API URL:", `${import.meta.env.VITE_API_BASE_URL}/api/v1/lentItems/barcode/${lentItemBarcode}`);
+            // Find the item in the itemName list by barcode
+            const foundItem = itemName.find(item => item.barcode === barcodeInput);
 
-            // Fetch lent item details by barcode
-            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/lentItems/barcode/${lentItemBarcode}`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${getToken()}`,
-                    "Content-Type": "application/json",
-                },
-            });
-
-            console.log("Response status:", response.status);
-            console.log("Response headers:", Object.fromEntries(response.headers.entries()));
-
-            // Check if response has content
-            const contentType = response.headers.get("content-type");
-            const hasJsonContent = contentType && contentType.includes("application/json");
-
-            if (!response.ok) {
-                let errorMessage = "Lent item not found";
-
-                if (hasJsonContent) {
-                    try {
-                        const errorData = await response.json();
-                        errorMessage = errorData.message || errorMessage;
-                    } catch (jsonError) {
-                        // If JSON parsing fails, use default message
-                        console.error("Failed to parse error response:", jsonError);
-                    }
-                } else {
-                    // Handle non-JSON error responses
-                    const textResponse = await response.text();
-                    errorMessage = textResponse || `HTTP ${response.status}: ${response.statusText}`;
-                }
-
-                throw new Error(errorMessage);
+            if (!foundItem) {
+                setScanError("Item not found. Please check the barcode and try again.");
+                return;
             }
 
-            if (!hasJsonContent) {
-                throw new Error("Invalid response format from server");
+            // Check if item status is Available
+            if (foundItem.status !== "Available") {
+                setScanError("This item is currently unavailable. Please select a different item.");
+                return;
             }
 
-            const responseData = await response.json();
-
-            // Check if the response has the expected structure
-            if (!responseData || !responseData.data) {
-                throw new Error("Invalid response structure from server");
-            }
-
-            const lentItem = responseData.data;
-
-            // Close modal and trigger lent item detail view
+            // Show item details modal
+            setScannedItemDetails(foundItem);
             setShowScanModal(false);
             setScannedBarcode("");
             setScanError("");
-
-            // Call the callback to show lent item details
-            if (onLentItemScanned) {
-                onLentItemScanned(lentItem);
-            }
         } catch (error: any) {
             console.error("Scan error:", error);
-            setScanError(error.message || "Failed to fetch lent item details");
+            setScanError(error.message || "Failed to fetch item details");
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleProceedWithScannedItem = () => {
+        if (scannedItemDetails) {
+            setFormData(prev => ({
+                ...prev,
+                itemId: scannedItemDetails.id,
+                itemName: scannedItemDetails.itemName
+            }));
+            setIsScannedItem(true);
+            setScannedItemDetails(null);
+        }
+    };
+
+    const handleCancelScannedItem = () => {
+        setScannedItemDetails(null);
+    };
+
+    const handleReservationSubmit = async () => {
+        let hasError = false;
+
+        if (!reservationDate) {
+            setReservationDateError("Please select a date");
+            hasError = true;
+        }
+
+        if (!reservationTime) {
+            setReservationTimeError("Please select a time");
+            hasError = true;
+        }
+
+        // Validate time is between 7:30 AM and 8:30 PM
+        if (reservationTime) {
+            const [hours, minutes] = reservationTime.split(':').map(Number);
+            const timeInMinutes = hours * 60 + minutes;
+            const minTime = 7 * 60 + 30; // 7:30 AM
+            const maxTime = 20 * 60 + 30; // 8:30 PM
+
+            if (timeInMinutes < minTime || timeInMinutes > maxTime) {
+                setReservationTimeError("Time must be between 7:30 AM and 8:30 PM");
+                hasError = true;
+            }
+        }
+
+        if (hasError) return;
+
+        try {
+            // Combine date and time into ISO format for reservedFor
+            const reservedForDateTime = `${reservationDate}T${reservationTime}:00`;
+
+            await borrowItemMutation.mutateAsync({
+                itemId: formData.itemId,
+                borrowerFirstName: formData.borrowerFirstName,
+                borrowerLastName: formData.borrowerLastName,
+                borrowerRole: formData.borrowerRole,
+                teacherFirstName: formData.teacherFirstName || null,
+                teacherLastName: formData.borrowerRole === "Teacher" ? "yes" : (formData.teacherLastName || null),
+                room: formData.room,
+                subjectTimeSchedule: formData.subjectTimeSchedule,
+                remarks: formData.remarks || null,
+                studentIdNumber: formData.studentIdNumber || null,
+                reservedFor: reservedForDateTime,
+                status: 'Reserved',
+            });
+
+            setSuccessMessage('Reservation Submitted Successfully');
+            setShowAlert(true);
+            setTimeout(() => {
+                setShowAlert(false);
+                setSuccessMessage("");
+            }, 3000);
+
+            // Reset form
+            setFormData({
+                itemId: "",
+                itemName: "",
+                borrowerFirstName: "",
+                borrowerLastName: "",
+                borrowerRole: "",
+                teacherFirstName: "",
+                teacherLastName: "",
+                room: "",
+                subjectTimeSchedule: "",
+                remarks: "",
+                studentIdNumber: "",
+                reservedFor: null,
+            });
+            setIsScannedItem(false);
+            setShowReservationModal(false);
+            setReservationDate("");
+            setReservationTime("07:30");
+        } catch (error: any) {
+            setErrorMessage(error.message || "Failed to submit reservation");
+            setShowErrorAlert(true);
+            setTimeout(() => {
+                setShowErrorAlert(false);
+            }, 5000);
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent, status: 'Borrowed' | 'Reserved' = 'Borrowed') => {
         e.preventDefault();
         let hasError = false;
 
@@ -617,19 +692,22 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onLentItemScanned 
             hasError = true;
         }
 
-        if (!formData.teacherFirstName) {
-            setBorrowerTeacherFirstNameError("Teacher first name is required");
-            hasError = true;
-        }
+        // Only validate teacher fields if borrower is a Student
+        if (formData.borrowerRole === "Student") {
+            if (!formData.teacherFirstName) {
+                setBorrowerTeacherFirstNameError("Teacher first name is required");
+                hasError = true;
+            }
 
-        if (!formData.teacherLastName) {
-            setBorrowerTeacherLastNameError("Teacher last name is required");
-            hasError = true;
-        }
+            if (!formData.teacherLastName) {
+                setBorrowerTeacherLastNameError("Teacher last name is required");
+                hasError = true;
+            }
 
-        if (!formData.studentIdNumber) {
-            setBorrowerStudentIdNumberError("Student ID is required");
-            hasError = true;
+            if (!formData.studentIdNumber) {
+                setBorrowerStudentIdNumberError("Student ID is required");
+                hasError = true;
+            }
         }
 
         if (!formData.room) {
@@ -644,6 +722,13 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onLentItemScanned 
 
         if (hasError) return;
 
+        // If status is Reserved, show the date/time modal
+        if (status === 'Reserved') {
+            setShowReservationModal(true);
+            return;
+        }
+
+        // For 'Borrowed' status, submit directly
         try {
             await borrowItemMutation.mutateAsync({
                 itemId: formData.itemId,
@@ -651,16 +736,20 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onLentItemScanned 
                 borrowerLastName: formData.borrowerLastName,
                 borrowerRole: formData.borrowerRole,
                 teacherFirstName: formData.teacherFirstName || null,
-                teacherLastName: formData.teacherLastName || null,
+                // If borrower is a teacher, set teacherLastName to "yes"
+                teacherLastName: formData.borrowerRole === "Teacher" ? "yes" : (formData.teacherLastName || null),
                 room: formData.room,
                 subjectTimeSchedule: formData.subjectTimeSchedule,
                 remarks: formData.remarks || null,
                 studentIdNumber: formData.studentIdNumber || null,
+                status: 'Borrowed',
             });
 
+            setSuccessMessage('Borrow Request Submitted Successfully');
             setShowAlert(true);
             setTimeout(() => {
                 setShowAlert(false);
+                setSuccessMessage("");
             }, 3000);
 
             // Reset form
@@ -676,9 +765,11 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onLentItemScanned 
                 subjectTimeSchedule: "",
                 remarks: "",
                 studentIdNumber: "",
+                reservedFor: null,
             });
+            setIsScannedItem(false);
         } catch (error: any) {
-            setErrorMessage(error.message || "Failed to submit borrow request");
+            setErrorMessage(error.message || "Failed to submit request");
             setShowErrorAlert(true);
             setTimeout(() => {
                 setShowErrorAlert(false);
@@ -688,7 +779,7 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onLentItemScanned 
 
     return (
         <>
-            {showAlert && <SuccessAlert message={"Borrow Request Submitted Successfully"} />}
+            {showAlert && <SuccessAlert message={successMessage || "Request Submitted Successfully"} />}
             {showErrorAlert && <ErrorAlert message={errorMessage} />}
 
             {/* Scan Item Modal */}
@@ -697,7 +788,7 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onLentItemScanned 
                     <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
                         {/* Modal Header */}
                         <div className="border-b border-gray-200 px-6 py-4 flex justify-between items-center rounded-t-2xl">
-                            <h2 className="text-xl font-bold text-gray-900">Scan Lent Item</h2>
+                            <h2 className="text-xl font-bold text-gray-900">Scan Item</h2>
                             <button
                                 onClick={() => setShowScanModal(false)}
                                 className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -709,7 +800,7 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onLentItemScanned 
                         {/* Modal Content */}
                         <div className="p-6">
                             <p className="text-sm text-gray-600 mb-4">
-                                Scan the lent item barcode to view its details. If the scanner cannot read the barcode, you may manually enter it below.
+                                Scan the item barcode or manually enter it to select an item for borrowing.
                             </p>
                             <input
                                 type="text"
@@ -724,7 +815,7 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onLentItemScanned 
                                         handleScanSubmit();
                                     }
                                 }}
-                                placeholder="Scan or enter lent item barcode (e.g., LENT-20251101-003)"
+                                placeholder="Scan or enter item barcode (e.g., ITEM-SN-12345)"
                                 className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${scanError
                                     ? 'border-red-500 focus:ring-red-500'
                                     : 'border-gray-300 focus:ring-blue-500'
@@ -756,25 +847,340 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onLentItemScanned 
                 </div>
             )}
 
+            {/* Reservation Date/Time Modal */}
+            {showReservationModal && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setShowReservationModal(false)}>
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+                        {/* Modal Header */}
+                        <div className="border-b border-gray-200 px-6 py-4 flex justify-between items-center rounded-t-2xl">
+                            <h2 className="text-xl font-bold text-gray-900">Select Reservation Date & Time</h2>
+                            <button
+                                onClick={() => setShowReservationModal(false)}
+                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <IoMdClose className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        {/* Modal Content */}
+                        <div className="p-6 space-y-4">
+                            <p className="text-sm text-gray-600 mb-4">
+                                Choose when you'd like to pick up the reserved item. Sundays are not available.
+                            </p>
+
+                            {/* Date Picker */}
+                            <div>
+                                <label htmlFor="reservationDate" className="block text-sm font-medium text-gray-700 mb-2">
+                                    <BsCalendar2Date className="inline mr-2" />
+                                    Reservation Date <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="date"
+                                    id="reservationDate"
+                                    value={reservationDate}
+                                    min={new Date().toISOString().split('T')[0]}
+                                    onChange={(e) => {
+                                        const selectedDate = new Date(e.target.value);
+                                        // Check if Sunday (0 = Sunday)
+                                        if (selectedDate.getDay() === 0) {
+                                            setReservationDateError("Sundays are not available for reservations");
+                                            setReservationDate("");
+                                        } else {
+                                            setReservationDate(e.target.value);
+                                            setReservationDateError("");
+                                        }
+                                    }}
+                                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${reservationDateError
+                                        ? 'border-red-500 focus:ring-red-500'
+                                        : 'border-gray-300 focus:ring-blue-500'
+                                        }`}
+                                />
+                                {reservationDateError && (
+                                    <p className="text-red-500 text-sm mt-2">{reservationDateError}</p>
+                                )}
+                            </div>
+
+                            {/* Time Picker */}
+                            <div>
+                                <label htmlFor="reservationTime" className="block text-sm font-medium text-gray-700 mb-2">
+                                    <FaClock className="inline mr-2" />
+                                    Reservation Time <span className="text-red-500">*</span>
+                                    <span className="text-xs text-gray-500 ml-2">(7:30 AM - 8:30 PM)</span>
+                                </label>
+                                <input
+                                    type="time"
+                                    id="reservationTime"
+                                    value={reservationTime}
+                                    min="07:30"
+                                    max="20:30"
+                                    onChange={(e) => {
+                                        setReservationTime(e.target.value);
+                                        setReservationTimeError("");
+                                    }}
+                                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${reservationTimeError
+                                        ? 'border-red-500 focus:ring-red-500'
+                                        : 'border-gray-300 focus:ring-blue-500'
+                                        }`}
+                                />
+                                {reservationTimeError && (
+                                    <p className="text-red-500 text-sm mt-2">{reservationTimeError}</p>
+                                )}
+                            </div>
+
+                            {/* Preview */}
+                            {reservationDate && reservationTime && (
+                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                    <p className="text-sm text-blue-800">
+                                        <strong>Reservation:</strong> {new Date(reservationDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at {new Date(`2000-01-01T${reservationTime}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Modal Actions */}
+                            <div className="flex gap-3 mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setShowReservationModal(false);
+                                        setReservationDate("");
+                                        setReservationTime("07:30");
+                                        setReservationDateError("");
+                                        setReservationTimeError("");
+                                    }}
+                                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleReservationSubmit}
+                                    disabled={borrowItemMutation.isPending}
+                                    className={`flex-1 px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors ${borrowItemMutation.isPending ? 'opacity-50 cursor-not-allowed' : ''
+                                        }`}
+                                >
+                                    {borrowItemMutation.isPending ? (
+                                        <span className="flex items-center justify-center gap-2">
+                                            <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Submitting...
+                                        </span>
+                                    ) : (
+                                        'Confirm Reservation'
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Scanned Item Details Modal */}
+            {scannedItemDetails && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={handleCancelScannedItem}>
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                        {/* Header */}
+                        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center rounded-t-2xl z-10">
+                            <h2 className="text-xl md:text-2xl font-bold text-gray-900">Scanned Item Details</h2>
+                            <button
+                                onClick={handleCancelScannedItem}
+                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <IoMdClose className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-4 md:p-6">
+                            {/* Title */}
+                            <div className="text-center mb-4">
+                                <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">{scannedItemDetails.itemName}</h3>
+                                <p className="text-gray-600 font-semibold">{scannedItemDetails.category}</p>
+                                {scannedItemDetails.barcode && (
+                                    <p className="text-gray-500 text-sm mt-1">Barcode: {scannedItemDetails.barcode}</p>
+                                )}
+                            </div>
+
+                            {/* Image */}
+                            <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                                <div className="flex justify-center">
+                                    {scannedItemDetails.image ? (
+                                        <img
+                                            src={typeof scannedItemDetails.image === 'string' ? scannedItemDetails.image : box}
+                                            alt={scannedItemDetails.itemName}
+                                            className="w-48 h-48 md:w-64 md:h-64 object-cover rounded-lg shadow-md"
+                                        />
+                                    ) : (
+                                        <div className="w-48 h-48 md:w-64 md:h-64 flex flex-col items-center justify-center bg-gray-100 rounded-lg border-2 border-dashed border-gray-300">
+                                            <svg className="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            <span className="text-gray-500 text-sm">No Image Available</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Details Grid */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                                <div className="bg-gray-50 rounded-lg p-3">
+                                    <div className="flex items-center mb-2">
+                                        <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center mr-3">
+                                            <FaHashtag className="text-white w-4 h-4" />
+                                        </div>
+                                        <h4 className="font-semibold text-gray-900 text-sm">Serial Number</h4>
+                                    </div>
+                                    <p className="text-gray-600 ml-11 text-sm">{scannedItemDetails.serialNumber}</p>
+                                </div>
+
+                                <div className="bg-gray-50 rounded-lg p-3">
+                                    <div className="flex items-center mb-2">
+                                        <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center mr-3">
+                                            <FaCheckCircle className="text-white w-4 h-4" />
+                                        </div>
+                                        <h4 className="font-semibold text-gray-900 text-sm">Condition</h4>
+                                    </div>
+                                    <p className="text-gray-600 ml-11 text-sm">{scannedItemDetails.condition}</p>
+                                </div>
+
+                                <div className="bg-gray-50 rounded-lg p-3">
+                                    <div className="flex items-center mb-2">
+                                        <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
+                                            <FaTools className="text-white w-4 h-4" />
+                                        </div>
+                                        <h4 className="font-semibold text-gray-900 text-sm">Item Make</h4>
+                                    </div>
+                                    <p className="text-gray-600 ml-11 text-sm">{scannedItemDetails.itemMake}</p>
+                                </div>
+
+                                <div className="bg-gray-50 rounded-lg p-3">
+                                    <div className="flex items-center mb-2">
+                                        <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mr-3">
+                                            <FaTools className="text-white w-4 h-4" />
+                                        </div>
+                                        <h4 className="font-semibold text-gray-900 text-sm">Item Type</h4>
+                                    </div>
+                                    <p className="text-gray-600 ml-11 text-sm">{scannedItemDetails.itemType}</p>
+                                </div>
+
+                                <div className="bg-gray-50 rounded-lg p-3">
+                                    <div className="flex items-center mb-2">
+                                        <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center mr-3">
+                                            <FaHashtag className="text-white w-4 h-4" />
+                                        </div>
+                                        <h4 className="font-semibold text-gray-900 text-sm">Item Model</h4>
+                                    </div>
+                                    <p className="text-gray-600 ml-11 text-sm">{scannedItemDetails.itemModel || 'N/A'}</p>
+                                </div>
+
+                                <div className="bg-gray-50 rounded-lg p-3">
+                                    <div className="flex items-center mb-2">
+                                        <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center mr-3">
+                                            <BsCalendar2Date className="text-white w-4 h-4" />
+                                        </div>
+                                        <h4 className="font-semibold text-gray-900 text-sm">Date Added</h4>
+                                    </div>
+                                    <p className="text-gray-600 ml-11 text-sm">{FormattedDateTime(scannedItemDetails.createdAt)}</p>
+                                </div>
+
+                                <div className="bg-gray-50 rounded-lg p-3">
+                                    <div className="flex items-center mb-2">
+                                        <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mr-3">
+                                            <FaCheckCircle className="text-white w-4 h-4" />
+                                        </div>
+                                        <h4 className="font-semibold text-gray-900 text-sm">Status</h4>
+                                    </div>
+                                    <p className="text-gray-600 ml-11 text-sm">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${scannedItemDetails.status === 'Available' ? 'bg-green-100 text-green-800' :
+                                            scannedItemDetails.status === 'Borrowed' ? 'bg-blue-100 text-blue-800' :
+                                                scannedItemDetails.status === 'Maintenance' ? 'bg-yellow-100 text-yellow-800' :
+                                                    'bg-gray-100 text-gray-800'
+                                            }`}>
+                                            {scannedItemDetails.status}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Description */}
+                            {scannedItemDetails.description && (
+                                <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                                    <div className="flex items-center mb-2">
+                                        <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center mr-3">
+                                            <MdOutlineDescription className="text-white w-4 h-4" />
+                                        </div>
+                                        <h4 className="font-semibold text-gray-900 text-sm">Description</h4>
+                                    </div>
+                                    <p className="text-gray-600 ml-11 text-sm">{scannedItemDetails.description}</p>
+                                </div>
+                            )}
+
+                            {/* Action Buttons */}
+                            <div className="flex justify-center gap-3 pt-2">
+                                <button
+                                    onClick={handleCancelScannedItem}
+                                    className="px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-all duration-200 shadow-md"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleProceedWithScannedItem}
+                                    className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                                >
+                                    <MdSwapHoriz className="text-xl" />
+                                    Proceed with This Item
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="bg-white/80 backdrop-blur-sm border border-gray-100 rounded-2xl shadow-lg p-4 md:p-8 ring-1 ring-gray-100">
                 <div className="flex items-start justify-between mb-2">
                     <div>
                         <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-2">
                             Borrow Item
                         </h2>
-                        <p className="text-sm text-gray-500 mb-6">Fill out the form below to request equipment. Fields marked with an asterisk are required.</p>
+                        <p className="text-sm text-gray-500 mb-2">Fill out the form below to request equipment. Fields marked with an asterisk are required.</p>
+                        <p className="text-sm text-blue-600 font-medium mb-6">
+                            <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Use the "Scan Item" button to select an item by scanning its barcode.
+                        </p>
                     </div>
-                    <button
-                        type="button"
-                        onClick={() => setShowScanModal(true)}
-                        data-scan-trigger
-                        className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors shadow-sm"
-                    >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                        </svg>
-                        Scan Lent Item
-                    </button>
+                    <div className="flex gap-2">
+                        {isScannedItem && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setIsScannedItem(false);
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        itemId: "",
+                                        itemName: ""
+                                    }));
+                                }}
+                                className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors shadow-sm"
+                            >
+                                <IoMdClose className="w-5 h-5" />
+                                Clear Scan
+                            </button>
+                        )}
+                        <button
+                            type="button"
+                            onClick={() => setShowScanModal(true)}
+                            data-scan-trigger
+                            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors shadow-sm"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                            </svg>
+                            Scan Item
+                        </button>
+                    </div>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-2">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
@@ -782,15 +1188,18 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onLentItemScanned 
                         <div className="md:col-span-2">
                             <label htmlFor="itemId" className="block text-sm font-medium text-gray-700 mb-2">
                                 Item ID <span className="text-red-500">*</span>
+                                {isScannedItem && <span className="ml-2 text-xs text-blue-600">(Scanned)</span>}
+                                <span className="ml-2 text-xs text-gray-500">(Use Scan Item button)</span>
                             </label>
                             <input
-                                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 ${itemIdError ? "border-red-500" : "border-gray-300"}`}
+                                className={`w-full px-3 py-2 border rounded-md bg-gray-100 cursor-not-allowed ${itemIdError ? "border-red-500" : "border-gray-300"}`}
                                 type="text"
                                 id="itemId"
                                 name="itemId"
-                                placeholder="Enter item ID"
+                                placeholder="Use Scan Item button to select an item"
                                 value={formData.itemId}
-                                onChange={handleChange}
+                                disabled={true}
+                                readOnly={true}
                                 data-testid="itemId"
                             />
                             {itemIdError && <p className="text-red-500 text-sm mt-1">{itemIdError}</p>}
@@ -800,19 +1209,18 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onLentItemScanned 
                         <div>
                             <label htmlFor="itemName" className="block text-sm font-medium text-gray-700 mb-2">
                                 Item Name<span className="text-red-500">*</span>
+                                {isScannedItem && <span className="ml-2 text-xs text-blue-600">(Scanned)</span>}
                             </label>
-                            <select
+                            <input
+                                className={`w-full px-3 py-2 rounded-lg border bg-gray-100 cursor-not-allowed border-gray-200`}
+                                type="text"
                                 id="itemName"
-                                name='itemName'
+                                name="itemName"
+                                placeholder="Auto-filled from scan"
                                 value={formData.itemName}
-                                onChange={handleChange}
-                                className="w-full px-3 py-2 rounded-lg border transition shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 border-gray-200 bg-gray-50"
-                            >
-                                <option value="">Select an item</option>
-                                {Array.from(new Set(itemName.map(item => item.itemName))).map((name) => (
-                                    <option key={name} value={name}>{name}</option>
-                                ))}
-                            </select>
+                                disabled={true}
+                                readOnly={true}
+                            />
                         </div>
 
                         {/* Borrower First Name */}
@@ -855,18 +1263,21 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onLentItemScanned 
                         <div>
                             <label htmlFor="studentIdNumber" className="block text-sm font-medium text-gray-700 mb-2">
                                 Student ID Number
+                                {formData.borrowerRole === "Student" && <span className="text-red-500">*</span>}
+                                {formData.borrowerRole === "Teacher" && <span className="ml-2 text-xs text-gray-500">(Not required for teachers)</span>}
                             </label>
                             <input
-                                className={`w-full px-3 py-2 rounded-lg border transition shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${borrowerStudentIdNumberError ? "border-red-500 focus:ring-red-500/30" : "border-gray-200 bg-gray-50"}`}
+                                className={`w-full px-3 py-2 rounded-lg border transition shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${formData.borrowerRole === "Teacher" ? "bg-gray-100 cursor-not-allowed border-gray-300" : borrowerStudentIdNumberError ? "border-red-500 focus:ring-red-500/30" : "border-gray-200 bg-gray-50"}`}
                                 type="text"
                                 id="studentIdNumber"
                                 name="studentIdNumber"
-                                placeholder="Enter student ID number"
+                                placeholder={formData.borrowerRole === "Teacher" ? "Not required for teachers" : "Enter student ID number"}
                                 value={formData.studentIdNumber || ""}
                                 onChange={handleChange}
+                                disabled={formData.borrowerRole === "Teacher"}
                                 data-testid="studentIdNumber"
                             />
-                            {borrowerStudentIdNumberError && <p className="text-red-500 text-sm mt-1">{borrowerStudentIdNumberError}</p>}
+                            {borrowerStudentIdNumberError && formData.borrowerRole === "Student" && <p className="text-red-500 text-sm mt-1">{borrowerStudentIdNumberError}</p>}
                         </div>
 
                         {/* Borrower Role */}
@@ -893,36 +1304,42 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onLentItemScanned 
                         <div>
                             <label htmlFor="teacherFirstName" className="block text-sm font-medium text-gray-700 mb-2">
                                 Teacher First Name
+                                {formData.borrowerRole === "Student" && <span className="text-red-500">*</span>}
+                                {formData.borrowerRole === "Teacher" && <span className="ml-2 text-xs text-gray-500">(Not required for teachers)</span>}
                             </label>
                             <input
-                                className={`w-full px-3 py-2 rounded-lg border transition shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${borrowerTeacherFirstNameError ? "border-red-500 focus:ring-red-500/30" : "border-gray-200 bg-gray-50"}`}
+                                className={`w-full px-3 py-2 rounded-lg border transition shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${formData.borrowerRole === "Teacher" ? "bg-gray-100 cursor-not-allowed border-gray-300" : borrowerTeacherFirstNameError ? "border-red-500 focus:ring-red-500/30" : "border-gray-200 bg-gray-50"}`}
                                 type="text"
                                 id="teacherFirstName"
                                 name="teacherFirstName"
-                                placeholder="Enter teacher's first name"
+                                placeholder={formData.borrowerRole === "Teacher" ? "Not required for teachers" : "Enter teacher's first name"}
                                 value={formData.teacherFirstName || ""}
                                 onChange={handleChange}
+                                disabled={formData.borrowerRole === "Teacher"}
                                 data-testid="teacherFirstName"
                             />
-                            {borrowerTeacherFirstNameError && <p className="text-red-500 text-sm mt-1">{borrowerTeacherFirstNameError}</p>}
+                            {borrowerTeacherFirstNameError && formData.borrowerRole === "Student" && <p className="text-red-500 text-sm mt-1">{borrowerTeacherFirstNameError}</p>}
                         </div>
 
                         {/* Teacher Last Name */}
                         <div>
                             <label htmlFor="teacherLastName" className="block text-sm font-medium text-gray-700 mb-2">
                                 Teacher Last Name
+                                {formData.borrowerRole === "Student" && <span className="text-red-500">*</span>}
+                                {formData.borrowerRole === "Teacher" && <span className="ml-2 text-xs text-gray-500">(Not required for teachers)</span>}
                             </label>
                             <input
-                                className={`w-full px-3 py-2 rounded-lg border transition shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${borrowerTeacherLastNameError ? "border-red-500 focus:ring-red-500/30" : "border-gray-200 bg-gray-50"}`}
+                                className={`w-full px-3 py-2 rounded-lg border transition shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${formData.borrowerRole === "Teacher" ? "bg-gray-100 cursor-not-allowed border-gray-300" : borrowerTeacherLastNameError ? "border-red-500 focus:ring-red-500/30" : "border-gray-200 bg-gray-50"}`}
                                 type="text"
                                 id="teacherLastName"
                                 name="teacherLastName"
-                                placeholder="Enter teacher's last name"
+                                placeholder={formData.borrowerRole === "Teacher" ? "Not required for teachers" : "Enter teacher's last name"}
                                 value={formData.teacherLastName || ""}
                                 onChange={handleChange}
+                                disabled={formData.borrowerRole === "Teacher"}
                                 data-testid="teacherLastName"
                             />
-                            {borrowerTeacherLastNameError && <p className="text-red-500 text-sm mt-1">{borrowerTeacherLastNameError}</p>}
+                            {borrowerTeacherLastNameError && formData.borrowerRole === "Student" && <p className="text-red-500 text-sm mt-1">{borrowerTeacherLastNameError}</p>}
                         </div>
 
                         {/* Room */}
@@ -979,12 +1396,37 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onLentItemScanned 
                         </div>
                     </div>
 
-                    {/* Submit Button */}
-                    <div className="flex justify-center pt-2">
+                    {/* Submit Buttons */}
+                    <div className="flex justify-center gap-3 pt-2">
+                        <button
+                            type="button"
+                            onClick={(e) => handleSubmit(e as any, 'Reserved')}
+                            disabled={borrowItemMutation.isPending}
+                            className={`flex items-center gap-2 px-6 py-2 bg-purple-600 text-white font-medium rounded-lg shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition ${borrowItemMutation.isPending ? 'opacity-50 cursor-not-allowed' : ''
+                                }`}
+                            data-testid="submit-reservation-button"
+                        >
+                            {borrowItemMutation.isPending ? (
+                                <span className="flex items-center gap-2">
+                                    <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Submitting...
+                                </span>
+                            ) : (
+                                <>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    Submit as Reservation
+                                </>
+                            )}
+                        </button>
                         <button
                             type="submit"
                             disabled={borrowItemMutation.isPending}
-                            className={`px-6 py-2 bg-blue-600 text-white font-medium rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ${borrowItemMutation.isPending ? 'opacity-50 cursor-not-allowed' : ''
+                            className={`flex items-center gap-2 px-6 py-2 bg-blue-600 text-white font-medium rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ${borrowItemMutation.isPending ? 'opacity-50 cursor-not-allowed' : ''
                                 }`}
                             data-testid="submit-borrow-button"
                         >
@@ -997,7 +1439,10 @@ const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onLentItemScanned 
                                     Submitting...
                                 </span>
                             ) : (
-                                'Submit'
+                                <>
+                                    <MdSwapHoriz className="text-xl" />
+                                    Submit Borrow Request
+                                </>
                             )}
                         </button>
                     </div>
@@ -1029,7 +1474,8 @@ const BorrowItemsTable = ({ onBorrowClick }: { onBorrowClick: (itemId: string, i
                     item.itemName.toLowerCase().includes(searchItem.toLowerCase()) ||
                     item.category.toLowerCase().includes(searchItem.toLowerCase());
                 const matchesCategory = selectedCategory === "" || item.category === selectedCategory;
-                return matchesSearch && matchesCategory;
+                const isAvailable = item.status === "Available";
+                return matchesSearch && matchesCategory && isAvailable;
             }),
         [items, searchItem, selectedCategory]
     );
@@ -1082,7 +1528,7 @@ const BorrowItemsTable = ({ onBorrowClick }: { onBorrowClick: (itemId: string, i
             <section className="px-4 md:px-8 py-3">
                 <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
                     {Array.from(new Set(items.map((item) => item.category))).map((category) => {
-                        const itemsInCategory = items.filter((item) => item.category === category);
+                        const itemsInCategory = items.filter((item) => item.category === category && item.status === "Available");
                         return (
                             <InventoryBadges
                                 key={category}
@@ -1469,14 +1915,14 @@ export default function BorrowItem() {
                         style={{
                             borderRadius: '9999px 0 0 9999px'
                         }}
-                        title="Scan Lent Item"
+                        title="Scan Item"
                     >
                         <svg className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                         </svg>
                         <span className={`text-sm font-medium whitespace-nowrap transition-all duration-300 ${showFloatingMenu ? 'opacity-100 max-w-xs' : 'opacity-0 max-w-0'
                             }`}>
-                            Scan Lent Item
+                            Scan Item
                         </span>
                     </button>
 
