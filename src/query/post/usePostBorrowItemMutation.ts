@@ -12,6 +12,7 @@ type BorrowItemData = {
     subjectTimeSchedule: string;
     remarks: string | null;
     studentIdNumber: string | null;
+    status?: 'Borrowed' | 'Reserved';
 };
 
 const PostBorrowItem = async (formData: BorrowItemData) => {
@@ -35,7 +36,7 @@ const PostBorrowItem = async (formData: BorrowItemData) => {
             Room: formData.room,
             SubjectTimeSchedule: formData.subjectTimeSchedule,
             Remarks: formData.remarks || "",
-            Status: "Borrowed",
+            Status: formData.status || "Borrowed",
             StudentIdNumber: formData.studentIdNumber || "",
         }),
     });
