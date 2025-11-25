@@ -18,6 +18,7 @@ type StudentDetails = {
     PhoneNumber: string;
     FrontIdPicture?: string;
     BackIdPicture?: string;
+    GeneratedPassword?: string;
 };
 
 const GetStudentByIdNumber = async (studentIdNumber: string): Promise<StudentDetails> => {

@@ -102,7 +102,16 @@ export default function RegistrationModule() {
                         student.firstName
                             .toLowerCase()
                             .includes(searchUser.toLowerCase()) ||
-                        student.lastName.toLowerCase().includes(searchUser.toLowerCase())
+                        student.lastName.toLowerCase().includes(searchUser.toLowerCase()) ||
+                        String(student.course || "")
+                            .toLowerCase()
+                            .includes(searchUser.toLowerCase()) ||
+                        String(student.section || "")
+                            .toLowerCase()
+                            .includes(searchUser.toLowerCase()) ||
+                        String(student.year || "")
+                            .toLowerCase()
+                            .includes(searchUser.toLowerCase())
                 );
             }
         }
@@ -234,7 +243,7 @@ export default function RegistrationModule() {
                             <div>
                                 <SearchBar
                                     onChangeValue={setSearchUser}
-                                    placeholder="Search by name"
+                                    placeholder={selectedRole === "Student" ? "Search by name, ID, course, section, or year" : "Search by name or department"}
                                 />
                             </div>
                         </div>

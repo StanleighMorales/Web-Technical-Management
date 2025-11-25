@@ -153,7 +153,8 @@ export type TStudent = {
     status: string,
     lastName: string,
     middleName: string,
-    firstName: string
+    firstName: string,
+    generatedPassword?: string
 };
 
 export type TTeacher = {

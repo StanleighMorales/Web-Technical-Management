@@ -1,6 +1,6 @@
-import { MdEmail, MdPhone, MdLocationOn, MdSchool, MdPerson, MdBadge } from "react-icons/md";
+import { MdEmail, MdPhone, MdLocationOn, MdSchool, MdPerson, MdBadge, MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { IoIdCard } from "react-icons/io5";
-import type { FC } from "react";
+import { useState, type FC } from "react";
 import type { TStudent } from "../types/types";
 import { FaPlus } from "react-icons/fa6";
 
@@ -15,6 +15,8 @@ const ViewStudentCredentials: FC<ViewStudentCredentialsProps> = ({
     isOpen,
     onClose,
 }) => {
+    const [showPassword, setShowPassword] = useState(false);
+
     if (!isOpen) return null;
 
     const getFullName = () => {
@@ -167,6 +169,29 @@ const ViewStudentCredentials: FC<ViewStudentCredentialsProps> = ({
                                     }`}>
                                     {student.status}
                                 </span>
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="block mb-1 text-sm font-medium text-gray-700">Generated Password</label>
+                                <div className="flex items-center space-x-2">
+                                    <input
+                                        type={showPassword ? "text" : "password"}
+                                        value={student.generatedPassword || "N/A"}
+                                        disabled
+                                        className="flex-1 px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md cursor-not-allowed disabled:opacity-75"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="p-2 text-gray-600 transition-colors bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:text-gray-900"
+                                        title={showPassword ? "Hide password" : "Show password"}
+                                    >
+                                        {showPassword ? (
+                                            <MdVisibilityOff className="text-xl" />
+                                        ) : (
+                                            <MdVisibility className="text-xl" />
+                                        )}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
