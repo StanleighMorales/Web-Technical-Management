@@ -31,7 +31,7 @@ export default function Sidebar() {
     const sideBarListBottom = [
         { label: "Archives", link: "archive-table", icon: MdInventory },
         { label: "Borrow History", link: "history-list", icon: MdHistory },
-        { label: "Registration Module", link: "registration-module", icon: MdAppRegistration },
+        { label: "Registered Module", link: "registration-module", icon: MdAppRegistration },
         { label: "Profile", link: "settings", icon: BsPersonCircle },
     ];
 
