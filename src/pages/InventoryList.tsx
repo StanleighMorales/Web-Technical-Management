@@ -474,7 +474,7 @@ export default function InventoryList() {
             <div className="overflow-auto h-full">
                 {/* Inventory Stats with Filter */}
                 <section className="py-6 px-8 mx-auto w-full">
-                    <div className="flex items-center gap-4 w-full">
+                    <div className="flex flex-col lg:flex-row lg:items-center gap-4 w-full">
                         {/* Categories - Scrollable */}
                         <div className="flex-1 overflow-x-auto scrollbar-none">
                             <div className="flex flex-row gap-3 pb-2">
@@ -615,17 +615,19 @@ export default function InventoryList() {
                             </div>
 
                             {/* RIGHT: Pagination + Search with gap */}
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-col lg:flex-row lg:items-center gap-2">
                                 {filteredItems.length > 0 && (
-                                    <Pagination
-                                        totalPages={totalPages}
-                                        currentPage={currentPage}
-                                        handlePageChange={handlePageChange}
-                                        selectedCategory={selectedCategory}
-                                        handleShowAll={handleShowAll}
-                                    />
+                                    <div className="lg:order-1 order-2">
+                                        <Pagination
+                                            totalPages={totalPages}
+                                            currentPage={currentPage}
+                                            handlePageChange={handlePageChange}
+                                            selectedCategory={selectedCategory}
+                                            handleShowAll={handleShowAll}
+                                        />
+                                    </div>
                                 )}
-                                <div className="flex-shrink-0">
+                                <div className="order-1 lg:order-2 flex-shrink-0">
                                     <SearchBar
                                         onChangeValue={(value) => setSearchItem(value)}
                                         name={"search"}
