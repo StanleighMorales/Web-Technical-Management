@@ -56,17 +56,20 @@ export const EditTeacher = ({
 
         mutate({ id, formData: updatedTeacher }, {
             onSuccess: (data) => {
+                setIsSubmitting(false)
                 setSuccessMessage(data.message);
                 setTimeout(() => {
+                    setSuccessMessage("")
                     onClose();
-                    setIsSubmitting(false)
                 }, 3500);
             },
-            onError: (error: unknown) => {
+            onError: (error) => {
                 setIsSubmitting(false)
-                if (error instanceof Error) {
-                    setErrorMessage(error.message)
-                }
+                setErrorMessage(error.message)
+                setTimeout(() => {
+                    setErrorMessage("")
+                    onClose();
+                }, 3500);
             }
         });
     };
