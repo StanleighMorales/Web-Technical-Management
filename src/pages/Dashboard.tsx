@@ -366,7 +366,7 @@ export default function Dashboard() {
 
             <div className="p-8 w-full rounded-2xl border shadow-md bg-white/90 border-[#e0e7ef]">
                 {/* Pagination & Search */}
-                <div className="flex flex-wrap lg:flex-row  justify-between items-center mb-6 ">
+                <div className="flex flex-wrap lg:flex-row justify-between items-center  ">
                     <div>
                         <h1 className="mb-4 w-full text-2xl font-bold text-left text-[#1e293b]">
                             Recently Borrowed Items
