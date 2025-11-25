@@ -18,6 +18,7 @@ import * as XLSX from "xlsx";
 import { usePostImportMutation } from "../query/post/usePostImportMutation";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+import SelectItemFilters from "../components/SelectItemFilters";
 
 
 export default function InventoryList() {
@@ -26,6 +27,8 @@ export default function InventoryList() {
     const [isAddItemFormOpen, setIsAddItemFormOpen] = useState(false);
     const [searchItem, setSearchItem] = useState<string>("");
     const [selectedCategory, setSelectedCategory] = useState<string>("");
+    const [selectedCondition, setSelectedCondition] = useState<string>("");
+    const [selectedStatus, setSelectedStatus] = useState<string>("");
     const [currentPage, setCurrentPage] = useState<number>(1);
     const itemsPerPage = 10;
     const [items, setItems] = useState<TItemList[]>([]);
@@ -43,6 +46,15 @@ export default function InventoryList() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const moreMenuRef = useRef<HTMLDivElement>(null);
 
+    // Calculate status counts
+    const statusCounts = useMemo(() => {
+        return {
+            all: items.length,
+            available: items.filter(item => item.status === "Available").length,
+            borrowed: items.filter(item => item.status === "Borrowed").length,
+        };
+    }, [items]);
+
     // this func use a useMemo to filtered item either its itemName or the Category and also for the Matches Category and return items,searchItem and selectedCategory
     const filteredItems = useMemo(
         () =>
@@ -55,9 +67,15 @@ export default function InventoryList() {
                 const matchesCategory =
                     selectedCategory === "" || item.category === selectedCategory;
 
-                return matchesSearch && matchesCategory;
+                const matchesCondition =
+                    selectedCondition === "" || item.condition === selectedCondition;
+
+                const matchesStatus =
+                    selectedStatus === "" || item.status === selectedStatus;
+
+                return matchesSearch && matchesCategory && matchesCondition && matchesStatus;
             }),
-        [items, searchItem, selectedCategory],
+        [items, searchItem, selectedCategory, selectedCondition, selectedStatus],
     );
     const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
@@ -91,6 +109,20 @@ export default function InventoryList() {
     // this func return to display all the items when the selectedCategory is executed
     const handleShowAll = useCallback(() => {
         setSelectedCategory("");
+        setSelectedCondition("");
+        setSelectedStatus("");
+        setCurrentPage(1);
+    }, []);
+
+    // Handle condition filter change
+    const handleConditionChange = useCallback((condition: string) => {
+        setSelectedCondition(condition);
+        setCurrentPage(1);
+    }, []);
+
+    // Handle status filter change
+    const handleStatusChange = useCallback((status: string) => {
+        setSelectedStatus(status);
         setCurrentPage(1);
     }, []);
 
@@ -440,25 +472,41 @@ export default function InventoryList() {
             </header>
 
             <div className="overflow-auto h-full">
-                {/* Inventory Stats */}
-                <section className="py-6 px-8 mx-auto w-full scrollbar-none">
-                    <div className="flex flex-row overflow-x-auto gap-3 pb-2 w-full scrollbar-none">
-                        {Array.from(new Set(items.map((item) => item.category))).map(
-                            (category) => {
-                                const itemsInCategory = items.filter(
-                                    (item) => item.category === category,
-                                );
-                                return (
-                                    <InventoryBadges
-                                        key={category}
-                                        name={category}
-                                        total={itemsInCategory.length}
-                                        onClick={() => handleCategoryClick(category)}
-                                        isSelected={selectedCategory === category}
-                                    />
-                                );
-                            },
-                        )}
+                {/* Inventory Stats with Filter */}
+                <section className="py-6 px-8 mx-auto w-full">
+                    <div className="flex items-center gap-4 w-full">
+                        {/* Categories - Scrollable */}
+                        <div className="flex-1 overflow-x-auto scrollbar-none">
+                            <div className="flex flex-row gap-3 pb-2">
+                                {Array.from(new Set(items.map((item) => item.category))).map(
+                                    (category) => {
+                                        const itemsInCategory = items.filter(
+                                            (item) => item.category === category,
+                                        );
+                                        return (
+                                            <InventoryBadges
+                                                key={category}
+                                                name={category}
+                                                total={itemsInCategory.length}
+                                                onClick={() => handleCategoryClick(category)}
+                                                isSelected={selectedCategory === category}
+                                            />
+                                        );
+                                    },
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Filters - Fixed on Right */}
+                        <div className="flex-shrink-0">
+                            <SelectItemFilters
+                                onStatusChange={handleStatusChange}
+                                onConditionChange={handleConditionChange}
+                                selectedStatus={selectedStatus}
+                                selectedCondition={selectedCondition}
+                                statusCounts={statusCounts}
+                            />
+                        </div>
                     </div>
                 </section>
 

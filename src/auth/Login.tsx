@@ -77,19 +77,18 @@ export default function Login() {
                 <div className="animate-fadeIn max-w-[1000px] mx-[4%] mt-[7%] mb-[4%] animate-fade-in max-lg:mx-[2%] max-lg:mt-[4%] max-lg:mb-[2%] max-lg:max-w-full max-sm:mx-[1%] max-sm:mt-[2%] max-sm:mb-[1%] max-sm:p-0">
                     <div className="max-w-[650px] max-sm:max-w-full max-sm:text-center">
                         <h1 className="m-0 mb-4 font-bold text-white text-[65px] drop-shadow-[0_4px_12px_rgba(0,0,0,0.45)] leading-[4.2rem] animate-fade-in max-sm:text-[2.2rem] max-sm:leading-[2.7rem]">
-                            Technical Assets Management
+                            Technical Equipment Borrowing System
                         </h1>
                     </div>
                     <p className="lg:text-lg max-sm:text-center text-white/75">
-                        Managing hardware, software, and digital resources, while tracking
-                        items, borrowers, and usage. Ensures optimized performance, cost
-                        efficiency, security, and smooth lifecycle management.
+                        Managing digital resources, while tracking
+                        items and borrowers. Ensures smooth lifecycle management.
                     </p>
                 </div>
                 <div className="animate-fadeIn absolute top-0 right-0 w-[35%] h-screen bg-white flex flex-col justify-center items-center animate-fade-in max-lg:w-full max-lg:ml-0 max-lg:relative max-lg:min-h-[60vh] max-sm:w-full max-sm:ml-0 max-sm:relative max-sm:min-h-[60vh] max-sm:py-4 max-sm:px-2">
                     <div className="my-4 mb-10 text-center max-sm:-mt-80">
                         <h1 className="m-0 text-black text-[2.4rem] mb-[-0.3rem] max-sm:text-[1.5rem]">
-                            Welcome Admin.
+                            Welcome User
                         </h1>
                         <p className="mb-1.5 text-center text-black/62">
                             Enter your credentials to log in.
