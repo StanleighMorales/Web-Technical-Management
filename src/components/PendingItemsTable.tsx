@@ -88,7 +88,7 @@ export default function PendingItemsTable({ items, onApprove, onDeny, onRowClick
                                 </td>
                             </tr>
                         ) : (
-                            paginatedItems.filter((s) => s.status === "Pending").map((item) => (
+                            paginatedItems.map((item) => (
                                 <tr
                                     key={item.id}
                                     onClick={() => onRowClick(item.id)}

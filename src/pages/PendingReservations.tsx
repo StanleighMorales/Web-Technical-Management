@@ -60,8 +60,8 @@ export default function PendingReservations() {
         return borrowedItem.filter((item) => {
             const matchesSearch = item.borrowerFullName?.toLowerCase().includes(searchItem.toLowerCase()) ||
                 item.item.itemName?.toLowerCase().includes(searchItem.toLowerCase());
-            // Reservations are items with status "Reserved" or future scheduled items
-            return matchesSearch && (item.status === "Reserved" || item.status === "Scheduled");
+            // Only show Reserved items that are still pending (not yet approved/denied)
+            return matchesSearch && item.status === "Reserved";
         });
     }, [borrowedItem, searchItem]);
 

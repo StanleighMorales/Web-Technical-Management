@@ -130,6 +130,7 @@ export type TBorrowItemForm = {
     subjectTimeSchedule: string;
     remarks: string | null;
     studentIdNumber: string | null;
+    reservedFor?: string | null;
 };
 
 export type TStudent = {
