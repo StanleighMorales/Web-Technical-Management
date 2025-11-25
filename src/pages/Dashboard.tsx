@@ -136,29 +136,7 @@ export default function Dashboard() {
         }
 
         try {
-            // First, fetch the item to check its status
-            const checkResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/lentItems/scan/${barcode}`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${getToken()}`,
-                    "Content-Type": "application/json",
-                },
-            });
-
-            if (!checkResponse.ok) {
-                throw new Error("Item not found or unable to fetch item details");
-            }
-
-            const itemData = await checkResponse.json();
-            const itemStatus = itemData?.data?.status?.toLowerCase();
-
-            // Validate that the item status is "borrowed"
-            if (itemStatus !== 'borrowed') {
-                setReturnError(`Cannot return item with status "${itemData?.data?.status || 'Unknown'}". Only items with "Borrowed" status can be returned.`);
-                return;
-            }
-
-            // If status is valid, proceed with return
+            // Proceed with return - backend will validate the item status
             await returnItemMutation.mutateAsync({ barcode });
 
             setShowReturnModal(false);
