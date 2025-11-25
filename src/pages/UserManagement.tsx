@@ -152,14 +152,14 @@ export default function UserManagement() {
                 </div>
 
                 {/* Actions & Filters */}
-                <section className="flex flex-col gap-4 mb-6 md:flex-row justify-between items-center ">
+                <section className="flex flex-col gap-4 mb-6 lg:flex-row md:flex-row justify-between  ">
                     {/* Buttons */}
-                    <div className="flex flex-wrap gap-2 order-2 md:order-1">
+                    <div >
                         <Button onClick={() => setIsAddUserOpen(true)} name={"New User"} />
                     </div>
 
                     {/* Filters & Search */}
-                    <div className="flex flex-col gap-2 w-full  sm:flex-row sm:items-center md:order-2 md:w-auto">
+                    <div className="flex flex-col gap-2 w-full sm:flex-row sm:items-center md:order-2 md:w-auto">
                         <div className="flex flex-wrap gap-2 items-center">
                             {/* Role Buttons */}
                             {["all", "admin", "staff"].map((role) => (
