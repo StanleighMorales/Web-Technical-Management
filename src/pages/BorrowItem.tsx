@@ -437,7 +437,7 @@ const LentItemDetailsModal: React.FC<LentItemDetailsModalProps> = ({ lentItem, o
     );
 };
 
-const BorrowItemForm = ({ prefilledItemId, prefilledItemName, onLentItemScanned }: { prefilledItemId?: string; prefilledItemName?: string; onLentItemScanned?: (lentItem: any) => void }) => {
+const BorrowItemForm = ({ prefilledItemId, prefilledItemName }: { prefilledItemId?: string; prefilledItemName?: string; onLentItemScanned?: (lentItem: any) => void }) => {
     const [showAlert, setShowAlert] = useState<boolean>(false);
     const [showErrorAlert, setShowErrorAlert] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>("");
