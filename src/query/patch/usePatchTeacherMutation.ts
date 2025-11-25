@@ -27,13 +27,13 @@ const TeacherPatch = async ({ id, formData }: TeacherPatchProps) => {
             return;
         }
 
-        if (res.status === 404) {
-            throw new Error("Submission failed");
-        }
-
         const data = await res.json();
 
-        return data.data;
+        if (res.status === 404) {
+            throw new Error(data.errors || "Submission failed");
+        }
+
+        return data;
     } catch (error: unknown) {
         if (error instanceof Error) {
             console.log(error.message);
