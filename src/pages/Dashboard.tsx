@@ -363,24 +363,27 @@ export default function Dashboard() {
                 ))}
             </div>
 
-            <h1 className="mb-4 w-full text-2xl font-bold text-left text-[#1e293b]">
-                Recently Borrowed Items
-            </h1>
 
             <div className="p-8 w-full rounded-2xl border shadow-md bg-white/90 border-[#e0e7ef]">
-
                 {/* Pagination & Search */}
-                <div className="flex flex-row gap-2 justify-end items-center mb-6 flex-wrap">
-                    <Pagination
-                        totalPages={totalPages || 1}
-                        currentPage={currentPage}
-                        handlePageChange={handlePageChange}
-                    />
-                    <SearchBar
-                        onChangeValue={(value) => setSearchTerm(value)}
-                        name="search"
-                        placeholder="Search items..."
-                    />
+                <div className="flex flex-wrap lg:flex-row  justify-between items-center mb-6 ">
+                    <div>
+                        <h1 className="mb-4 w-full text-2xl font-bold text-left text-[#1e293b]">
+                            Recently Borrowed Items
+                        </h1>
+                    </div>
+                    <div className="flex flex-col lg:flex-row gap-2 ">
+                        <Pagination
+                            totalPages={totalPages || 1}
+                            currentPage={currentPage}
+                            handlePageChange={handlePageChange}
+                        />
+                        <SearchBar
+                            onChangeValue={(value) => setSearchTerm(value)}
+                            name="search"
+                            placeholder="Search items..."
+                        />
+                    </div>
                 </div>
 
                 <div className="overflow-x-auto rounded-xl shadow-inner h-[55vh] bg-white/95">
