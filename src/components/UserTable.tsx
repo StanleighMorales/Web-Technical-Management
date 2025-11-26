@@ -56,7 +56,7 @@ export default function UserTable({
         userRole,
         onHandleArchiveUser,
     }) => {
-        if (userRole !== "Admin") return null;
+        if (userRole !== "SuperAdmin") return null;
         return (
             <button
                 onClick={(e) => { e.stopPropagation(); onHandleArchiveUser(); }}

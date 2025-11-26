@@ -34,7 +34,7 @@ export const ArchiveStudentTable: FC<Required<ArchiveItemTableProps>> = (
         onHandleRestoreStudent,
         onHandleDeleteStudent,
     }: checkIfUserAdminProps) => {
-        if (userRole !== "Admin") return null;
+        if (userRole !== "Admin" && userRole !== "SuperAdmin") return null;
         return (
             <>
                 <button
