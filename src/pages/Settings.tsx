@@ -44,7 +44,7 @@ export default function Settings() {
             <div className="py-10 px-6 mx-auto w-full max-w-7xl md:px-10">
                 <div className="mb-8">
                     <h1 className="mb-2 text-5xl mt-10 lg:mt-0 md:mt-0 font-extrabold tracking-tight text-[#1e293b] drop-shadow-lg">
-                        Settings
+                        Profile
                     </h1>
                     <p className="mt-1 text-slate-600">
                         Manage your account information and preferences
