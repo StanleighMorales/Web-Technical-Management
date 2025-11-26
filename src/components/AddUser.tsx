@@ -141,7 +141,6 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
                 setTimeout(() => {
                     setShowAlert(false);
                     onClose();
-                    window.location.reload();
                 }, 1000);
                 setFormData({
                     firstName: "",
