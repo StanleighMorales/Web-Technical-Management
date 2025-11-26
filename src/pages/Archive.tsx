@@ -330,7 +330,7 @@ export default function Archive() {
     }) => {
         if (
             userData.userRole?.toLowerCase() !== "admin" &&
-            userData.userRole?.toLowerCase() !== "super admin"
+            userData.userRole?.toLowerCase() !== "superadmin"
         )
             return null;
         return (
