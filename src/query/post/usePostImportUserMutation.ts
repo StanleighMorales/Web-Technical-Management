@@ -15,7 +15,7 @@ const importUsers = async (formData: FormData) => {
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.Errors || "Submission failed");
+    if (!res.ok) throw new Error(data.errors || "Submission failed");
     return data;
 };
 
