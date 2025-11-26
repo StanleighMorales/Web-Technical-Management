@@ -194,3 +194,9 @@ body {
     font-size: 9px !important;
   }
 }
+
+/* Custo
+m toast notification progress bar with orange gradient */
+.toast-progress-orange {
+  background: linear-gradient(to right, #f97316, #fb923c) !important;
+}

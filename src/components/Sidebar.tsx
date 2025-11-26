@@ -11,6 +11,7 @@ import { useState, useEffect } from "react";
 import SidebarSkeletonLoader from "../loader/SidebarSkeletonLoader";
 import { usePostLogoutUserMutation } from "../query/post/usePostLogoutUserMutation";
 import { useSidebar } from "../context/SidebarContext";
+import { usePendingCount } from "../hooks/usePendingCount";
 
 
 export default function Sidebar() {
@@ -21,6 +22,7 @@ export default function Sidebar() {
     const [wasItemsDropdownOpen, setWasItemsDropdownOpen] = useState<boolean>(false);
     const { mutate, isPending } = usePostLogoutUserMutation()
     const { setIsSidebarExpanded } = useSidebar();
+    const { total: pendingCount } = usePendingCount();
 
     const sideBarListTop = [
         { label: "Dashboard", link: "dashboard", icon: MdDashboardCustomize },
@@ -119,9 +121,14 @@ export default function Sidebar() {
                         <li>
                             <button
                                 onClick={() => setIsItemsDropdownOpen(!isItemsDropdownOpen)}
-                                className="flex items-center outline-0 gap-2.5 px-3 py-3 rounded-lg font-medium text-base transition-all duration-150 w-full text-gray-500 hover:bg-[#f1f5f9] hover:text-[#2563eb]"
+                                className="flex items-center outline-0 gap-2.5 px-3 py-3 rounded-lg font-medium text-base transition-all duration-150 w-full text-gray-500 hover:bg-[#f1f5f9] hover:text-[#2563eb] relative"
                             >
                                 <BiPackage className="text-2xl min-w-[30px]" />
+                                {pendingCount > 0 && (
+                                    <span className="absolute left-8 top-2 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-orange-500 rounded-full border-2 border-white shadow-lg animate-pulse">
+                                        {pendingCount > 99 ? '99+' : pendingCount}
+                                    </span>
+                                )}
                                 <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex-1 text-left">
                                     Manage Borrow Items
                                 </span>
@@ -143,16 +150,21 @@ export default function Sidebar() {
                                             <NavLink
                                                 to={subItem.link}
                                                 className={({ isActive }) =>
-                                                    `flex items-center outline-0 gap-2.5 px-3 py-2 rounded-lg font-medium text-sm transition-all duration-150 ${isActive
+                                                    `flex items-center outline-0 gap-2.5 px-3 py-2 rounded-lg font-medium text-sm transition-all duration-150 relative ${isActive
                                                         ? "bg-blue-600 text-white shadow"
                                                         : "text-gray-500 hover:bg-[#f1f5f9] hover:text-[#2563eb]"
                                                     }`
                                                 }
                                             >
                                                 <subItem.icon className="text-xl min-w-[24px]" />
-                                                <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                                                <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex-1">
                                                     {subItem.label}
                                                 </span>
+                                                {subItem.link === 'pending-reservations' && pendingCount > 0 && (
+                                                    <span className="opacity-0 transition-opacity duration-300 group-hover:opacity-100 ml-auto px-2 py-0.5 text-xs font-bold text-white bg-orange-500 rounded-full">
+                                                        {pendingCount > 99 ? '99+' : pendingCount}
+                                                    </span>
+                                                )}
                                             </NavLink>
                                         </li>
                                     ))}
@@ -271,9 +283,14 @@ export default function Sidebar() {
                             <li>
                                 <button
                                     onClick={() => setIsItemsDropdownOpen(!isItemsDropdownOpen)}
-                                    className="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-base transition-all duration-150 w-full text-gray-600 hover:bg-[#f1f5f9] hover:text-[#2563eb]"
+                                    className="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-base transition-all duration-150 w-full text-gray-600 hover:bg-[#f1f5f9] hover:text-[#2563eb] relative"
                                 >
                                     <BiPackage className="text-xl min-w-[24px]" />
+                                    {pendingCount > 0 && (
+                                        <span className="absolute left-8 top-1.5 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-orange-500 rounded-full border-2 border-white shadow-lg">
+                                            {pendingCount > 99 ? '99+' : pendingCount}
+                                        </span>
+                                    )}
                                     <span className="flex-1 text-left">Manage Borrow Items</span>
                                     {isItemsDropdownOpen ? (
                                         <FaChevronDown className="text-sm" />
@@ -301,7 +318,12 @@ export default function Sidebar() {
                                                     }
                                                 >
                                                     <subItem.icon className="text-lg min-w-[20px]" />
-                                                    <span>{subItem.label}</span>
+                                                    <span className="flex-1">{subItem.label}</span>
+                                                    {subItem.link === 'pending-reservations' && pendingCount > 0 && (
+                                                        <span className="ml-auto px-2 py-0.5 text-xs font-bold text-white bg-orange-500 rounded-full">
+                                                            {pendingCount > 99 ? '99+' : pendingCount}
+                                                        </span>
+                                                    )}
                                                 </NavLink>
                                             </li>
                                         ))}
