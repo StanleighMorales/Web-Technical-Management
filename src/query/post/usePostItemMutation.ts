@@ -2,62 +2,62 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getToken, removeToken } from "../../utils/token";
 
 type ItemData = {
-  serialNumber: string;
-  image: File | null;
-  itemName: string;
-  itemType: string;
-  itemModel: string;
-  itemMake: string;
-  description: string;
-  category: string;
-  condition: string;
+    serialNumber: string;
+    image: File | null;
+    itemName: string;
+    itemType: string;
+    itemModel: string;
+    itemMake: string;
+    description: string;
+    category: string;
+    condition: string;
 };
 
 const PostItem = async (formData: ItemData) => {
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const VERSION = "v1";
-  const END_POINT = `/api/${VERSION}/items`;
+    const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+    const VERSION = "v1";
+    const END_POINT = `/api/${VERSION}/items`;
 
-  const body = new FormData();
-  body.append("SerialNumber", formData.serialNumber);
-  body.append("ItemName", formData.itemName);
-  body.append("ItemType", formData.itemType);
-  body.append("ItemModel", formData.itemModel);
-  body.append("ItemMake", formData.itemMake);
-  body.append("Description", formData.description);
-  body.append("Category", formData.category);
-  body.append("Condition", formData.condition);
+    const body = new FormData();
+    body.append("SerialNumber", formData.serialNumber);
+    body.append("ItemName", formData.itemName);
+    body.append("ItemType", formData.itemType);
+    body.append("ItemModel", formData.itemModel);
+    body.append("ItemMake", formData.itemMake);
+    body.append("Description", formData.description);
+    body.append("Category", formData.category);
+    body.append("Condition", formData.condition);
 
-  if (formData.image) {
-    body.append("Image", formData.image);
-  }
+    if (formData.image) {
+        body.append("Image", formData.image);
+    }
 
-  const res = await fetch(`${BASE_URL}${END_POINT}`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-    },
-    body: body,
-  });
+    const res = await fetch(`${BASE_URL}${END_POINT}`, {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${getToken()}`,
+        },
+        body: body,
+    });
 
-  if (res.status === 401) {
-    removeToken();
-    return;
-  }
+    if (res.status === 401) {
+        removeToken();
+        return;
+    }
 
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.errors || "Item Id already exist");
-  return data.data;
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.Errors);
+    return data.data;
 };
 
 export const usePostItemMutation = () => {
-  const queryClient = useQueryClient();
+    const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationKey: ["items"],
-    mutationFn: PostItem,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["Item"] })
-    }
-  });
+    return useMutation({
+        mutationKey: ["items"],
+        mutationFn: PostItem,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["Item"] })
+        }
+    });
 };
