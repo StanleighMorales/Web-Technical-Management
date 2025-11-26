@@ -46,12 +46,14 @@ export default function ExcelImportUserButton() {
                     setShowAlertSuccess(false);
                 }, 3500);
             },
-            onError: (error) => {
-                console.error(error.message);
+            onError: (error: unknown) => {
                 setShowAlertFailed(true);
-                setTimeout(() => {
-                    setShowAlertFailed(false);
-                }, 3500);
+                if (error instanceof Error) {
+                    console.log(error.message)
+                    setTimeout(() => {
+                        setShowAlertFailed(false);
+                    }, 3500);
+                }
             },
         });
     };
