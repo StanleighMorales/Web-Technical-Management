@@ -53,7 +53,7 @@ export const StudentTable: FC<TStudentNewTypes> = (props) => {
         userRole,
         onHandleArchiveStudent,
     }) => {
-        if (userRole !== "Admin") return null;
+        if (userRole !== "Admin" && userRole !== "SuperAdmin") return null;
         return (
             <button
                 onClick={(e) => { e.stopPropagation(); onHandleArchiveStudent() }}

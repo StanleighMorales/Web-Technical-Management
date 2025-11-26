@@ -37,7 +37,7 @@ export const ArchiveItemTable: FC<TArchiveItemNewProps> = (props) => {
     const data = UserData()
 
     const ShowButtonIfUserAdmin: FC<checkIfUserAdminProps> = ({ userRole, onHandleRestoreItem, onHandleDeleteItem }) => {
-        if (userRole !== "Admin") return null;
+        if (userRole !== "Admin" && userRole !== "SuperAdmin") return null;
         return (
             <>
                 <button

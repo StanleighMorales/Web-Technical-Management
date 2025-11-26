@@ -49,7 +49,7 @@ export const InventoryTable: FC<Required<InventoryTableProps>> = (props) => {
         userRole,
         onHandleArchiveItem,
     }) => {
-        if (userRole !== "Admin") return null;
+        if (userRole !== "Admin" && userRole !== "SuperAdmin") return null;
         return (
             <button
                 onClick={(e) => { e.stopPropagation(); onHandleArchiveItem() }}

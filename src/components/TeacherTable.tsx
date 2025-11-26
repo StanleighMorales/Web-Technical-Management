@@ -58,7 +58,7 @@ export default function TeacherTable({
         userRole,
         onHandleArchiveUser,
     }) => {
-        if (userRole !== "Admin") return null;
+        if (userRole !== "Admin" && userRole !== "SuperAdmin") return null;
         return (
             <button
                 onClick={(e) => { e.stopPropagation(); onHandleArchiveUser(); }}

@@ -32,7 +32,7 @@ export const ArchiveTeacherTable: FC<Required<ArchiveTeacherTableProps>> = (
         onHandleRestoreTeacher,
         onHandleDeleteTeacher,
     }: checkIfUserAdminProps) => {
-        if (userRole !== "SuperAdmin") return null;
+        if (userRole !== "Admin" && userRole !== "SuperAdmin") return null;
         return (
             <>
                 <button
