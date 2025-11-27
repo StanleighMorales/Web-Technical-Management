@@ -8,7 +8,7 @@ type PathUserCredentials = {
     lastName: string,
     middleName: string,
     firstName: string,
-    userRole: string
+    position: string
 }
 
 type PatchUserProps = {
@@ -28,7 +28,7 @@ const PatchUser = async ({ id, formData }: PatchUserProps) => {
         lastName: formData.lastName,
         middleName: formData.middleName,
         firstName: formData.firstName,
-        position: formData.userRole
+        position: formData.position
     }
 
     const updatedUser = JSON.stringify(updateProfile);
