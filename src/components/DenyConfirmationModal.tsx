@@ -17,6 +17,14 @@ export default function DenyConfirmationModal({
 }: DenyConfirmationModalProps) {
     if (!isOpen || !item) return null;
 
+    const isReservation = item.status === "Reserved";
+    const title = isReservation ? "Cancel Reservation" : "Deny Borrow Request";
+    const description = isReservation
+        ? "Are you sure you want to cancel this reservation?"
+        : "Are you sure you want to deny this borrow request?";
+    const confirmText = isReservation ? "Confirm Cancellation" : "Confirm Denial";
+    const loadingText = isReservation ? "Canceling..." : "Denying...";
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fadeIn">
             <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 animate-slideIn">
@@ -37,10 +45,10 @@ export default function DenyConfirmationModal({
                         </svg>
                     </div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                        Deny Borrow Request
+                        {title}
                     </h3>
                     <p className="text-gray-600">
-                        Are you sure you want to deny this borrow request?
+                        {description}
                     </p>
                 </div>
 
@@ -61,6 +69,12 @@ export default function DenyConfirmationModal({
                         <span className="text-gray-600 font-medium">Room:</span>
                         <span className="text-gray-900">{item.room || "-"}</span>
                     </div>
+                    {isReservation && item.reservedFor && (
+                        <div className="flex justify-between">
+                            <span className="text-gray-600 font-medium">Reserved For:</span>
+                            <span className="text-gray-900">{new Date(item.reservedFor).toLocaleString()}</span>
+                        </div>
+                    )}
                 </div>
 
                 <div className="flex gap-3">
@@ -69,14 +83,14 @@ export default function DenyConfirmationModal({
                         disabled={isLoading}
                         className="flex-1 px-4 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        Cancel
+                        Back
                     </button>
                     <button
                         onClick={onConfirm}
                         disabled={isLoading}
                         className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {isLoading ? "Denying..." : "Confirm Denial"}
+                        {isLoading ? loadingText : confirmText}
                     </button>
                 </div>
             </div>
