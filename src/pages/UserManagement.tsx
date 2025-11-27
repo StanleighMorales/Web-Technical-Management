@@ -79,16 +79,6 @@ export default function UserManagement() {
 
     const confirmArchiveUser = useCallback(() => {
         mutate(archiveUserId, {
-            onError: () => {
-                setIsArchiveModalOpen(false);
-                setErrorShowAlert(true);
-                setArchiveUserId("");
-                setShowErrorMessage("You cannot delete the logged-in user!");
-                setTimeout(() => {
-                    setErrorShowAlert(false);
-                    setShowErrorMessage("");
-                }, 3500);
-            },
             onSuccess: (d) => {
                 setIsArchiveModalOpen(false);
                 setShowSuccessAlert(true);
@@ -99,6 +89,17 @@ export default function UserManagement() {
                     setShowSuccessMessage("");
                 }, 3500);
             },
+            onError: () => {
+                setIsArchiveModalOpen(false);
+                setErrorShowAlert(true);
+                setArchiveUserId("");
+                setShowSuccessAlert(false)
+                setShowErrorMessage("You cannot delete the logged-in user!");
+                setTimeout(() => {
+                    setErrorShowAlert(false);
+                    setShowErrorMessage("");
+                }, 3500);
+            }
         });
     }, [archiveUserId, mutate]);
 
