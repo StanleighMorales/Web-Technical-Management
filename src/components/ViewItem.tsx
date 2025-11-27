@@ -209,28 +209,6 @@ export default function ViewItem() {
                         </div>
                     </div>
                 </div>
-                <div className="flex flex-row justify-center items-center mt-6 md:justify-end lg:justify-end">
-                    <button
-                        type="button"
-                        className="float-right p-4 px-8 text-lg font-semibold text-gray-900 bg-white rounded-lg shadow-md cursor-pointer"
-                    >
-                        <div className="flex flex-row gap-2 justify-center items-center">
-                            {itemDetails.barcode ? (
-                                <>
-                                    <FaBarcode />
-                                    <p className="text-gray-600/50">
-                                        You have generated BarCode.
-                                    </p>
-                                </>
-                            ) : (
-                                <>
-                                    <FaBarcode />
-                                    <p className="text-gray-600/50">Generate BarCode ?</p>
-                                </>
-                            )}
-                        </div>
-                    </button>
-                </div>
             </div>
             {isEditItemFormOpen && (
                 <EditItemForm
