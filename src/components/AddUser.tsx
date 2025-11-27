@@ -162,8 +162,9 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
 
     return (
         <>
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60">
+            <div className="fixed inset-0 z-50 bg-gray-900/60 overflow-y-auto py-10 flex justify-center items-start">
                 {showAlert && <SuccessAlert message={"User Created Successfully"} />}
+
                 <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-3xl relative animate-fadeInUp">
                     <button
                         className="absolute top-4 right-4 text-2xl text-[#64748b] hover:text-[#2563eb] transition-colors"
@@ -172,285 +173,225 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
                     >
                         <CloseButton onClick={onClose} />
                     </button>
+
                     <h2 className="text-3xl font-extrabold text-[#1e293b] mb-6 text-center tracking-tight">
                         New User
                     </h2>
+
                     <form onSubmit={handleSubmit} className="space-y-6">
+
+                        {/* 🟦 Name Row */}
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="flex-1">
-                                <label
-                                    htmlFor="firstName"
-                                    className="block text-[#2563eb] font-semibold mb-1"
-                                >
+                                <label htmlFor="firstName" className="block text-[#2563eb] font-semibold mb-1">
                                     First Name <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
                                     id="firstName"
                                     name="firstName"
-                                    className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${formData.firstName === "" && firstnameError
-                                        ? "border-red-500"
-                                        : firstnameError
-                                            ? "border-red-500"
-                                            : ""
-                                        }`}
+                                    className={`w-full px-4 py-3 rounded-xl border bg-[#f8fafc] focus:ring-2 focus:ring-[#2563eb] text-lg 
+                            ${formData.firstName === "" && firstnameError ? "border-red-500" :
+                                            firstnameError ? "border-red-500" : "border-[#e0e7ef]"}`}
                                     value={formData.firstName}
                                     onChange={handleInputChange}
                                     placeholder="Enter first name"
                                     data-testid="firstName"
                                 />
-                                {firstnameError && (
-                                    <p className="text-red-500 text-sm mt-1">{firstnameError}</p>
-                                )}
+                                {firstnameError && <p className="text-red-500 text-sm mt-1">{firstnameError}</p>}
                             </div>
+
                             <div className="flex-1">
-                                <label
-                                    htmlFor="lastName"
-                                    className="block text-[#2563eb] font-semibold mb-1"
-                                >
+                                <label htmlFor="lastName" className="block text-[#2563eb] font-semibold mb-1">
                                     Last Name <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
                                     id="lastName"
                                     name="lastName"
-                                    className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${formData.lastName === "" && lastnameError
-                                        ? "border-red-500"
-                                        : lastnameError
-                                            ? "border-red-500"
-                                            : ""
-                                        }`}
+                                    className={`w-full px-4 py-3 rounded-xl border bg-[#f8fafc] focus:ring-2 focus:ring-[#2563eb] text-lg 
+                            ${formData.lastName === "" && lastnameError ? "border-red-500" :
+                                            lastnameError ? "border-red-500" : "border-[#e0e7ef]"}`}
                                     value={formData.lastName}
                                     onChange={handleInputChange}
                                     placeholder="Enter last name"
                                     data-testid="lastName"
                                 />
-                                {lastnameError && (
-                                    <p className="text-red-500 text-sm mt-1">{lastnameError}</p>
-                                )}
+                                {lastnameError && <p className="text-red-500 text-sm mt-1">{lastnameError}</p>}
                             </div>
+
                             <div className="flex-1">
-                                <label
-                                    htmlFor="middleName"
-                                    className="block text-[#2563eb] font-semibold mb-1"
-                                >
-                                    Middle Name{" "}
-                                    <span className="text-gray-400/50">(Optional)</span>{" "}
-                                    <span className="text-red-500">*</span>
+                                <label htmlFor="middleName" className="block text-[#2563eb] font-semibold mb-1">
+                                    Middle Name <span className="text-gray-400/50">(Optional)</span>
                                 </label>
                                 <input
                                     type="text"
                                     id="middleName"
                                     name="middleName"
-                                    className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${formData.middleName === "" && middlenameError
-                                        ? "border-red-500"
-                                        : middlenameError
-                                            ? "border-red-500"
-                                            : ""
-                                        }`}
+                                    className={`w-full px-4 py-3 rounded-xl border bg-[#f8fafc] focus:ring-2 focus:ring-[#2563eb] text-lg
+                            ${formData.middleName === "" && middlenameError ? "border-red-500" :
+                                            middlenameError ? "border-red-500" : "border-[#e0e7ef]"}`}
                                     value={formData.middleName}
                                     onChange={handleInputChange}
                                     placeholder="Enter middle name"
                                     data-testid="middleName"
                                 />
-                                {middlenameError && (
-                                    <p className="text-red-500 text-sm mt-1">{middlenameError}</p>
-                                )}
+                                {middlenameError && <p className="text-red-500 text-sm mt-1">{middlenameError}</p>}
                             </div>
                         </div>
+
+                        {/* 🟦 Username / Email / Phone */}
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="flex-1">
-                                <label
-                                    htmlFor="username"
-                                    className="block text-[#2563eb] font-semibold mb-1"
-                                >
+                                <label htmlFor="username" className="block text-[#2563eb] font-semibold mb-1">
                                     Username <span className="text-red-500">*</span>
                                 </label>
                                 <input
-                                    type="text"
                                     id="username"
                                     name="username"
-                                    className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${formData.username === "" && usernameError
-                                        ? "border-red-500"
-                                        : usernameError
-                                            ? "border-red-500"
-                                            : ""
-                                        }`}
+                                    type="text"
+                                    className={`w-full px-4 py-3 rounded-xl border bg-[#f8fafc] focus:ring-2 focus:ring-[#2563eb] text-lg
+                            ${formData.username === "" && usernameError ? "border-red-500" :
+                                            usernameError ? "border-red-500" : "border-[#e0e7ef]"}`}
                                     value={formData.username}
                                     onChange={handleInputChange}
                                     placeholder="Enter username"
                                     data-testid="username"
                                 />
-                                {usernameError && (
-                                    <p className="text-red-500 text-sm mt-1">{usernameError}</p>
-                                )}
+                                {usernameError && <p className="text-red-500 text-sm mt-1">{usernameError}</p>}
                             </div>
+
                             <div className="flex-1">
-                                <label
-                                    htmlFor="email"
-                                    className="block text-[#2563eb] font-semibold mb-1"
-                                >
+                                <label htmlFor="email" className="block text-[#2563eb] font-semibold mb-1">
                                     Email <span className="text-red-500">*</span>
                                 </label>
                                 <input
-                                    type="text"
                                     id="email"
                                     name="email"
-                                    className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${formData.email === "" && emailError
-                                        ? "border-red-500"
-                                        : emailError
-                                            ? "border-red-500"
-                                            : ""
-                                        }`}
+                                    type="text"
+                                    className={`w-full px-4 py-3 rounded-xl border bg-[#f8fafc] focus:ring-2 focus:ring-[#2563eb] text-lg
+                            ${formData.email === "" && emailError ? "border-red-500" :
+                                            emailError ? "border-red-500" : "border-[#e0e7ef]"}`}
                                     value={formData.email}
                                     onChange={handleInputChange}
                                     placeholder="example@example.com"
                                     data-testid="email"
                                 />
-                                {emailError && (
-                                    <p className="text-red-500 text-sm mt-1">{emailError}</p>
-                                )}
+                                {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
                             </div>
+
                             <div className="flex-1">
-                                <label
-                                    htmlFor="phoneNumber"
-                                    className="block text-[#2563eb] font-semibold mb-1"
-                                >
+                                <label htmlFor="phoneNumber" className="block text-[#2563eb] font-semibold mb-1">
                                     Phone Number <span className="text-red-500">*</span>
                                 </label>
                                 <input
-                                    type="tel"
                                     id="phoneNumber"
                                     name="phoneNumber"
-                                    className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${formData.phoneNumber === "" && phoneNumberError
-                                        ? "border-red-500"
-                                        : phoneNumberError
-                                            ? "border-red-500"
-                                            : ""
-                                        }`}
-                                    value={formData.phoneNumber}
+                                    type="tel"
                                     maxLength={10}
+                                    className={`w-full px-4 py-3 rounded-xl border bg-[#f8fafc] focus:ring-2 focus:ring-[#2563eb] text-lg
+                            ${formData.phoneNumber === "" && phoneNumberError ? "border-red-500" :
+                                            phoneNumberError ? "border-red-500" : "border-[#e0e7ef]"}`}
+                                    value={formData.phoneNumber}
                                     onChange={handleInputChange}
                                     placeholder="9XXXXXXXXX"
                                     data-testid="phoneNumber"
                                 />
-                                {phoneNumberError && (
-                                    <p className="text-red-500 text-sm mt-1">
-                                        {phoneNumberError}
-                                    </p>
-                                )}
+                                {phoneNumberError && <p className="text-red-500 text-sm mt-1">{phoneNumberError}</p>}
                             </div>
                         </div>
+
+                        {/* 🟦 Passwords */}
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="flex-1">
-                                <label
-                                    htmlFor="phone"
-                                    className="block text-[#2563eb] font-semibold mb-1"
-                                >
+                                <label className="block text-[#2563eb] font-semibold mb-1">
                                     Password <span className="text-red-500">*</span>
                                 </label>
-                                <div className="relative flex flex-row">
+
+                                <div className="relative">
                                     <input
-                                        type={showPassword ? "text" : "password"}
                                         id="password"
                                         name="password"
-                                        className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${formData.password === "" && passwordError
-                                            ? "border-red-500"
-                                            : passwordError
-                                                ? "border-red-500"
-                                                : ""
-                                            }`}
+                                        type={showPassword ? "text" : "password"}
+                                        className={`w-full px-4 py-3 rounded-xl border bg-[#f8fafc] focus:ring-2 focus:ring-[#2563eb] text-lg
+                                ${formData.password === "" && passwordError ? "border-red-500" :
+                                                passwordError ? "border-red-500" : "border-[#e0e7ef]"}`}
                                         value={formData.password}
                                         onChange={handleInputChange}
                                         placeholder="Enter password"
                                         data-testid="password"
                                     />
+
                                     {formData.password.length > 0 && (
-                                        <>
-                                            {showPassword ? (
-                                                <FaEye
-                                                    onClick={() => setShowPassword(false)}
-                                                    className="absolute top-4 right-4 text-2xl text-gray-400 cursor-pointer"
-                                                />
-                                            ) : (
-                                                <FaEyeSlash
-                                                    onClick={() => setShowPassword(true)}
-                                                    className="absolute top-4 right-4 text-2xl text-gray-400 cursor-pointer"
-                                                />
-                                            )}
-                                        </>
+                                        showPassword ? (
+                                            <FaEye
+                                                onClick={() => setShowPassword(false)}
+                                                className="absolute top-4 right-4 text-2xl text-gray-400 cursor-pointer"
+                                            />
+                                        ) : (
+                                            <FaEyeSlash
+                                                onClick={() => setShowPassword(true)}
+                                                className="absolute top-4 right-4 text-2xl text-gray-400 cursor-pointer"
+                                            />
+                                        )
                                     )}
                                 </div>
 
-                                {passwordError && (
-                                    <p className="text-red-500 text-sm mt-1">{passwordError}</p>
-                                )}
-
+                                {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
                             </div>
+
                             <div className="flex-1">
-                                <label
-                                    htmlFor="confirmPassword"
-                                    className="block text-[#2563eb] font-semibold mb-1"
-                                >
+                                <label className="block text-[#2563eb] font-semibold mb-1">
                                     Confirm Password <span className="text-red-500">*</span>
                                 </label>
-                                <div className="relative flex flex-row">
+
+                                <div className="relative">
                                     <input
-                                        type={showConfirmPassword ? "text" : "password"}
                                         id="confirmPassword"
                                         name="confirmPassword"
-                                        className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${formData.confirmPassword === "" && confirmPasswordError
-                                            ? "border-red-500"
-                                            : confirmPasswordError
-                                                ? "border-red-500"
-                                                : ""
-                                            }`}
+                                        type={showConfirmPassword ? "text" : "password"}
+                                        className={`w-full px-4 py-3 rounded-xl border bg-[#f8fafc] focus:ring-2 focus:ring-[#2563eb] text-lg
+                                ${formData.confirmPassword === "" && confirmPasswordError ? "border-red-500" :
+                                                confirmPasswordError ? "border-red-500" : "border-[#e0e7ef]"}`}
                                         value={formData.confirmPassword}
                                         onChange={handleInputChange}
                                         placeholder="Confirm password"
                                         data-testid="confirmPassword"
                                     />
+
                                     {formData.confirmPassword.length > 0 && (
-                                        <>
-                                            {showConfirmPassword ? (
-                                                <FaEye
-                                                    onClick={() => setShowConfirmPassword(false)}
-                                                    className="absolute top-4 right-4 text-2xl text-gray-400 cursor-pointer"
-                                                />
-                                            ) : (
-                                                <FaEyeSlash
-                                                    onClick={() => setShowConfirmPassword(true)}
-                                                    className="absolute top-4 right-4 text-2xl text-gray-400 cursor-pointer"
-                                                />
-                                            )}
-                                        </>
+                                        showConfirmPassword ? (
+                                            <FaEye
+                                                onClick={() => setShowConfirmPassword(false)}
+                                                className="absolute top-4 right-4 text-2xl text-gray-400 cursor-pointer"
+                                            />
+                                        ) : (
+                                            <FaEyeSlash
+                                                onClick={() => setShowConfirmPassword(true)}
+                                                className="absolute top-4 right-4 text-2xl text-gray-400 cursor-pointer"
+                                            />
+                                        )
                                     )}
                                 </div>
 
                                 {confirmPasswordError && (
-                                    <p className="text-red-500 text-sm mt-1">
-                                        {confirmPasswordError}
-                                    </p>
+                                    <p className="text-red-500 text-sm mt-1">{confirmPasswordError}</p>
                                 )}
                             </div>
                         </div>
+
+                        {/* 🟦 Role */}
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="flex-1">
-                                <label
-                                    htmlFor="role"
-                                    className="block text-[#2563eb] font-semibold mb-1"
-                                >
+                                <label htmlFor="role" className="block text-[#2563eb] font-semibold mb-1">
                                     Role <span className="text-red-500">*</span>
                                 </label>
                                 <select
                                     id="role"
                                     name="role"
-                                    className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${formData.role === "" && roleError
-                                        ? "border-red-500"
-                                        : roleError
-                                            ? "border-red-500"
-                                            : ""
-                                        }`}
+                                    className={`w-full px-4 py-3 rounded-xl border bg-[#f8fafc] focus:ring-2 focus:ring-[#2563eb] text-lg
+                            ${formData.role === "" && roleError ? "border-red-500" :
+                                            roleError ? "border-red-500" : "border-[#e0e7ef]"}`}
                                     value={formData.role}
                                     onChange={handleInputChange}
                                     data-testid="role"
@@ -459,15 +400,15 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
                                     <option value="Admin">Admin</option>
                                     <option value="Staff">Staff</option>
                                 </select>
-                                {roleError && (
-                                    <p className="text-red-500 text-sm mt-1">{roleError}</p>
-                                )}
+                                {roleError && <p className="text-red-500 text-sm mt-1">{roleError}</p>}
                             </div>
                         </div>
+
+                        {/* 🟦 Submit */}
                         <div className="flex justify-center pt-2">
                             <button
                                 type="submit"
-                                className="px-8 py-3 bg-blue-500 text-white font-bold rounded-xl shadow-md hover:scale-105 hover:shadow-2xl transition-all duration-150 cursor-pointer"
+                                className="px-8 py-3 bg-blue-500 text-white font-bold rounded-xl shadow-md hover:scale-105 transition-all duration-150 cursor-pointer"
                                 data-testid="button-user"
                             >
                                 Save User
