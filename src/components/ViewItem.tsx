@@ -9,7 +9,6 @@ import { FaHashtag, FaTools } from "react-icons/fa";
 import { FaCheckCircle } from "react-icons/fa";
 import { BsCalendar2Date } from "react-icons/bs";
 import { MdOutlineDescription } from "react-icons/md";
-import { FaBarcode } from "react-icons/fa6";
 import { useState } from "react";
 import { EditItemForm } from "./EditItemForm";
 import { FormattedDateTime } from "./FormattedDateTime";
