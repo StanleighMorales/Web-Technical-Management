@@ -1,4 +1,4 @@
-import { StrictMode, lazy, Suspense } from "react";
+import { StrictMode, lazy } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -20,135 +20,108 @@ const PendingReservations = lazy(() => import("./pages/PendingReservations.tsx")
 const Registration = lazy(() => import("./pages/Registration.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
-import { DashboardSkeletonLoader } from "./loader/DashboardSkeletonLoader.tsx";
-import InventoryListSkeletonLoader from "./loader/InventoryListSkeletonLoader.tsx";
-import { UserSkeletonLoader } from "./loader/UserSkeletonLoader.tsx";
-import HistoryListSkeletonLoader from "./loader/HistoryListSkeletonLoader.tsx";
-import ArchiveSkeletonLoader from "./loader/ArchiveSkeletonLoader.tsx";
-import SettingsSkeletonLoader from "./loader/SettingsSkeletonLoader.tsx";
-import BorrowItemSkeletonLoader from "./loader/BorrowItemSkeletonLoader.tsx";
-import RegistrationModuleSkeletonLoader from "./loader/RegistrationModuleSkeletonLoader.tsx";
-
 const routes = createBrowserRouter([
-  // Public routes
-  {
-    path: "/",
-    element: (
-      <PublicRoute>
-        <App />
-      </PublicRoute>
-    ),
-    children: [
-      {
-        index: true,
-        element: <Login />,
-      },
-    ],
-  },
-  // Protected Routes
-  {
-    path: "/home",
-    element: (
-      <ProtectedRoute>
-        <Home />
-      </ProtectedRoute>
-    ),
-    children: [
-      {
-        path: "dashboard",
+    // Public routes
+    {
+        path: "/",
         element: (
-          <Suspense fallback={<DashboardSkeletonLoader />}>
-            <Dashboard />
-          </Suspense>
+            <PublicRoute>
+                <App />
+            </PublicRoute>
         ),
-      },
-      {
-        path: "inventory-list",
+        children: [
+            {
+                index: true,
+                element: <Login />,
+            },
+        ],
+    },
+    // Protected Routes
+    {
+        path: "/home",
         element: (
-          <Suspense fallback={<InventoryListSkeletonLoader />}>
-            <InventoryList />
-          </Suspense>
+            <ProtectedRoute>
+                <Home />
+            </ProtectedRoute>
         ),
-      },
-      {
-        path: "user-management",
-        element: (
-          <Suspense fallback={<UserSkeletonLoader />}>
-            <UserManagement />
-          </Suspense>
-        ),
-      },
-      {
-        path: "history-list",
-        element: (
-          <Suspense fallback={<HistoryListSkeletonLoader />}>
-            <HistoryList />
-          </Suspense>
-        ),
-      },
-      {
-        path: "archive-table",
-        element: (
-          <Suspense fallback={<ArchiveSkeletonLoader />}>
-            <Archive />
-          </Suspense>
-        ),
-      },
-      {
-        path: "borrow-item",
-        element: (
-          <Suspense fallback={<BorrowItemSkeletonLoader />}>
-            <BorrowItem />
-          </Suspense>
-        ),
-      },
-      {
-        path: "pending-reservations",
-        element: (
-          <Suspense fallback={<HistoryListSkeletonLoader />}>
-            <PendingReservations />
-          </Suspense>
-        ),
-      },
-      {
-        path: "settings",
-        element: (
-          <Suspense fallback={<SettingsSkeletonLoader />}>
-            <Settings />
-          </Suspense>
-        ),
-      },
-      {
-        path: "registration-module",
-        element: (
-          <Suspense fallback={<RegistrationModuleSkeletonLoader />}>
-            <Registration />
-          </Suspense>
-        ),
-      },
-    ],
-  },
+        children: [
+            {
+                path: "dashboard",
+                element: (
+                    <Dashboard />
+                ),
+            },
+            {
+                path: "inventory-list",
+                element: (
+                    <InventoryList />
+                ),
+            },
+            {
+                path: "user-management",
+                element: (
+                    <UserManagement />
+                ),
+            },
+            {
+                path: "history-list",
+                element: (
+                    <HistoryList />
+                ),
+            },
+            {
+                path: "archive-table",
+                element: (
+                    <Archive />
+                ),
+            },
+            {
+                path: "borrow-item",
+                element: (
+                    <BorrowItem />
+                ),
+            },
+            {
+                path: "pending-reservations",
+                element: (
+                    <PendingReservations />
+                ),
+            },
+            {
+                path: "settings",
+                element: (
+                    <Settings />
+                ),
+            },
+            {
+                path: "registration-module",
+                element: (
+                    <Registration />
+                ),
+            },
+        ],
+    },
 
-  {
-    path: "/item/:id",
-    element: (
-      <ProtectedRoute>
-        <ViewItem />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "*",
-    element: <NotFound />,
-  },
+    {
+        path: "/item/:id",
+        element: (
+            <ProtectedRoute>
+                <ViewItem />
+            </ProtectedRoute>
+        ),
+    },
+    {
+        path: "*",
+        element: <NotFound />,
+    },
 ]);
 
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={routes} />
-    </QueryClientProvider>
-  </StrictMode>,
+    <StrictMode>
+        <QueryClientProvider client={queryClient}>
+            <RouterProvider router={routes} />
+        </QueryClientProvider>
+    </StrictMode>,
 );
