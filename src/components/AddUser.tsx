@@ -324,12 +324,12 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
                                         showPassword ? (
                                             <FaEye
                                                 onClick={() => setShowPassword(false)}
-                                                className="absolute top-4 right-4 text-2xl text-gray-400 cursor-pointer"
+                                                className="absolute top-10 right-4 text-2xl text-gray-400 cursor-pointer"
                                             />
                                         ) : (
                                             <FaEyeSlash
                                                 onClick={() => setShowPassword(true)}
-                                                className="absolute top-4 right-4 text-2xl text-gray-400 cursor-pointer"
+                                                className="absolute top-10 right-4 text-2xl text-gray-400 cursor-pointer"
                                             />
                                         )
                                     )}
@@ -356,12 +356,12 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
                                         showConfirmPassword ? (
                                             <FaEye
                                                 onClick={() => setShowConfirmPassword(false)}
-                                                className="absolute top-4 right-4 text-2xl text-gray-400 cursor-pointer"
+                                                className="absolute top-10 right-4 text-2xl text-gray-400 cursor-pointer"
                                             />
                                         ) : (
                                             <FaEyeSlash
                                                 onClick={() => setShowConfirmPassword(true)}
-                                                className="absolute top-4 right-4 text-2xl text-gray-400 cursor-pointer"
+                                                className="absolute top-10 right-4 text-2xl text-gray-400 cursor-pointer"
                                             />
                                         )
                                     )}
