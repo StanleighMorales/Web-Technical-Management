@@ -66,10 +66,10 @@ export default function Settings() {
                                                         user?.username?.charAt(0)?.toUpperCase() ||
                                                         "U"}
                                                 </span>
+                                                <span className="inline-flex absolute -bottom-6 items-center py-0.5 px-2 mt-10 font-semibold text-white rounded-full ring-1 text-[10px] bg-white/20 ring-white/40">
+                                                    {user?.userRole || "User"}
+                                                </span>
                                             </div>
-                                            <span className="inline-flex absolute right-2 -bottom-6 items-center py-0.5 px-2 mt-10 font-semibold text-white rounded-full ring-1 text-[10px] bg-white/20 ring-white/40">
-                                                {user?.userRole || "User"}
-                                            </span>
                                         </div>
                                         <div>
                                             <h2 className="text-2xl font-bold text-white md:text-3xl">
