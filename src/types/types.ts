@@ -60,7 +60,7 @@ export type TUpdateUsers = {
     username: string,
     email: string,
     phoneNumber: string,
-    userRole: string;
+    position: string;
 };
 
 export type TForgotPasswordUser = {
