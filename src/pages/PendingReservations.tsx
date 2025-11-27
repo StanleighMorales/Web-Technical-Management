@@ -133,19 +133,23 @@ export default function PendingReservations() {
             return;
         }
 
+        // For reservations, use "Canceled" status; for pending, use "Denied"
+        const statusToSet = selectedItem.status === "Reserved" ? "Canceled" : "Denied";
+
         denyLentItem(
             {
                 barcode: barcodeValue,
-                lentItemsStatus: "Denied",
+                lentItemsStatus: statusToSet,
             },
             {
                 onSuccess: () => {
-                    setSuccessMessage(`Successfully denied borrow request for ${selectedItem.item.itemName}`);
+                    const actionText = selectedItem.status === "Reserved" ? "canceled reservation" : "denied borrow request";
+                    setSuccessMessage(`Successfully ${actionText} for ${selectedItem.item.itemName}`);
                     setIsDenyModalOpen(false);
                     setSelectedItem(null);
                 },
                 onError: (error) => {
-                    setErrorMessage(error.message || "Failed to deny borrow request");
+                    setErrorMessage(error.message || "Failed to process request");
                     setIsDenyModalOpen(false);
                 },
             }

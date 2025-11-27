@@ -262,6 +262,7 @@ export type TRecentBorrowItemProps = {
     isHiddenFromUser: boolean,
     barcode?: string | null,
     barcodeImage?: string | null,
+    reservedFor?: string | null,
     item: {
         id: string;
         serialNumber: string;
