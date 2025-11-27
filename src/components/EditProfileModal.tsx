@@ -13,7 +13,7 @@ export type EditableUser = {
     username?: string | null;
     email?: string | null;
     phoneNumber?: string | null;
-    userRole?: string | null;
+    position?: string | null;
 };
 
 type EditProfileModalProps = {
@@ -44,7 +44,7 @@ export default function EditProfileModal({
             username: initialValues.username ?? "",
             email: initialValues.email ?? "",
             phoneNumber: initialValues.phoneNumber ?? "",
-            userRole: initialValues.userRole ?? ""
+            position: initialValues.position ?? ""
         });
     }, [initialValues]);
 
@@ -74,7 +74,7 @@ export default function EditProfileModal({
             username: values.username ?? "",
             email: values.email ?? "",
             phoneNumber: values.phoneNumber ?? "",
-            userRole: values.userRole ?? "",
+            position: values.position ?? "",
         };
         try {
             mutate(
@@ -229,10 +229,10 @@ export default function EditProfileModal({
                         </label>
                         <select
                             className="py-2 px-3 mt-1 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
-                            value={values.userRole ?? ""}
-                            onChange={(e) => update("userRole", e.target.value)}
+                            value={values.position ?? ""}
+                            onChange={(e) => update("position", e.target.value)}
                         >
-                            {["Admin", "Staff"].map((opt, index) => (
+                            {["Intern", "Full-Time", "Part-Time", "Head-Staff"].map((opt, index) => (
                                 <option key={index} value={opt}>{opt}</option>
                             ))}
                         </select>

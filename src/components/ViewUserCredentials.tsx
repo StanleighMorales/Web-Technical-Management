@@ -109,6 +109,15 @@ const ViewUserCredentials = ({ user, isOpen, onClose }: ViewUserCredentialsProps
                                 </span>
                             </div>
                             <div>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">Position</label>
+                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.userRole === 'Admin'
+                                    ? 'bg-red-100 text-red-800'
+                                    : 'bg-green-100 text-green-800'
+                                    }`}>
+                                    {user.position}
+                                </span>
+                            </div>
+                            <div>
                                 <label className="block mb-1 text-sm font-medium text-gray-700">Status</label>
                                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.status === 'Active'
                                     ? 'bg-green-100 text-green-800'

@@ -20,7 +20,7 @@ type formData = {
     username: string;
     email: string;
     phoneNumber: string;
-    userRole: string;
+    position: string;
 };
 
 export default function EditUser({ user, onClose }: EditItemProps) {
@@ -38,7 +38,7 @@ export default function EditUser({ user, onClose }: EditItemProps) {
         username: user.username,
         email: user.email,
         phoneNumber: user.phoneNumber,
-        userRole: user.userRole,
+        position: user.position,
     });
 
     const handleInputChange = (
@@ -58,7 +58,7 @@ export default function EditUser({ user, onClose }: EditItemProps) {
         username: formData.username,
         email: formData.email,
         phoneNumber: formData.phoneNumber,
-        userRole: formData.userRole,
+        position: formData.position,
     };
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -220,12 +220,12 @@ export default function EditUser({ user, onClose }: EditItemProps) {
                         <div className="relative mt-1">
                             <select
                                 className="py-2 px-3 mt-1 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
-                                value={formData.userRole ?? ""}
-                                name="userRole"
+                                value={formData.position ?? ""}
+                                name="position"
                                 onChange={handleInputChange}
                                 required
                             >
-                                {["Admin", "Staff"].map((opt, index) => (
+                                {["Intern", "Full-Time", "Part-Time", "Head-Staff"].map((opt, index) => (
                                     <option key={index} value={opt}>{opt}</option>
                                 ))}
                             </select>
