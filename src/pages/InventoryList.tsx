@@ -223,7 +223,7 @@ export default function InventoryList() {
                 setShowAlertSuccess(true);
                 setTimeout(() => {
                     setShowAlertSuccess(false);
-                }, 1500);
+                }, 3500);
             },
             onError: (error) => {
                 setIsImporting(false);
@@ -231,7 +231,7 @@ export default function InventoryList() {
                 setShowAlertFailed(true);
                 setTimeout(() => {
                     setShowAlertFailed(false);
-                }, 3000);
+                }, 3500);
             },
         });
 
@@ -309,7 +309,7 @@ export default function InventoryList() {
             setTimeout(() => {
                 setShowAlert(false);
                 setShowMessage("");
-            }, 3000);
+            }, 3500);
         } catch (error) {
             console.error('Export error:', error);
             setShowAlert(true);
@@ -317,7 +317,7 @@ export default function InventoryList() {
             setTimeout(() => {
                 setShowAlert(false);
                 setShowMessage("");
-            }, 3000);
+            }, 3500);
         } finally {
             setIsExporting(false);
         }
