@@ -88,7 +88,7 @@ export default function Login() {
                 <div className="animate-fadeIn absolute top-0 right-0 w-[35%] h-screen bg-white flex flex-col justify-center items-center animate-fade-in max-lg:w-full max-lg:ml-0 max-lg:relative max-lg:min-h-[60vh] max-sm:w-full max-sm:ml-0 max-sm:relative max-sm:min-h-[60vh] max-sm:py-4 max-sm:px-2">
                     <div className="my-4 mb-10 text-center max-sm:-mt-80">
                         <h1 className="m-0 text-black text-[2.4rem] mb-[-0.3rem] max-sm:text-[1.5rem]">
-                            Welcome User
+                            Welcome Back
                         </h1>
                         <p className="mb-1.5 text-center text-black/62">
                             Enter your credentials to log in.
