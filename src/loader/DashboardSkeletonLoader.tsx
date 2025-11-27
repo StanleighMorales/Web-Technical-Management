@@ -12,7 +12,7 @@ export const DashboardSkeletonLoader = () => {
             </div>
 
             {/* Table Skeleton */}
-            <div className="w-full max-w-7xl bg-white/90 shadow-xl rounded-2xl p-8 border border-[#e0e7ef]">
+            <div className="w-full bg-white/90 shadow-xl rounded-2xl p-8 border border-[#e0e7ef]">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
                     <div className="h-8 w-64 bg-gray-200 rounded animate-pulse -mt-10"></div>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4">
