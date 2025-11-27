@@ -192,6 +192,20 @@ export default function Settings() {
                                                 </div>
                                             </div>
 
+                                            <div className="flex gap-3 items-center">
+                                                <div className="flex justify-center items-center w-10 h-10 text-orange-700 bg-orange-50 rounded-lg">
+                                                    <FaClock className="text-gray-700 text-md" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-slate-500">Position</p>
+                                                    <p className="font-medium text-slate-900">
+                                                        <span className="inline-flex items-center py-0.5 px-2.5 text-xs font-medium text-blue-700 bg-blue-50 rounded-full ring-1 ring-inset ring-blue-200">
+                                                            {user?.position || "N/A"}
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                            </div>
+
                                             {user?.phoneNumber && (
                                                 <div className="flex gap-3 items-center">
                                                     <div className="flex justify-center items-center w-10 h-10 text-teal-700 bg-teal-50 rounded-lg">
