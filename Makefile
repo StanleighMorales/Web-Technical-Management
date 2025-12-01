@@ -1,8 +1,11 @@
-.PHONY: install run test status log push
+.PHONY: install run test status log push build
 
 # install all the dependencies
 install:
 	npm install
+
+build:
+	npm run build
 
 # run the application
 run:
