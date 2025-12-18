@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Activity, useCallback, useEffect, useMemo, useState } from "react";
 import { AddUsers } from "../components/AddUser";
 import Button from "../components/Button";
 import EditUser from "../components/EditUser";
@@ -6,9 +6,9 @@ import SearchBar from "../components/SearchBar";
 import type { TUsers } from "../types/types";
 import { useQuery } from "@tanstack/react-query";
 import { SelectUserStatus } from "../components/SelectUserStatus";
-import { useAllUsersQuery } from "../query/get/useAllUsersQuery";
 import { UserSkeletonLoader } from "../loader/UserSkeletonLoader";
-import { useArchiveUserMutation } from "../query/delete/useArchiveUserMutation";
+import { useAllUsers } from "../hooks/user/useAllUsers";
+import { useArchiveUser } from "../hooks/user/useArchiveUser";
 import UserTable from "../components/UserTable";
 import ErrorTable from "../components/ErrorTables";
 import PopUpModal from "../components/PopUpModal";
@@ -34,8 +34,8 @@ export default function UserManagement() {
     const [archiveUserId, setArchiveUserId] = useState<string>("");
     const [users, setUsers] = useState<TNewUserTypes[]>([]);
 
-    const { data, isPending, isError } = useQuery(useAllUsersQuery());
-    const { mutate } = useArchiveUserMutation();
+    const { data, isPending, isError } = useQuery(useAllUsers());
+    const { mutate } = useArchiveUser();
 
     const selectedUser = useMemo(() => {
         return users.find((u) => u.id === selectedUserId);
@@ -93,13 +93,13 @@ export default function UserManagement() {
                 setIsArchiveModalOpen(false);
                 setErrorShowAlert(true);
                 setArchiveUserId("");
-                setShowSuccessAlert(false)
+                setShowSuccessAlert(false);
                 setShowErrorMessage("You cannot delete the logged-in user!");
                 setTimeout(() => {
                     setErrorShowAlert(false);
                     setShowErrorMessage("");
                 }, 3500);
-            }
+            },
         });
     }, [archiveUserId, mutate]);
 
@@ -109,9 +109,9 @@ export default function UserManagement() {
     };
 
     const handleViewUserCredentials = (id: string) => {
-        setSelectedUserId(id)
-        setIsViewCredentialsOpen(true)
-    }
+        setSelectedUserId(id);
+        setIsViewCredentialsOpen(true);
+    };
 
     useEffect(() => {
         if (data && Array.isArray(data)) {
@@ -125,8 +125,14 @@ export default function UserManagement() {
 
     return (
         <div className="flex flex-col items-center py-6 px-2 w-full min-h-screen bg-linear-to-br animate-fadeIn ">
-            {ShowSuccessAlert ? <SuccessAlert message={showSuccessMessage} /> : ""}
-            {ShowErrorAlert ? <ErrorAlert message={showErrorMessage} /> : ""}
+            <Activity mode={ShowSuccessAlert ? "visible" : "hidden"}>
+                <SuccessAlert message={showSuccessMessage} />
+            </Activity>
+
+            <Activity mode={ShowErrorAlert ? "visible" : "hidden"}>
+                <ErrorAlert message={showErrorMessage} />
+            </Activity>
+
             <div className="relative p-6 w-full max-w-[2000px] rounded-3xl ring-1 shadow-xl bg-white/80 backdrop-blur-md ring-black/5 md:p-10 mx-auto">
                 {/* Header */}
                 <div className="flex flex-col gap-4 mb-8 md:flex-row md:justify-between md:items-end">
@@ -143,7 +149,11 @@ export default function UserManagement() {
                     <div className="flex flex-wrap gap-2 items-center text-[#475569] mt-4 md:mt-0">
                         <span className="inline-flex gap-2 items-center py-1 px-3 text-sm font-medium rounded-full bg-[#eef2ff] text-[#3730a3]">
                             <span className="w-2 h-2 rounded-full bg-[#22c55e]"></span>
-                            {users.filter((user) => user.status.toLowerCase() === "online").length} total online
+                            {
+                                users.filter((user) => user.status.toLowerCase() === "online")
+                                    .length
+                            }{" "}
+                            total online
                         </span>
                         <span className="hidden md:inline text-[#94a3b8]">|</span>
                         <span className="hidden md:inline text-sm text-[#64748b]">
@@ -155,7 +165,7 @@ export default function UserManagement() {
                 {/* Actions & Filters */}
                 <section className="flex flex-col gap-4 mb-6 lg:flex-row md:flex-row justify-between  ">
                     {/* Buttons */}
-                    <div >
+                    <div>
                         <Button onClick={() => setIsAddUserOpen(true)} name={"New User"} />
                     </div>
 
@@ -168,8 +178,8 @@ export default function UserManagement() {
                                     key={role}
                                     onClick={() => setSelectedRole(role)}
                                     className={`px-4 py-3 sm:px-6 sm:py-2 rounded-md font-medium transition-all duration-200  ${selectedRole === role
-                                        ? "bg-blue-500 text-white shadow-md"
-                                        : "bg-white text-[#64748b] border-2 border-[#e5e7eb] hover:border-[#2563eb] hover:text-[#2563eb]"
+                                            ? "bg-blue-500 text-white shadow-md"
+                                            : "bg-white text-[#64748b] border-2 border-[#e5e7eb] hover:border-[#2563eb] hover:text-[#2563eb]"
                                         }`}
                                 >
                                     {role.charAt(0).toUpperCase() + role.slice(1)}
@@ -200,14 +210,23 @@ export default function UserManagement() {
                             </div>
                             <p className="font-semibold text-[#0f172a]">No users found</p>
                             <p className="max-w-md text-sm text-[#64748b]">
-                                Try adjusting your filters or search query. You can also add a new user.
+                                Try adjusting your filters or search query. You can also add a
+                                new user.
                             </p>
                         </div>
                     ) : (
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr>
-                                    {["Firstname", "Lastname", "Username", "Email", "Role", "Status", "Action"].map((col) => (
+                                    {[
+                                        "Firstname",
+                                        "Lastname",
+                                        "Username",
+                                        "Email",
+                                        "Role",
+                                        "Status",
+                                        "Action",
+                                    ].map((col) => (
                                         <th
                                             key={col}
                                             className="sticky top-0 z-10 py-3 px-4 font-semibold text-left uppercase border-b md:py-4 md:px-6 bg-[#f8fafc]/90 backdrop-blur text-[#64748b]"
@@ -219,9 +238,13 @@ export default function UserManagement() {
                             </thead>
                             <tbody>
                                 {filteredUser
-                                    .filter((user) => user.userRole === "Admin" || user.userRole === "Staff")
+                                    .filter(
+                                        (user) =>
+                                            user.userRole === "Admin" || user.userRole === "Staff",
+                                    )
                                     .map((user) => (
-                                        <tr key={user.id}
+                                        <tr
+                                            key={user.id}
                                             onClick={() => handleViewUserCredentials(user.id)}
                                             className="transition-colors odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9] cursor-pointer"
                                         >
@@ -252,17 +275,25 @@ export default function UserManagement() {
 
                 {/* Description */}
                 <p className="mt-6 text-sm text-center text-[#64748b]">
-                    <span className="font-semibold">Tip:</span> Use role filters, status filters, and search to quickly locate users.
+                    <span className="font-semibold">Tip:</span> Use role filters, status
+                    filters, and search to quickly locate users.
                 </p>
             </div>
-            {isAddUserOpen && <AddUsers onClose={() => setIsAddUserOpen(false)} />}
+
+            <Activity mode={isAddUserOpen ? "visible" : "hidden"}>
+                <AddUsers onClose={() => setIsAddUserOpen(false)} />
+            </Activity>
+
             {isEditUserOpen && selectedUser && (
-                <EditUser
-                    user={selectedUser}
-                    onClose={() => setIsEditUserOpen(false)}
-                />
+                <Activity mode="visible">
+                    <EditUser
+                        user={selectedUser}
+                        onClose={() => setIsEditUserOpen(false)}
+                    />
+                </Activity>
             )}
-            {isArchiveModalOpen && (
+
+            <Activity mode={isArchiveModalOpen ? "visible" : "hidden"}>
                 <PopUpModal
                     title="Archive User"
                     label="archive"
@@ -271,13 +302,16 @@ export default function UserManagement() {
                     onHandleCancelAction={cancelArchiveUser}
                     onHandleConfirmAction={confirmArchiveUser}
                 />
-            )}
+            </Activity>
+
             {selectedUser && isViewCredentialsOpen && (
-                <ViewUserCredentials
-                    user={selectedUser}
-                    isOpen={isViewCredentialsOpen}
-                    onClose={() => setIsViewCredentialsOpen(false)}
-                />
+                <Activity mode="visible">
+                    <ViewUserCredentials
+                        user={selectedUser}
+                        isOpen={isViewCredentialsOpen}
+                        onClose={() => setIsViewCredentialsOpen(false)}
+                    />
+                </Activity>
             )}
         </div>
     );
