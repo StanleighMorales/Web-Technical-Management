@@ -1,9 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
-import { MdInventory, MdCategory, MdBuild, MdDescription, MdCode, MdImage, MdQrCode, MdArchive } from "react-icons/md";
+import {
+    MdInventory,
+    MdCategory,
+    MdBuild,
+    MdDescription,
+    MdCode,
+    MdImage,
+    MdQrCode,
+    MdArchive,
+} from "react-icons/md";
 import { FaBox, FaTag, FaCalendarAlt } from "react-icons/fa";
-import { useViewArchiveItemDetails } from "../query/get/useViewArchiveItemDetails";
+import { useGetArchiveItemInfo } from "../hooks/item/useGetArchiveItemInfo.ts";
 import { FormattedDateTime } from "./FormattedDateTime.ts";
-import ErrorTable from "../components/ErrorTables.tsx"
+import ErrorTable from "../components/ErrorTables.tsx";
 import CloseButton from "./CloseButton.tsx";
 
 type TArchiveItemDetailsPopupProps = {
@@ -15,10 +24,13 @@ type TArchiveItemDetailsPopupProps = {
 export default function ArchiveItemDetailsPopup({
     itemId,
     isOpen,
-    onClose
+    onClose,
 }: TArchiveItemDetailsPopupProps) {
-
-    const { data: item, isPending, isError } = useQuery(useViewArchiveItemDetails(itemId));
+    const {
+        data: item,
+        isPending,
+        isError,
+    } = useQuery(useGetArchiveItemInfo(itemId));
 
     if (!isOpen) return null;
 
@@ -36,21 +48,7 @@ export default function ArchiveItemDetailsPopup({
     }
 
     if (isError || !item) {
-        <ErrorTable />
-        // return (
-        //     <div className="flex fixed inset-0 z-50 justify-center items-center">
-        //         <div className="absolute inset-0 bg-black/50" />
-        //         <div className="overflow-hidden relative z-10 w-full max-w-4xl bg-white rounded-lg shadow-xl max-h-[90vh]">
-        //             <div className="flex justify-center items-center h-64">
-        //                 <div className="text-center">
-        //                     <div className="mb-4 text-6xl text-red-500">⚠️</div>
-        //                     <h3 className="mb-2 text-xl font-semibold text-gray-900">Error Loading Item</h3>
-        //                     <p className="text-gray-600">Failed to load archived item details</p>
-        //                 </div>
-        //             </div>
-        //         </div>
-        //     </div>
-        // );
+        <ErrorTable />;
     }
 
     return (
@@ -65,14 +63,20 @@ export default function ArchiveItemDetailsPopup({
                                 <MdArchive className="text-2xl text-orange-600" />
                             </div>
                             <div>
-                                <h2 className="text-2xl font-bold text-gray-900">Archived Item Details</h2>
-                                <p className="text-gray-600">Complete archived item information</p>
+                                <h2 className="text-2xl font-bold text-gray-900">
+                                    Archived Item Details
+                                </h2>
+                                <p className="text-gray-600">
+                                    Complete archived item information
+                                </p>
                             </div>
                         </div>
                         <div className="flex items-center space-x-4">
                             <div className="text-right">
                                 <p className="text-sm text-gray-500">Archived on</p>
-                                <p className="text-sm font-medium text-gray-900">{FormattedDateTime(item.archivedAt)}</p>
+                                <p className="text-sm font-medium text-gray-900">
+                                    {FormattedDateTime(item.archivedAt)}
+                                </p>
                             </div>
                             <CloseButton onClick={onClose} />
                         </div>
@@ -96,12 +100,16 @@ export default function ArchiveItemDetailsPopup({
                                         alt={item.itemName}
                                         className="object-contain max-w-full max-h-64 rounded-lg shadow-sm"
                                         onError={(e) => {
-                                            e.currentTarget.style.display = 'none';
-                                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                            e.currentTarget.style.display = "none";
+                                            e.currentTarget.nextElementSibling?.classList.remove(
+                                                "hidden",
+                                            );
                                         }}
                                     />
                                 ) : null}
-                                <div className={`text-center text-gray-500 ${item.image ? 'hidden' : ''}`}>
+                                <div
+                                    className={`text-center text-gray-500 ${item.image ? "hidden" : ""}`}
+                                >
                                     <MdImage className="mx-auto mb-2 text-6xl text-gray-300" />
                                     <p>No image available</p>
                                 </div>
@@ -119,28 +127,36 @@ export default function ArchiveItemDetailsPopup({
                                     <FaBox className="text-lg text-gray-400" />
                                     <div>
                                         <p className="text-sm text-gray-500">Item Name</p>
-                                        <p className="font-medium text-gray-900">{item.itemName || 'N/A'}</p>
+                                        <p className="font-medium text-gray-900">
+                                            {item.itemName || "N/A"}
+                                        </p>
                                     </div>
                                 </div>
                                 <div className="flex items-center space-x-3">
                                     <MdCode className="text-lg text-gray-400" />
                                     <div>
                                         <p className="text-sm text-gray-500">Serial Number</p>
-                                        <p className="font-medium text-gray-900">{item.serialNumber || 'N/A'}</p>
+                                        <p className="font-medium text-gray-900">
+                                            {item.serialNumber || "N/A"}
+                                        </p>
                                     </div>
                                 </div>
                                 <div className="flex items-center space-x-3">
                                     <MdCategory className="text-lg text-gray-400" />
                                     <div>
                                         <p className="text-sm text-gray-500">Category</p>
-                                        <p className="font-medium text-gray-900">{item.category || 'N/A'}</p>
+                                        <p className="font-medium text-gray-900">
+                                            {item.category || "N/A"}
+                                        </p>
                                     </div>
                                 </div>
                                 <div className="flex items-center space-x-3">
                                     <MdBuild className="text-lg text-gray-400" />
                                     <div>
                                         <p className="text-sm text-gray-500">Type</p>
-                                        <p className="font-medium text-gray-900">{item.itemType || 'N/A'}</p>
+                                        <p className="font-medium text-gray-900">
+                                            {item.itemType || "N/A"}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -158,27 +174,37 @@ export default function ArchiveItemDetailsPopup({
                                 <FaTag className="text-lg text-gray-400" />
                                 <div>
                                     <p className="text-sm text-gray-500">Model</p>
-                                    <p className="font-medium text-gray-900">{item.itemModel || 'N/A'}</p>
+                                    <p className="font-medium text-gray-900">
+                                        {item.itemModel || "N/A"}
+                                    </p>
                                 </div>
                             </div>
                             <div className="flex items-center space-x-3">
                                 <MdBuild className="text-lg text-gray-400" />
                                 <div>
                                     <p className="text-sm text-gray-500">Make</p>
-                                    <p className="font-medium text-gray-900">{item.itemMake || 'N/A'}</p>
+                                    <p className="font-medium text-gray-900">
+                                        {item.itemMake || "N/A"}
+                                    </p>
                                 </div>
                             </div>
                             <div className="flex items-center space-x-3">
                                 <MdCategory className="text-lg text-gray-400" />
                                 <div>
                                     <p className="text-sm text-gray-500">Condition</p>
-                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${item.condition === 'excellent' ? 'bg-green-100 text-green-800' :
-                                        item.condition === 'good' ? 'bg-blue-100 text-blue-800' :
-                                            item.condition === 'fair' ? 'bg-yellow-100 text-yellow-800' :
-                                                item.condition === 'poor' ? 'bg-red-100 text-red-800' :
-                                                    'bg-gray-100 text-gray-800'
-                                        }`}>
-                                        {item.condition || 'N/A'}
+                                    <span
+                                        className={`px-2 py-1 rounded-full text-xs font-semibold ${item.condition === "excellent"
+                                                ? "bg-green-100 text-green-800"
+                                                : item.condition === "good"
+                                                    ? "bg-blue-100 text-blue-800"
+                                                    : item.condition === "fair"
+                                                        ? "bg-yellow-100 text-yellow-800"
+                                                        : item.condition === "poor"
+                                                            ? "bg-red-100 text-red-800"
+                                                            : "bg-gray-100 text-gray-800"
+                                            }`}
+                                    >
+                                        {item.condition || "N/A"}
                                     </span>
                                 </div>
                             </div>
@@ -192,7 +218,9 @@ export default function ArchiveItemDetailsPopup({
                                 <MdDescription className="mr-2 text-blue-600" />
                                 Description
                             </h3>
-                            <p className="leading-relaxed text-gray-700">{item.description}</p>
+                            <p className="leading-relaxed text-gray-700">
+                                {item.description}
+                            </p>
                         </div>
                     )}
 
@@ -209,8 +237,10 @@ export default function ArchiveItemDetailsPopup({
                                     alt="Item Barcode"
                                     className="object-contain max-w-full max-h-32"
                                     onError={(e) => {
-                                        e.currentTarget.style.display = 'none';
-                                        e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                        e.currentTarget.style.display = "none";
+                                        e.currentTarget.nextElementSibling?.classList.remove(
+                                            "hidden",
+                                        );
                                     }}
                                 />
                                 <div className="hidden text-center text-gray-500">
@@ -233,7 +263,9 @@ export default function ArchiveItemDetailsPopup({
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500">Archived Date</p>
-                                <p className="font-medium text-gray-900">{FormattedDateTime(item.archivedAt)}</p>
+                                <p className="font-medium text-gray-900">
+                                    {FormattedDateTime(item.archivedAt)}
+                                </p>
                             </div>
                         </div>
                     </div>
