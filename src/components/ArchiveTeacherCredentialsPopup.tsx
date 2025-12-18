@@ -1,6 +1,14 @@
-import { useViewArchiveUserCredentials } from "../query/get/useViewArchiveUserCredentials";
+import { useGetArchiveUserInfo } from "../hooks/user/useGetArchiveUserInfo";
 import { useQuery } from "@tanstack/react-query";
-import { MdEmail, MdPhone, MdSchool, MdPerson, MdBadge, MdArchive, MdWork } from "react-icons/md";
+import {
+    MdEmail,
+    MdPhone,
+    MdSchool,
+    MdPerson,
+    MdBadge,
+    MdArchive,
+    MdWork,
+} from "react-icons/md";
 import { IoIdCard } from "react-icons/io5";
 import { FormattedDateTime } from "./FormattedDateTime";
 import type { TArchiveTeacher } from "../types/types";
@@ -15,9 +23,9 @@ type ArchiveTeacherCredentialsPopupProps = {
 export default function ArchiveTeacherCredentialsPopup({
     teacherId,
     isOpen,
-    onClose
+    onClose,
 }: ArchiveTeacherCredentialsPopupProps) {
-    const { data, isLoading, error } = useQuery(useViewArchiveUserCredentials(teacherId));
+    const { data, isLoading, error } = useQuery(useGetArchiveUserInfo(teacherId));
 
     if (!isOpen) return null;
 
@@ -42,7 +50,9 @@ export default function ArchiveTeacherCredentialsPopup({
                     <div className="flex justify-center items-center h-96">
                         <div className="text-center">
                             <h2 className="mb-2 text-2xl font-bold text-red-600">Error</h2>
-                            <p className="text-gray-600">Failed to load archived teacher credentials</p>
+                            <p className="text-gray-600">
+                                Failed to load archived teacher credentials
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -69,8 +79,12 @@ export default function ArchiveTeacherCredentialsPopup({
     const teacher = data as TArchiveTeacher;
 
     const getFullName = () => {
-        const middleInitial = teacher.middleName ? `${teacher.middleName.charAt(0)}.` : "";
-        return `${teacher.firstName} ${middleInitial} ${teacher.lastName}`.replace(/\s+/g, " ").trim();
+        const middleInitial = teacher.middleName
+            ? `${teacher.middleName.charAt(0)}.`
+            : "";
+        return `${teacher.firstName} ${middleInitial} ${teacher.lastName}`
+            .replace(/\s+/g, " ")
+            .trim();
     };
 
     return (
@@ -85,14 +99,20 @@ export default function ArchiveTeacherCredentialsPopup({
                                 <MdArchive className="text-2xl text-orange-600" />
                             </div>
                             <div>
-                                <h2 className="text-2xl font-bold text-gray-900">Archived Teacher Credentials</h2>
-                                <p className="text-gray-600">Complete archived teacher information</p>
+                                <h2 className="text-2xl font-bold text-gray-900">
+                                    Archived Teacher Credentials
+                                </h2>
+                                <p className="text-gray-600">
+                                    Complete archived teacher information
+                                </p>
                             </div>
                         </div>
                         <div className="flex items-center space-x-4">
                             <div className="text-right">
                                 <p className="text-sm text-gray-500">Archived on</p>
-                                <p className="text-sm font-medium text-gray-900">{FormattedDateTime(teacher.archivedAt)}</p>
+                                <p className="text-sm font-medium text-gray-900">
+                                    {FormattedDateTime(teacher.archivedAt)}
+                                </p>
                             </div>
                             <CloseButton onClick={onClose} />
                         </div>
@@ -109,22 +129,30 @@ export default function ArchiveTeacherCredentialsPopup({
                         </h3>
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">Full Name</label>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">
+                                    Full Name
+                                </label>
                                 <p className="font-medium text-gray-900">{getFullName()}</p>
                             </div>
                             <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">Username</label>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">
+                                    Username
+                                </label>
                                 <p className="text-gray-900">{teacher.username}</p>
                             </div>
                             <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">Email</label>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">
+                                    Email
+                                </label>
                                 <div className="flex items-center">
                                     <MdEmail className="mr-2 text-gray-400" />
                                     <p className="text-gray-900">{teacher.email}</p>
                                 </div>
                             </div>
                             <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">Phone Number</label>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">
+                                    Phone Number
+                                </label>
                                 <div className="flex items-center">
                                     <MdPhone className="mr-2 text-gray-400" />
                                     <p className="text-gray-900">{teacher.phoneNumber}</p>
@@ -141,14 +169,18 @@ export default function ArchiveTeacherCredentialsPopup({
                         </h3>
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">Teacher ID</label>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">
+                                    Teacher ID
+                                </label>
                                 <div className="flex items-center">
                                     <MdBadge className="mr-2 text-gray-400" />
                                     <p className="font-mono text-gray-900">{teacher.id}</p>
                                 </div>
                             </div>
                             <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">Department</label>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">
+                                    Department
+                                </label>
                                 <div className="flex items-center">
                                     <MdWork className="mr-2 text-gray-400" />
                                     <p className="text-gray-900">{teacher.department}</p>
@@ -165,18 +197,24 @@ export default function ArchiveTeacherCredentialsPopup({
                         </h3>
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">User Role</label>
-                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${teacher.userRole === 'Admin'
-                                    ? 'bg-red-100 text-red-800'
-                                    : teacher.userRole === 'Teacher'
-                                        ? 'bg-blue-100 text-blue-800'
-                                        : 'bg-gray-100 text-gray-800'
-                                    }`}>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">
+                                    User Role
+                                </label>
+                                <span
+                                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${teacher.userRole === "Admin"
+                                            ? "bg-red-100 text-red-800"
+                                            : teacher.userRole === "Teacher"
+                                                ? "bg-blue-100 text-blue-800"
+                                                : "bg-gray-100 text-gray-800"
+                                        }`}
+                                >
                                     {teacher.userRole}
                                 </span>
                             </div>
                             <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">Status</label>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">
+                                    Status
+                                </label>
                                 <span className="inline-flex py-1 px-2 text-xs font-semibold text-orange-800 bg-orange-100 rounded-full">
                                     {teacher.status}
                                 </span>
@@ -192,12 +230,20 @@ export default function ArchiveTeacherCredentialsPopup({
                         </h3>
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">Archived At</label>
-                                <p className="text-gray-900">{FormattedDateTime(teacher.archivedAt)}</p>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">
+                                    Archived At
+                                </label>
+                                <p className="text-gray-900">
+                                    {FormattedDateTime(teacher.archivedAt)}
+                                </p>
                             </div>
                             <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">Original User ID</label>
-                                <p className="font-mono text-sm text-gray-900">{teacher.originalUserId}</p>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">
+                                    Original User ID
+                                </label>
+                                <p className="font-mono text-sm text-gray-900">
+                                    {teacher.originalUserId}
+                                </p>
                             </div>
                         </div>
                     </div>
