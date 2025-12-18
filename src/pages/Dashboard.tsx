@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Activity, useCallback, useEffect, useMemo, useState } from "react";
 import SearchBar from "../components/SearchBar";
 import { useQuery } from "@tanstack/react-query";
 import { DashboardSkeletonLoader } from "../loader/DashboardSkeletonLoader";
@@ -6,9 +6,9 @@ import DashboardBadges from "../components/DashboardBadges";
 import ErrorTable from "../components/ErrorTables";
 import type { TRecentBorrowItemProps } from "../types/types";
 import Pagination from "../components/Pagination";
-import { RecentBorrowedItemsTable } from "../components/RecentBorrowedItemsTable";
+// import { RecentBorrowedItemsTable } from "../components/RecentBorrowedItemsTable";
 import { useSummaryDataQuery } from "../query/get/useSummaryDataQuery";
-import { useBorrowedItemsQuery } from "../query/get/useBorrwedItemsQuery";
+import { useRecentlyBorrowItems } from "../hooks/item/useRecentlyBorrowItems";
 import { ViewRecentBorrowItems } from "../components/ViewRecentBorrowItems";
 import { useReturnItemMutation } from "../query/patch/useReturnItemMutation";
 import { SuccessAlert } from "../components/SuccessAlert";
@@ -16,6 +16,13 @@ import { ErrorAlert } from "../components/ErrorAlert";
 import { IoMdClose } from "react-icons/io";
 import { getToken } from "../utils/token";
 import { LentItemDetailsModal } from "../components/LentItemDetailsModal";
+import { FloatingActionButtons } from "../components/FloatingActionButtons";
+import {
+    createColumnHelper,
+    useReactTable,
+    getCoreRowModel,
+} from "@tanstack/react-table";
+import { SlugStatus } from "../components/SlugStatus";
 
 type Summary = {
     totalItems: number | null;
@@ -23,6 +30,54 @@ type Summary = {
     totalLentItems: number | null;
     totalItemsCategories: number | null;
 };
+
+const columnHelper = createColumnHelper<TRecentBorrowItemProps>();
+
+const columns = [
+    columnHelper.accessor("item.serialNumber", { header: "Serial Number" }),
+    columnHelper.accessor("item.image", {
+        header: "Image",
+        cell: ({ row }) => (
+            <img
+                src={
+                    typeof row.original.item.image === "string"
+                        ? row.original.item.image
+                        : ""
+                }
+                alt={row.original.item.itemName}
+                className="w-12 h-12 object-cover rounded"
+            />
+        ),
+        enableResizing: true,
+    }),
+    columnHelper.accessor("item.itemName", {
+        header: "Item",
+        enableResizing: true,
+    }),
+    columnHelper.accessor("borrowerFullName", {
+        header: "Occupied By",
+        enableResizing: true,
+    }),
+    columnHelper.accessor("teacherFullName", {
+        header: "Teacher",
+        enableResizing: true,
+    }),
+    columnHelper.accessor("room", { header: "Room", enableResizing: true }),
+    columnHelper.accessor("remarks", { header: "Remarks", enableResizing: true }),
+    columnHelper.accessor("lentAt", { header: "Lent At", enableResizing: true }),
+    columnHelper.accessor("status", {
+        header: "Status",
+        cell: ({ row }) => {
+            const colorClass = SlugStatus(row.original.status);
+            return (
+                <span className={`px-3 py-1 rounded-full text-sm ${colorClass}`}>
+                    {row.original.status}
+                </span>
+            );
+        },
+        enableResizing: true,
+    }),
+];
 
 export default function Dashboard() {
     const [dataSummary, setDataSummary] = useState<Summary>({
@@ -35,7 +90,9 @@ export default function Dashboard() {
     const [onViewBorrowItemOpen, setOnViewBorrowItemOpen] = useState(false);
     const [selectedId, setSelectedId] = useState<string | null>(null);
 
-    const [borrowedItemData, setBorrowedItemData] = useState<TRecentBorrowItemProps[]>([]);
+    const [borrowedItemData, setBorrowedItemData] = useState<
+        TRecentBorrowItemProps[]
+    >([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
@@ -59,17 +116,40 @@ export default function Dashboard() {
     const [showScanModal, setShowScanModal] = useState<boolean>(false);
     const [scannedBarcode, setScannedBarcode] = useState<string>("");
     const [scanError, setScanError] = useState<string>("");
-    const [scannedLentItemId, setScannedLentItemId] = useState<string | null>(null);
+    const [scannedLentItemId, setScannedLentItemId] = useState<string | null>(
+        null,
+    );
 
-    const { data: recentBorrowData, isLoading: isBorrowedItemLoading, isError: isBorrowedItemError } = useQuery(useBorrowedItemsQuery());
+    const {
+        data: recentBorrowData,
+        isLoading: isBorrowedItemLoading,
+        isError: isBorrowedItemError,
+    } = useQuery(useRecentlyBorrowItems());
+
     const { data: summaryData } = useQuery(useSummaryDataQuery());
     const returnItemMutation = useReturnItemMutation();
 
     const badges = [
-        { name: "Total Items", data: dataSummary.totalItems, link: "/home/inventory-list" },
-        { name: "Categories", data: dataSummary.totalItemsCategories, link: "/home/inventory-list" },
-        { name: "Active Users", data: dataSummary.totalActiveUsers, link: "/home/user-management" },
-        { name: "Total Borrowed", data: dataSummary.totalLentItems, link: "/home/history-list" },
+        {
+            name: "Total Items",
+            data: dataSummary.totalItems,
+            link: "/home/inventory-list",
+        },
+        {
+            name: "Categories",
+            data: dataSummary.totalItemsCategories,
+            link: "/home/inventory-list",
+        },
+        {
+            name: "Active Users",
+            data: dataSummary.totalActiveUsers,
+            link: "/home/user-management",
+        },
+        {
+            name: "Total Borrowed",
+            data: dataSummary.totalLentItems,
+            link: "/home/history-list",
+        },
     ];
 
     // Filter logic
@@ -78,25 +158,42 @@ export default function Dashboard() {
             borrowedItemData.filter(
                 (item) =>
                     item.status === "Borrowed" &&
-                    (item.item.itemName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        item.item.serialNumber?.toLowerCase().includes(searchTerm.toLowerCase()))
+                    (item.item.itemName
+                        ?.toLowerCase()
+                        .includes(searchTerm.toLowerCase()) ||
+                        item.item.serialNumber
+                            ?.toLowerCase()
+                            .includes(searchTerm.toLowerCase())),
             ),
-        [borrowedItemData, searchTerm]
+        [borrowedItemData, searchTerm],
     );
 
     // Pagination logic
     const paginatedData = useMemo(
         () =>
-            filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage),
-        [filteredData, currentPage]
+            filteredData.slice(
+                (currentPage - 1) * itemsPerPage,
+                currentPage * itemsPerPage,
+            ),
+        [filteredData, currentPage],
     );
+
+    const table = useReactTable({
+        data: paginatedData,
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+        columnResizeMode: "onChange",
+    });
 
     const totalPages = useMemo(
         () => Math.ceil(filteredData.length / itemsPerPage),
-        [filteredData]
+        [filteredData],
     );
 
-    const handlePageChange = useCallback((page: number) => setCurrentPage(page), []);
+    const handlePageChange = useCallback(
+        (page: number) => setCurrentPage(page),
+        [],
+    );
 
     const handleViewBorrowItemOpen = (id: string) => {
         setSelectedId(id);
@@ -168,23 +265,32 @@ export default function Dashboard() {
             return;
         }
 
-        if (!lentItemBarcode.startsWith("LENT-") || lentItemBarcode.length !== 17 ||
-            !/^LENT-\d{8}-\d{3}$/.test(lentItemBarcode)) {
-            setScanError("Invalid lent item barcode format. Expected format: LENT-YYYYMMDD-XXX");
+        if (
+            !lentItemBarcode.startsWith("LENT-") ||
+            lentItemBarcode.length !== 17 ||
+            !/^LENT-\d{8}-\d{3}$/.test(lentItemBarcode)
+        ) {
+            setScanError(
+                "Invalid lent item barcode format. Expected format: LENT-YYYYMMDD-XXX",
+            );
             return;
         }
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/lentItems/barcode/${lentItemBarcode}`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${getToken()}`,
-                    "Content-Type": "application/json",
+            const response = await fetch(
+                `${import.meta.env.VITE_API_BASE_URL}/api/v1/lentItems/barcode/${lentItemBarcode}`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${getToken()}`,
+                        "Content-Type": "application/json",
+                    },
                 },
-            });
+            );
 
             const contentType = response.headers.get("content-type");
-            const hasJsonContent = contentType && contentType.includes("application/json");
+            const hasJsonContent =
+                contentType && contentType.includes("application/json");
 
             if (!response.ok) {
                 let errorMessage = "Lent item not found";
@@ -198,7 +304,8 @@ export default function Dashboard() {
                     }
                 } else {
                     const textResponse = await response.text();
-                    errorMessage = textResponse || `HTTP ${response.status}: ${response.statusText}`;
+                    errorMessage =
+                        textResponse || `HTTP ${response.status}: ${response.statusText}`;
                 }
 
                 throw new Error(errorMessage);
@@ -231,14 +338,28 @@ export default function Dashboard() {
     return (
         <div className="flex z-40 flex-col items-center py-10 px-2 w-full min-h-screen animate-fadeIn bg-linear-to-br from-[#f8fafc] via-[#e0e7ef] to-[#c7d2fe]">
             {/* Success Alerts */}
-            {returnSuccess && <SuccessAlert message="Item returned successfully!" />}
-            {borrowSuccess && <SuccessAlert message="Item borrowed successfully!" />}
-            {showReturnError && <ErrorAlert message={returnErrorMessage} />}
+            <Activity mode={returnSuccess ? "visible" : "hidden"}>
+                <SuccessAlert message="Item returned successfully!" />
+            </Activity>
+
+            <Activity mode={borrowSuccess ? "visible" : "hidden"}>
+                <SuccessAlert message="Item borrowed successfully!" />
+            </Activity>
+
+            <Activity mode={showReturnError ? "visible" : "hidden"}>
+                <ErrorAlert message={returnErrorMessage} />
+            </Activity>
 
             {/* Return Item Modal */}
-            {showReturnModal && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setShowReturnModal(false)}>
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+            <Activity mode={showReturnModal ? "visible" : "hidden"}>
+                <div
+                    className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+                    onClick={() => setShowReturnModal(false)}
+                >
+                    <div
+                        className="bg-white rounded-2xl shadow-2xl max-w-md w-full"
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         <div className="border-b border-gray-200 px-6 py-4 flex justify-between items-center rounded-t-2xl">
                             <h2 className="text-xl font-bold text-gray-900">Return Item</h2>
                             <button
@@ -250,7 +371,9 @@ export default function Dashboard() {
                         </div>
                         <div className="p-6">
                             <p className="text-sm text-gray-600 mb-4">
-                                Scan the <strong>item barcode</strong> to mark it as returned. The system will automatically find and update the active borrowed record.
+                                Scan the <strong>item barcode</strong> to mark it as returned.
+                                The system will automatically find and update the active
+                                borrowed record.
                             </p>
                             <input
                                 type="text"
@@ -261,14 +384,14 @@ export default function Dashboard() {
                                     setReturnError("");
                                 }}
                                 onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
+                                    if (e.key === "Enter") {
                                         handleReturnSubmit();
                                     }
                                 }}
                                 placeholder="Scan or enter item barcode"
                                 className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${returnError
-                                    ? 'border-red-500 focus:ring-red-500'
-                                    : 'border-gray-300 focus:ring-blue-500'
+                                        ? "border-red-500 focus:ring-red-500"
+                                        : "border-gray-300 focus:ring-blue-500"
                                     }`}
                             />
                             {returnError && (
@@ -286,23 +409,35 @@ export default function Dashboard() {
                                     type="button"
                                     onClick={handleReturnSubmit}
                                     disabled={returnItemMutation.isPending}
-                                    className={`flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors ${returnItemMutation.isPending ? 'opacity-50 cursor-not-allowed' : ''
+                                    className={`flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors ${returnItemMutation.isPending
+                                            ? "opacity-50 cursor-not-allowed"
+                                            : ""
                                         }`}
                                 >
-                                    {returnItemMutation.isPending ? 'Processing...' : 'Confirm Return'}
+                                    {returnItemMutation.isPending
+                                        ? "Processing..."
+                                        : "Confirm Return"}
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
-            )}
+            </Activity>
 
             {/* Scan Lent Item Modal */}
-            {showScanModal && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setShowScanModal(false)}>
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+            <Activity mode={showScanModal ? "visible" : "hidden"}>
+                <div
+                    className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+                    onClick={() => setShowScanModal(false)}
+                >
+                    <div
+                        className="bg-white rounded-2xl shadow-2xl max-w-md w-full"
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         <div className="border-b border-gray-200 px-6 py-4 flex justify-between items-center rounded-t-2xl">
-                            <h2 className="text-xl font-bold text-gray-900">Scan Lent Item</h2>
+                            <h2 className="text-xl font-bold text-gray-900">
+                                Scan Lent Item
+                            </h2>
                             <button
                                 onClick={() => setShowScanModal(false)}
                                 className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -323,14 +458,14 @@ export default function Dashboard() {
                                     setScanError("");
                                 }}
                                 onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
+                                    if (e.key === "Enter") {
                                         handleScanSubmit();
                                     }
                                 }}
                                 placeholder="Scan or enter lent item barcode"
                                 className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${scanError
-                                    ? 'border-red-500 focus:ring-red-500'
-                                    : 'border-gray-300 focus:ring-blue-500'
+                                        ? "border-red-500 focus:ring-red-500"
+                                        : "border-gray-300 focus:ring-blue-500"
                                     }`}
                             />
                             {scanError && (
@@ -355,14 +490,18 @@ export default function Dashboard() {
                         </div>
                     </div>
                 </div>
-            )}
+            </Activity>
 
             <div className="grid grid-cols-1 justify-items-center gap-8 mb-8 w-full max-w-7xl sm:grid-cols-2 lg:grid-cols-4">
                 {badges.map((item, index) => (
-                    <DashboardBadges key={index} name={item.name} link={item.link} data={item.data} />
+                    <DashboardBadges
+                        key={index}
+                        name={item.name}
+                        link={item.link}
+                        data={item.data}
+                    />
                 ))}
             </div>
-
 
             <div className="p-8 w-full rounded-2xl border shadow-md bg-white/90 border-[#e0e7ef]">
                 {/* Pagination & Search */}
@@ -387,53 +526,42 @@ export default function Dashboard() {
                 </div>
 
                 <div className="overflow-x-auto rounded-xl shadow-inner h-[55vh] bg-white/95">
-                    {isBorrowedItemError ? <ErrorTable /> : (
+                    {isBorrowedItemError ? (
+                        <ErrorTable />
+                    ) : (
                         <table className="relative w-full text-left border-collapse">
                             <thead>
-                                <tr>
-                                    {[
-                                        "Serial Number",
-                                        "Image",
-                                        "Item",
-                                        "Occupied By",
-                                        "Teacher",
-                                        "Room",
-                                        "Remarks",
-                                        "Lent At",
-                                        "Status",
-                                    ].map((header) => (
-                                        <th
-                                            key={header}
-                                            className="sticky bg-white top-0 py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]"
-                                        >
-                                            {header}
-                                        </th>
-                                    ))}
-                                </tr>
+                                {table.getHeaderGroups().map((headerGroup) => (
+                                    <tr key={headerGroup.id}>
+                                        {headerGroup.headers.map((header: any) => (
+                                            <th
+                                                key={header.id}
+                                                className="sticky bg-white top-0 py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]"
+                                            >
+                                                {header.isPlaceholder
+                                                    ? null
+                                                    : header.column.columnDef.header}
+                                            </th>
+                                        ))}
+                                    </tr>
+                                ))}
                             </thead>
                             <tbody>
-                                {paginatedData
-                                    .sort((a, b) => new Date(b.lentAt).getTime() - new Date(a.lentAt).getTime())
-                                    .map((item) => (
-                                        <tr
-                                            key={item.item.serialNumber}
-                                            className="transition-colors odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9] cursor-pointer"
-                                            onClick={() => handleViewBorrowItemOpen(item.id)}
-                                        >
-                                            <RecentBorrowedItemsTable
-                                                id={item.id}
-                                                image={item.item.image}
-                                                itemName={item.item.itemName}
-                                                serialNumber={item.item.serialNumber}
-                                                borrowerFullName={item.borrowerFullName}
-                                                room={item.room}
-                                                teacherFullName={item.teacherFullName}
-                                                remarks={item.remarks}
-                                                createdAt={item.lentAt}
-                                                status={item.status}
-                                            />
-                                        </tr>
-                                    ))}
+                                {table.getRowModel().rows.map((row) => (
+                                    <tr
+                                        key={row.id}
+                                        className="transition-colors odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9] cursor-pointer"
+                                        onClick={() => handleViewBorrowItemOpen(row.original.id)}
+                                    >
+                                        {row.getVisibleCells().map((cell: any) => (
+                                            <td key={cell.id} className="px-6 py-4">
+                                                {cell.column.columnDef.cell
+                                                    ? cell.column.columnDef.cell(cell.getContext())
+                                                    : cell.renderValue()}
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                     )}
@@ -441,11 +569,13 @@ export default function Dashboard() {
             </div>
 
             {onViewBorrowItemOpen && selectedId && (
-                <ViewRecentBorrowItems
-                    itemId={selectedId}
-                    isOpen={onViewBorrowItemOpen}
-                    onClose={handleViewBorrowItemClose}
-                />
+                <Activity mode={"visible"}>
+                    <ViewRecentBorrowItems
+                        itemId={selectedId}
+                        isOpen={onViewBorrowItemOpen}
+                        onClose={handleViewBorrowItemClose}
+                    />
+                </Activity>
             )}
 
             {/* Scanned Lent Item Details Modal */}
@@ -464,99 +594,19 @@ export default function Dashboard() {
             />
 
             {/* Floating Action Buttons - Reverse D Shape */}
-            <div
-                className="fixed right-0 bottom-12 z-40"
-                onMouseEnter={() => setShowFloatingMenu(true)}
-                onMouseLeave={() => {
-                    if (!menuOpenedByClick) {
-                        setShowFloatingMenu(false);
-                    }
-                }}
-            >
-                <div className="flex flex-col items-end gap-3">
-                    {/* Scan Button - Slides from right */}
-                    <button
-                        onClick={() => {
-                            setShowScanModal(true);
-                            setShowFloatingMenu(false);
-                            setMenuOpenedByClick(false);
-                        }}
-                        className={`flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 py-3 overflow-hidden ${showFloatingMenu
-                            ? 'translate-x-0 opacity-100 pointer-events-auto delay-75 pr-4 pl-3'
-                            : 'translate-x-full opacity-0 pointer-events-none pr-0 pl-3'
-                            }`}
-                        style={{
-                            borderRadius: '9999px 0 0 9999px'
-                        }}
-                        title="Scan Lent Item"
-                    >
-                        <svg className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                        </svg>
-                        <span className={`text-sm font-medium whitespace-nowrap transition-all duration-300 ${showFloatingMenu ? 'opacity-100 max-w-xs' : 'opacity-0 max-w-0'
-                            }`}>
-                            Scan Lent Item
-                        </span>
-                    </button>
-
-                    {/* Return Button - Slides from right */}
-                    <button
-                        onClick={() => {
-                            setShowReturnModal(true);
-                            setShowFloatingMenu(false);
-                            setMenuOpenedByClick(false);
-                        }}
-                        className={`flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 py-3 overflow-hidden ${showFloatingMenu
-                            ? 'translate-x-0 opacity-100 pointer-events-auto delay-150 pr-4 pl-3'
-                            : 'translate-x-full opacity-0 pointer-events-none pr-0 pl-3'
-                            }`}
-                        style={{
-                            borderRadius: '9999px 0 0 9999px'
-                        }}
-                        title="Return Item"
-                    >
-                        <svg className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                        </svg>
-                        <span className={`text-sm font-medium whitespace-nowrap transition-all duration-300 ${showFloatingMenu ? 'opacity-100 max-w-xs' : 'opacity-0 max-w-0'
-                            }`}>
-                            Return Item
-                        </span>
-                    </button>
-
-                    {/* Main Plus Button - Reverse D Shape */}
-                    <div className="relative">
-                        <button
-                            onClick={() => {
-                                if (showFloatingMenu && menuOpenedByClick) {
-                                    setShowFloatingMenu(false);
-                                    setMenuOpenedByClick(false);
-                                } else {
-                                    setShowFloatingMenu(true);
-                                    setMenuOpenedByClick(true);
-                                }
-                            }}
-                            className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-2xl transition-all duration-300 p-4 md:p-5"
-                            style={{
-                                borderRadius: '50% 0 0 50%'
-                            }}
-                            title="Quick Actions"
-                        >
-                            <svg
-                                className={`w-7 h-7 md:w-8 md:h-8 transition-transform duration-300 ${showFloatingMenu ? 'rotate-45' : 'rotate-0'}`}
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <FloatingActionButtons
+                showFloatingMenu={showFloatingMenu}
+                setShowFloatingMenu={() => setShowFloatingMenu(true)}
+                menuOpenedByClick={menuOpenedByClick}
+                setShowScanModal={() => setShowScanModal(true)}
+                setMenuOpenedByClick={() => setMenuOpenedByClick(true)}
+                setShowReturnModal={() => setShowReturnModal(true)}
+            />
 
             {/* Click outside to close menu */}
-            {menuOpenedByClick && showFloatingMenu && (
+            <Activity
+                mode={menuOpenedByClick && showFloatingMenu ? "visible" : "hidden"}
+            >
                 <div
                     className="fixed inset-0 z-30"
                     onClick={() => {
@@ -564,7 +614,7 @@ export default function Dashboard() {
                         setMenuOpenedByClick(false);
                     }}
                 />
-            )}
+            </Activity>
         </div>
     );
 }
