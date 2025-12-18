@@ -3,43 +3,61 @@ import logo from "../assets/aclcLogo.webp";
 import { CiLogout, CiUser } from "react-icons/ci";
 import { GiArchiveRegister } from "react-icons/gi";
 import { GrStorage } from "react-icons/gr";
-import { MdHistory, MdInventory, MdDashboardCustomize, MdAppRegistration } from "react-icons/md";
+import {
+    MdHistory,
+    MdInventory,
+    MdDashboardCustomize,
+    MdAppRegistration,
+} from "react-icons/md";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 import { BiPackage } from "react-icons/bi";
 import { BsPersonCircle, BsClipboardCheck } from "react-icons/bs";
 import { useState, useEffect } from "react";
 import SidebarSkeletonLoader from "../loader/SidebarSkeletonLoader";
-import { usePostLogoutUserMutation } from "../query/post/usePostLogoutUserMutation";
 import { useSidebar } from "../context/SidebarContext";
 import { usePendingCount } from "../hooks/usePendingCount";
-
+import { useLogoutUser } from "../hooks/auth/useLogout";
 
 export default function Sidebar() {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
     const [isSidebarLoading, setIsSidebarLoading] = useState<boolean>(true);
-    const [isItemsDropdownOpen, setIsItemsDropdownOpen] = useState<boolean>(false);
-    const [wasItemsDropdownOpen, setWasItemsDropdownOpen] = useState<boolean>(false);
-    const { mutate, isPending } = usePostLogoutUserMutation()
+    const [isItemsDropdownOpen, setIsItemsDropdownOpen] =
+        useState<boolean>(false);
+    const [wasItemsDropdownOpen, setWasItemsDropdownOpen] =
+        useState<boolean>(false);
+    const { mutate, isPending } = useLogoutUser();
     const { setIsSidebarExpanded } = useSidebar();
     const { total: pendingCount } = usePendingCount();
 
     const sideBarListTop = [
         { label: "Dashboard", link: "dashboard", icon: MdDashboardCustomize },
-        { label: "Inventory List", link: "inventory-list", icon: GiArchiveRegister },
+        {
+            label: "Inventory List",
+            link: "inventory-list",
+            icon: GiArchiveRegister,
+        },
         { label: "User Management", link: "user-management", icon: CiUser },
     ];
 
     const sideBarListBottom = [
         { label: "Archives", link: "archive-table", icon: MdInventory },
         { label: "Borrow History", link: "history-list", icon: MdHistory },
-        { label: "Registered Module", link: "registration-module", icon: MdAppRegistration },
+        {
+            label: "Registered Module",
+            link: "registration-module",
+            icon: MdAppRegistration,
+        },
         { label: "Profile", link: "settings", icon: BsPersonCircle },
     ];
 
     const itemsSubmenu = [
         { label: "Borrow Items", link: "borrow-item", icon: GrStorage },
-        { label: "Pending & Reservations", link: "pending-reservations", icon: BsClipboardCheck },
+        {
+            label: "Pending & Reservations",
+            link: "pending-reservations",
+            icon: BsClipboardCheck,
+        },
     ];
 
     const toggleMobileMenu = () => {
@@ -58,8 +76,8 @@ export default function Sidebar() {
     const logoutUser = () => {
         mutate(undefined, {
             onSuccess: (message) => {
-                console.log(message)
-                navigate("/")
+                console.log(message);
+                navigate("/");
             },
             onError: (err) => console.error(err.message),
         });
@@ -126,7 +144,7 @@ export default function Sidebar() {
                                 <BiPackage className="text-2xl min-w-[30px]" />
                                 {pendingCount > 0 && (
                                     <span className="absolute left-8 top-2 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-orange-500 rounded-full border-2 border-white shadow-lg animate-pulse">
-                                        {pendingCount > 99 ? '99+' : pendingCount}
+                                        {pendingCount > 99 ? "99+" : pendingCount}
                                     </span>
                                 )}
                                 <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex-1 text-left">
@@ -141,7 +159,9 @@ export default function Sidebar() {
 
                             {/* Dropdown Submenu */}
                             <div
-                                className={`overflow-hidden transition-all duration-300 ease-in-out ${isItemsDropdownOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
+                                className={`overflow-hidden transition-all duration-300 ease-in-out ${isItemsDropdownOpen
+                                        ? "max-h-40 opacity-100"
+                                        : "max-h-0 opacity-0"
                                     }`}
                             >
                                 <ul className="flex flex-col gap-1 mt-1 ml-4">
@@ -160,11 +180,12 @@ export default function Sidebar() {
                                                 <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex-1">
                                                     {subItem.label}
                                                 </span>
-                                                {subItem.link === 'pending-reservations' && pendingCount > 0 && (
-                                                    <span className="opacity-0 transition-opacity duration-300 group-hover:opacity-100 ml-auto px-2 py-0.5 text-xs font-bold text-white bg-orange-500 rounded-full">
-                                                        {pendingCount > 99 ? '99+' : pendingCount}
-                                                    </span>
-                                                )}
+                                                {subItem.link === "pending-reservations" &&
+                                                    pendingCount > 0 && (
+                                                        <span className="opacity-0 transition-opacity duration-300 group-hover:opacity-100 ml-auto px-2 py-0.5 text-xs font-bold text-white bg-orange-500 rounded-full">
+                                                            {pendingCount > 99 ? "99+" : pendingCount}
+                                                        </span>
+                                                    )}
                                             </NavLink>
                                         </li>
                                     ))}
@@ -288,7 +309,7 @@ export default function Sidebar() {
                                     <BiPackage className="text-xl min-w-[24px]" />
                                     {pendingCount > 0 && (
                                         <span className="absolute left-8 top-1.5 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-orange-500 rounded-full border-2 border-white shadow-lg">
-                                            {pendingCount > 99 ? '99+' : pendingCount}
+                                            {pendingCount > 99 ? "99+" : pendingCount}
                                         </span>
                                     )}
                                     <span className="flex-1 text-left">Manage Borrow Items</span>
@@ -301,7 +322,9 @@ export default function Sidebar() {
 
                                 {/* Dropdown Submenu */}
                                 <div
-                                    className={`overflow-hidden transition-all duration-300 ease-in-out ${isItemsDropdownOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
+                                    className={`overflow-hidden transition-all duration-300 ease-in-out ${isItemsDropdownOpen
+                                            ? "max-h-40 opacity-100"
+                                            : "max-h-0 opacity-0"
                                         }`}
                                 >
                                     <ul className="flex flex-col gap-1 mt-1 ml-6">
@@ -319,11 +342,12 @@ export default function Sidebar() {
                                                 >
                                                     <subItem.icon className="text-lg min-w-[20px]" />
                                                     <span className="flex-1">{subItem.label}</span>
-                                                    {subItem.link === 'pending-reservations' && pendingCount > 0 && (
-                                                        <span className="ml-auto px-2 py-0.5 text-xs font-bold text-white bg-orange-500 rounded-full">
-                                                            {pendingCount > 99 ? '99+' : pendingCount}
-                                                        </span>
-                                                    )}
+                                                    {subItem.link === "pending-reservations" &&
+                                                        pendingCount > 0 && (
+                                                            <span className="ml-auto px-2 py-0.5 text-xs font-bold text-white bg-orange-500 rounded-full">
+                                                                {pendingCount > 99 ? "99+" : pendingCount}
+                                                            </span>
+                                                        )}
                                                 </NavLink>
                                             </li>
                                         ))}
