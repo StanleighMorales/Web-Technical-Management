@@ -9,15 +9,20 @@ import {
     MdQrCode,
     MdArchive,
 } from "react-icons/md";
-import { FaBox, FaTag, FaCalendarAlt, FaUser, FaDoorOpen, FaCheckCircle } from "react-icons/fa";
-import { useViewBorrowItemCredentials } from "../query/get/useViewBorrowItemCredentials.ts";
+import {
+    FaBox,
+    FaTag,
+    FaCalendarAlt,
+    FaUser,
+    FaDoorOpen,
+    FaCheckCircle,
+} from "react-icons/fa";
 import { FormattedDateTime } from "./FormattedDateTime.ts";
 import CloseButton from "./CloseButton.tsx";
 import type { TRecentBorrowItemProps } from "../types/types.ts";
 import ErrorTable from "../components/ErrorTables.tsx";
 import { useEffect, useState } from "react";
-
-
+import { useRecentlyBorrowItems } from "../hooks/item/useRecentlyBorrowItems.ts";
 
 type TArchiveItemDetailsPopupProps = {
     itemId: string;
@@ -32,7 +37,7 @@ export const ViewRecentBorrowItems = ({
 }: TArchiveItemDetailsPopupProps) => {
     const [itemData, setItemData] = useState<TRecentBorrowItemProps | null>(null);
 
-    const { data, isPending, isError } = useQuery(useViewBorrowItemCredentials(itemId));
+    const { data, isPending, isError } = useQuery(useRecentlyBorrowItems(itemId));
 
     useEffect(() => {
         if (data?.data) setItemData(data.data);
@@ -80,8 +85,12 @@ export const ViewRecentBorrowItems = ({
                                 <MdArchive className="text-2xl text-orange-600" />
                             </div>
                             <div>
-                                <h2 className="text-2xl font-bold text-gray-900">Borrow Item Details</h2>
-                                <p className="text-gray-600">Complete borrow item information</p>
+                                <h2 className="text-2xl font-bold text-gray-900">
+                                    Borrow Item Details
+                                </h2>
+                                <p className="text-gray-600">
+                                    Complete borrow item information
+                                </p>
                             </div>
                         </div>
                         <CloseButton onClick={onClose} />
@@ -105,7 +114,9 @@ export const ViewRecentBorrowItems = ({
                                         className="object-contain max-w-full max-h-64 rounded-lg shadow-sm"
                                         onError={(e) => {
                                             e.currentTarget.style.display = "none";
-                                            e.currentTarget.nextElementSibling?.classList.remove("hidden");
+                                            e.currentTarget.nextElementSibling?.classList.remove(
+                                                "hidden",
+                                            );
                                         }}
                                     />
                                 ) : (
@@ -124,20 +135,54 @@ export const ViewRecentBorrowItems = ({
                             </h3>
                             <div className="space-y-3">
                                 {[
-                                    { icon: <FaBox />, label: "Item Name", value: itemData.item.itemName },
-                                    { icon: <MdCode />, label: "Serial Number", value: itemData.item.serialNumber },
-                                    { icon: <MdCategory />, label: "Category", value: itemData.item.category },
-                                    { icon: <MdBuild />, label: "Type", value: itemData.item.itemType },
-                                    { icon: <FaTag />, label: "Model", value: itemData.item.itemModel },
-                                    { icon: <MdBuild />, label: "Make", value: itemData.item.itemMake },
-                                    { icon: <MdDescription />, label: "Description", value: itemData.item.description },
-                                    { icon: <FaCheckCircle />, label: "Condition", value: itemData.item.condition },
+                                    {
+                                        icon: <FaBox />,
+                                        label: "Item Name",
+                                        value: itemData.item.itemName,
+                                    },
+                                    {
+                                        icon: <MdCode />,
+                                        label: "Serial Number",
+                                        value: itemData.item.serialNumber,
+                                    },
+                                    {
+                                        icon: <MdCategory />,
+                                        label: "Category",
+                                        value: itemData.item.category,
+                                    },
+                                    {
+                                        icon: <MdBuild />,
+                                        label: "Type",
+                                        value: itemData.item.itemType,
+                                    },
+                                    {
+                                        icon: <FaTag />,
+                                        label: "Model",
+                                        value: itemData.item.itemModel,
+                                    },
+                                    {
+                                        icon: <MdBuild />,
+                                        label: "Make",
+                                        value: itemData.item.itemMake,
+                                    },
+                                    {
+                                        icon: <MdDescription />,
+                                        label: "Description",
+                                        value: itemData.item.description,
+                                    },
+                                    {
+                                        icon: <FaCheckCircle />,
+                                        label: "Condition",
+                                        value: itemData.item.condition,
+                                    },
                                 ].map(({ icon, label, value }, i) => (
                                     <div key={i} className="flex items-center space-x-3">
                                         <span className="text-lg text-gray-400">{icon}</span>
                                         <div>
                                             <p className="text-sm text-gray-500">{label}</p>
-                                            <p className="font-medium text-gray-900">{value || "N/A"}</p>
+                                            <p className="font-medium text-gray-900">
+                                                {value || "N/A"}
+                                            </p>
                                         </div>
                                     </div>
                                 ))}
@@ -148,17 +193,50 @@ export const ViewRecentBorrowItems = ({
                     {/* Borrow Details */}
                     <div className="p-6 bg-orange-50 rounded-lg border border-orange-200">
                         <h3 className="flex items-center mb-4 text-lg font-semibold text-gray-900">
-                            <FaCalendarAlt className="mr-2 text-orange-600" /> Borrow Information
+                            <FaCalendarAlt className="mr-2 text-orange-600" /> Borrow
+                            Information
                         </h3>
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             {[
-                                { icon: <FaUser />, label: "Borrower", value: itemData.borrowerFullName },
-                                { icon: <FaTag />, label: "Role", value: itemData.borrowerRole },
-                                { icon: <FaDoorOpen />, label: "Room", value: itemData.room || "N/A" },
-                                { icon: <MdArchive />, label: "Status", value: itemData.status },
-                                { icon: <FaCalendarAlt />, label: "Lent At", value: itemData.lentAt ? FormattedDateTime(itemData.lentAt) : "N/A" },
-                                { icon: <FaCalendarAlt />, label: "Returned At", value: itemData.returnedAt ? FormattedDateTime(itemData.returnedAt) : "N/A" },
-                                { icon: <MdDescription />, label: "Remarks", value: itemData.remarks || "No remarks" },
+                                {
+                                    icon: <FaUser />,
+                                    label: "Borrower",
+                                    value: itemData.borrowerFullName,
+                                },
+                                {
+                                    icon: <FaTag />,
+                                    label: "Role",
+                                    value: itemData.borrowerRole,
+                                },
+                                {
+                                    icon: <FaDoorOpen />,
+                                    label: "Room",
+                                    value: itemData.room || "N/A",
+                                },
+                                {
+                                    icon: <MdArchive />,
+                                    label: "Status",
+                                    value: itemData.status,
+                                },
+                                {
+                                    icon: <FaCalendarAlt />,
+                                    label: "Lent At",
+                                    value: itemData.lentAt
+                                        ? FormattedDateTime(itemData.lentAt)
+                                        : "N/A",
+                                },
+                                {
+                                    icon: <FaCalendarAlt />,
+                                    label: "Returned At",
+                                    value: itemData.returnedAt
+                                        ? FormattedDateTime(itemData.returnedAt)
+                                        : "N/A",
+                                },
+                                {
+                                    icon: <MdDescription />,
+                                    label: "Remarks",
+                                    value: itemData.remarks || "No remarks",
+                                },
                             ].map(({ icon, label, value }, i) => (
                                 <div key={i} className="flex items-center space-x-3">
                                     <span className="text-lg text-gray-400">{icon}</span>
@@ -184,7 +262,9 @@ export const ViewRecentBorrowItems = ({
                                     className="object-contain max-w-full max-h-32"
                                     onError={(e) => {
                                         e.currentTarget.style.display = "none";
-                                        e.currentTarget.nextElementSibling?.classList.remove("hidden");
+                                        e.currentTarget.nextElementSibling?.classList.remove(
+                                            "hidden",
+                                        );
                                     }}
                                 />
                                 <div className="hidden text-center text-gray-500">
