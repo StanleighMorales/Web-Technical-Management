@@ -8,10 +8,10 @@ import {
 import CloseButton from "./CloseButton";
 import type { TItemForm, TItemList } from "../types/types";
 import { useQuery } from "@tanstack/react-query";
-import { useItemDetailsQuery } from "../query/get/useItemDetailsQuery";
-import { usePatchItemMutation } from "../query/patch/usePatchItemMutation";
+import { useGetItemInfo } from "../hooks/item/useGetItemInfo";
 import { SuccessAlert } from "./SuccessAlert";
 import { ErrorAlert } from "./ErrorAlert";
+import { useUpdateItem } from "../hooks/item/useUpdateItem";
 
 type EditItemFormProps = {
   onClose: () => void;
@@ -19,7 +19,7 @@ type EditItemFormProps = {
 };
 
 export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
-  const { data, isLoading, error } = useQuery(useItemDetailsQuery(id));
+  const { data, isLoading, error } = useQuery(useGetItemInfo(id));
   const [originalData, setOriginalData] = useState<TItemForm | null>(null);
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const [showAlertFailed, setShowAlertFailed] = useState<boolean>(false);
@@ -32,7 +32,7 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
   const [descriptionError, setDescriptionError] = useState<string>("");
   const [imageError, setImageError] = useState<string | null>(null);
 
-  const { mutate } = usePatchItemMutation();
+  const { mutate } = useUpdateItem();
 
   const [formData, setFormData] = useState<TItemForm>({
     serialNumber: "",
@@ -163,7 +163,7 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
     };
 
     mutate(
-      { id, formData: updateItem },
+      { id, data: updateItem },
       {
         onSuccess: () => {
           setShowAlert(true);
