@@ -1,17 +1,18 @@
 import { type FC } from "react";
-import { useArchivesItemsQuery } from "../query/get/useArchivesItemsQuery.ts";
-import { useArchivesUsersQuery } from "../query/get/useArchiveUsersQuery.ts";
 import { FaTrash, FaUser } from "react-icons/fa6";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import ArchiveSkeletonLoader from "../loader/ArchiveSkeletonLoader.tsx";
 import type { TArchiveItem, TUsers } from "../types/types.ts";
-import { useRestoreItemMutation } from "../query/delete/useRestoreItemMutation.ts";
-import { useRestoreUserMutation } from "../query/delete/useRestoreUserMutation.ts";
+import { useAllItemsArchive } from "../hooks/item/useAllItemsArchive.ts";
+import { useDeleteItem } from "../hooks/item/useDeleteItem.ts";
+import { useRestoreItem } from "../hooks/item/useRestoreItem.ts";
+import { useAllUsersArchive } from "../hooks/user/useAllUsersArchive.ts";
+import { useRestoreUser } from "../hooks/user/useRestoreUser.ts";
+import { useDeleteUser } from "../hooks/user/useDeleteUser.ts";
 import ErrorTable from "../components/ErrorTables.tsx";
 import SearchBar from "../components/SearchBar.tsx";
 import Pagination from "../components/Pagination.tsx";
-import { useDeleteItemMutation } from "../query/delete/useDeleteItemMutation.ts";
 import PopUpModal from "../components/PopUpModal.tsx";
 import PopUpModalDelete from "../components/PopUpModalDelete.tsx";
 import { UserData } from "../utils/usersData/userData.ts";
@@ -22,7 +23,6 @@ import { ArchiveStudentTable } from "../components/ArchiveStudentTable.tsx";
 import ArchiveStudentCredentialsPopup from "../components/ArchiveStudentCredentialsPopup.tsx";
 import ArchiveTeacherCredentialsPopup from "../components/ArchiveTeacherCredentialsPopup.tsx";
 import ArchiveItemDetailsPopup from "../components/ArchiveItemDetailsPopup.tsx";
-import { useDeleteUserMutation } from "../query/delete/useDeleteUsersMutation.ts";
 import { SuccessAlert } from "../components/SuccessAlert.tsx";
 
 type TStudentTypes = TUsers;
@@ -42,16 +42,16 @@ export default function Archive() {
     const itemsPerPage = 10;
     const userData = UserData();
 
-    const { data, isPending, isError } = useQuery(useArchivesItemsQuery());
+    const { data, isPending, isError } = useQuery(useAllItemsArchive());
     const {
         data: usersData,
         isPending: isUsersPending,
         isError: isUsersError,
-    } = useQuery(useArchivesUsersQuery());
-    const restoreItemMutation = useRestoreItemMutation();
-    const deleteItemMutation = useDeleteItemMutation();
-    const restoreUserMutation = useRestoreUserMutation();
-    const deleteUserMutation = useDeleteUserMutation();
+    } = useQuery(useAllUsersArchive());
+    const restoreItemMutation = useRestoreItem();
+    const deleteItemMutation = useDeleteItem();
+    const deleteUserMutation = useDeleteUser();
+    const restoreUserMutation = useRestoreUser();
     const [isRestoreConfirmOpen, setIsRestoreConfirmOpen] = useState(false);
     const [restoreSelectedItemId, setRestoreSelectedItemId] = useState<
         string | null
@@ -83,7 +83,7 @@ export default function Archive() {
     // Filter items based on search term and category
     const filteredItems = useMemo(
         () =>
-            (archiveItems || []).filter((item) => {
+            archiveItems.filter((item) => {
                 const searchTerm = searchItem?.toLowerCase() || "";
                 const matchesSearch =
                     (item.itemName?.toLowerCase() || "").includes(searchTerm) ||
@@ -104,7 +104,7 @@ export default function Archive() {
     // Filter users based on search term, userRole, and active filter
     const filteredUsers = useMemo(
         () =>
-            (archiveUsers || []).filter((user) => {
+            archiveUsers.filter((user) => {
                 // Filter by active filter (users, teachers, students)
                 let roleMatches = false;
                 if (activeFilter === "users") {
@@ -258,22 +258,22 @@ export default function Archive() {
     const viewArchiveItemCredentials = (id: string) => {
         setSelectedItemId(id);
         setIsItemDetailsOpen(true);
-    }
+    };
 
     const viewArchiveTeacherCredentials = (id: string) => {
         setSelectedTeacherId(id);
         setIsTeacherCredentialsOpen(true);
-    }
+    };
 
     const handleCloseArchiveTeacherCredentials = () => {
         setSelectedTeacherId(null);
         setIsTeacherCredentialsOpen(true);
-    }
+    };
 
     const handleArchiveStudentCredentials = (id: string) => {
         setSelectedStudentId(id);
         setIsStudentCredentialsOpen(true);
-    }
+    };
     const handleCloseStudentCredentials = () => {
         setSelectedStudentId(null);
         setIsStudentCredentialsOpen(false);
@@ -402,8 +402,8 @@ export default function Archive() {
                             setSelectedCategory("");
                         }}
                         className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${activeFilter === "items"
-                            ? "bg-blue-500 text-white shadow-lg scale-105"
-                            : "bg-white text-gray-400 border-2 border-white/30 hover:border-blue-700 hover:text-[#2563eb]"
+                                ? "bg-blue-500 text-white shadow-lg scale-105"
+                                : "bg-white text-gray-400 border-2 border-white/30 hover:border-blue-700 hover:text-[#2563eb]"
                             }`}
                     >
                         Items
@@ -416,8 +416,8 @@ export default function Archive() {
                             setSelectedCategory("");
                         }}
                         className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${activeFilter === "users"
-                            ? "bg-blue-500 text-white shadow-lg scale-105"
-                            : "bg-white text-gray-400 border-2 border-white/30 hover:border-blue-700  hover:text-[#2563eb]"
+                                ? "bg-blue-500 text-white shadow-lg scale-105"
+                                : "bg-white text-gray-400 border-2 border-white/30 hover:border-blue-700  hover:text-[#2563eb]"
                             }`}
                     >
                         Users
@@ -430,8 +430,8 @@ export default function Archive() {
                             setSelectedCategory("");
                         }}
                         className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${activeFilter === "teachers"
-                            ? "bg-blue-500  text-white shadow-lg scale-105"
-                            : "bg-white text-gray-400 border-2 border-white/30 hover:border-blue-700 hover:text-[#2563eb]"
+                                ? "bg-blue-500  text-white shadow-lg scale-105"
+                                : "bg-white text-gray-400 border-2 border-white/30 hover:border-blue-700 hover:text-[#2563eb]"
                             }`}
                     >
                         Teachers
@@ -444,8 +444,8 @@ export default function Archive() {
                             setSelectedCategory("");
                         }}
                         className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${activeFilter === "students"
-                            ? "bg-blue-500  text-white shadow-lg scale-105"
-                            : "bg-white text-gray-400 border-2 border-white/30 hover:border-blue-700 hover:text-[#2563eb]"
+                                ? "bg-blue-500  text-white shadow-lg scale-105"
+                                : "bg-white text-gray-400 border-2 border-white/30 hover:border-blue-700 hover:text-[#2563eb]"
                             }`}
                     >
                         Students
@@ -680,12 +680,12 @@ export default function Archive() {
                                                     <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
                                                         <span
                                                             className={`px-2 py-1 rounded-full text-xs font-semibold ${user.userRole === "admin"
-                                                                ? "bg-red-100 text-red-800"
-                                                                : user.userRole === "staff"
-                                                                    ? "bg-purple-100 text-purple-800"
-                                                                    : user.userRole === "teacher"
-                                                                        ? "bg-blue-100 text-blue-800"
-                                                                        : "bg-green-100 text-green-800"
+                                                                    ? "bg-red-100 text-red-800"
+                                                                    : user.userRole === "staff"
+                                                                        ? "bg-purple-100 text-purple-800"
+                                                                        : user.userRole === "teacher"
+                                                                            ? "bg-blue-100 text-blue-800"
+                                                                            : "bg-green-100 text-green-800"
                                                                 }`}
                                                         >
                                                             {user.userRole}
@@ -694,8 +694,8 @@ export default function Archive() {
                                                     <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
                                                         <span
                                                             className={`px-2 py-1 rounded-full text-xs font-semibold ${user.status === "active"
-                                                                ? "bg-green-100 text-green-800"
-                                                                : "bg-red-100 text-red-800"
+                                                                    ? "bg-green-100 text-green-800"
+                                                                    : "bg-red-100 text-red-800"
                                                                 }`}
                                                         >
                                                             {user.status}
@@ -771,7 +771,9 @@ export default function Archive() {
                                                 paginatedUsers.map((user: TNewUserTypes) => (
                                                     <tr
                                                         key={user.id}
-                                                        onClick={() => viewArchiveTeacherCredentials(user.id)}
+                                                        onClick={() =>
+                                                            viewArchiveTeacherCredentials(user.id)
+                                                        }
                                                         className="transition-colors cursor-pointer odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9]"
                                                     >
                                                         <ArchiveTeacherTable
@@ -852,7 +854,9 @@ export default function Archive() {
                                             paginatedUsers.map((user: TStudentTypes) => (
                                                 <tr
                                                     key={user.id}
-                                                    onClick={() => handleArchiveStudentCredentials(user.id)}
+                                                    onClick={() =>
+                                                        handleArchiveStudentCredentials(user.id)
+                                                    }
                                                     className="transition-colors cursor-pointer odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9]"
                                                 >
                                                     <ArchiveStudentTable
