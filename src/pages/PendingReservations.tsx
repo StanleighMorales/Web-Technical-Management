@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import HistoryListSkeletonLoader from "../loader/HistoryListSkeletonLoader";
 import { useQuery } from "@tanstack/react-query";
-import { useBorrowedItemsQuery } from "../query/get/useBorrwedItemsQuery";
 import type { THistoryBorrwedItems } from "../types/types";
 import PendingItemsTable from "../components/PendingItemsTable";
 import ErrorTable from "../components/ErrorTables";
@@ -11,22 +10,29 @@ import { useScanLentItemMutation } from "../query/patch/useScanLentItemMutation"
 import { SuccessAlert } from "../components/SuccessAlert";
 import { ErrorAlert } from "../components/ErrorAlert";
 import { LentItemDetailsModal } from "../components/LentItemDetailsModal";
+import { useRecentlyBorrowItems } from "../hooks/item/useRecentlyBorrowItems";
 
 export default function PendingReservations() {
-    const [activeTab, setActiveTab] = useState<"pending" | "reservations">("pending");
+    const [activeTab, setActiveTab] = useState<"pending" | "reservations">(
+        "pending",
+    );
     const [searchItem, setSearchItem] = useState("");
     const [borrowedItem, setBorrowedItem] = useState<THistoryBorrwedItems[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDenyModalOpen, setIsDenyModalOpen] = useState(false);
-    const [selectedItem, setSelectedItem] = useState<THistoryBorrwedItems | null>(null);
+    const [selectedItem, setSelectedItem] = useState<THistoryBorrwedItems | null>(
+        null,
+    );
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
 
-    const { data, isPending, isError } = useQuery(useBorrowedItemsQuery());
-    const { mutate: approveLentItem, isPending: isApproving } = useScanLentItemMutation();
-    const { mutate: denyLentItem, isPending: isDenying } = useScanLentItemMutation();
+    const { data, isPending, isError } = useQuery(useRecentlyBorrowItems());
+    const { mutate: approveLentItem, isPending: isApproving } =
+        useScanLentItemMutation();
+    const { mutate: denyLentItem, isPending: isDenying } =
+        useScanLentItemMutation();
 
     useEffect(() => {
         if (data) setBorrowedItem(data);
@@ -50,7 +56,10 @@ export default function PendingReservations() {
 
     const pendingItems = useMemo(() => {
         return borrowedItem.filter((item) => {
-            const matchesSearch = item.borrowerFullName?.toLowerCase().includes(searchItem.toLowerCase()) ||
+            const matchesSearch =
+                item.borrowerFullName
+                    ?.toLowerCase()
+                    .includes(searchItem.toLowerCase()) ||
                 item.item.itemName?.toLowerCase().includes(searchItem.toLowerCase());
             return matchesSearch && item.status === "Pending";
         });
@@ -58,14 +67,18 @@ export default function PendingReservations() {
 
     const reservationItems = useMemo(() => {
         return borrowedItem.filter((item) => {
-            const matchesSearch = item.borrowerFullName?.toLowerCase().includes(searchItem.toLowerCase()) ||
+            const matchesSearch =
+                item.borrowerFullName
+                    ?.toLowerCase()
+                    .includes(searchItem.toLowerCase()) ||
                 item.item.itemName?.toLowerCase().includes(searchItem.toLowerCase());
             // Only show Reserved items that are still pending (not yet approved/denied)
             return matchesSearch && item.status === "Reserved";
         });
     }, [borrowedItem, searchItem]);
 
-    const filteredItems = activeTab === "pending" ? pendingItems : reservationItems;
+    const filteredItems =
+        activeTab === "pending" ? pendingItems : reservationItems;
 
     const handleApproveClick = (item: THistoryBorrwedItems) => {
         setSelectedItem(item);
@@ -95,7 +108,9 @@ export default function PendingReservations() {
             },
             {
                 onSuccess: () => {
-                    setSuccessMessage(`Successfully approved borrow request for ${selectedItem.item.itemName}`);
+                    setSuccessMessage(
+                        `Successfully approved borrow request for ${selectedItem.item.itemName}`,
+                    );
                     setIsModalOpen(false);
                     setSelectedItem(null);
                 },
@@ -103,7 +118,7 @@ export default function PendingReservations() {
                     setErrorMessage(error.message || "Failed to approve borrow request");
                     setIsModalOpen(false);
                 },
-            }
+            },
         );
     };
 
@@ -134,7 +149,8 @@ export default function PendingReservations() {
         }
 
         // For reservations, use "Canceled" status; for pending, use "Denied"
-        const statusToSet = selectedItem.status === "Reserved" ? "Canceled" : "Denied";
+        const statusToSet =
+            selectedItem.status === "Reserved" ? "Canceled" : "Denied";
 
         denyLentItem(
             {
@@ -143,8 +159,13 @@ export default function PendingReservations() {
             },
             {
                 onSuccess: () => {
-                    const actionText = selectedItem.status === "Reserved" ? "canceled reservation" : "denied borrow request";
-                    setSuccessMessage(`Successfully ${actionText} for ${selectedItem.item.itemName}`);
+                    const actionText =
+                        selectedItem.status === "Reserved"
+                            ? "canceled reservation"
+                            : "denied borrow request";
+                    setSuccessMessage(
+                        `Successfully ${actionText} for ${selectedItem.item.itemName}`,
+                    );
                     setIsDenyModalOpen(false);
                     setSelectedItem(null);
                 },
@@ -152,7 +173,7 @@ export default function PendingReservations() {
                     setErrorMessage(error.message || "Failed to process request");
                     setIsDenyModalOpen(false);
                 },
-            }
+            },
         );
     };
 
@@ -186,7 +207,8 @@ export default function PendingReservations() {
                             Pending & Reservations
                         </h1>
                         <span className="text-lg font-medium text-[#64748b]">
-                            Review and approve pending borrow requests and manage reservations.
+                            Review and approve pending borrow requests and manage
+                            reservations.
                         </span>
                     </div>
                 </div>
@@ -196,8 +218,8 @@ export default function PendingReservations() {
                     <button
                         onClick={() => setActiveTab("pending")}
                         className={`px-6 py-3 font-semibold text-base transition-all duration-200 border-b-2 ${activeTab === "pending"
-                            ? "border-blue-600 text-blue-600"
-                            : "border-transparent text-gray-500 hover:text-gray-700"
+                                ? "border-blue-600 text-blue-600"
+                                : "border-transparent text-gray-500 hover:text-gray-700"
                             }`}
                     >
                         Pending Requests
@@ -210,8 +232,8 @@ export default function PendingReservations() {
                     <button
                         onClick={() => setActiveTab("reservations")}
                         className={`px-6 py-3 font-semibold text-base transition-all duration-200 border-b-2 ${activeTab === "reservations"
-                            ? "border-blue-600 text-blue-600"
-                            : "border-transparent text-gray-500 hover:text-gray-700"
+                                ? "border-blue-600 text-blue-600"
+                                : "border-transparent text-gray-500 hover:text-gray-700"
                             }`}
                     >
                         Reservations
