@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import type { TUpdateUsers } from "../types/types";
-import { usePatchUserMutation } from "../query/patch/usePatchUserMutation";
+import { useUpdateUser } from "../hooks/user/useUpdateUser";
 import { FaUser, FaPhone } from "react-icons/fa6";
 import { MdOutlineEmail } from "react-icons/md";
 import { SuccessAlert } from "./SuccessAlert";
@@ -29,7 +29,7 @@ export default function EditUser({ user, onClose }: EditItemProps) {
     const [successMessage, setSuccessMessage] = useState<string>("");
     const [errorMessage, setErrorMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-    const { mutate } = usePatchUserMutation();
+    const { mutate } = useUpdateUser();
 
     const [formData, setFormData] = useState<formData>({
         firstName: user.firstName,
@@ -65,7 +65,7 @@ export default function EditUser({ user, onClose }: EditItemProps) {
         setIsSubmitting(true);
         e.preventDefault();
         mutate(
-            { id: user.id, formData: PathUserProps },
+            { id: user.id, data: PathUserProps },
             {
                 onSuccess: () => {
                     setIsSubmitting(false);
@@ -79,13 +79,13 @@ export default function EditUser({ user, onClose }: EditItemProps) {
                 },
                 onError: () => {
                     setIsSubmitting(false);
-                    setShowErrorAlert(true)
+                    setShowErrorAlert(true);
                     setErrorMessage("You dont have permission to update this user");
                     setTimeout(() => {
                         setShowErrorAlert(false);
                         setErrorMessage("");
                         onClose();
-                    }, 3500)
+                    }, 3500);
                 },
             },
         );
@@ -225,9 +225,13 @@ export default function EditUser({ user, onClose }: EditItemProps) {
                                 onChange={handleInputChange}
                                 required
                             >
-                                {["Intern", "Full-Time", "Part-Time", "Head-Staff"].map((opt, index) => (
-                                    <option key={index} value={opt}>{opt}</option>
-                                ))}
+                                {["Intern", "Full-Time", "Part-Time", "Head-Staff"].map(
+                                    (opt, index) => (
+                                        <option key={index} value={opt}>
+                                            {opt}
+                                        </option>
+                                    ),
+                                )}
                             </select>
                         </div>
                     </div>
