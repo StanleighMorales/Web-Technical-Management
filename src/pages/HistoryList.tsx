@@ -2,13 +2,19 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import SearchBar from "../components/SearchBar";
 import HistoryListSkeletonLoader from "../loader/HistoryListSkeletonLoader";
 import { useQuery } from "@tanstack/react-query";
-import { useBorrowedItemsQuery } from "../query/get/useBorrwedItemsQuery";
 import type { THistoryBorrwedItems } from "../types/types";
 import HistoryTable from "../components/HistoryTable";
 import ErrorTable from "../components/ErrorTables";
 import Pagination from "../components/Pagination";
-
-type StatusTab = "all" | "pending" | "approved" | "borrowed" | "returned" | "denied" | "canceled";
+import { useRecentlyBorrowItems } from "../hooks/item/useRecentlyBorrowItems";
+type StatusTab =
+    | "all"
+    | "pending"
+    | "approved"
+    | "borrowed"
+    | "returned"
+    | "denied"
+    | "canceled";
 
 export default function HistoryList({
     title = "Borrowing History",
@@ -20,7 +26,7 @@ export default function HistoryList({
     const [currentPage, setCurrentPage] = useState<number>(1);
     const itemsPerPage = 10;
 
-    const { data, isPending, isError } = useQuery(useBorrowedItemsQuery());
+    const { data, isPending, isError } = useQuery(useRecentlyBorrowItems());
 
     useEffect(() => {
         if (data) setBorrowedItem(data);
@@ -30,26 +36,42 @@ export default function HistoryList({
     const statusCounts = useMemo(() => {
         return {
             all: borrowedItem.length,
-            pending: borrowedItem.filter(item => item.status.toLowerCase() === "pending").length,
-            approved: borrowedItem.filter(item => item.status.toLowerCase() === "approved").length,
-            borrowed: borrowedItem.filter(item => item.status.toLowerCase() === "borrowed").length,
-            returned: borrowedItem.filter(item => item.status.toLowerCase() === "returned").length,
-            denied: borrowedItem.filter(item => item.status.toLowerCase() === "denied").length,
-            canceled: borrowedItem.filter(item => item.status.toLowerCase() === "canceled").length,
+            pending: borrowedItem.filter(
+                (item) => item.status.toLowerCase() === "pending",
+            ).length,
+            approved: borrowedItem.filter(
+                (item) => item.status.toLowerCase() === "approved",
+            ).length,
+            borrowed: borrowedItem.filter(
+                (item) => item.status.toLowerCase() === "borrowed",
+            ).length,
+            returned: borrowedItem.filter(
+                (item) => item.status.toLowerCase() === "returned",
+            ).length,
+            denied: borrowedItem.filter(
+                (item) => item.status.toLowerCase() === "denied",
+            ).length,
+            canceled: borrowedItem.filter(
+                (item) => item.status.toLowerCase() === "canceled",
+            ).length,
         };
     }, [borrowedItem]);
 
     const filteredItems = useMemo(() => {
         return borrowedItem.filter((item) => {
-            const matchesSearch = item.borrowerFullName?.toLowerCase().includes(searchItem.toLowerCase());
-            const matchesStatus = activeTab === "all" || item.status.toLowerCase() === activeTab;
+            const matchesSearch = item.borrowerFullName
+                ?.toLowerCase()
+                .includes(searchItem.toLowerCase());
+            const matchesStatus =
+                activeTab === "all" || item.status.toLowerCase() === activeTab;
             return matchesSearch && matchesStatus;
         });
     }, [borrowedItem, searchItem, activeTab]);
 
     const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
-    const validCurrentPage = totalPages > 0 ? Math.min(currentPage, totalPages) : 1;
+    const validCurrentPage =
+        totalPages > 0 ? Math.min(currentPage, totalPages) : 1;
 
     const paginatedData = useMemo(
         () =>
@@ -77,8 +99,12 @@ export default function HistoryList({
                 {/* Title */}
                 <div className="flex flex-col gap-4 mb-8 md:flex-row md:justify-between md:items-center">
                     <div>
-                        <h1 className="text-[#1e293b] text-3xl md:text-5xl mb-2 font-extrabold tracking-tight drop-shadow-lg">{title}</h1>
-                        <span className="text-lg font-medium text-[#64748b]">{description}</span>
+                        <h1 className="text-[#1e293b] text-3xl md:text-5xl mb-2 font-extrabold tracking-tight drop-shadow-lg">
+                            {title}
+                        </h1>
+                        <span className="text-lg font-medium text-[#64748b]">
+                            {description}
+                        </span>
                     </div>
                 </div>
 
@@ -87,8 +113,8 @@ export default function HistoryList({
                     <button
                         onClick={() => setActiveTab("all")}
                         className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${activeTab === "all"
-                            ? "border-blue-600 text-blue-600"
-                            : "border-transparent text-gray-500 hover:text-gray-700"
+                                ? "border-blue-600 text-blue-600"
+                                : "border-transparent text-gray-500 hover:text-gray-700"
                             }`}
                     >
                         All
@@ -101,8 +127,8 @@ export default function HistoryList({
                     <button
                         onClick={() => setActiveTab("pending")}
                         className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${activeTab === "pending"
-                            ? "border-yellow-600 text-yellow-600"
-                            : "border-transparent text-gray-500 hover:text-gray-700"
+                                ? "border-yellow-600 text-yellow-600"
+                                : "border-transparent text-gray-500 hover:text-gray-700"
                             }`}
                     >
                         Pending
@@ -115,8 +141,8 @@ export default function HistoryList({
                     <button
                         onClick={() => setActiveTab("approved")}
                         className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${activeTab === "approved"
-                            ? "border-emerald-600 text-emerald-600"
-                            : "border-transparent text-gray-500 hover:text-gray-700"
+                                ? "border-emerald-600 text-emerald-600"
+                                : "border-transparent text-gray-500 hover:text-gray-700"
                             }`}
                     >
                         Approved
@@ -129,8 +155,8 @@ export default function HistoryList({
                     <button
                         onClick={() => setActiveTab("borrowed")}
                         className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${activeTab === "borrowed"
-                            ? "border-blue-600 text-blue-600"
-                            : "border-transparent text-gray-500 hover:text-gray-700"
+                                ? "border-blue-600 text-blue-600"
+                                : "border-transparent text-gray-500 hover:text-gray-700"
                             }`}
                     >
                         Borrowed
@@ -143,8 +169,8 @@ export default function HistoryList({
                     <button
                         onClick={() => setActiveTab("returned")}
                         className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${activeTab === "returned"
-                            ? "border-green-600 text-green-600"
-                            : "border-transparent text-gray-500 hover:text-gray-700"
+                                ? "border-green-600 text-green-600"
+                                : "border-transparent text-gray-500 hover:text-gray-700"
                             }`}
                     >
                         Returned
@@ -157,8 +183,8 @@ export default function HistoryList({
                     <button
                         onClick={() => setActiveTab("denied")}
                         className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${activeTab === "denied"
-                            ? "border-red-600 text-red-600"
-                            : "border-transparent text-gray-500 hover:text-gray-700"
+                                ? "border-red-600 text-red-600"
+                                : "border-transparent text-gray-500 hover:text-gray-700"
                             }`}
                     >
                         Denied
@@ -171,8 +197,8 @@ export default function HistoryList({
                     <button
                         onClick={() => setActiveTab("canceled")}
                         className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${activeTab === "canceled"
-                            ? "border-gray-600 text-gray-600"
-                            : "border-transparent text-gray-500 hover:text-gray-700"
+                                ? "border-gray-600 text-gray-600"
+                                : "border-transparent text-gray-500 hover:text-gray-700"
                             }`}
                     >
                         Canceled
@@ -193,7 +219,11 @@ export default function HistoryList({
                             handlePageChange={handlePageChange}
                         />
                     )}
-                    <SearchBar onChangeValue={setSearchItem} name="Search History" placeholder="Search by borrower name" />
+                    <SearchBar
+                        onChangeValue={setSearchItem}
+                        name="Search History"
+                        placeholder="Search by borrower name"
+                    />
                 </div>
 
                 {/* Table */}
@@ -240,7 +270,11 @@ export default function HistoryList({
                 </div>
 
                 <p className="mt-6 text-sm text-center text-[#64748b]">
-                    <span className="font-semibold">Description:</span> Each row represents one history event. <em>Event Date</em> shows when it occurred. <em>Condition</em> is the item state reported at that time. <em>Status</em> reflects the latest known state for that borrow record.
+                    <span className="font-semibold">Description:</span> Each row
+                    represents one history event. <em>Event Date</em> shows when it
+                    occurred. <em>Condition</em> is the item state reported at that time.{" "}
+                    <em>Status</em> reflects the latest known state for that borrow
+                    record.
                 </p>
             </div>
         </div>
