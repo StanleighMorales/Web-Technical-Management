@@ -5,7 +5,8 @@ import { FaEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa6";
 import logo from "../assets/aclcLogo.webp";
 import type { TLoginUser } from "../types/types";
-import { usePostLoginMutation } from "../query/post/userPostLoginMutation";
+// import { usePostLoginMutation } from "../query/post/userPostLoginMutation";
+import { useLogin } from "../hooks/auth/useLogin";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ export default function Login() {
     password: "",
   });
 
-  const { mutate, isPending, error, isError } = usePostLoginMutation();
+  const { mutate, isPending, error, isError } = useLogin();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -66,7 +67,12 @@ export default function Login() {
     <>
       <div className="relative w-full min-h-screen bg-blue-600 lg:py-4">
         <div className="animate-fadeIn w-full mb-0 flex justify-center lg:justify-start ">
-          <a href="https://www.facebook.com/aclcmandaueph" className="ml-[4%] mt-[2%]" target="_blank" title="Go to ACLC Page">
+          <a
+            href="https://www.facebook.com/aclcmandaueph"
+            className="ml-[4%] mt-[2%]"
+            target="_blank"
+            title="Go to ACLC Page"
+          >
             <img
               src={logo}
               alt="Logo"
@@ -81,8 +87,8 @@ export default function Login() {
             </h1>
           </div>
           <p className="text-lg text-center lg:text-left text-white/75">
-            Managing resources, while tracking
-            items and borrowers. Ensures smooth lifecycle management.
+            Managing resources, while tracking items and borrowers. Ensures
+            smooth lifecycle management.
           </p>
         </div>
         <div className="animate-fadeIn absolute top-0 right-0 w-[35%] h-screen bg-white flex flex-col justify-center items-center animate-fade-in max-lg:w-full max-lg:ml-0 max-lg:relative max-lg:min-h-[60vh] max-sm:w-full max-sm:ml-0 max-sm:relative max-sm:min-h-[60vh] max-sm:py-4 max-sm:px-2">
@@ -105,8 +111,9 @@ export default function Login() {
           >
             <div className="flex relative flex-col">
               <input
-                className={`w-[400px] h-[55px] rounded-md outline-none border mb-8 border-black/34 bg-white/78 pl-4 text-base hover:bg-white/93 focus:bg-white/93 max-lg:w-[90vw] max-lg:max-w-[98%] max-lg:min-w-[220px] max-sm:w-[98vw] max-sm:max-w-full max-sm:min-w-[120px] max-sm:text-base ${usernameError ? "border-2 border-red-500" : ""
-                  } ${Error && error instanceof Error && "border-2 border-red-500"}`}
+                className={`w-[400px] h-[55px] rounded-md outline-none border mb-8 border-black/34 bg-white/78 pl-4 text-base hover:bg-white/93 focus:bg-white/93 max-lg:w-[90vw] max-lg:max-w-[98%] max-lg:min-w-[220px] max-sm:w-[98vw] max-sm:max-w-full max-sm:min-w-[120px] max-sm:text-base ${
+                  usernameError ? "border-2 border-red-500" : ""
+                } ${Error && error instanceof Error && "border-2 border-red-500"}`}
                 autoFocus
                 type="text"
                 name="identifier"
