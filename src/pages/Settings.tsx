@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { useUserQuery } from "../query/get/useUserQuery";
+import { useLoggedInUser } from "../hooks/user/useLoggedInUser";
 import { FaUser, FaClock, FaPhone } from "react-icons/fa6";
 import { CiSettings } from "react-icons/ci";
 import { MdOutlineEmail } from "react-icons/md";
@@ -16,7 +16,7 @@ export default function Settings() {
     const [showChangePassword, setShowChangePassword] = useState(false);
     const [showEditProfile, setShowEditProfile] = useState(false);
     const [user, setUser] = useState<TUsers | null>(null);
-    const { data, isLoading, isError } = useQuery(useUserQuery());
+    const { data, isLoading, isError } = useQuery(useLoggedInUser());
 
     useEffect(() => {
         if (data) {
