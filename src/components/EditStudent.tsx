@@ -1,32 +1,9 @@
 import React, { useState } from "react";
 import CloseButton from "./CloseButton";
 import type { TStudent } from "../types/types";
-import { usePatchStudentMutation } from "../query/patch/usePatchStudentMutation";
+import { useUpdateStudent } from "../hooks/user/useUpdateStudent";
+import type { TUpdateStudent } from "../types/types";
 import { SuccessAlert } from "./SuccessAlert";
-
-type EditStudentProps = {
-    frontStudentIdPicture: null,
-    backStudentIdPicture: null,
-    studentIdNumber: string,
-    phoneNumber: string,
-    course: string,
-    section: string,
-    year: string,
-    profilePicture: null,
-    street: string,
-    cityMunicipality: string,
-    province: string,
-    postalCode: string,
-    id: string,
-    username: string,
-    email: string,
-    userRole: string,
-    status: string,
-    lastName: string,
-    middleName: string,
-    firstName: string
-    onClose: () => void;
-};
 
 export const EditStudent = ({
     id,
@@ -46,8 +23,8 @@ export const EditStudent = ({
     email,
     userRole,
     status,
-    onClose
-}: EditStudentProps) => {
+    onClose,
+}: TUpdateStudent) => {
     const [firstnameError, setFirstnameError] = useState<string>("");
     const [lastnameError, setLastnameError] = useState<string>("");
     const [middlenameError, setMiddlenameError] = useState<string>("");
@@ -63,7 +40,7 @@ export const EditStudent = ({
     const [provinceError, setProvinceError] = useState<string>("");
     const [postalCodeError, setPostalCodeError] = useState<string>("");
     const [showAlert, setShowAlert] = useState<boolean>(false);
-    const { mutate } = usePatchStudentMutation();
+    const { mutate } = useUpdateStudent();
 
     const [formData, setFormData] = useState<TStudent>({
         frontStudentIdPicture: null,
@@ -85,12 +62,10 @@ export const EditStudent = ({
         status: status,
         lastName: lastName,
         middleName: middleName,
-        firstName: firstName
+        firstName: firstName,
     });
 
-    const handleInputChange = (
-        e: React.ChangeEvent<HTMLInputElement>
-    ) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
@@ -116,40 +91,44 @@ export const EditStudent = ({
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        const updatedStudent = {
-            firstName: formData.firstName,
-            middleName: formData.middleName,
-            lastName: formData.lastName,
+        const updatedStudent: Omit<TUpdateStudent, "onClose"> = {
+            frontStudentIdPicture: formData.frontStudentIdPicture,
+            backStudentIdPicture: formData.backStudentIdPicture,
             studentIdNumber: formData.studentIdNumber,
+            phoneNumber: formData.phoneNumber,
             course: formData.course,
             section: formData.section,
             year: formData.year,
-            phoneNumber: formData.phoneNumber,
+            profilePicture: formData.profilePicture,
             street: formData.street,
             cityMunicipality: formData.cityMunicipality,
             province: formData.province,
             postalCode: formData.postalCode,
+            id: formData.id,
             username: formData.username,
             email: formData.email,
             userRole: formData.userRole,
             status: formData.status,
-            frontStudentIdPicture: formData.frontStudentIdPicture,
-            backStudentIdPicture: formData.backStudentIdPicture,
-            profilePicture: formData.profilePicture
-        }
+            lastName: formData.lastName,
+            middleName: formData.middleName,
+            firstName: formData.firstName,
+        };
 
-        mutate({ id, formData: updatedStudent }, {
-            onSuccess: () => {
-                setShowAlert(true);
-                setTimeout(() => {
-                    setShowAlert(false);
-                    onClose();
-                }, 1500);
+        mutate(
+            { id: formData.id, data: updatedStudent },
+            {
+                onSuccess: () => {
+                    setShowAlert(true);
+                    setTimeout(() => {
+                        setShowAlert(false);
+                        onClose();
+                    }, 1500);
+                },
+                onError: (error) => {
+                    console.log(error.message);
+                },
             },
-            onError: (error) => {
-                console.log(error.message);
-            }
-        });
+        );
     };
 
     return (
@@ -327,7 +306,9 @@ export const EditStudent = ({
 
                     {/* Contact Information Section */}
                     <div className="pt-6 border-t">
-                        <h3 className="mb-4 text-xl font-bold text-[#1e293b]">Contact Information</h3>
+                        <h3 className="mb-4 text-xl font-bold text-[#1e293b]">
+                            Contact Information
+                        </h3>
                         <div className="flex flex-col gap-4 md:flex-row">
                             <div className="flex-1">
                                 <label
@@ -400,7 +381,9 @@ export const EditStudent = ({
 
                     {/* Address Section */}
                     <div className="pt-6 border-t">
-                        <h3 className="mb-4 text-xl font-bold text-[#1e293b]">Address Information</h3>
+                        <h3 className="mb-4 text-xl font-bold text-[#1e293b]">
+                            Address Information
+                        </h3>
                         <div className="flex flex-col gap-4 md:flex-row">
                             <div className="flex-1">
                                 <label
