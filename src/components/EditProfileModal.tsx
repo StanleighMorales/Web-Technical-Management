@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { FaUser, FaPhone } from "react-icons/fa6";
 import { MdOutlineEmail } from "react-icons/md";
-import { usePatchUserMutation } from "../query/patch/usePatchUserMutation";
 import { SuccessAlert } from "./SuccessAlert";
 import { ErrorAlert } from "./ErrorAlert";
+import { useUpdateUser } from "../hooks/user/useUpdateUser";
 
 export type EditableUser = {
     id?: string | null;
@@ -33,7 +33,7 @@ export default function EditProfileModal({
     const [errorMessage, setErrorMessage] = useState("");
     const [values, setValues] = useState<EditableUser>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { mutate } = usePatchUserMutation();
+    const { mutate } = useUpdateUser();
 
     useEffect(() => {
         setValues({
@@ -44,7 +44,7 @@ export default function EditProfileModal({
             username: initialValues.username ?? "",
             email: initialValues.email ?? "",
             phoneNumber: initialValues.phoneNumber ?? "",
-            position: initialValues.position ?? ""
+            position: initialValues.position ?? "",
         });
     }, [initialValues]);
 
@@ -78,7 +78,7 @@ export default function EditProfileModal({
         };
         try {
             mutate(
-                { id: values.id ?? "", formData: PatchUserProps },
+                { id: values.id ?? "", data: PatchUserProps },
                 {
                     onSuccess: () => {
                         onSubmit?.(values);
@@ -232,9 +232,13 @@ export default function EditProfileModal({
                             value={values.position ?? ""}
                             onChange={(e) => update("position", e.target.value)}
                         >
-                            {["Intern", "Full-Time", "Part-Time", "Head-Staff"].map((opt, index) => (
-                                <option key={index} value={opt}>{opt}</option>
-                            ))}
+                            {["Intern", "Full-Time", "Part-Time", "Head-Staff"].map(
+                                (opt, index) => (
+                                    <option key={index} value={opt}>
+                                        {opt}
+                                    </option>
+                                ),
+                            )}
                         </select>
                     </div>
                     <div className="flex gap-3 justify-end pt-2 md:col-span-2">
