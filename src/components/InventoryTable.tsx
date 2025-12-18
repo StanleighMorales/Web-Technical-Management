@@ -1,6 +1,7 @@
 import type { FC } from "react";
-import { useState } from "react";
+import { Activity, useState } from "react";
 import { IoArchive } from "react-icons/io5";
+import { useArchiveItem } from "../hooks/item/useArchiveItem";
 import box from "../assets/box.webp";
 import { FormattedDateTime } from "./FormattedDateTime";
 import { SlugCondition } from "./SlugCondition";
@@ -8,107 +9,223 @@ import { SlugStatus } from "./SlugStatus";
 import { UserData } from "../utils/usersData/userData";
 import PopUpModal from "./PopUpModal";
 import { useNavigate } from "react-router-dom";
+import type { TItemList } from "../types/types";
+import {
+    useReactTable,
+    getCoreRowModel,
+    createColumnHelper,
+} from "@tanstack/react-table";
 
-type checkIfUserAdminProps = {
-    userRole?: string;
-    onHandleArchiveItem: () => void;
-};
+import { SuccessAlert } from "../components/SuccessAlert";
+import { ErrorAlert } from "../components/ErrorAlert";
 
 type InventoryTableProps = {
-    id?: string;
-    createdAt: string;
-    ItemName: string;
-    SerialNumber: string;
-    Image: string | File;
-    ItemType: string;
-    Category: string;
-    Condition: string;
-    Status: string;
-    onMutate: (value: string) => void;
+    item: TItemList[];
+    ShowAlert: boolean;
+    ShowMessage: string;
+    ShowAlertSuccess: boolean;
+    ShowAlertFailed: boolean;
 };
 
-export const InventoryTable: FC<Required<InventoryTableProps>> = (props) => {
+type ShowButtonIfUserAdminProps = {
+    userRole?: string;
+    onHandleArchive: () => void;
+};
+
+const ShowButtonIfUserAdmin: FC<ShowButtonIfUserAdminProps> = ({
+    userRole,
+    onHandleArchive,
+}) => {
+    if (userRole !== "Admin" && userRole !== "SuperAdmin") return null;
+    return (
+        <button
+            onClick={(e) => {
+                e.stopPropagation();
+                onHandleArchive();
+            }}
+            title="Archive item"
+            className="text-2xl text-orange-600 transition-colors cursor-pointer hover:text-orange-700"
+        >
+            <IoArchive />
+        </button>
+    );
+};
+
+export const InventoryTable = ({
+    item,
+    ShowAlert,
+    ShowMessage,
+    ShowAlertSuccess,
+    ShowAlertFailed,
+}: InventoryTableProps) => {
     const navigate = useNavigate();
-    const [isConfirmOpen, setIsConfirmOpen] = useState<boolean>(false);
+    const [showAlert] = useState<boolean>(ShowAlert);
+    const [showMessage, setShowMessage] = useState<string>(ShowMessage);
+    const [showAlertSuccess, setShowAlertSuccess] =
+        useState<boolean>(ShowAlertSuccess);
+    const [showAlertFailed, setShowAlertFailed] =
+        useState<boolean>(ShowAlertFailed);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+
     const data = UserData();
     const userRole = data.userRole;
 
-    const handleArchiveItem = () => {
+    const { mutate } = useArchiveItem();
+
+    const handleArchive = (id: string) => {
+        setSelectedItemId(id);
         setIsConfirmOpen(true);
     };
 
     const handleConfirmArchive = () => {
-        props.onMutate(props.id!);
+        if (selectedItemId) {
+            mutate(selectedItemId, {
+                onSuccess: (data) => {
+                    setShowAlertSuccess(true);
+                    setShowMessage(data.message);
+                },
+                onError: (error) => {
+                    setShowAlertFailed(true);
+                    setShowMessage(error.message);
+                },
+            });
+            setIsConfirmOpen(false);
+        }
     };
 
     const handleCancelArchive = () => {
         setIsConfirmOpen(false);
+        setSelectedItemId(null);
     };
 
-    const ShowButtonIfUserAdmin: FC<checkIfUserAdminProps> = ({
-        userRole,
-        onHandleArchiveItem,
-    }) => {
-        if (userRole !== "Admin" && userRole !== "SuperAdmin") return null;
-        return (
-            <button
-                onClick={(e) => { e.stopPropagation(); onHandleArchiveItem() }}
-                title="Archive item"
-                className="text-2xl text-orange-600 transition-colors cursor-pointer hover:text-orange-700"
-            >
-                <IoArchive />
-            </button>
-        );
-    };
+    const columnHelper = createColumnHelper<TItemList>();
+    const columns = [
+        columnHelper.accessor("serialNumber", { header: "Serial Number" }),
+        columnHelper.accessor("image", {
+            header: "Image",
+            cell: ({ row }) => (
+                <img
+                    src={
+                        typeof row.original.image === "string" ? row.original.image : box
+                    }
+                    alt={row.original.itemName}
+                    className="w-12 h-12 object-cover rounded"
+                />
+            ),
+        }),
+        columnHelper.accessor("itemName", { header: "Item" }),
+        columnHelper.accessor("category", { header: "Category" }),
+        columnHelper.accessor("condition", {
+            header: "Condition",
+            cell: ({ row }) => {
+                const colorCondition = SlugCondition(row.original.condition);
+                return (
+                    <span className={`px-3 py-1 rounded-full text-sm ${colorCondition}`}>
+                        {row.original.condition}
+                    </span>
+                );
+            },
+        }),
+        columnHelper.accessor("createdAt", {
+            header: "DateTime",
+            cell: ({ row }) => {
+                const formattedDateTime = FormattedDateTime(row.original.createdAt);
+                return <span>{formattedDateTime}</span>;
+            },
+        }),
+        columnHelper.accessor("status", {
+            header: "Status",
+            cell: ({ row }) => {
+                const colorClass = SlugStatus(row.original.status);
+                return (
+                    <span className={`px-3 py-1 rounded-full text-sm ${colorClass}`}>
+                        {row.original.status}
+                    </span>
+                );
+            },
+        }),
+        columnHelper.display({
+            id: "action",
+            header: "Action",
+            cell: ({ row }) => (
+                <ShowButtonIfUserAdmin
+                    userRole={userRole}
+                    onHandleArchive={() => handleArchive(row.original.id)}
+                />
+            ),
+        }),
+    ];
+
+    const table = useReactTable({
+        data: item,
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+    });
 
     return (
         <>
-            <tr onClick={() => navigate(`/item/${props.id}`)}
-                className="transition-colors cursor-pointer odd:bg-white even:bg-[#f9fbff] hover:bg-[#f8fafc]">
-                <td className="py-3 px-4">{props.SerialNumber}</td>
-                <td className="py-3 px-4">
-                    <img
-                        src={typeof props.Image === "string" ? props.Image : box}
-                        alt={props.ItemName}
-                        className="w-10 h-10 rounded-xl"
-                    />
-                </td>
-                <td className="py-3 px-4">{props.ItemName}</td>
-                <td className="py-3 px-4">{props.Category}</td>
-                <td className="py-3 px-4">
-                    <span
-                        className={`px-3 py-1 rounded-full text-sm ${SlugCondition(props.Condition)}`}
-                    >
-                        {props.Condition}
-                    </span>
-                </td>
-                <td className="py-3 px-4">{FormattedDateTime(props.createdAt)}</td>
-                <td className="py-3 px-4">
-                    <span
-                        className={`px-3 py-1 rounded-full text-sm ${SlugStatus(props.Status)}`}
-                    >
-                        {props.Status}
-                    </span>
-                </td>
-                <td onClick={(e) => e.stopPropagation()} className="flex flex-row py-3 px-4">
-                    <ShowButtonIfUserAdmin
-                        userRole={userRole}
-                        onHandleArchiveItem={handleArchiveItem}
-                    />
-                </td>
-            </tr>
-            {
-                isConfirmOpen && (
-                    <PopUpModal
-                        title={"Archive Item"}
-                        label={"archive"}
-                        noun={"item"}
-                        destination={"archive"}
-                        onHandleCancelAction={handleCancelArchive}
-                        onHandleConfirmAction={handleConfirmArchive}
-                    />
-                )
-            }
+            <Activity mode={showAlert ? "visible" : "hidden"}>
+                <SuccessAlert message={showMessage} />
+            </Activity>
+
+            <Activity mode={showAlertSuccess ? "visible" : "hidden"}>
+                <SuccessAlert message="Excel imported successfully!" />
+            </Activity>
+
+            <Activity mode={showAlertFailed ? "visible" : "hidden"}>
+                {showAlertFailed && (
+                    <ErrorAlert message="Import failed. Please check your file format and try again." />
+                )}
+            </Activity>
+
+            <table className="w-full text-left border-collapse">
+                <thead>
+                    {table.getHeaderGroups().map((headerGroup) => (
+                        <tr
+                            key={headerGroup.id}
+                            className="sticky top-0 bg-white/90 backdrop-blur-sm"
+                        >
+                            {headerGroup.headers.map((header: any) => (
+                                <th
+                                    key={header.id}
+                                    className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]"
+                                >
+                                    {header.isPlaceholder ? null : header.column.columnDef.header}
+                                </th>
+                            ))}
+                        </tr>
+                    ))}
+                </thead>
+                <tbody>
+                    {table.getRowModel().rows.map((row) => (
+                        <tr
+                            key={row.id}
+                            onClick={() => navigate(`/item/${row.original.id}`)}
+                            className="transition-colors cursor-pointer odd:bg-white even:bg-[#f9fbff] hover:bg-[#f8fafc]"
+                        >
+                            {row.getVisibleCells().map((cell: any) => (
+                                <td className="py-3 px-4" key={cell.id}>
+                                    {cell.column.columnDef.cell
+                                        ? cell.column.columnDef.cell(cell.getContext())
+                                        : cell.renderValue()}
+                                </td>
+                            ))}
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+
+            {isConfirmOpen && (
+                <PopUpModal
+                    title="Archive item"
+                    label="archive"
+                    noun="item"
+                    destination="archive"
+                    onHandleCancelAction={handleCancelArchive}
+                    onHandleConfirmAction={handleConfirmArchive}
+                />
+            )}
         </>
     );
 };
