@@ -5,4 +5,5 @@ export const SlugCondition = (condition: string) => {
   if (condition === "Defective") return "bg-blue-100 text-blue-700";
   if (condition === "Refurbished") return "bg-gray-100 text-gray-700";
   if (condition === "NeedRepair") return "bg-red-100 text-red-700";
+  return condition;
 };
