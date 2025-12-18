@@ -1,15 +1,11 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
-import { AddTeacher } from "./AddTeacher";
-import { AddStudent } from "./AddStudent";
+import type { TStudent, TTeacher } from "../types/types";
 import { EditTeacher } from "./EditTeacher";
 import { EditStudent } from "./EditStudent";
 import SearchBar from "./SearchBar";
-import type { TStudent, TTeacher } from "../types/types";
 import { useQuery } from "@tanstack/react-query";
-import { useAllStudentsQuery } from "../query/get/useAllStudentsQuery";
-import { useAllTeachersQuery } from "../query/get/useAllTeachersQuery";
-import { useArchiveStudentMutation } from "../query/delete/useArchiveStudentMutation";
-import { useArchiveTeacherMutation } from "../query/delete/useArchiveTeacherMutation";
+import { useArchiveUser } from "../hooks/user/useArchiveUser.ts";
+import { useAllUsers } from "../hooks/user/useAllUsers.ts";
 import { StudentTable } from "./StudentTable";
 import TeacherTable from "./TeacherTable";
 import ViewStudentCredentials from "./ViewStudentCredentials";
@@ -23,8 +19,6 @@ import ExcelImportUserButton from "./ExcelImportUserButton.tsx";
 export default function RegistrationModule() {
     const [ShowAlert, setShowAlert] = useState<boolean>(false);
     const [showMessage, setShowMessage] = useState<string>("");
-    const [isAddTeacherOpen, setIsAddTeacherOpen] = useState<boolean>(false);
-    const [isAddStudentOpen, setIsAddStudentOpen] = useState<boolean>(false);
     const [isEditTeacherOpen, setIsEditTeacherOpen] = useState<boolean>(false);
     const [isEditStudentOpen, setIsEditStudentOpen] = useState<boolean>(false);
     const [isViewStudentOpen, setIsViewStudentOpen] = useState<boolean>(false);
@@ -47,19 +41,17 @@ export default function RegistrationModule() {
     const handleViewTeacherCredentials = (id: string) => {
         setViewTeacherId(id);
         setIsViewTeacherOpen(true);
-    }
+    };
     const handleViewStudentCredentials = (id: string) => {
         setViewStudentId(id);
         setIsViewStudentOpen(true);
-    }
-    const { data: studentsData, isError: isStudentStudentIsError } = useQuery(
-        useAllStudentsQuery()
-    );
-    const { data: teachersData, isError: isTeacherDataIsError } = useQuery(
-        useAllTeachersQuery()
-    );
-    const { mutate: archiveStudent } = useArchiveStudentMutation();
-    const { mutate: archiveTeacher } = useArchiveTeacherMutation();
+    };
+    const { data: studentsData, isError: isStudentStudentIsError } =
+        useQuery(useAllUsers());
+    const { data: teachersData, isError: isTeacherDataIsError } =
+        useQuery(useAllUsers());
+    const { mutate: archiveStudent } = useArchiveUser();
+    const { mutate: archiveTeacher } = useArchiveUser();
 
     const selectedViewStudent = useMemo(() => {
         return students.find((s) => s.id === viewStudentId);
@@ -111,7 +103,7 @@ export default function RegistrationModule() {
                             .includes(searchUser.toLowerCase()) ||
                         String(student.year || "")
                             .toLowerCase()
-                            .includes(searchUser.toLowerCase())
+                            .includes(searchUser.toLowerCase()),
                 );
             }
         }
@@ -132,7 +124,7 @@ export default function RegistrationModule() {
                         teacher.lastName.toLowerCase().includes(searchUser.toLowerCase()) ||
                         String(teacher.department || "")
                             .toLowerCase()
-                            .includes(searchUser.toLowerCase())
+                            .includes(searchUser.toLowerCase()),
                 );
             }
         }
@@ -218,8 +210,8 @@ export default function RegistrationModule() {
                             <button
                                 onClick={() => setSelectedRole("Teacher")}
                                 className={`px-4 py-2 rounded-lg font-medium transition-all duration-150 ${selectedRole === "Teacher"
-                                    ? "bg-blue-500 text-white shadow-md"
-                                    : "bg-[#f1f5f9] text-gray-500 border-2 border-white/30 hover:border-[#2563eb] hover:text-[#2563eb]"
+                                        ? "bg-blue-500 text-white shadow-md"
+                                        : "bg-[#f1f5f9] text-gray-500 border-2 border-white/30 hover:border-[#2563eb] hover:text-[#2563eb]"
                                     }`}
                             >
                                 Teachers
@@ -227,8 +219,8 @@ export default function RegistrationModule() {
                             <button
                                 onClick={() => setSelectedRole("Student")}
                                 className={`px-4 py-2 rounded-lg font-medium transition-all duration-150 ${selectedRole === "Student"
-                                    ? "bg-blue-500 text-white shadow-md"
-                                    : "bg-[#f1f5f9] text-gray-500 border-2 border-white/30 hover:border-[#2563eb] hover:text-[#2563eb]"
+                                        ? "bg-blue-500 text-white shadow-md"
+                                        : "bg-[#f1f5f9] text-gray-500 border-2 border-white/30 hover:border-[#2563eb] hover:text-[#2563eb]"
                                     }`}
                             >
                                 Students
@@ -243,7 +235,11 @@ export default function RegistrationModule() {
                             <div>
                                 <SearchBar
                                     onChangeValue={setSearchUser}
-                                    placeholder={selectedRole === "Student" ? "Search by name, ID, course, section, or year" : "Search by name or department"}
+                                    placeholder={
+                                        selectedRole === "Student"
+                                            ? "Search by name, ID, course, section, or year"
+                                            : "Search by name or department"
+                                    }
                                 />
                             </div>
                         </div>
@@ -289,10 +285,10 @@ export default function RegistrationModule() {
                                 (
                                 {selectedRole === "Student"
                                     ? filteredStudents.filter(
-                                        (student) => student.userRole === "Student"
+                                        (student) => student.userRole === "Student",
                                     ).length
                                     : filteredTeachers.filter(
-                                        (teacher) => teacher.userRole === "Teacher"
+                                        (teacher) => teacher.userRole === "Teacher",
                                     ).length}{" "}
                                 {selectedRole === "Student"
                                     ? filteredStudents.length === 1
@@ -325,7 +321,9 @@ export default function RegistrationModule() {
                             </div>
                         ) : (
                             <div className="overflow-x-auto h-[22rem]">
-                                {isStudentStudentIsError ? <ErrorTable /> : (
+                                {isStudentStudentIsError ? (
+                                    <ErrorTable />
+                                ) : (
                                     <table className="w-full">
                                         <thead className="bg-[#f8fafc]">
                                             <tr>
@@ -358,7 +356,9 @@ export default function RegistrationModule() {
                                                 .map((student) => (
                                                     <tr
                                                         key={student.id}
-                                                        onClick={() => handleViewStudentCredentials(student.id)}
+                                                        onClick={() =>
+                                                            handleViewStudentCredentials(student.id)
+                                                        }
                                                         className="transition-colors odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9]"
                                                     >
                                                         <StudentTable
@@ -375,7 +375,9 @@ export default function RegistrationModule() {
                                                             onSetIsEditStudentOpen={() =>
                                                                 setIsEditStudentOpen(true)
                                                             }
-                                                            onSetEditUserId={() => setEditStudentId(student.id)}
+                                                            onSetEditUserId={() =>
+                                                                setEditStudentId(student.id)
+                                                            }
                                                             onMutate={() => handleRestoreStudent(student.id)}
                                                         />
                                                     </tr>
@@ -435,7 +437,9 @@ export default function RegistrationModule() {
                                             .map((teacher) => (
                                                 <tr
                                                     key={teacher.id}
-                                                    onClick={() => handleViewTeacherCredentials(teacher.id)}
+                                                    onClick={() =>
+                                                        handleViewTeacherCredentials(teacher.id)
+                                                    }
                                                     className="transition-colors odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9]"
                                                 >
                                                     <TeacherTable
@@ -490,12 +494,6 @@ export default function RegistrationModule() {
                     onHandleCancelAction={handleCancelArchiveTeacher}
                     onHandleConfirmAction={handleConfirmArchiveTeacher}
                 />
-            )}
-            {isAddTeacherOpen && (
-                <AddTeacher onClose={() => setIsAddTeacherOpen(false)} />
-            )}
-            {isAddStudentOpen && (
-                <AddStudent onClose={() => setIsAddStudentOpen(false)} />
             )}
             {isViewStudentOpen && selectedViewStudent && (
                 <ViewStudentCredentials
