@@ -9,8 +9,16 @@ import {
     MdQrCode,
     MdArchive,
 } from "react-icons/md";
-import { FaBox, FaTag, FaCalendarAlt, FaUser, FaDoorOpen, FaCheckCircle, FaIdCard } from "react-icons/fa";
-import { useViewBorrowItemCredentials } from "../query/get/useViewBorrowItemCredentials.ts";
+import {
+    FaBox,
+    FaTag,
+    FaCalendarAlt,
+    FaUser,
+    FaDoorOpen,
+    FaCheckCircle,
+    FaIdCard,
+} from "react-icons/fa";
+import { useRecentlyBorrowItems } from "../hooks/item/useRecentlyBorrowItems.ts";
 import { FormattedDateTime } from "./FormattedDateTime.ts";
 import ErrorTable from "../components/ErrorTables.tsx";
 import { useEffect, useState } from "react";
@@ -83,13 +91,17 @@ export const LentItemDetailsModal = ({
     onProceedToScan,
 }: LentItemDetailsModalProps) => {
     const [itemData, setItemData] = useState<LentItemData | null>(null);
-    const [enlargedBarcode, setEnlargedBarcode] = useState<{ image: string; label: string; code?: string } | null>(null);
+    const [enlargedBarcode, setEnlargedBarcode] = useState<{
+        image: string;
+        label: string;
+        code?: string;
+    } | null>(null);
     const [showScanItemModal, setShowScanItemModal] = useState<boolean>(false);
     const [scannedItemBarcode, setScannedItemBarcode] = useState<string>("");
     const [scanItemError, setScanItemError] = useState<string>("");
 
     const { data, isPending, isError } = useQuery({
-        ...useViewBorrowItemCredentials(itemId),
+        ...useRecentlyBorrowItems(itemId),
         enabled: isOpen && !!itemId,
     });
 
@@ -97,14 +109,20 @@ export const LentItemDetailsModal = ({
 
     useEffect(() => {
         if (data?.data) {
-            console.log('=== LentItem Data Debug ===');
-            console.log('Full Data:', data.data);
-            console.log('Borrower Role:', data.data.borrowerRole);
-            console.log('Front Student ID Picture (direct):', data.data.frontStudentIdPicture);
-            console.log('User Object:', data.data.user);
-            console.log('User Front Student ID Picture:', data.data.user?.frontStudentIdPicture);
-            console.log('fromScan prop:', fromScan);
-            console.log('========================');
+            console.log("=== LentItem Data Debug ===");
+            console.log("Full Data:", data.data);
+            console.log("Borrower Role:", data.data.borrowerRole);
+            console.log(
+                "Front Student ID Picture (direct):",
+                data.data.frontStudentIdPicture,
+            );
+            console.log("User Object:", data.data.user);
+            console.log(
+                "User Front Student ID Picture:",
+                data.data.user?.frontStudentIdPicture,
+            );
+            console.log("fromScan prop:", fromScan);
+            console.log("========================");
             setItemData(data.data);
         }
     }, [data, fromScan]);
@@ -157,7 +175,10 @@ export const LentItemDetailsModal = ({
         }
 
         // Validate that the scanned barcode matches the item's barcode
-        if (barcode !== itemData.item.barcode && barcode !== itemData.item.serialNumber) {
+        if (
+            barcode !== itemData.item.barcode &&
+            barcode !== itemData.item.serialNumber
+        ) {
             setScanItemError("Scanned barcode does not match this item");
             return;
         }
@@ -166,7 +187,7 @@ export const LentItemDetailsModal = ({
             // Update the status to Borrowed using the lent item barcode
             await scanLentItemMutation.mutateAsync({
                 barcode: itemData.barcode || "",
-                lentItemsStatus: "Borrowed"
+                lentItemsStatus: "Borrowed",
             });
 
             // Success - close modals and trigger callback if provided
@@ -197,23 +218,39 @@ export const LentItemDetailsModal = ({
                                     <MdArchive className="text-2xl text-white" />
                                 </div>
                                 <div>
-                                    <h2 className="text-2xl font-bold text-white">Lent Item Details</h2>
-                                    <p className="text-blue-100">Complete borrowing information</p>
+                                    <h2 className="text-2xl font-bold text-white">
+                                        Lent Item Details
+                                    </h2>
+                                    <p className="text-blue-100">
+                                        Complete borrowing information
+                                    </p>
                                 </div>
                             </div>
                             <button
                                 onClick={onClose}
                                 className="p-2 text-white hover:bg-white/20 rounded-full transition-colors"
                             >
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                <svg
+                                    className="w-6 h-6"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M6 18L18 6M6 6l12 12"
+                                    />
                                 </svg>
                             </button>
                         </div>
                     </div>
 
                     {/* Content */}
-                    <div className={`overflow-y-auto p-6 space-y-6 scrollbar-none ${fromScan ? 'max-h-[calc(90vh-200px)]' : 'max-h-[calc(90vh-120px)]'}`}>
+                    <div
+                        className={`overflow-y-auto p-6 space-y-6 scrollbar-none ${fromScan ? "max-h-[calc(90vh-200px)]" : "max-h-[calc(90vh-120px)]"}`}
+                    >
                         {/* Item Information Section */}
                         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                             {/* Item Image */}
@@ -254,23 +291,56 @@ export const LentItemDetailsModal = ({
                             {/* Item Basic Info */}
                             <div className="space-y-4">
                                 <h3 className="flex items-center text-lg font-semibold text-gray-900">
-                                    <MdInventory className="mr-2 text-blue-600" /> Item Information
+                                    <MdInventory className="mr-2 text-blue-600" /> Item
+                                    Information
                                 </h3>
                                 <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-200">
                                     {[
-                                        { icon: <FaBox />, label: "Item Name", value: itemData.item.itemName },
-                                        { icon: <MdCode />, label: "Serial Number", value: itemData.item.serialNumber },
-                                        { icon: <MdCategory />, label: "Category", value: itemData.item.category },
-                                        { icon: <MdBuild />, label: "Type", value: itemData.item.itemType },
-                                        { icon: <FaTag />, label: "Model", value: itemData.item.itemModel },
-                                        { icon: <MdBuild />, label: "Make", value: itemData.item.itemMake },
-                                        { icon: <FaCheckCircle />, label: "Condition", value: itemData.item.condition },
+                                        {
+                                            icon: <FaBox />,
+                                            label: "Item Name",
+                                            value: itemData.item.itemName,
+                                        },
+                                        {
+                                            icon: <MdCode />,
+                                            label: "Serial Number",
+                                            value: itemData.item.serialNumber,
+                                        },
+                                        {
+                                            icon: <MdCategory />,
+                                            label: "Category",
+                                            value: itemData.item.category,
+                                        },
+                                        {
+                                            icon: <MdBuild />,
+                                            label: "Type",
+                                            value: itemData.item.itemType,
+                                        },
+                                        {
+                                            icon: <FaTag />,
+                                            label: "Model",
+                                            value: itemData.item.itemModel,
+                                        },
+                                        {
+                                            icon: <MdBuild />,
+                                            label: "Make",
+                                            value: itemData.item.itemMake,
+                                        },
+                                        {
+                                            icon: <FaCheckCircle />,
+                                            label: "Condition",
+                                            value: itemData.item.condition,
+                                        },
                                     ].map(({ icon, label, value }, i) => (
                                         <div key={i} className="flex items-center space-x-3">
                                             <span className="text-lg text-blue-600">{icon}</span>
                                             <div className="flex-1">
-                                                <p className="text-xs text-gray-500 uppercase tracking-wide">{label}</p>
-                                                <p className="font-semibold text-gray-900">{value || "N/A"}</p>
+                                                <p className="text-xs text-gray-500 uppercase tracking-wide">
+                                                    {label}
+                                                </p>
+                                                <p className="font-semibold text-gray-900">
+                                                    {value || "N/A"}
+                                                </p>
                                             </div>
                                         </div>
                                     ))}
@@ -285,15 +355,18 @@ export const LentItemDetailsModal = ({
                                 <div className="grid grid-cols-1 gap-4">
                                     {/* Item Barcode */}
                                     <button
-                                        onClick={() => itemData.item.barcodeImage && setEnlargedBarcode({
-                                            image: itemData.item.barcodeImage,
-                                            label: "Item Barcode",
-                                            code: itemData.item.barcode || undefined
-                                        })}
+                                        onClick={() =>
+                                            itemData.item.barcodeImage &&
+                                            setEnlargedBarcode({
+                                                image: itemData.item.barcodeImage,
+                                                label: "Item Barcode",
+                                                code: itemData.item.barcode || undefined,
+                                            })
+                                        }
                                         disabled={!itemData.item.barcodeImage}
                                         className={`bg-gray-50 rounded-lg border border-gray-200 p-3 w-full transition-all ${itemData.item.barcodeImage
-                                            ? 'hover:bg-blue-50 hover:border-blue-300 cursor-pointer'
-                                            : 'cursor-not-allowed'
+                                                ? "hover:bg-blue-50 hover:border-blue-300 cursor-pointer"
+                                                : "cursor-not-allowed"
                                             }`}
                                     >
                                         <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-2 text-center">
@@ -319,9 +392,13 @@ export const LentItemDetailsModal = ({
                                                         }}
                                                     />
                                                     {itemData.item.barcode && (
-                                                        <p className="text-xs text-gray-600 font-mono mt-2">{itemData.item.barcode}</p>
+                                                        <p className="text-xs text-gray-600 font-mono mt-2">
+                                                            {itemData.item.barcode}
+                                                        </p>
                                                     )}
-                                                    <p className="text-xs text-blue-600 mt-2">Click to enlarge for scanning</p>
+                                                    <p className="text-xs text-blue-600 mt-2">
+                                                        Click to enlarge for scanning
+                                                    </p>
                                                 </>
                                             ) : (
                                                 <div className="text-center text-gray-400 py-4">
@@ -333,15 +410,18 @@ export const LentItemDetailsModal = ({
 
                                     {/* Lent Item Generated Code */}
                                     <button
-                                        onClick={() => itemData.barcodeImage && setEnlargedBarcode({
-                                            image: itemData.barcodeImage,
-                                            label: "Lent Item Generated Code",
-                                            code: itemData.barcode || undefined
-                                        })}
+                                        onClick={() =>
+                                            itemData.barcodeImage &&
+                                            setEnlargedBarcode({
+                                                image: itemData.barcodeImage,
+                                                label: "Lent Item Generated Code",
+                                                code: itemData.barcode || undefined,
+                                            })
+                                        }
                                         disabled={!itemData.barcodeImage}
                                         className={`bg-gray-50 rounded-lg border border-gray-200 p-3 w-full transition-all ${itemData.barcodeImage
-                                            ? 'hover:bg-blue-50 hover:border-blue-300 cursor-pointer'
-                                            : 'cursor-not-allowed'
+                                                ? "hover:bg-blue-50 hover:border-blue-300 cursor-pointer"
+                                                : "cursor-not-allowed"
                                             }`}
                                     >
                                         <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-2 text-center">
@@ -367,9 +447,13 @@ export const LentItemDetailsModal = ({
                                                         }}
                                                     />
                                                     {itemData.barcode && (
-                                                        <p className="text-xs text-gray-600 font-mono mt-2">{itemData.barcode}</p>
+                                                        <p className="text-xs text-gray-600 font-mono mt-2">
+                                                            {itemData.barcode}
+                                                        </p>
                                                     )}
-                                                    <p className="text-xs text-blue-600 mt-2">Click to enlarge for scanning</p>
+                                                    <p className="text-xs text-blue-600 mt-2">
+                                                        Click to enlarge for scanning
+                                                    </p>
                                                 </>
                                             ) : (
                                                 <div className="text-center text-gray-400 py-4">
@@ -402,19 +486,60 @@ export const LentItemDetailsModal = ({
                                 {/* Borrower Details */}
                                 <div className="lg:col-span-2 grid grid-cols-1 gap-4 md:grid-cols-2">
                                     {[
-                                        { icon: <FaUser />, label: "Borrower Name", value: itemData.borrowerFullName },
-                                        { icon: <FaTag />, label: "Role", value: itemData.borrowerRole },
-                                        { icon: <FaUser />, label: "Teacher", value: itemData.teacherFullName || "N/A" },
-                                        { icon: <FaDoorOpen />, label: "Room", value: itemData.room || "N/A" },
-                                        { icon: <FaCalendarAlt />, label: "Subject/Schedule", value: itemData.subjectTimeSchedule || "N/A" },
-                                        { icon: <MdArchive />, label: "Status", value: itemData.status },
-                                        { icon: <FaCalendarAlt />, label: "Lent At", value: itemData.lentAt ? FormattedDateTime(itemData.lentAt) : "N/A" },
-                                        { icon: <FaCalendarAlt />, label: "Returned At", value: itemData.returnedAt ? FormattedDateTime(itemData.returnedAt) : "Not yet returned" },
+                                        {
+                                            icon: <FaUser />,
+                                            label: "Borrower Name",
+                                            value: itemData.borrowerFullName,
+                                        },
+                                        {
+                                            icon: <FaTag />,
+                                            label: "Role",
+                                            value: itemData.borrowerRole,
+                                        },
+                                        {
+                                            icon: <FaUser />,
+                                            label: "Teacher",
+                                            value: itemData.teacherFullName || "N/A",
+                                        },
+                                        {
+                                            icon: <FaDoorOpen />,
+                                            label: "Room",
+                                            value: itemData.room || "N/A",
+                                        },
+                                        {
+                                            icon: <FaCalendarAlt />,
+                                            label: "Subject/Schedule",
+                                            value: itemData.subjectTimeSchedule || "N/A",
+                                        },
+                                        {
+                                            icon: <MdArchive />,
+                                            label: "Status",
+                                            value: itemData.status,
+                                        },
+                                        {
+                                            icon: <FaCalendarAlt />,
+                                            label: "Lent At",
+                                            value: itemData.lentAt
+                                                ? FormattedDateTime(itemData.lentAt)
+                                                : "N/A",
+                                        },
+                                        {
+                                            icon: <FaCalendarAlt />,
+                                            label: "Returned At",
+                                            value: itemData.returnedAt
+                                                ? FormattedDateTime(itemData.returnedAt)
+                                                : "Not yet returned",
+                                        },
                                     ].map(({ icon, label, value }, i) => (
-                                        <div key={i} className="flex items-center space-x-3 bg-white p-3 rounded-lg shadow-sm">
+                                        <div
+                                            key={i}
+                                            className="flex items-center space-x-3 bg-white p-3 rounded-lg shadow-sm"
+                                        >
                                             <span className="text-lg text-orange-600">{icon}</span>
                                             <div className="flex-1">
-                                                <p className="text-xs text-gray-500 uppercase tracking-wide">{label}</p>
+                                                <p className="text-xs text-gray-500 uppercase tracking-wide">
+                                                    {label}
+                                                </p>
                                                 <p className="font-semibold text-gray-900">{value}</p>
                                             </div>
                                         </div>
@@ -425,12 +550,18 @@ export const LentItemDetailsModal = ({
                                 {isStudent && (
                                     <div className="bg-white p-4 rounded-lg shadow-sm">
                                         <h4 className="flex items-center font-semibold text-gray-900 mb-3">
-                                            <FaIdCard className="mr-2 text-purple-600" /> Student ID Card
+                                            <FaIdCard className="mr-2 text-purple-600" /> Student ID
+                                            Card
                                         </h4>
                                         <div className="flex justify-center items-center p-2 bg-gray-50 rounded-lg border border-gray-200 min-h-[200px]">
-                                            {(itemData.frontStudentIdPicture || itemData.user?.frontStudentIdPicture) ? (
+                                            {itemData.frontStudentIdPicture ||
+                                                itemData.user?.frontStudentIdPicture ? (
                                                 <img
-                                                    src={itemData.frontStudentIdPicture || itemData.user?.frontStudentIdPicture || ''}
+                                                    src={
+                                                        itemData.frontStudentIdPicture ||
+                                                        itemData.user?.frontStudentIdPicture ||
+                                                        ""
+                                                    }
                                                     alt="Student ID"
                                                     className="object-contain max-w-full max-h-56 rounded-lg shadow-sm"
                                                     onError={(e) => {
@@ -451,10 +582,16 @@ export const LentItemDetailsModal = ({
                                             ) : (
                                                 <div className="text-center text-gray-500 py-8">
                                                     <FaIdCard className="mx-auto mb-2 text-4xl text-gray-300" />
-                                                    <p className="text-sm">Student ID image not available</p>
+                                                    <p className="text-sm">
+                                                        Student ID image not available
+                                                    </p>
                                                     <p className="text-xs text-gray-400 mt-1">
-                                                        Direct: {itemData.frontStudentIdPicture ? 'Yes' : 'No'} |
-                                                        User: {itemData.user?.frontStudentIdPicture ? 'Yes' : 'No'}
+                                                        Direct:{" "}
+                                                        {itemData.frontStudentIdPicture ? "Yes" : "No"} |
+                                                        User:{" "}
+                                                        {itemData.user?.frontStudentIdPicture
+                                                            ? "Yes"
+                                                            : "No"}
                                                     </p>
                                                 </div>
                                             )}
@@ -466,7 +603,9 @@ export const LentItemDetailsModal = ({
                             {/* Remarks */}
                             {itemData.remarks && (
                                 <div className="mt-4 p-3 bg-white rounded-lg shadow-sm">
-                                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Remarks</p>
+                                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                                        Remarks
+                                    </p>
                                     <p className="text-gray-700">{itemData.remarks}</p>
                                 </div>
                             )}
@@ -480,47 +619,68 @@ export const LentItemDetailsModal = ({
                                 </h3>
                                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                                     {[
-                                        { label: "Student ID", value: itemData.user.studentIdNumber },
+                                        {
+                                            label: "Student ID",
+                                            value: itemData.user.studentIdNumber,
+                                        },
                                         { label: "Email", value: itemData.user.email },
                                         { label: "Phone", value: itemData.user.phoneNumber },
                                         { label: "Course", value: itemData.user.course },
                                         { label: "Section", value: itemData.user.section },
                                         { label: "Year", value: itemData.user.year },
-                                    ].map(({ label, value }, i) => (
-                                        value && (
-                                            <div key={i} className="bg-white p-3 rounded-lg shadow-sm">
-                                                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{label}</p>
-                                                <p className="font-semibold text-gray-900">{value}</p>
-                                            </div>
-                                        )
-                                    ))}
+                                    ].map(
+                                        ({ label, value }, i) =>
+                                            value && (
+                                                <div
+                                                    key={i}
+                                                    className="bg-white p-3 rounded-lg shadow-sm"
+                                                >
+                                                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                                                        {label}
+                                                    </p>
+                                                    <p className="font-semibold text-gray-900">{value}</p>
+                                                </div>
+                                            ),
+                                    )}
                                 </div>
                             </div>
                         )}
                     </div>
 
                     {/* Footer with Proceed Button - Only show when opened from scan and status is Pending or Approved */}
-                    {fromScan && (itemData.status.toLowerCase() === 'pending' || itemData.status.toLowerCase() === 'approved') && (
-                        <div className="p-6 bg-gray-50 border-t border-gray-200">
-                            <div className="flex justify-end gap-3">
-                                <button
-                                    onClick={onClose}
-                                    className="px-6 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handleProceedClick}
-                                    className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-                                >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                    </svg>
-                                    Proceed to Scan Item
-                                </button>
+                    {fromScan &&
+                        (itemData.status.toLowerCase() === "pending" ||
+                            itemData.status.toLowerCase() === "approved") && (
+                            <div className="p-6 bg-gray-50 border-t border-gray-200">
+                                <div className="flex justify-end gap-3">
+                                    <button
+                                        onClick={onClose}
+                                        className="px-6 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleProceedClick}
+                                        className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                                    >
+                                        <svg
+                                            className="w-5 h-5"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M9 5l7 7-7 7"
+                                            />
+                                        </svg>
+                                        Proceed to Scan Item
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
                 </div>
 
                 {/* Enlarged Barcode Modal */}
@@ -534,13 +694,25 @@ export const LentItemDetailsModal = ({
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-2xl font-bold text-gray-900">{enlargedBarcode.label}</h3>
+                                <h3 className="text-2xl font-bold text-gray-900">
+                                    {enlargedBarcode.label}
+                                </h3>
                                 <button
                                     onClick={() => setEnlargedBarcode(null)}
                                     className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
                                 >
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    <svg
+                                        className="w-6 h-6"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M6 18L18 6M6 6l12 12"
+                                        />
                                     </svg>
                                 </button>
                             </div>
@@ -568,26 +740,49 @@ export const LentItemDetailsModal = ({
 
             {/* Scan Item Modal */}
             {showScanItemModal && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4" onClick={() => setShowScanItemModal(false)}>
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+                <div
+                    className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4"
+                    onClick={() => setShowScanItemModal(false)}
+                >
+                    <div
+                        className="bg-white rounded-2xl shadow-2xl max-w-md w-full"
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         <div className="border-b border-gray-200 px-6 py-4 flex justify-between items-center rounded-t-2xl">
-                            <h2 className="text-xl font-bold text-gray-900">Scan Item Barcode</h2>
+                            <h2 className="text-xl font-bold text-gray-900">
+                                Scan Item Barcode
+                            </h2>
                             <button
                                 onClick={() => setShowScanItemModal(false)}
                                 className="text-gray-400 hover:text-gray-600 transition-colors"
                             >
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                <svg
+                                    className="w-6 h-6"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M6 18L18 6M6 6l12 12"
+                                    />
                                 </svg>
                             </button>
                         </div>
                         <div className="p-6">
                             <p className="text-sm text-gray-600 mb-4">
-                                Scan the <strong>item barcode</strong> to verify and complete the process.
+                                Scan the <strong>item barcode</strong> to verify and complete
+                                the process.
                             </p>
                             <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                <p className="text-xs text-blue-800 font-medium">Expected Barcode:</p>
-                                <p className="text-sm text-blue-900 font-mono mt-1">{itemData.item.barcode || itemData.item.serialNumber}</p>
+                                <p className="text-xs text-blue-800 font-medium">
+                                    Expected Barcode:
+                                </p>
+                                <p className="text-sm text-blue-900 font-mono mt-1">
+                                    {itemData.item.barcode || itemData.item.serialNumber}
+                                </p>
                             </div>
                             <input
                                 type="text"
@@ -598,14 +793,14 @@ export const LentItemDetailsModal = ({
                                     setScanItemError("");
                                 }}
                                 onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
+                                    if (e.key === "Enter") {
                                         handleScanItemSubmit();
                                     }
                                 }}
                                 placeholder="Scan or enter item barcode"
                                 className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${scanItemError
-                                    ? 'border-red-500 focus:ring-red-500'
-                                    : 'border-gray-300 focus:ring-blue-500'
+                                        ? "border-red-500 focus:ring-red-500"
+                                        : "border-gray-300 focus:ring-blue-500"
                                     }`}
                             />
                             {scanItemError && (
@@ -623,9 +818,9 @@ export const LentItemDetailsModal = ({
                                     type="button"
                                     onClick={handleScanItemSubmit}
                                     disabled={scanLentItemMutation.isPending}
-                                    className={`flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors ${scanLentItemMutation.isPending ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    className={`flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors ${scanLentItemMutation.isPending ? "opacity-50 cursor-not-allowed" : ""}`}
                                 >
-                                    {scanLentItemMutation.isPending ? 'Processing...' : 'Confirm'}
+                                    {scanLentItemMutation.isPending ? "Processing..." : "Confirm"}
                                 </button>
                             </div>
                         </div>
