@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FiLock } from "react-icons/fi";
-import { usePatchUserPasswordMutation } from "../query/patch/usePatchUserPasswordMutation";
+import { useResetUserPassword } from "../hooks/user/useResetUserPassword";
 import type { TUpdatePassword } from "../types/types";
 
 type ChangePasswordModalProps = {
@@ -8,8 +8,11 @@ type ChangePasswordModalProps = {
     onClose: () => void;
 };
 
-export default function ChangePasswordModal({ id, onClose }: ChangePasswordModalProps) {
-    const updateUserPassword = usePatchUserPasswordMutation();
+export default function ChangePasswordModal({
+    id,
+    onClose,
+}: ChangePasswordModalProps) {
+    const updateUserPassword = useResetUserPassword();
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,32 +27,35 @@ export default function ChangePasswordModal({ id, onClose }: ChangePasswordModal
         if (!isValid) return;
 
         try {
-
             const newUserPassword: TUpdatePassword = {
                 newPassword: newPassword,
-                confirmPassword: confirmPassword
-            }
+                confirmPassword: confirmPassword,
+            };
 
             setIsSubmitting(true);
-            updateUserPassword.mutate({ id: id, formData: newUserPassword }, {
-                onSuccess: () => {
-                    setSuccessMessage("Password updated successfully.");
-                    setNewPassword("");
-                    setConfirmPassword("");
-                    setTimeout(onClose, 1000);
+            updateUserPassword.mutate(
+                { id: id, data: newUserPassword },
+                {
+                    onSuccess: () => {
+                        setSuccessMessage("Password updated successfully.");
+                        setNewPassword("");
+                        setConfirmPassword("");
+                        setTimeout(onClose, 1000);
+                    },
+                    onError: (err) => {
+                        console.log(err.message);
+                        setIsSubmitting(false);
+                    },
                 },
-                onError: (err) => {
-                    console.log(err.message);
-                    setIsSubmitting(false);
-                }
-            })
+            );
         } catch (err) {
-            const message = err instanceof Error ? err.message : "Failed to update password.";
+            const message =
+                err instanceof Error ? err.message : "Failed to update password.";
             setErrorMessage(message);
         } finally {
             setIsSubmitting(false);
         }
-    }
+    };
 
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center">
@@ -59,12 +65,16 @@ export default function ChangePasswordModal({ id, onClose }: ChangePasswordModal
                     <div className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-slate-900 text-white">
                         <FiLock />
                     </div>
-                    <h3 className="text-lg font-semibold text-slate-900">Change Password</h3>
+                    <h3 className="text-lg font-semibold text-slate-900">
+                        Change Password
+                    </h3>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-slate-700">New Password</label>
+                        <label className="block text-sm font-medium text-slate-700">
+                            New Password
+                        </label>
                         <input
                             type="password"
                             className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
@@ -77,7 +87,9 @@ export default function ChangePasswordModal({ id, onClose }: ChangePasswordModal
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700">Confirm New Password</label>
+                        <label className="block text-sm font-medium text-slate-700">
+                            Confirm New Password
+                        </label>
                         <input
                             type="password"
                             className="mt-1 w-full rounded-lg border border-slate-300 bg-white/90 px-3 py-2 text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
