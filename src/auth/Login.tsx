@@ -5,7 +5,6 @@ import { FaEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa6";
 import logo from "../assets/aclcLogo.webp";
 import type { TLoginUser } from "../types/types";
-// import { usePostLoginMutation } from "../query/post/userPostLoginMutation";
 import { useLogin } from "../hooks/auth/useLogin";
 
 export default function Login() {
@@ -81,7 +80,7 @@ export default function Login() {
           </a>
         </div>
         <div className="animate-fadeIn max-w-[1000px] mx-[4%] mt-[7%] mb-[4%] animate-fade-in max-lg:mx-[2%] max-lg:mt-[4%] max-lg:mb-[2%] max-lg:max-w-full max-sm:mx-[1%] max-sm:mt-[2%] max-sm:mb-[1%] max-sm:p-0">
-          <div className="flex max-w-2xl w-full justify-center items-center">
+          <div className="flex max-w-4xl w-full justify-center items-center">
             <h1 className="m-0 mb-4 font-bold text-center lg:text-left text-white text-[65px] drop-shadow-[0_4px_12px_rgba(0,0,0,0.45)] leading-[4.2rem] animate-fade-in max-sm:text-[2.2rem] max-sm:leading-[2.7rem]">
               Technical Equipment Borrowing System
             </h1>
