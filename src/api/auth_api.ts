@@ -18,6 +18,8 @@ export const LoginUserApi = async (data: TLoginUser) => {
 
 export const logoutUserApi = async () => {
   const response = await api.post("/api/v1/auth/logout");
-  removeToken();
+  if (response) {
+    removeToken();
+  }
   return response.data;
 };
