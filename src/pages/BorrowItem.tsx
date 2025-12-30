@@ -2,7 +2,8 @@ import React, { useState, Activity } from "react";
 import type { TItemList } from "../types/types";
 import { SuccessAlert } from "../components/SuccessAlert";
 import { ErrorAlert } from "../components/ErrorAlert";
-import { useReturnItemMutation } from "../query/patch/useReturnItemMutation";
+import { useReturmItem } from "../hooks/item/useReturnItem.ts";
+// import { useReturnItemMutation } from "../query/patch/useReturnItemMutation";
 import { getToken } from "../utils/token";
 import { FormattedDateTime } from "../components/FormattedDateTime";
 import { IoMdClose } from "react-icons/io";
@@ -302,11 +303,10 @@ const LentItemDetailsModal: React.FC<LentItemDetailsModalProps> = ({
               <button
                 onClick={handleReturn}
                 disabled={isReturning}
-                className={`flex items-center gap-2 px-6 py-3 font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg ${
-                  isReturning
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-green-600 text-white hover:bg-green-700"
-                }`}
+                className={`flex items-center gap-2 px-6 py-3 font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg ${isReturning
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-green-600 text-white hover:bg-green-700"
+                  }`}
               >
                 {isReturning ? (
                   <>
@@ -362,7 +362,7 @@ export default function BorrowItem() {
   const [showFloatingMenu, setShowFloatingMenu] = useState<boolean>(false);
   const [menuOpenedByClick, setMenuOpenedByClick] = useState<boolean>(false);
 
-  const returnItemMutation = useReturnItemMutation();
+  const returnItemMutation = useReturmItem();
 
   const handleBorrowClick = (itemId: string, itemName: string) => {
     setPrefilledItemId(itemId);
@@ -385,7 +385,7 @@ export default function BorrowItem() {
 
     try {
       // Proceed with return - backend will validate the item status
-      await returnItemMutation.mutateAsync({ barcode });
+      await returnItemMutation.mutateAsync(barcode);
 
       setShowReturnModal(false);
       setReturnBarcode("");
@@ -461,11 +461,10 @@ export default function BorrowItem() {
                   }
                 }}
                 placeholder="Scan or enter item barcode (e.g., ITEM-SN-12345)"
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${
-                  returnError
-                    ? "border-red-500 focus:ring-red-500"
-                    : "border-gray-300 focus:ring-blue-500"
-                }`}
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${returnError
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-blue-500"
+                  }`}
               />
               {returnError && (
                 <p className="text-red-500 text-sm mt-2">{returnError}</p>
@@ -484,11 +483,10 @@ export default function BorrowItem() {
                   type="button"
                   onClick={handleReturnSubmit}
                   disabled={returnItemMutation.isPending}
-                  className={`flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors ${
-                    returnItemMutation.isPending
-                      ? "opacity-50 cursor-not-allowed"
-                      : ""
-                  }`}
+                  className={`flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors ${returnItemMutation.isPending
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                    }`}
                 >
                   {returnItemMutation.isPending ? (
                     <span className="flex items-center justify-center gap-2">
@@ -541,21 +539,19 @@ export default function BorrowItem() {
         <div className="mt-4 md:mt-6 flex gap-2 bg-white/90 p-1.5 rounded-xl shadow-md">
           <button
             onClick={() => setActiveTab("form")}
-            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${
-              activeTab === "form"
-                ? "bg-blue-600 text-white shadow-md"
-                : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-            }`}
+            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === "form"
+              ? "bg-blue-600 text-white shadow-md"
+              : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+              }`}
           >
             Borrow Form
           </button>
           <button
             onClick={() => setActiveTab("browse")}
-            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${
-              activeTab === "browse"
-                ? "bg-blue-600 text-white shadow-md"
-                : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-            }`}
+            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === "browse"
+              ? "bg-blue-600 text-white shadow-md"
+              : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+              }`}
           >
             Browse Items
           </button>
@@ -630,11 +626,10 @@ export default function BorrowItem() {
                 if (scanButton) scanButton.click();
               }, 100);
             }}
-            className={`flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 py-3 overflow-hidden ${
-              showFloatingMenu
-                ? "translate-x-0 opacity-100 pointer-events-auto delay-75 pr-4 pl-3"
-                : "translate-x-full opacity-0 pointer-events-none pr-0 pl-3"
-            }`}
+            className={`flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 py-3 overflow-hidden ${showFloatingMenu
+              ? "translate-x-0 opacity-100 pointer-events-auto delay-75 pr-4 pl-3"
+              : "translate-x-full opacity-0 pointer-events-none pr-0 pl-3"
+              }`}
             style={{
               borderRadius: "9999px 0 0 9999px",
             }}
@@ -654,9 +649,8 @@ export default function BorrowItem() {
               />
             </svg>
             <span
-              className={`text-sm font-medium whitespace-nowrap transition-all duration-300 ${
-                showFloatingMenu ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"
-              }`}
+              className={`text-sm font-medium whitespace-nowrap transition-all duration-300 ${showFloatingMenu ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"
+                }`}
             >
               Scan Item
             </span>
@@ -669,11 +663,10 @@ export default function BorrowItem() {
               setShowFloatingMenu(false);
               setMenuOpenedByClick(false);
             }}
-            className={`flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 py-3 overflow-hidden ${
-              showFloatingMenu
-                ? "translate-x-0 opacity-100 pointer-events-auto delay-150 pr-4 pl-3"
-                : "translate-x-full opacity-0 pointer-events-none pr-0 pl-3"
-            }`}
+            className={`flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 py-3 overflow-hidden ${showFloatingMenu
+              ? "translate-x-0 opacity-100 pointer-events-auto delay-150 pr-4 pl-3"
+              : "translate-x-full opacity-0 pointer-events-none pr-0 pl-3"
+              }`}
             style={{
               borderRadius: "9999px 0 0 9999px",
             }}
@@ -693,9 +686,8 @@ export default function BorrowItem() {
               />
             </svg>
             <span
-              className={`text-sm font-medium whitespace-nowrap transition-all duration-300 ${
-                showFloatingMenu ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"
-              }`}
+              className={`text-sm font-medium whitespace-nowrap transition-all duration-300 ${showFloatingMenu ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"
+                }`}
             >
               Return Item
             </span>
