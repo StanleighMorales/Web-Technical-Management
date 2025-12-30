@@ -20,7 +20,8 @@ import ErrorTable from "../components/ErrorTables";
 import { SuccessAlert } from "../components/SuccessAlert";
 import { ErrorAlert } from "../components/ErrorAlert";
 import * as XLSX from "xlsx";
-import { usePostImportMutation } from "../query/post/usePostImportMutation";
+// import { usePostImportMutation } from "../query/post/usePostImportMutation";
+import { useImportItem } from "../hooks/item/useImportItem";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import SelectItemFilters from "../components/SelectItemFilters";
@@ -61,7 +62,7 @@ export default function InventoryList() {
     };
   }, [items]);
 
-  const { mutate: importItem } = usePostImportMutation();
+  const { mutate: importItem } = useImportItem();
   // this func use a useMemo to filtered item either its itemName or the Category and also for the Matches Category and return items,searchItem and selectedCategory
   const filteredItems = useMemo(
     () =>
@@ -561,8 +562,8 @@ export default function InventoryList() {
                   <button
                     onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
                     className={`flex items-center justify-center h-11.5 w-12 text-blue-600 bg-white rounded-lg transition-all duration-200 border border-gray-200 hover:shadow-sm hover:scale-100 active:scale-95 cursor-pointer ${isMoreMenuOpen
-                        ? "bg-blue-50 border-blue-300 shadow-md"
-                        : "hover:bg-gray-100"
+                      ? "bg-blue-50 border-blue-300 shadow-md"
+                      : "hover:bg-gray-100"
                       }`}
                     aria-label="More options"
                     title="More options"
