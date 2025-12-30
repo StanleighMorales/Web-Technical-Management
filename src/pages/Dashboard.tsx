@@ -6,11 +6,10 @@ import DashboardBadges from "../components/DashboardBadges";
 import ErrorTable from "../components/ErrorTables";
 import type { TRecentBorrowItemProps } from "../types/types";
 import Pagination from "../components/Pagination";
-// import { RecentBorrowedItemsTable } from "../components/RecentBorrowedItemsTable";
 import { useSummaryDataQuery } from "../query/get/useSummaryDataQuery";
 import { useRecentlyBorrowItems } from "../hooks/item/useRecentlyBorrowItems";
 import { ViewRecentBorrowItems } from "../components/ViewRecentBorrowItems";
-import { useReturnItemMutation } from "../query/patch/useReturnItemMutation";
+import { useReturmItem } from "../hooks/item/useReturnItem";
 import { SuccessAlert } from "../components/SuccessAlert";
 import { ErrorAlert } from "../components/ErrorAlert";
 import { IoMdClose } from "react-icons/io";
@@ -127,7 +126,7 @@ export default function Dashboard() {
     } = useQuery(useRecentlyBorrowItems());
 
     const { data: summaryData } = useQuery(useSummaryDataQuery());
-    const returnItemMutation = useReturnItemMutation();
+    const returnItemMutation = useReturmItem();
 
     const badges = [
         {
@@ -234,7 +233,7 @@ export default function Dashboard() {
 
         try {
             // Proceed with return - backend will validate the item status
-            await returnItemMutation.mutateAsync({ barcode });
+            await returnItemMutation.mutateAsync(barcode);
 
             setShowReturnModal(false);
             setReturnBarcode("");
@@ -390,8 +389,8 @@ export default function Dashboard() {
                                 }}
                                 placeholder="Scan or enter item barcode"
                                 className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${returnError
-                                        ? "border-red-500 focus:ring-red-500"
-                                        : "border-gray-300 focus:ring-blue-500"
+                                    ? "border-red-500 focus:ring-red-500"
+                                    : "border-gray-300 focus:ring-blue-500"
                                     }`}
                             />
                             {returnError && (
@@ -410,8 +409,8 @@ export default function Dashboard() {
                                     onClick={handleReturnSubmit}
                                     disabled={returnItemMutation.isPending}
                                     className={`flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors ${returnItemMutation.isPending
-                                            ? "opacity-50 cursor-not-allowed"
-                                            : ""
+                                        ? "opacity-50 cursor-not-allowed"
+                                        : ""
                                         }`}
                                 >
                                     {returnItemMutation.isPending
@@ -464,8 +463,8 @@ export default function Dashboard() {
                                 }}
                                 placeholder="Scan or enter lent item barcode"
                                 className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${scanError
-                                        ? "border-red-500 focus:ring-red-500"
-                                        : "border-gray-300 focus:ring-blue-500"
+                                    ? "border-red-500 focus:ring-red-500"
+                                    : "border-gray-300 focus:ring-blue-500"
                                     }`}
                             />
                             {scanError && (
