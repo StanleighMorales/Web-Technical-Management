@@ -2,8 +2,7 @@ import React, { useState, Activity } from "react";
 import type { TItemList } from "../types/types";
 import { SuccessAlert } from "../components/SuccessAlert";
 import { ErrorAlert } from "../components/ErrorAlert";
-import { useReturmItem } from "../hooks/item/useReturnItem.ts";
-// import { useReturnItemMutation } from "../query/patch/useReturnItemMutation";
+import { useReturnItem } from "../hooks/itemHooks";
 import { getToken } from "../utils/token";
 import { FormattedDateTime } from "../components/FormattedDateTime";
 import { IoMdClose } from "react-icons/io";
@@ -362,7 +361,7 @@ export default function BorrowItem() {
   const [showFloatingMenu, setShowFloatingMenu] = useState<boolean>(false);
   const [menuOpenedByClick, setMenuOpenedByClick] = useState<boolean>(false);
 
-  const returnItemMutation = useReturmItem();
+  const returnItemMutation = useReturnItem();
 
   const handleBorrowClick = (itemId: string, itemName: string) => {
     setPrefilledItemId(itemId);
