@@ -7,9 +7,9 @@ import ErrorTable from "../components/ErrorTables";
 import type { TRecentBorrowItemProps } from "../types/types";
 import Pagination from "../components/Pagination";
 import { useSummaryDataQuery } from "../query/get/useSummaryDataQuery";
-import { useRecentlyBorrowItems } from "../hooks/item/useRecentlyBorrowItems";
+import { useRecentlyBorrowItems } from "../hooks/itemHooks";
 import { ViewRecentBorrowItems } from "../components/ViewRecentBorrowItems";
-import { useReturmItem } from "../hooks/item/useReturnItem";
+import { useReturnItem } from "../hooks/itemHooks";
 import { SuccessAlert } from "../components/SuccessAlert";
 import { ErrorAlert } from "../components/ErrorAlert";
 import { IoMdClose } from "react-icons/io";
@@ -126,7 +126,7 @@ export default function Dashboard() {
     } = useQuery(useRecentlyBorrowItems());
 
     const { data: summaryData } = useQuery(useSummaryDataQuery());
-    const returnItemMutation = useReturmItem();
+    const returnItemMutation = useReturnItem();
 
     const badges = [
         {
