@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import CloseButton from "./CloseButton";
 import type { TStudent } from "../types/types";
-import { useUpdateStudent } from "../hooks/user/useUpdateStudent";
+import { useUpdateStudent } from "../hooks/userHooks";
 import type { TUpdateStudent } from "../types/types";
 import { SuccessAlert } from "./SuccessAlert";
 
