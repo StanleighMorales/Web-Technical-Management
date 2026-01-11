@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import type { TUserFormData } from "../types/types";
 import CloseButton from "./CloseButton";
-// import { usePostUserMutation } from "../query/post/usePostUserMutation";
-import { useRegisterUser } from "../hooks/user/useRegisterUser";
+import { useRegisterUser } from "../hooks/userHooks";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import { SuccessAlert } from "./SuccessAlert";
 
