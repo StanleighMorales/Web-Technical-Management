@@ -10,7 +10,7 @@ import {
     MdArchive,
 } from "react-icons/md";
 import { FaBox, FaTag, FaCalendarAlt } from "react-icons/fa";
-import { useGetArchiveItemInfo } from "../hooks/item/useGetArchiveItemInfo.ts";
+import { useGetArchiveItemInfo } from "../hooks/itemHooks";
 import { FormattedDateTime } from "./FormattedDateTime.ts";
 import ErrorTable from "../components/ErrorTables.tsx";
 import CloseButton from "./CloseButton.tsx";
