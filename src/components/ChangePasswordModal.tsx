@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FiLock } from "react-icons/fi";
-import { useResetUserPassword } from "../hooks/user/useResetUserPassword";
+import { useResetUserPassword } from "../hooks/userHooks";
 import type { TUpdatePassword } from "../types/types";
 
 type ChangePasswordModalProps = {
