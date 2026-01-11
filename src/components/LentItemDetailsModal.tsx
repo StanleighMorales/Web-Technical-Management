@@ -18,7 +18,7 @@ import {
     FaCheckCircle,
     FaIdCard,
 } from "react-icons/fa";
-import { useRecentlyBorrowItems } from "../hooks/item/useRecentlyBorrowItems.ts";
+import { useRecentlyBorrowItems } from "../hooks/itemHooks";
 import { FormattedDateTime } from "./FormattedDateTime.ts";
 import ErrorTable from "../components/ErrorTables.tsx";
 import { useEffect, useState } from "react";
