@@ -3,7 +3,7 @@ import { FaUser, FaPhone } from "react-icons/fa6";
 import { MdOutlineEmail } from "react-icons/md";
 import { SuccessAlert } from "./SuccessAlert";
 import { ErrorAlert } from "./ErrorAlert";
-import { useUpdateUser } from "../hooks/user/useUpdateUser";
+import { useUpdateUser } from "../hooks/userHooks";
 
 export type EditableUser = {
     id?: string | null;
