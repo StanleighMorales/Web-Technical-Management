@@ -10,7 +10,7 @@ import { useScanLentItemMutation } from "../query/patch/useScanLentItemMutation"
 import { SuccessAlert } from "../components/SuccessAlert";
 import { ErrorAlert } from "../components/ErrorAlert";
 import { LentItemDetailsModal } from "../components/LentItemDetailsModal";
-import { useRecentlyBorrowItems } from "../hooks/item/useRecentlyBorrowItems";
+import { useRecentlyBorrowItems } from "../hooks/itemHooks";
 
 export default function PendingReservations() {
     const [activeTab, setActiveTab] = useState<"pending" | "reservations">(
