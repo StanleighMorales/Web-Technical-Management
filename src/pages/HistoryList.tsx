@@ -6,7 +6,7 @@ import type { THistoryBorrwedItems } from "../types/types";
 import HistoryTable from "../components/HistoryTable";
 import ErrorTable from "../components/ErrorTables";
 import Pagination from "../components/Pagination";
-import { useRecentlyBorrowItems } from "../hooks/item/useRecentlyBorrowItems";
+import { useRecentlyBorrowItems } from "../hooks/itemHooks";
 type StatusTab =
     | "all"
     | "pending"
