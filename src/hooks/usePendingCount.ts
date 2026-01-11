@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useRecentlyBorrowItems } from "./item/useRecentlyBorrowItems";
+import { useRecentlyBorrowItems } from "./itemHooks";
 import type { THistoryBorrwedItems } from "../types/types";
 
 /**
