@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { useAllItems } from "../hooks/item/useAllItems";
+import { useAllItems } from "../hooks/itemHooks";
 import { useQuery } from "@tanstack/react-query";
 import type { TItemList } from "../types/types";
 import InventoryListSkeletonLoader from "../loader/InventoryListSkeletonLoader";
