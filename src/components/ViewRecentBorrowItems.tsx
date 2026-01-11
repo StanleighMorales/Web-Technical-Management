@@ -22,7 +22,7 @@ import CloseButton from "./CloseButton.tsx";
 import type { TRecentBorrowItemProps } from "../types/types.ts";
 import ErrorTable from "../components/ErrorTables.tsx";
 import { useEffect, useState } from "react";
-import { useRecentlyBorrowItems } from "../hooks/item/useRecentlyBorrowItems.ts";
+import { useRecentlyBorrowItems } from "../hooks/itemHooks";
 
 type TArchiveItemDetailsPopupProps = {
     itemId: string;
