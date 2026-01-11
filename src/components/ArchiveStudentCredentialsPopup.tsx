@@ -1,4 +1,4 @@
-import { useGetArchiveUserInfo } from "../hooks/user/useGetArchiveUserInfo";
+import { useGetArchiveUserInfo } from "../hooks/userHooks";
 import { useQuery } from "@tanstack/react-query";
 import {
     MdEmail,
