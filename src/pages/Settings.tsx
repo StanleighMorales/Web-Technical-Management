@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { useLoggedInUser } from "../hooks/user/useLoggedInUser";
+import { useLoggedInUser } from "../hooks/userHooks";
 import { FaUser, FaClock, FaPhone } from "react-icons/fa6";
 import { CiSettings } from "react-icons/ci";
 import { MdOutlineEmail } from "react-icons/md";
