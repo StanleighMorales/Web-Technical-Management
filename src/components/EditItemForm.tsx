@@ -8,10 +8,10 @@ import {
 import CloseButton from "./CloseButton";
 import type { TItemForm, TItemList } from "../types/types";
 import { useQuery } from "@tanstack/react-query";
-import { useGetItemInfo } from "../hooks/item/useGetItemInfo";
+import { useGetItemInfo } from "../hooks/itemHooks";
 import { SuccessAlert } from "./SuccessAlert";
 import { ErrorAlert } from "./ErrorAlert";
-import { useUpdateItem } from "../hooks/item/useUpdateItem";
+import { useUpdateItem } from "../hooks/itemHooks";
 
 type EditItemFormProps = {
   onClose: () => void;
