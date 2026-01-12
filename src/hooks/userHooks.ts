@@ -16,6 +16,7 @@ import {
   updateStudentApi,
   updateTeacherApi,
   updateUserApi,
+  importUser,
 } from "../api/user_api";
 
 export const useAllUsers = () => {
@@ -101,7 +102,7 @@ export const useRegisterUser = () => {
       if (error.response) console.log(error.response.data.Errors);
     },
   });
-}
+};
 
 export const useRestoreUser = () => {
   const queryClient = useQueryClient();
@@ -153,6 +154,17 @@ export const useUpdateUser = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.invalidateQueries({ queryKey: ["me"] });
+    },
+  });
+};
+
+export const useImportUser = () => {
+  const querClient = useQueryClient();
+  return useMutation({
+    mutationFn: importUser,
+    mutationKey: ["students"],
+    onSuccess: () => {
+      querClient.invalidateQueries({ queryKey: ["students"] });
     },
   });
 };
