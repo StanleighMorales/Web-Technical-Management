@@ -104,3 +104,8 @@ export const resetPasswordUser = async ({
   const response = await api.patch(`/api/v1/auth/change-password/${id}`, data);
   return response.data;
 };
+
+export const importUser = async (formData: FormData) => {
+  const response = await api.post("/api/v1/users/students/import", formData);
+  return response.data;
+};
