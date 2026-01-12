@@ -1,43 +1,43 @@
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../../auth/useAuth";
+import { Navigate } from "@tanstack/react-router";
+import { useAuth } from "../../router/auth/useAuth";
+import logo from "../../assets/aclcLogo.webp";
 import { getToken, removeToken } from "../token";
-import logo from "../../assets/aclcLogo.webp"
 
 interface RouteProps {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }
 
 export const PublicRoute = ({ children }: RouteProps) => {
-    const token = getToken()
+  const token = getToken();
 
-    if (token) {
-        return <Navigate to="/home/dashboard" replace />;
-    }
+  if (token) {
+    return <Navigate to="/home/dashboard" replace />;
+  }
 
-    return <>{children}</>;
-}
+  return <>{children}</>;
+};
 
 export const ProtectedRoute = ({ children }: RouteProps) => {
-    const { loading, isAuthenticated } = useAuth();
+  const { loading, isAuthenticated } = useAuth();
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-screen bg-white">
-                <img
-                    src={logo}
-                    alt="Aclc logo"
-                    width={100}
-                    height={150}
-                    className="animate-pulse rounded-full"
-                />
-            </div>
-        );
-    }
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-white">
+        <img
+          src={logo}
+          alt="Aclc logo"
+          width={100}
+          height={150}
+          className="animate-pulse rounded-full"
+        />
+      </div>
+    );
+  }
 
-    if (!isAuthenticated) {
-        removeToken();
-        return <Navigate to="/" replace />;
-    }
+  if (!isAuthenticated) {
+    removeToken();
+    return <Navigate to="/" replace />;
+  }
 
-    return <>{children}</>;
+  return <>{children}</>;
 };
