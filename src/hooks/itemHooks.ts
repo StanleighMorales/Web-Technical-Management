@@ -14,6 +14,7 @@ import {
   restoreItemApi,
   returnItem,
   updateItemApi,
+  summaryData,
 } from "../api/item_api";
 
 export const useAllItems = () => {
@@ -118,7 +119,7 @@ export const useImportItem = () => {
     mutationKey: ["import"],
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["items"],
+        queryKey: ["item"],
       });
     },
     onError: (error) => {
@@ -162,5 +163,12 @@ export const useReturnItem = () => {
     onError: (error) => {
       console.log(error);
     },
+  });
+};
+
+export const useSummaryData = () => {
+  return queryOptions({
+    queryFn: summaryData,
+    queryKey: ["summary"],
   });
 };
