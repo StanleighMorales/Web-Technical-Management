@@ -1,5 +1,5 @@
 import { Navigate } from "@tanstack/react-router";
-import { useAuth } from "../../router/auth/useAuth";
+import { useAuth } from "../../routes/auth/useAuth";
 import logo from "../../assets/aclcLogo.webp";
 import { getToken, removeToken } from "../token";
 
