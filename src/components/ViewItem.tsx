@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import type { TItemList } from "../types/types";
 import { useGetItemInfo } from "../hooks/itemHooks";
@@ -13,9 +13,10 @@ import { useState } from "react";
 import { EditItemForm } from "./EditItemForm";
 import { FormattedDateTime } from "./FormattedDateTime";
 import box from "../assets/box.webp";
+import { ViewItemRoute } from "../routes/__root";
 
 export default function ViewItem() {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams({ from: ViewItemRoute }) as { id: string };
   const itemId = String(id);
   const [isEditItemFormOpen, setIsEditItemFormOpen] = useState(false);
   const { data, isLoading, error } = useQuery(useGetItemInfo(itemId));
