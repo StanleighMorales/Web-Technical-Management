@@ -8,7 +8,7 @@ import { SlugCondition } from "./SlugCondition";
 import { SlugStatus } from "./SlugStatus";
 import { UserData } from "../utils/usersData/userData";
 import PopUpModal from "./PopUpModal";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@tanstack/react-router";
 import type { TItemList } from "../types/types";
 import {
     useReactTable,
@@ -201,7 +201,7 @@ export const InventoryTable = ({
                     {table.getRowModel().rows.map((row) => (
                         <tr
                             key={row.id}
-                            onClick={() => navigate(`/item/${row.original.id}`)}
+                            onClick={() => navigate({ to: "/item/$id", params: { id: row.original.id } })}
                             className="transition-colors cursor-pointer odd:bg-white even:bg-[#f9fbff] hover:bg-[#f8fafc]"
                         >
                             {row.getVisibleCells().map((cell: any) => (
