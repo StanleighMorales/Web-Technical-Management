@@ -37,7 +37,7 @@ const homeRoute = createRoute({
 
 const DashboardRoute = createRoute({
     getParentRoute: () => homeRoute,
-    path: "/dashboard",
+    path: "dashboard",
     component: Dashboard,
 });
 
