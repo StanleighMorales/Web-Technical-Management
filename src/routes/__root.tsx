@@ -13,6 +13,7 @@ import PendingReservations from "./PendingReservations";
 import Settings from "./Settings";
 import Registration from "./Registration";
 import { ProtectedRoute } from "../utils/middleware/accessAuth";
+import ViewItem from "../components/ViewItem";
 
 export const Route = createRootRoute({
     component: App,
@@ -36,14 +37,14 @@ const homeRoute = createRoute({
 
 const DashboardRoute = createRoute({
     getParentRoute: () => homeRoute,
-    path: "dashboard",
-    component: () => Dashboard,
+    path: "/dashboard",
+    component: Dashboard,
 });
 
 const InventoryListRoute = createRoute({
     getParentRoute: () => homeRoute,
     path: "inventory-list",
-    component: () => InventoryList,
+    component: InventoryList,
 });
 
 const UserManagementRoute = createRoute({
@@ -88,6 +89,12 @@ const RegistrationModuleRoute = createRoute({
     component: Registration,
 });
 
+export const ViewItemRoute = createRoute({
+    getParentRoute: ()=> homeRoute,
+    path: "/item/$id",
+    component: ViewItem
+})
+
 export const routeTree = Route.addChildren([
     indexRoute,
     homeRoute.addChildren([
@@ -100,5 +107,6 @@ export const routeTree = Route.addChildren([
         PendingReservationRoute,
         SettingsRoute,
         RegistrationModuleRoute,
+        ViewItemRoute
     ]),
 ]);
