@@ -1,5 +1,5 @@
 import Sidebar from "../components/Sidebar";
-import { Outlet } from "react-router-dom";
+import { Outlet } from "@tanstack/react-router";
 import { SidebarProvider, useSidebar } from "../context/SidebarContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -10,7 +10,6 @@ function HomeContent() {
   const { isSidebarExpanded } = useSidebar();
   const userData = UserData();
 
-  // Determine user role - only Admin and Staff receive notifications
   const isAdminOrStaff =
     userData.userRole === "Admin" || userData.userRole === "Staff";
 
