@@ -40,7 +40,7 @@ const columns = [
         src={
           typeof row.original.item.image === "string"
             ? row.original.item.image
-            : ""
+            : undefined
         }
         alt={row.original.item.itemName}
         className="w-12 h-12 object-cover rounded"
