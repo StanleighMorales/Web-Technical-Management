@@ -12,7 +12,7 @@ import BorrowItem from "./BorrowItem";
 import PendingReservations from "./PendingReservations";
 import Settings from "./Settings";
 import Registration from "./Registration";
-import { ProtectedRoute } from "../utils/middleware/accessAuth";
+import { ProtectedRoute, PublicRoute } from "../utils/middleware/accessAuth";
 import ViewItem from "../components/ViewItem";
 
 export const Route = createRootRoute({
@@ -22,7 +22,11 @@ export const Route = createRootRoute({
 const indexRoute = createRoute({
     getParentRoute: () => Route,
     path: "/",
-    component: Login,
+    component: () => (
+        <PublicRoute>
+            <Login />,
+        </PublicRoute>
+    )
 });
 
 const homeRoute = createRoute({
@@ -90,7 +94,7 @@ const RegistrationModuleRoute = createRoute({
 });
 
 export const ViewItemRoute = createRoute({
-    getParentRoute: ()=> homeRoute,
+    getParentRoute: () => homeRoute,
     path: "/item/$id",
     component: ViewItem
 })
