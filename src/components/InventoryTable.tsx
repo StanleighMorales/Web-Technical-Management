@@ -79,11 +79,17 @@ export const InventoryTable = ({
     };
 
     const handleConfirmArchive = () => {
+        setShowMessage("");
         if (selectedItemId) {
             mutate(selectedItemId, {
                 onSuccess: (data) => {
                     setShowAlertSuccess(true);
                     setShowMessage(data.message);
+
+                    setTimeout(() => {
+                        setShowAlertSuccess(false);
+                        setShowMessage("");
+                    }, 3500)
                 },
                 onError: (error) => {
                     setShowAlertFailed(true);
@@ -170,12 +176,12 @@ export const InventoryTable = ({
             </Activity>
 
             <Activity mode={showAlertSuccess ? "visible" : "hidden"}>
-                <SuccessAlert message="Excel imported successfully!" />
+                <SuccessAlert message={showMessage} />
             </Activity>
 
             <Activity mode={showAlertFailed ? "visible" : "hidden"}>
                 {showAlertFailed && (
-                    <ErrorAlert message="Import failed. Please check your file format and try again." />
+                    <ErrorAlert message={showMessage} />
                 )}
             </Activity>
 
