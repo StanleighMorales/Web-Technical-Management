@@ -1,6 +1,8 @@
 export const FormattedPhoneNumber = (phone: string): string => {
-    const digits = phone.replace(/\D/g, '');
+    const digits = phone?.replace(/\D/g, '');
 
+    if(!digits) return "";
+    
     const normalized = digits.startsWith('0') ? digits.slice(1) : digits;
 
     if (normalized.length < 10) return `+63 ${normalized}`;
