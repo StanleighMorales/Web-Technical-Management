@@ -333,3 +333,11 @@ export type TRecentBorrowItemProps = {
 };
 
 export type THistoryBorrwedItems = TRecentBorrowItemProps & {};
+
+
+export type TSummary = {
+  totalItems: number | null;
+  totalActiveUsers: number | null;
+  totalLentItems: number | null;
+  totalItemsCategories: number | null;
+}
