@@ -13,13 +13,14 @@ import { useState } from "react";
 import { EditItemForm } from "./EditItemForm";
 import { FormattedDateTime } from "./FormattedDateTime";
 import box from "../assets/box.webp";
-import { ViewItemRoute } from "../routes/__root";
 
 export default function ViewItem() {
-  const { id } = useParams({ from: ViewItemRoute }) as { id: string };
+  const { id } = useParams({ strict: false }) as { id: string };
   const itemId = String(id);
+  console.log(itemId)
   const [isEditItemFormOpen, setIsEditItemFormOpen] = useState(false);
   const { data, isLoading, error } = useQuery(useGetItemInfo(itemId));
+  console.log(data)
 
   if (isLoading) {
     return <ViewItemSkeletonLoader />;
