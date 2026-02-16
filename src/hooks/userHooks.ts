@@ -23,6 +23,7 @@ export const useAllUsers = () => {
   return queryOptions({
     queryFn: allUsersApi,
     queryKey: ["users"],
+    staleTime: 1000 * 60
   });
 };
 
@@ -30,6 +31,7 @@ export const useAllUsersArchive = () => {
   return queryOptions({
     queryFn: allUsersArchiveApi,
     queryKey: ["archiveusers"],
+    staleTime: 1000 * 60
   });
 };
 
@@ -66,6 +68,7 @@ export const useGetArchiveUserInfo = (id: string) => {
   return queryOptions({
     queryFn: () => getArchiveUserInfo(id),
     queryKey: ["ArchiveUsers", id],
+    staleTime: 1000 * 60
   });
 };
 
@@ -73,6 +76,7 @@ export const useLoggedInUser = () => {
   return queryOptions({
     queryFn: userLoggedIn,
     queryKey: ["me"],
+    staleTime: 1000 * 60
   });
 };
 
