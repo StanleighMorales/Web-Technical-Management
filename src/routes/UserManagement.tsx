@@ -1,13 +1,10 @@
-import { Activity, useCallback, useEffect, useMemo, useState } from "react";
+import { Activity, useCallback, useMemo, useState } from "react";
 import { AddUsers } from "../components/AddUser";
 import Button from "../components/Button";
 import EditUser from "../components/EditUser";
 import SearchBar from "../components/SearchBar";
-import type { TUsers } from "../types/types";
-import { useQuery } from "@tanstack/react-query";
 import { SelectUserStatus } from "../components/SelectUserStatus";
 import { UserSkeletonLoader } from "../loader/UserSkeletonLoader";
-import { useAllUsers } from "../hooks/userHooks";
 import { useArchiveUser } from "../hooks/userHooks";
 import UserTable from "../components/UserTable";
 import ErrorTable from "../components/ErrorTables";
@@ -15,10 +12,15 @@ import PopUpModal from "../components/PopUpModal";
 import ViewUserCredentials from "../components/ViewUserCredentials";
 import { SuccessAlert } from "../components/SuccessAlert";
 import { ErrorAlert } from "../components/ErrorAlert";
+import { useAllUsersManagement, useFilteredUser } from "../data/user-management-data";
 
-type TNewUserTypes = Omit<TUsers, "course" | "section" | "year">;
 
 export default function UserManagement() {
+
+  const { mutate } = useArchiveUser();
+  const { users, isPending, isError } = useAllUsersManagement()
+  const { filteredUser, setSearchUser, setSelectedStatus, selectedRole, setSelectedRole } = useFilteredUser()
+
   const [ShowSuccessAlert, setShowSuccessAlert] = useState<boolean>(false);
   const [ShowErrorAlert, setErrorShowAlert] = useState<boolean>(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState<string>("");
@@ -27,55 +29,12 @@ export default function UserManagement() {
   const [isEditUserOpen, setIsEditUserOpen] = useState<boolean>(false);
   const [isViewCredentialsOpen, setIsViewCredentialsOpen] = useState(false);
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState<boolean>(false);
-  const [searchUser, setSearchUser] = useState<string>("");
-  const [selectedStatus, setSelectedStatus] = useState<string>("all");
-  const [selectedRole, setSelectedRole] = useState<string>("all");
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [archiveUserId, setArchiveUserId] = useState<string>("");
-  const [users, setUsers] = useState<TNewUserTypes[]>([]);
-
-  const { data, isPending, isError } = useQuery(useAllUsers());
-  const { mutate } = useArchiveUser();
 
   const selectedUser = useMemo(() => {
     return users.find((u) => u.id === selectedUserId);
   }, [users, selectedUserId]);
-
-  const filteredUser = useMemo(
-    () =>
-      users.filter((user) => {
-        const userStatus = user.status.toLowerCase();
-        const userRole = user.userRole.toLowerCase();
-        const searchValue = searchUser.toLowerCase();
-        const selectedStatusFilter = selectedStatus.toLowerCase();
-        const selectedRoleFilter = selectedRole.toLowerCase();
-
-        const matchesStatus =
-          selectedStatusFilter === "all"
-            ? true
-            : userStatus === selectedStatusFilter;
-
-        const matchesRole =
-          selectedRoleFilter === "all" ? true : userRole === selectedRoleFilter;
-
-        if (selectedStatusFilter !== "all" || selectedRoleFilter !== "all") {
-          return (
-            matchesStatus &&
-            matchesRole &&
-            (user.username.toLowerCase().includes(searchValue) ||
-              user.userRole.toLowerCase().includes(searchValue) ||
-              userStatus.includes(searchValue))
-          );
-        }
-
-        return (
-          user.username.toLowerCase().includes(searchValue) ||
-          user.userRole.toLowerCase().includes(searchValue) ||
-          userStatus.includes(searchValue)
-        );
-      }),
-    [searchUser, selectedStatus, selectedRole, users],
-  );
 
   const confirmArchiveUser = useCallback(() => {
     mutate(archiveUserId, {
@@ -112,12 +71,6 @@ export default function UserManagement() {
     setSelectedUserId(id);
     setIsViewCredentialsOpen(true);
   };
-
-  useEffect(() => {
-    if (data && Array.isArray(data)) {
-      setUsers(data);
-    }
-  }, [data]);
 
   if (isPending) {
     return <UserSkeletonLoader />;
@@ -178,8 +131,8 @@ export default function UserManagement() {
                   key={role}
                   onClick={() => setSelectedRole(role)}
                   className={`px-4 py-3 sm:px-6 sm:py-2 rounded-md font-medium transition-all duration-200  ${selectedRole === role
-                      ? "bg-blue-500 text-white shadow-md"
-                      : "bg-white text-[#64748b] border-2 border-[#e5e7eb] hover:border-[#2563eb] hover:text-[#2563eb]"
+                    ? "bg-blue-500 text-white shadow-md"
+                    : "bg-white text-[#64748b] border-2 border-[#e5e7eb] hover:border-[#2563eb] hover:text-[#2563eb]"
                     }`}
                 >
                   {role.charAt(0).toUpperCase() + role.slice(1)}
