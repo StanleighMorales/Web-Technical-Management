@@ -207,7 +207,7 @@ export const InventoryTable = ({
                     {table.getRowModel().rows.map((row) => (
                         <tr
                             key={row.id}
-                            onClick={() => navigate({ to: "/item/$id", params: { id: row.original.id } })}
+                            onClick={() => navigate({ to: "/home/item/$id", params: { id: row.original.id } })}
                             className="transition-colors cursor-pointer odd:bg-white even:bg-[#f9fbff] hover:bg-[#f8fafc]"
                         >
                             {row.getVisibleCells().map((cell: any) => (
