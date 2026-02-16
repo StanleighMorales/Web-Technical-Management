@@ -1,12 +1,10 @@
-import { Activity, useCallback, useEffect, useMemo, useState } from "react";
+import { Activity, useCallback, useMemo, useState } from "react";
 import SearchBar from "../components/SearchBar";
-import { useQuery } from "@tanstack/react-query";
 import { DashboardSkeletonLoader } from "../loader/DashboardSkeletonLoader";
 import DashboardBadges from "../components/DashboardBadges";
 import ErrorTable from "../components/ErrorTables";
 import type { TRecentBorrowItemProps } from "../types/types";
 import Pagination from "../components/Pagination";
-import { useSummaryData, useRecentlyBorrowItems } from "../hooks/itemHooks";
 import { ViewRecentBorrowItems } from "../components/ViewRecentBorrowItems";
 import { useReturnItem } from "../hooks/itemHooks";
 import { SuccessAlert } from "../components/SuccessAlert";
@@ -21,13 +19,7 @@ import {
   getCoreRowModel,
 } from "@tanstack/react-table";
 import { SlugStatus } from "../components/SlugStatus";
-
-type Summary = {
-  totalItems: number | null;
-  totalActiveUsers: number | null;
-  totalLentItems: number | null;
-  totalItemsCategories: number | null;
-};
+import { useRecentlyAllBorrowItems, useSummarriesData } from "../data/dashboard-data";
 
 const columnHelper = createColumnHelper<TRecentBorrowItemProps>();
 
@@ -78,19 +70,13 @@ const columns = [
 ];
 
 export default function Dashboard() {
-  const [dataSummary, setDataSummary] = useState<Summary>({
-    totalItems: 0,
-    totalActiveUsers: 0,
-    totalLentItems: 0,
-    totalItemsCategories: 0,
-  });
+
+  const { dataSummary } = useSummarriesData()
+  const { borrowedItemData, isBorrowedItemLoading, isBorrowedItemError } = useRecentlyAllBorrowItems()
 
   const [onViewBorrowItemOpen, setOnViewBorrowItemOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const [borrowedItemData, setBorrowedItemData] = useState<
-    TRecentBorrowItemProps[]
-  >([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -118,13 +104,6 @@ export default function Dashboard() {
     null,
   );
 
-  const {
-    data: recentBorrowData,
-    isLoading: isBorrowedItemLoading,
-    isError: isBorrowedItemError,
-  } = useQuery(useRecentlyBorrowItems());
-
-  const { data: summaryData } = useQuery(useSummaryData());
   const returnItemMutation = useReturnItem();
 
   const badges = [
@@ -202,24 +181,6 @@ export default function Dashboard() {
     setSelectedId(null);
     setOnViewBorrowItemOpen(false);
   };
-
-  // Update summary data
-  useEffect(() => {
-    if (!summaryData) return;
-    setDataSummary((prev) => ({
-      ...prev,
-      totalItems: summaryData.totalItems,
-      totalActiveUsers: summaryData.totalActiveUsers,
-      totalItemsCategories: summaryData.totalItemsCategories,
-      totalLentItems: summaryData.totalLentItems,
-    }));
-  }, [summaryData]);
-
-  // Update borrowed items
-  useEffect(() => {
-    if (!recentBorrowData) return;
-    setBorrowedItemData(recentBorrowData);
-  }, [recentBorrowData]);
 
   const handleReturnSubmit = async () => {
     setReturnError("");
@@ -388,8 +349,8 @@ export default function Dashboard() {
                 }}
                 placeholder="Scan or enter item barcode"
                 className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${returnError
-                    ? "border-red-500 focus:ring-red-500"
-                    : "border-gray-300 focus:ring-blue-500"
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-blue-500"
                   }`}
               />
               {returnError && (
@@ -408,8 +369,8 @@ export default function Dashboard() {
                   onClick={handleReturnSubmit}
                   disabled={returnItemMutation.isPending}
                   className={`flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors ${returnItemMutation.isPending
-                      ? "opacity-50 cursor-not-allowed"
-                      : ""
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
                     }`}
                 >
                   {returnItemMutation.isPending
@@ -462,8 +423,8 @@ export default function Dashboard() {
                 }}
                 placeholder="Scan or enter lent item barcode"
                 className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${scanError
-                    ? "border-red-500 focus:ring-red-500"
-                    : "border-gray-300 focus:ring-blue-500"
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-blue-500"
                   }`}
               />
               {scanError && (
