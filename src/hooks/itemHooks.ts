@@ -21,6 +21,7 @@ export const useAllItems = () => {
   return queryOptions({
     queryFn: allItemsApi,
     queryKey: ["items"],
+    staleTime: 1000 * 60
   });
 };
 
@@ -101,6 +102,7 @@ export const useGetArchiveItemInfo = (id: string) => {
   return queryOptions({
     queryFn: () => getArchiveItemInfo(id),
     queryKey: ["archiveitems", id],
+    staleTime: 1000 * 60
   });
 };
 
@@ -108,6 +110,7 @@ export const useGetItemInfo = (id: string) => {
   return queryOptions({
     queryFn: () => getItemApi(id),
     queryKey: ["items"],
+    staleTime: 1000 * 60
   });
 };
 
@@ -132,6 +135,7 @@ export const useRecentlyBorrowItems = (id?: string) => {
   return queryOptions({
     queryFn: () => recentlyBorrowItems(id),
     queryKey: ["lentItems", id],
+    staleTime: 1000 * 60
   });
 };
 
@@ -170,5 +174,6 @@ export const useSummaryData = () => {
   return queryOptions({
     queryFn: summaryData,
     queryKey: ["summary"],
+    staleTime: 1000 * 60
   });
 };
