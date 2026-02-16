@@ -11,9 +11,6 @@ import Button from "../components/Button";
 import SearchBar from "../components/SearchBar";
 import InventoryListSkeletonLoader from "../loader/InventoryListSkeletonLoader";
 import box from "../assets/box.webp";
-import { useQuery } from "@tanstack/react-query";
-import type { TItemList } from "../types/types";
-import { useAllItems } from "../hooks/itemHooks";
 import { InventoryBadges } from "../components/InventoryBadges";
 import Pagination from "../components/Pagination";
 import ErrorTable from "../components/ErrorTables";
@@ -25,18 +22,18 @@ import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import SelectItemFilters from "../components/SelectItemFilters";
 import { InventoryTable } from "../components/InventoryTable";
+import { useAllInventoryItems, useFilteredItems } from "../data/inventory-data";
+
 
 export default function InventoryList() {
+  const { items, isPending, isError } = useAllInventoryItems()
+  const { filteredItems, setSearchItem, selectedCategory, setSelectedCategory, selectedCondition, setSelectedCondition, selectedStatus, setSelectedStatus } = useFilteredItems()
+
   const [ShowAlert, setShowAlert] = useState<boolean>(false);
   const [ShowMessage, setShowMessage] = useState<string>("");
   const [isAddItemFormOpen, setIsAddItemFormOpen] = useState(false);
-  const [searchItem, setSearchItem] = useState<string>("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [selectedCondition, setSelectedCondition] = useState<string>("");
-  const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 10;
-  const [items, setItems] = useState<TItemList[]>([]);
 
   const [showAlertSuccess, setShowAlertSuccess] = useState<boolean>(false);
   const [showAlertFailed, setShowAlertFailed] = useState<boolean>(false);
@@ -61,30 +58,6 @@ export default function InventoryList() {
   }, [items]);
 
   const { mutate: importItem } = useImportItem();
-  // this func use a useMemo to filtered item either its itemName or the Category and also for the Matches Category and return items,searchItem and selectedCategory
-  const filteredItems = useMemo(
-    () =>
-      items.filter((item) => {
-        const matchesSearch =
-          item.itemName.toLowerCase().includes(searchItem.toLowerCase()) ||
-          item.category.toLowerCase().includes(searchItem.toLowerCase()) ||
-          item.serialNumber.toLowerCase().includes(searchItem.toLowerCase());
-
-        const matchesCategory =
-          selectedCategory === "" || item.category === selectedCategory;
-
-        const matchesCondition =
-          selectedCondition === "" || item.condition === selectedCondition;
-
-        const matchesStatus =
-          selectedStatus === "" || item.status === selectedStatus;
-
-        return (
-          matchesSearch && matchesCategory && matchesCondition && matchesStatus
-        );
-      }),
-    [items, searchItem, selectedCategory, selectedCondition, selectedStatus],
-  );
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
   // check if the validCurrentPage is greater than ZERO then it will return the smaller currentPage and the totalPages if the condition is false then it return to ONE
@@ -134,18 +107,9 @@ export default function InventoryList() {
     setCurrentPage(1);
   }, []);
 
-  // get the response from useQuery
-  const { data, isPending, isError } = useQuery(useAllItems());
-
-  // this Effect will automatically updated the data of the items response
-  useEffect(() => {
-    if (!data) return;
-    setItems(data);
-  }, [data]);
-
   // Close print modal and reset page when data changes
   useEffect(() => {
-    if (showPrintBarcodeModal && data) {
+    if (showPrintBarcodeModal && items) {
       // If items were added/removed while modal is open, close it
       const currentFilteredCount = filteredItems.length;
       const maxPage = Math.ceil(currentFilteredCount / itemsPerPrintPage);
@@ -156,7 +120,7 @@ export default function InventoryList() {
       }
     }
   }, [
-    data,
+    items,
     showPrintBarcodeModal,
     filteredItems.length,
     printCurrentPage,
@@ -559,18 +523,16 @@ export default function InventoryList() {
                 <div className="relative" ref={moreMenuRef}>
                   <button
                     onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
-                    className={`flex items-center justify-center h-11.5 w-12 text-blue-600 bg-white rounded-lg transition-all duration-200 border border-gray-200 hover:shadow-sm hover:scale-100 active:scale-95 cursor-pointer ${
-                      isMoreMenuOpen
-                        ? "bg-blue-50 border-blue-300 shadow-md"
-                        : "hover:bg-gray-100"
-                    }`}
+                    className={`flex items-center justify-center h-11.5 w-12 text-blue-600 bg-white rounded-lg transition-all duration-200 border border-gray-200 hover:shadow-sm hover:scale-100 active:scale-95 cursor-pointer ${isMoreMenuOpen
+                      ? "bg-blue-50 border-blue-300 shadow-md"
+                      : "hover:bg-gray-100"
+                      }`}
                     aria-label="More options"
                     title="More options"
                   >
                     <svg
-                      className={`w-5 h-5 transition-transform duration-300 ${
-                        isMoreMenuOpen ? "rotate-90" : ""
-                      }`}
+                      className={`w-5 h-5 transition-transform duration-300 ${isMoreMenuOpen ? "rotate-90" : ""
+                        }`}
                       viewBox="0 0 24 24"
                       fill="currentColor"
                     >
