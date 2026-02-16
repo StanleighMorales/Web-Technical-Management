@@ -95,7 +95,7 @@ const RegistrationModuleRoute = createRoute({
 
 export const ViewItemRoute = createRoute({
     getParentRoute: () => homeRoute,
-    path: "/item/$id",
+    path: "item/$id",
     component: ViewItem
 })
 
