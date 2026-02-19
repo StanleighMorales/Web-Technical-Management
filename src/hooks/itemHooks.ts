@@ -21,7 +21,9 @@ export const useAllItems = () => {
   return queryOptions({
     queryFn: allItemsApi,
     queryKey: ["items"],
-    staleTime: 1000 * 60
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false
   });
 };
 
@@ -33,9 +35,6 @@ export const useAddItem = () => {
     mutationKey: ["items"],
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["items"] });
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 };
@@ -49,15 +48,15 @@ export const useUpdateItem = () => {
     onSuccess: () => {
       querClient.invalidateQueries({ queryKey: ["items"] });
     },
-    onError: (error) => {
-      console.log(error.message);
-    },
   });
 };
 export const useAllItemsArchive = () => {
   return queryOptions({
     queryFn: allItemsArchiveApi,
     queryKey: ["archiveitems"],
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false
   });
 };
 
@@ -67,12 +66,9 @@ export const useArchiveItem = () => {
   return useMutation({
     mutationFn: archiveItemApi,
     mutationKey: ["archive"],
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["items"] });
-      console.log(data.message);
-    },
-    onError: (error: any) => {
-      if (error.response) console.log(error.response.data.Errors);
+      queryClient.invalidateQueries({ queryKey: ["archiveitems"] });
     },
   });
 };
@@ -92,9 +88,6 @@ export const useDeleteItem = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["archiveitems"] });
     },
-    onError: (error) => {
-      console.log(error);
-    },
   });
 };
 
@@ -102,7 +95,8 @@ export const useGetArchiveItemInfo = (id: string) => {
   return queryOptions({
     queryFn: () => getArchiveItemInfo(id),
     queryKey: ["archiveitems", id],
-    staleTime: 1000 * 60
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -110,7 +104,8 @@ export const useGetItemInfo = (id: string) => {
   return queryOptions({
     queryFn: () => getItemApi(id),
     queryKey: ["items"],
-    staleTime: 1000 * 60
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -121,12 +116,7 @@ export const useImportItem = () => {
     mutationFn: importItem,
     mutationKey: ["import"],
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["item"],
-      });
-    },
-    onError: (error) => {
-      console.log(error);
+      queryClient.invalidateQueries({ queryKey: ["item"] });
     },
   });
 };
@@ -135,7 +125,8 @@ export const useRecentlyBorrowItems = (id?: string) => {
   return queryOptions({
     queryFn: () => recentlyBorrowItems(id),
     queryKey: ["lentItems", id],
-    staleTime: 1000 * 60
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -147,9 +138,7 @@ export const useRestoreItem = () => {
     mutationKey: ["restore"],
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["archiveitems"] });
-    },
-    onError: (error) => {
-      console.log(error);
+      queryClient.invalidateQueries({ queryKey: ["items"] });
     },
   });
 };
@@ -164,9 +153,6 @@ export const useReturnItem = () => {
       queryClient.invalidateQueries({ queryKey: ["items"] });
       queryClient.invalidateQueries({ queryKey: ["lentItems"] });
     },
-    onError: (error) => {
-      console.log(error);
-    },
   });
 };
 
@@ -174,6 +160,7 @@ export const useSummaryData = () => {
   return queryOptions({
     queryFn: summaryData,
     queryKey: ["summary"],
-    staleTime: 1000 * 60
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
