@@ -28,23 +28,23 @@ type TUpdateUserPasswordPayload = {
 };
 
 export const userLoggedIn = async () => {
-  const response = await api.get("/api/v1/auth/me");
+  const response = await api.get("/auth/me");
   return response.data.data;
 };
 
 export const allUsersApi = async () => {
-  const response = await api.get("/api/v1/users");
+  const response = await api.get("/users");
   return response.data.data;
 };
 
 export const registerUserApi = async (data: TRegisterUser) => {
-  const response = await api.post("/api/v1/auth/register", data);
+  const response = await api.post("/auth/register", data);
   return response.data;
 };
 
 export const updateUserApi = async ({ id, data }: TUpdateUserApiPayload) => {
   const response = await api.patch(
-    `/api/v1/users/admin-or-staff/profile/${id}`,
+    `/users/admin-or-staff/profile/${id}`,
     data,
   );
   return response.data;
@@ -55,7 +55,7 @@ export const updateStudentApi = async ({
   data,
 }: TUpdateStudentApiPayload) => {
   const response = await api.patch(
-    `/api/v1/users/students/profile/${id}`,
+    `/users/students/profile/${id}`,
     data,
   );
   return response.data;
@@ -66,34 +66,34 @@ export const updateTeacherApi = async ({
   data,
 }: TUpdateTeacherApiPayload) => {
   const response = await api.patch(
-    `/api/v1/users/teachers/profile/${id}`,
+    `/users/teachers/profile/${id}`,
     data,
   );
   return response.data;
 };
 
 export const allUsersArchiveApi = async () => {
-  const response = await api.get("/api/v1/archiveusers");
+  const response = await api.get("/archiveusers");
   return response.data.data;
 };
 
 export const getArchiveUserInfo = async (id: string) => {
-  const response = await api.get(`/api/v1/archiveusers/${id}`);
+  const response = await api.get(`/archiveusers/${id}`);
   return response.data.data;
 };
 
 export const archiveUserApi = async (id: string) => {
-  const response = await api.delete(`/api/v1/users/archive/${id}`);
+  const response = await api.delete(`/users/archive/${id}`);
   return response.data;
 };
 
 export const restoreUserApi = async (id: string) => {
-  const response = await api.delete(`/api/v1/archiveusers/restore/${id}`);
+  const response = await api.delete(`/archiveusers/restore/${id}`);
   return response.data;
 };
 
 export const deleteUserApi = async (id: string) => {
-  const response = await api.delete(`/api/v1/archiveusers/${id}`);
+  const response = await api.delete(`/archiveusers/${id}`);
   return response.data;
 };
 
@@ -101,11 +101,11 @@ export const resetPasswordUser = async ({
   id,
   data,
 }: TUpdateUserPasswordPayload) => {
-  const response = await api.patch(`/api/v1/auth/change-password/${id}`, data);
+  const response = await api.patch(`/auth/change-password/${id}`, data);
   return response.data;
 };
 
 export const importUser = async (formData: FormData) => {
-  const response = await api.post("/api/v1/users/students/import", formData);
+  const response = await api.post("/users/students/import", formData);
   return response.data;
 };
