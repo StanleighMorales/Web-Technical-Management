@@ -1,9 +1,9 @@
 import { api } from "./axios";
 import type { TBorrowItemData, TItemForm, TUpdateItem } from "../types/types";
 
-const item_end_point = "/api/v1/items";
-const item_archive_end_point = "/api/v1/archiveitems";
-const item_borrow_end_point = "/api/v1/lentItems";
+const item_end_point = "/items";
+const item_archive_end_point = "/archiveitems";
+const item_borrow_end_point = "/lentItems";
 
 type TUpdateItemPayload = {
   id: string;
@@ -11,7 +11,7 @@ type TUpdateItemPayload = {
 };
 
 export const summaryData = async () => {
-  const response = await api.get("/api/v1/summary");
+  const response = await api.get("/summary");
   return response.data;
 };
 
@@ -89,11 +89,11 @@ export const borrowItem = async (data: TBorrowItemData) => {
 };
 
 export const returnItem = async (id: string) => {
-  const response = await api.post(`/api/v1/lentItems/return/item/${id}`);
+  const response = await api.post(`/lentItems/return/item/${id}`);
   return response.data;
 };
 
 export const importItem = async (formData: FormData) => {
-  const response = await api.post("/api/v1/items/import", formData);
+  const response = await api.post("/items/import", formData);
   return response.data;
 };
