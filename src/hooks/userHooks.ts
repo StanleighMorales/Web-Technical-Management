@@ -23,7 +23,9 @@ export const useAllUsers = () => {
   return queryOptions({
     queryFn: allUsersApi,
     queryKey: ["users"],
-    staleTime: 1000 * 60
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false
   });
 };
 
@@ -31,7 +33,9 @@ export const useAllUsersArchive = () => {
   return queryOptions({
     queryFn: allUsersArchiveApi,
     queryKey: ["archiveusers"],
-    staleTime: 1000 * 60
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false
   });
 };
 
@@ -58,9 +62,6 @@ export const useDeleteUser = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["archiveusers"] });
     },
-    onError: (error) => {
-      console.log(error.message);
-    },
   });
 };
 
@@ -68,7 +69,9 @@ export const useGetArchiveUserInfo = (id: string) => {
   return queryOptions({
     queryFn: () => getArchiveUserInfo(id),
     queryKey: ["ArchiveUsers", id],
-    staleTime: 1000 * 60
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false
   });
 };
 
@@ -76,7 +79,9 @@ export const useLoggedInUser = () => {
   return queryOptions({
     queryFn: userLoggedIn,
     queryKey: ["me"],
-    staleTime: 1000 * 60
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false
   });
 };
 
@@ -87,9 +92,6 @@ export const useResetUserPassword = () => {
     mutationKey: ["change-password"],
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
-    },
-    onError: (error) => {
-      console.log(error.message);
     },
   });
 };
@@ -102,9 +104,6 @@ export const useRegisterUser = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
-    onError: (error: any) => {
-      if (error.response) console.log(error.response.data.Errors);
-    },
   });
 };
 
@@ -115,9 +114,6 @@ export const useRestoreUser = () => {
     mutationKey: ["restore"],
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["archiveusers"] });
-    },
-    onError: (error) => {
-      console.log(error.message);
     },
   });
 };
@@ -142,9 +138,6 @@ export const useUpdateTeacher = () => {
     mutationKey: ["profile"],
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["teachers"] });
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 };
