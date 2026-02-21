@@ -12,41 +12,55 @@ export const InventoryBadges = memo(
     return (
       <div
         onClick={onClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onClick?.();
+          }
+        }}
         className={`
           group
           flex flex-row items-center gap-3
-          px-4 py-2.5
-          rounded-xl
-          bg-white/70 backdrop-blur-sm
-          border
+          px-4 py-3
+          rounded-2xl
+          bg-white/80 backdrop-blur-md
+          border-2
           shadow-sm
-          transition-all duration-200
+          transition-all duration-200 ease-out
           cursor-pointer
           min-w-fit
           whitespace-nowrap
+          outline-none
+          focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-400
 
-          hover:shadow-md hover:scale-105
+          hover:shadow-lg hover:scale-[1.02] hover:-translate-y-0.5
 
           ${isSelected
-            ? "border-[#2563eb] bg-blue-50/80 shadow-md"
-            : "border-[#e5e7eb] hover:border-[#cbd5e1]"
+            ? "border-blue-500 bg-blue-50/90 shadow-md ring-2 ring-blue-200/50"
+            : "border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
           }
         `}
       >
-        <p
+        <span
           className={`
-            text-2xl font-bold
-            ${isSelected ? "text-[#1e3a8a]" : "text-[#2563eb]"}
+            flex h-10 w-10 shrink-0 items-center justify-center rounded-xl
+            text-lg font-bold tabular-nums
             transition-colors
+            ${isSelected
+              ? "bg-blue-500 text-white"
+              : "bg-blue-100 text-blue-600 group-hover:bg-blue-200/80"
+            }
           `}
         >
           {total}
-        </p>
+        </span>
 
         <h2
           className={`
-            text-sm font-semibold
-            ${isSelected ? "text-[#1e40af]" : "text-[#64748b]"}
+            text-sm font-semibold tracking-tight
+            ${isSelected ? "text-slate-800" : "text-slate-600"}
             transition-colors
           `}
         >
