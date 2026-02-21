@@ -24,6 +24,7 @@ export default function Sidebar() {
   const [isSidebarLoading, setIsSidebarLoading] = useState<boolean>(true);
   const [isItemsDropdownOpen, setIsItemsDropdownOpen] = useState<boolean>(false);
   const [wasItemsDropdownOpen, setWasItemsDropdownOpen] = useState<boolean>(false);
+  const [isMobileItemsOpen, setIsMobileItemsOpen] = useState<boolean>(false);
 
   const { mutate, isPending } = useLogoutUser();
   const { setIsSidebarExpanded } = useSidebar();
@@ -65,11 +66,17 @@ export default function Sidebar() {
 
   if (isSidebarLoading) return <SidebarSkeletonLoader />;
 
+  const navLinkBase =
+    "flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-[15px] text-slate-600 hover:bg-slate-100 hover:text-blue-600 transition-all duration-200";
+  const navLinkActive = "active !bg-blue-600 !text-white shadow-md shadow-blue-600/25";
+  const iconWrap =
+    "flex items-center justify-center w-9 h-9 rounded-lg shrink-0 bg-slate-100 group-hover:bg-blue-50 [.active_&]:!bg-white/20";
+
   return (
     <>
       {/* Desktop Sidebar */}
       <aside
-        className="hidden fixed top-0 left-0 z-50 flex-col justify-between h-screen bg-white border-r shadow-xl transition-all duration-300 lg:flex group animate-fadeIn w-[75px] border-[#e5e7eb] hover:w-[270px] scrollbar-thin"
+        className="hidden fixed top-0 left-0 z-50 flex-col justify-between h-screen bg-slate-50/95 border-r border-slate-200/80 shadow-lg transition-all duration-300 lg:flex group animate-fadeIn w-[80px] hover:w-[280px] scrollbar-thin backdrop-blur-sm"
         onMouseEnter={() => {
           setIsSidebarExpanded(true);
           setIsItemsDropdownOpen(wasItemsDropdownOpen);
@@ -81,28 +88,32 @@ export default function Sidebar() {
         }}
       >
         {/* Logo */}
-        <div className="flex flex-col items-center py-8">
-          <img
-            src={logo}
-            alt="Logo"
-            className="mb-2 rounded-full w-12 h-12 transition-all duration-300 group-hover:w-20 group-hover:h-20"
-          />
-          <span className="text-xl font-extrabold tracking-widest opacity-0 transition-opacity duration-300 group-hover:opacity-100 text-[#2563eb]">
+        <div className="flex flex-col items-center pt-6 pb-4 px-2">
+          <div className="rounded-2xl p-1.5 bg-white shadow-sm ring-1 ring-slate-200/60 transition-all duration-300 group-hover:scale-105">
+            <img
+              src={logo}
+              alt="Logo"
+              className="rounded-xl w-11 h-11 transition-all duration-300 group-hover:w-14 group-hover:h-14"
+            />
+          </div>
+          <span className="mt-2 text-lg font-bold tracking-wider opacity-0 transition-opacity duration-300 group-hover:opacity-100 text-blue-600">
             ACLC
           </span>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto scrollbar-thin">
-          <ul className="flex flex-col gap-2 px-2">
+        <nav className="flex-1 overflow-y-auto scrollbar-thin px-2">
+          <ul className="flex flex-col gap-1">
             {sideBarListTop.map((item) => (
               <li key={item.label}>
                 <Link
                   to={item.link}
-                  className="flex items-center gap-2.5 px-3 py-3 rounded-lg font-medium text-base text-gray-500 hover:bg-[#f1f5f9] hover:text-[#2563eb] transition-all duration-150"
-                  activeProps={{ className: "bg-blue-600 text-white shadow" }}
+                  className={`${navLinkBase} group`}
+                  activeProps={{ className: `${navLinkBase} ${navLinkActive} group` }}
                 >
-                  <item.icon className="text-2xl min-w-[30px]" />
+                  <span className={iconWrap}>
+                    <item.icon className="text-xl text-slate-500 group-hover:text-blue-600 [.active_&]:!text-white" />
+                  </span>
                   <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                     {item.label}
                   </span>
@@ -114,39 +125,43 @@ export default function Sidebar() {
             <li>
               <button
                 onClick={() => setIsItemsDropdownOpen(!isItemsDropdownOpen)}
-                className="flex items-center gap-2.5 px-3 py-3 rounded-lg font-medium text-base w-full text-gray-500 hover:bg-[#f1f5f9] hover:text-[#2563eb] relative transition-all duration-150"
+                className={`${navLinkBase} w-full text-left group relative`}
               >
-                <BiPackage className="text-2xl min-w-[30px]" />
-                {pendingCount > 0 && (
-                  <span className="absolute left-8 top-2 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-orange-500 rounded-full border-2 border-white shadow-lg animate-pulse">
-                    {pendingCount > 99 ? "99+" : pendingCount}
-                  </span>
-                )}
-                <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex-1 text-left">
+                <span className={iconWrap + " relative"}>
+                  <BiPackage className="text-xl text-slate-500 group-hover:text-blue-600" />
+                  {pendingCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-amber-500 rounded-full ring-2 ring-slate-50 animate-pulse">
+                      {pendingCount > 99 ? "99+" : pendingCount}
+                    </span>
+                  )}
+                </span>
+                <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex-1">
                   Manage Borrow Items
                 </span>
-                {isItemsDropdownOpen ? <FaChevronDown /> : <FaChevronRight />}
+                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-400">
+                  {isItemsDropdownOpen ? <FaChevronDown /> : <FaChevronRight />}
+                </span>
               </button>
 
               <div
                 className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                  isItemsDropdownOpen ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+                  isItemsDropdownOpen ? "max-h-44 opacity-100" : "max-h-0 opacity-0"
                 }`}
               >
-                <ul className="flex flex-col gap-1 mt-1 ml-4">
+                <ul className="flex flex-col gap-0.5 mt-1 ml-2 pl-4 border-l-2 border-slate-200/80">
                   {itemsSubmenu.map((subItem) => (
                     <li key={subItem.label}>
                       <Link
                         to={subItem.link}
-                        className="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium text-sm text-gray-500 hover:bg-[#f1f5f9] hover:text-[#2563eb] transition-all duration-150"
-                        activeProps={{ className: "bg-blue-600 text-white shadow" }}
+                        className={`flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium text-sm text-slate-500 hover:bg-slate-100 hover:text-blue-600 transition-all duration-200 group`}
+                        activeProps={{ className: "!bg-blue-600 !text-white shadow-md shadow-blue-600/20" }}
                       >
-                        <subItem.icon className="text-xl min-w-[24px]" />
+                        <subItem.icon className="text-lg min-w-[22px] shrink-0" />
                         <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex-1">
                           {subItem.label}
                         </span>
-                        {subItem.link === "pending-reservations" && pendingCount > 0 && (
-                          <span className="ml-auto px-2 py-0.5 text-xs font-bold text-white bg-orange-500 rounded-full">
+                        {subItem.link.includes("pending-reservations") && pendingCount > 0 && (
+                          <span className="ml-auto px-2 py-0.5 text-xs font-bold text-white bg-amber-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                             {pendingCount > 99 ? "99+" : pendingCount}
                           </span>
                         )}
@@ -161,10 +176,12 @@ export default function Sidebar() {
               <li key={item.label}>
                 <Link
                   to={item.link}
-                  className="flex items-center gap-2.5 px-3 py-3 rounded-lg font-medium text-base text-gray-500 hover:bg-[#f1f5f9] hover:text-[#2563eb] transition-all duration-150"
-                  activeProps={{ className: "bg-blue-600 text-white shadow" }}
+                  className={`${navLinkBase} group`}
+                  activeProps={{ className: `${navLinkBase} ${navLinkActive} group` }}
                 >
-                  <item.icon className="text-2xl min-w-[30px]" />
+                  <span className={iconWrap}>
+                    <item.icon className="text-xl text-slate-500 group-hover:text-blue-600 [.active_&]:!text-white" />
+                  </span>
                   <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                     {item.label}
                   </span>
@@ -175,14 +192,16 @@ export default function Sidebar() {
         </nav>
 
         {/* Logout */}
-        <footer className="py-2 px-2 border-t border-gray-200">
+        <footer className="p-2 border-t border-slate-200/80">
           <button
             type="button"
             onClick={logoutUser}
-            className="flex gap-3 items-center py-3 px-3 w-full text-base font-medium rounded-lg text-[#ef4444] hover:bg-[#fee2e2] hover:text-[#b91c1c] transition-all duration-150"
+            className="flex gap-3 items-center py-2.5 px-3 w-full rounded-xl text-[15px] font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200 disabled:opacity-60"
             disabled={isPending}
           >
-            <CiLogout className="text-2xl shrink-0 min-w-6" />
+            <span className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0 bg-red-50">
+              <CiLogout className="text-xl text-red-500" />
+            </span>
             <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100">
               Logout
             </span>
@@ -194,11 +213,11 @@ export default function Sidebar() {
       <div className="fixed top-4 left-4 z-50 lg:hidden">
         <button
           onClick={toggleMobileMenu}
-          className="p-3 rounded-xl border shadow-lg transition-all duration-300 hover:shadow-xl backdrop-blur-xl bg-white/10 border-white/20 hover:bg-white/20"
+          className="p-2.5 rounded-xl bg-white border border-slate-200 shadow-md hover:shadow-lg hover:bg-slate-50 transition-all duration-200"
           aria-label="Toggle mobile menu"
         >
           <svg
-            className="w-6 h-6 text-black"
+            className="w-6 h-6 text-slate-700"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -225,15 +244,108 @@ export default function Sidebar() {
       {/* Mobile Overlay */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 z-40 lg:hidden bg-black/70 backdrop-blur-md"
+          className="fixed inset-0 z-40 lg:hidden bg-slate-900/50 backdrop-blur-sm"
           onClick={closeMobileMenu}
         />
       )}
 
       {/* Mobile Sidebar Drawer */}
       {isMobileMenuOpen && (
-        <div className="flex fixed inset-y-0 left-0 z-50 flex-col w-64 bg-white shadow-lg lg:hidden animate-slideIn">
-          {/* Keep all your mobile sidebar code, just replace NavLink → Link and add activeProps */}
+        <div className="flex fixed inset-y-0 left-0 z-50 flex-col w-72 max-w-[85vw] bg-slate-50 border-r border-slate-200 shadow-2xl lg:hidden animate-slideIn overflow-hidden">
+          <div className="flex items-center gap-3 px-5 py-5 border-b border-slate-200 bg-white/80">
+            <img src={logo} alt="Logo" className="w-12 h-12 rounded-xl shadow-sm" />
+            <span className="text-xl font-bold tracking-wide text-blue-600">ACLC</span>
+          </div>
+          <nav className="flex-1 overflow-y-auto py-4 px-3">
+            <ul className="flex flex-col gap-1">
+              {sideBarListTop.map((item) => (
+                <li key={item.label}>
+                  <Link
+                    to={item.link}
+                    onClick={closeMobileMenu}
+                    className={`${navLinkBase} group`}
+                    activeProps={{ className: `${navLinkBase} ${navLinkActive} group` }}
+                  >
+                    <span className={iconWrap}>
+                      <item.icon className="text-xl text-slate-500 [.active_&]:!text-white" />
+                    </span>
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <button
+                  onClick={() => setIsMobileItemsOpen(!isMobileItemsOpen)}
+                  className={`${navLinkBase} w-full text-left group`}
+                >
+                  <span className={iconWrap + " relative"}>
+                    <BiPackage className="text-xl text-slate-500" />
+                    {pendingCount > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-amber-500 rounded-full">
+                        {pendingCount > 99 ? "99+" : pendingCount}
+                      </span>
+                    )}
+                  </span>
+                  Manage Borrow Items
+                  <span className="ml-auto text-slate-400">
+                    {isMobileItemsOpen ? <FaChevronDown /> : <FaChevronRight />}
+                  </span>
+                </button>
+                <div
+                  className={`overflow-hidden transition-all duration-300 ${isMobileItemsOpen ? "max-h-40" : "max-h-0"}`}
+                >
+                  <ul className="flex flex-col gap-0.5 mt-1 ml-2 pl-4 border-l-2 border-slate-200">
+                    {itemsSubmenu.map((subItem) => (
+                      <li key={subItem.label}>
+                        <Link
+                          to={subItem.link}
+                          onClick={closeMobileMenu}
+                          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-blue-600"
+                          activeProps={{ className: "!bg-blue-600 !text-white" }}
+                        >
+                          <subItem.icon className="text-lg shrink-0" />
+                          {subItem.label}
+                          {subItem.link.includes("pending-reservations") && pendingCount > 0 && (
+                            <span className="ml-auto px-2 py-0.5 text-xs font-bold text-white bg-amber-500 rounded-full">
+                              {pendingCount > 99 ? "99+" : pendingCount}
+                            </span>
+                          )}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </li>
+              {sideBarListBottom.map((item) => (
+                <li key={item.label}>
+                  <Link
+                    to={item.link}
+                    onClick={closeMobileMenu}
+                    className={`${navLinkBase} group`}
+                    activeProps={{ className: `${navLinkBase} ${navLinkActive} group` }}
+                  >
+                    <span className={iconWrap}>
+                      <item.icon className="text-xl text-slate-500 [.active_&]:!text-white" />
+                    </span>
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <footer className="p-3 border-t border-slate-200 bg-white/50">
+            <button
+              type="button"
+              onClick={logoutUser}
+              className="flex gap-3 items-center py-2.5 px-3 w-full rounded-xl text-[15px] font-medium text-red-600 hover:bg-red-50 disabled:opacity-60"
+              disabled={isPending}
+            >
+              <span className="flex items-center justify-center w-9 h-9 rounded-lg bg-red-50">
+                <CiLogout className="text-xl text-red-500" />
+              </span>
+              Logout
+            </button>
+          </footer>
         </div>
       )}
     </>
