@@ -435,7 +435,7 @@ export default function InventoryList() {
   }
 
   return (
-    <div className="flex flex-col w-full antialiased bg-linear-to-br animate-fadeIn inventory-list-container min-h-svh from-[#f8fafc] via-[#e8eef7] to-[#dbeafe]">
+    <div className="flex flex-col w-full antialiased bg-gradient-to-br animate-fadeIn inventory-list-container min-h-svh from-[#f8fafc] via-[#eef2ff] to-[#e0e7ff]">
       <Activity mode={ShowAlert ? "visible" : "hidden"}>
         <SuccessAlert message={ShowMessage} />
       </Activity>
@@ -459,11 +459,11 @@ export default function InventoryList() {
         className="hidden"
       />
 
-      <header className="flex sticky top-0 z-30 flex-col items-center px-8 pt-8 pb-6 border-b shadow-sm inventory-header bg-white/70 backdrop-blur-md border-[#e5e9f2]">
-        <h1 className="mb-2 text-5xl mt-10 lg:mt-0 md:mt-0 font-extrabold tracking-tight text-[#1e293b] drop-shadow-lg">
+      <header className="flex sticky top-0 z-30 flex-col items-center px-8 pt-8 pb-6 border-b border-slate-200/80 shadow-sm inventory-header bg-white/80 backdrop-blur-md">
+        <h1 className="mb-2 text-5xl mt-10 lg:mt-0 md:mt-0 font-extrabold tracking-tight text-slate-800">
           Inventory List
         </h1>
-        <p className="max-w-2xl text-base font-medium text-center md:text-lg text-[#64748b]">
+        <p className="max-w-2xl text-base font-medium text-center md:text-lg text-slate-500">
           Overview of assets and availability. Track counts by category, staff
           status, and items currently borrowed.
         </p>
@@ -510,7 +510,7 @@ export default function InventoryList() {
 
         {/* Inventory Table Section */}
         <section className="px-8">
-          <div className="overflow-x-auto p-4 rounded-2xl ring-1 shadow-xl bg-white/90 h-[60vh] ring-[#e0e7ef]/80">
+          <div className="overflow-x-auto p-4 rounded-2xl border border-slate-200/90 shadow-lg bg-white/95 h-[60vh]">
             {/* Unified Top Controls Row */}
             <div className="w-full flex items-center justify-between mb-6 flex-wrap gap-3">
               {/* LEFT: New Item + More Menu */}
@@ -523,9 +523,9 @@ export default function InventoryList() {
                 <div className="relative" ref={moreMenuRef}>
                   <button
                     onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
-                    className={`flex items-center justify-center h-11.5 w-12 text-blue-600 bg-white rounded-lg transition-all duration-200 border border-gray-200 hover:shadow-sm hover:scale-100 active:scale-95 cursor-pointer ${isMoreMenuOpen
-                      ? "bg-blue-50 border-blue-300 shadow-md"
-                      : "hover:bg-gray-100"
+                    className={`flex items-center justify-center h-11.5 w-12 rounded-lg transition-all duration-200 border cursor-pointer ${isMoreMenuOpen
+                      ? "bg-indigo-50 border-indigo-300 text-indigo-600 shadow-md"
+                      : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:shadow-sm active:scale-95"
                       }`}
                     aria-label="More options"
                     title="More options"
@@ -542,7 +542,7 @@ export default function InventoryList() {
                     </svg>
                   </button>
                   {isMoreMenuOpen && (
-                    <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg ring-1 ring-blue-500 ring-opacity-5 z-50 animate-slideIn">
+                    <div className="absolute left-0 mt-2 w-56 bg-white rounded-xl border border-slate-200 shadow-xl shadow-slate-200/50 z-50 animate-slideIn">
                       <div className="py-1">
                         <button
                           onClick={() => {
@@ -550,7 +550,7 @@ export default function InventoryList() {
                             setIsMoreMenuOpen(false);
                           }}
                           disabled={isImporting}
-                          className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed first:rounded-t-xl"
                         >
                           {isImporting ? (
                             <>
@@ -594,14 +594,14 @@ export default function InventoryList() {
                             </>
                           )}
                         </button>
-                        <div className="border-t border-gray-100 my-1"></div>
+                        <div className="border-t border-slate-100 my-1"></div>
                         <button
                           onClick={() => {
                             setShowPrintBarcodeModal(true);
                             setIsMoreMenuOpen(false);
                           }}
                           disabled={filteredItems.length === 0}
-                          className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <svg
                             className="w-4 h-4"
@@ -626,7 +626,7 @@ export default function InventoryList() {
                             setIsMoreMenuOpen(false);
                           }}
                           disabled={isExporting || filteredItems.length === 0}
-                          className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {isExporting ? (
                             <>
@@ -702,7 +702,7 @@ export default function InventoryList() {
             </div>
 
             {/* Table */}
-            <div className="overflow-x-auto rounded-lg shadow-inner h-[46vh] bg-white/95">
+            <div className="overflow-x-auto rounded-xl border border-slate-100 h-[46vh] bg-white">
               {isError ? (
                 <ErrorTable />
               ) : (
@@ -717,11 +717,11 @@ export default function InventoryList() {
               {paginatedData.length === 0 && (
                 <div className="flex justify-center items-center mt-16 w-full">
                   <div className="max-w-md text-center">
-                    <div className="mb-3 text-5xl text-[#94a3b8]">📦</div>
-                    <h3 className="mb-2 text-2xl font-semibold text-[#0f172a]">
+                    <div className="mb-3 text-5xl text-slate-300">📦</div>
+                    <h3 className="mb-2 text-2xl font-semibold text-slate-800">
                       No items found
                     </h3>
-                    <p className="text-base text-[#64748b]">
+                    <p className="text-base text-slate-500">
                       Try adjusting your search or filters. New items will
                       appear here once created.
                     </p>
@@ -739,15 +739,15 @@ export default function InventoryList() {
 
       {/* Print Barcode Modal */}
       <Activity mode={showPrintBarcodeModal ? "visible" : "hidden"}>
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-2xl w-[95vw] h-[95vh] flex flex-col">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl shadow-slate-300/30 w-[95vw] h-[95vh] flex flex-col">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b">
+            <div className="flex items-center justify-between p-6 border-b border-slate-100">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-2xl font-bold text-slate-800">
                   Generate Barcode PDF
                 </h2>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-slate-500 mt-1">
                   {filteredItems.length} item
                   {filteredItems.length !== 1 ? "s" : ""} ready to export
                 </p>
@@ -757,7 +757,7 @@ export default function InventoryList() {
                   setShowPrintBarcodeModal(false);
                   setPrintCurrentPage(1);
                 }}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="rounded-lg p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
               >
                 <svg
                   className="w-6 h-6"
@@ -776,10 +776,10 @@ export default function InventoryList() {
             </div>
 
             {/* Print Preview Area */}
-            <div className="flex-1 overflow-auto p-6 bg-gray-50">
+            <div className="flex-1 overflow-auto p-6 bg-slate-50/80">
               <div
                 id="barcode-print-area"
-                className="bg-white p-6 mx-auto max-w-[210mm] min-h-[297mm] shadow-lg"
+                className="bg-white p-6 mx-auto max-w-[210mm] min-h-[297mm] rounded-lg border border-slate-200 shadow-inner"
               >
                 <div className="grid grid-cols-3 gap-3">
                   {filteredItems
@@ -790,9 +790,9 @@ export default function InventoryList() {
                     .map((item) => (
                       <div
                         key={item.id}
-                        className="border border-gray-300 rounded-lg p-2 flex flex-col items-center text-center break-inside-avoid bg-white"
+                        className="border border-slate-200 rounded-lg p-2 flex flex-col items-center text-center break-inside-avoid bg-white"
                       >
-                        <div className="text-[11px] font-semibold text-gray-800 mb-1.5 line-clamp-2 w-full h-8 flex items-center justify-center">
+                        <div className="text-[11px] font-semibold text-slate-800 mb-1.5 line-clamp-2 w-full h-8 flex items-center justify-center">
                           {item.itemName}
                         </div>
                         <div className="w-full flex items-center justify-center bg-white">
@@ -802,10 +802,10 @@ export default function InventoryList() {
                             className="max-w-full h-16 object-contain"
                           />
                         </div>
-                        <div className="text-[9px] text-gray-600 mt-1.5 font-medium">
+                        <div className="text-[9px] text-slate-600 mt-1.5 font-medium">
                           {item.serialNumber}
                         </div>
-                        <div className="text-[8px] text-gray-500 mt-0.5">
+                        <div className="text-[8px] text-slate-500 mt-0.5">
                           {item.category}
                         </div>
                       </div>
@@ -815,7 +815,7 @@ export default function InventoryList() {
             </div>
 
             {/* Modal Footer */}
-            <div className="flex items-center justify-between p-6 border-t bg-gray-50">
+            <div className="flex items-center justify-between p-6 border-t border-slate-100 bg-slate-50/80">
               <div className="flex items-center gap-4">
                 {/* Pagination for print pages */}
                 {Math.ceil(filteredItems.length / itemsPerPrintPage) > 1 && (
@@ -825,11 +825,11 @@ export default function InventoryList() {
                         setPrintCurrentPage(Math.max(1, printCurrentPage - 1))
                       }
                       disabled={printCurrentPage === 1}
-                      className="px-3 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 py-1 text-sm border border-slate-200 rounded-lg text-slate-700 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       Previous
                     </button>
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-slate-600">
                       Page {printCurrentPage} of{" "}
                       {Math.ceil(filteredItems.length / itemsPerPrintPage)}
                     </span>
@@ -846,7 +846,7 @@ export default function InventoryList() {
                         printCurrentPage ===
                         Math.ceil(filteredItems.length / itemsPerPrintPage)
                       }
-                      className="px-3 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 py-1 text-sm border border-slate-200 rounded-lg text-slate-700 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       Next
                     </button>
@@ -859,14 +859,14 @@ export default function InventoryList() {
                     setShowPrintBarcodeModal(false);
                     setPrintCurrentPage(1);
                   }}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleGeneratePDF}
                   disabled={isGeneratingPDF}
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                 >
                   {isGeneratingPDF ? (
                     <>
