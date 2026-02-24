@@ -22,7 +22,6 @@ export const allItemsApi = async () => {
 
 export const getItemApi = async (id: string) => {
   const response = await api.get(`${item_end_point}/${id}`);
-  console.log(response.data.data);
   return response.data.data;
 };
 
