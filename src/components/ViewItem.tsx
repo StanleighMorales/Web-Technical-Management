@@ -20,7 +20,6 @@ export default function ViewItem() {
   console.log(itemId)
   const [isEditItemFormOpen, setIsEditItemFormOpen] = useState(false);
   const { data, isLoading, error } = useQuery(useGetItemInfo(itemId));
-  console.log(data)
 
   if (isLoading) {
     return <ViewItemSkeletonLoader />;
