@@ -21,9 +21,7 @@ export const useAllItems = () => {
   return queryOptions({
     queryFn: allItemsApi,
     queryKey: ["items"],
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false
+    staleTime: 5 * 60 * 1000
   });
 };
 
@@ -54,9 +52,7 @@ export const useAllItemsArchive = () => {
   return queryOptions({
     queryFn: allItemsArchiveApi,
     queryKey: ["archiveitems"],
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false
+    staleTime: 5 * 60 * 1000
   });
 };
 
@@ -96,16 +92,15 @@ export const useGetArchiveItemInfo = (id: string) => {
     queryFn: () => getArchiveItemInfo(id),
     queryKey: ["archiveitems", id],
     staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
   });
 };
 
 export const useGetItemInfo = (id: string) => {
   return queryOptions({
     queryFn: () => getItemApi(id),
-    queryKey: ["items"],
+    queryKey: ["items", id],
+    enabled: !!id,
     staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -116,7 +111,7 @@ export const useImportItem = () => {
     mutationFn: importItem,
     mutationKey: ["import"],
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["item"] });
+      queryClient.invalidateQueries({ queryKey: ["items"] });
     },
   });
 };
@@ -126,7 +121,6 @@ export const useRecentlyBorrowItems = (id?: string) => {
     queryFn: () => recentlyBorrowItems(id),
     queryKey: ["lentItems", id],
     staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -161,6 +155,5 @@ export const useSummaryData = () => {
     queryFn: summaryData,
     queryKey: ["summary"],
     staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
   });
 };
