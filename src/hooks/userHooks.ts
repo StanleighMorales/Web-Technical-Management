@@ -23,9 +23,7 @@ export const useAllUsers = () => {
   return queryOptions({
     queryFn: allUsersApi,
     queryKey: ["users"],
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false
+    staleTime: 5 * 60 * 1000
   });
 };
 
@@ -33,9 +31,7 @@ export const useAllUsersArchive = () => {
   return queryOptions({
     queryFn: allUsersArchiveApi,
     queryKey: ["archiveusers"],
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false
+    staleTime: 5 * 60 * 1000
   });
 };
 
@@ -69,9 +65,7 @@ export const useGetArchiveUserInfo = (id: string) => {
   return queryOptions({
     queryFn: () => getArchiveUserInfo(id),
     queryKey: ["ArchiveUsers", id],
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false
+    staleTime: 5 * 60 * 1000
   });
 };
 
@@ -79,9 +73,7 @@ export const useLoggedInUser = () => {
   return queryOptions({
     queryFn: userLoggedIn,
     queryKey: ["me"],
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false
+    staleTime: 5 * 60 * 1000
   });
 };
 
