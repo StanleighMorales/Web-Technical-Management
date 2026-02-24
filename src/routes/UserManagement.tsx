@@ -110,7 +110,7 @@ export default function UserManagement() {
             </span>
             <span className="hidden md:inline w-px h-5 bg-[#e5e7eb]" />
             <span className="text-sm font-medium text-[#64748b]">
-              {filteredUser.length} shown
+              {filteredUser.filter((a) => a.userRole ==="Admin" || a.userRole === "Staff").length} shown
             </span>
           </div>
         </div>
