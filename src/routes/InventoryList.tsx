@@ -23,28 +23,41 @@ import html2canvas from "html2canvas";
 import SelectItemFilters from "../components/SelectItemFilters";
 import { InventoryTable } from "../components/InventoryTable";
 import { useAllInventoryItems, useFilteredItems } from "../data/inventory-data";
-
+import { useInventoryListStore } from "../stores/inventory-list-store";
 
 export default function InventoryList() {
   const { items, isPending, isError } = useAllInventoryItems()
   const { filteredItems, setSearchItem, selectedCategory, setSelectedCategory, selectedCondition, setSelectedCondition, selectedStatus, setSelectedStatus } = useFilteredItems()
 
-  const [ShowAlert, setShowAlert] = useState<boolean>(false);
-  const [ShowMessage, setShowMessage] = useState<string>("");
-  const [isAddItemFormOpen, setIsAddItemFormOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage = 10;
+  const {
+    currentPage,
+    setCurrentPage,
+    showAlert,
+    setShowAlert,
+    showMessage,
+    setShowMessage,
+    isAddItemFormOpen,
+    setIsAddItemFormOpen,
+    showAlertSuccess,
+    setShowAlertSuccess,
+    showAlertFailed,
+    setShowAlertFailed,
+    isImporting,
+    isExporting,
+    setIsImporting,
+    setIsExporting,
+    isMoreMenuOpen,
+    setIsMoreMenuOpen,
+    showPrintBarcodeModal,
+    setShowPrintBarcodeModal,
+    printCurrentPage,
+    setPrintCurrentPage,
+    isGeneratingPDF,
+    setIsGeneratingPDF
+  } = useInventoryListStore()
 
-  const [showAlertSuccess, setShowAlertSuccess] = useState<boolean>(false);
-  const [showAlertFailed, setShowAlertFailed] = useState<boolean>(false);
-  const [isImporting, setIsImporting] = useState<boolean>(false);
-  const [isExporting, setIsExporting] = useState<boolean>(false);
-  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState<boolean>(false);
-  const [showPrintBarcodeModal, setShowPrintBarcodeModal] =
-    useState<boolean>(false);
-  const [printCurrentPage, setPrintCurrentPage] = useState<number>(1);
-  const [isGeneratingPDF, setIsGeneratingPDF] = useState<boolean>(false);
-  const itemsPerPrintPage = 15; // Items per print page (3x5 grid for A4)
+  const itemsPerPage = 10;
+  const itemsPerPrintPage = 15;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const moreMenuRef = useRef<HTMLDivElement>(null);
 
@@ -436,8 +449,8 @@ export default function InventoryList() {
 
   return (
     <div className="flex flex-col w-full antialiased bg-gradient-to-br animate-fadeIn inventory-list-container min-h-svh from-[#f8fafc] via-[#eef2ff] to-[#e0e7ff]">
-      <Activity mode={ShowAlert ? "visible" : "hidden"}>
-        <SuccessAlert message={ShowMessage} />
+      <Activity mode={showAlert ? "visible" : "hidden"}>
+        <SuccessAlert message={showMessage} />
       </Activity>
 
       <Activity mode={showAlertSuccess ? "visible" : "hidden"}>
@@ -708,8 +721,8 @@ export default function InventoryList() {
               ) : (
                 <InventoryTable
                   item={paginatedData}
-                  ShowAlert={ShowAlert}
-                  ShowMessage={ShowMessage}
+                  ShowAlert={showAlert}
+                  ShowMessage={showMessage}
                   ShowAlertSuccess={showAlertSuccess}
                   ShowAlertFailed={showAlertFailed}
                 />
