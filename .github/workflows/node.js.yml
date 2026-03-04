@@ -11,27 +11,26 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         node-version: [18.x, 20.x, 22.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'pnpm'
+      - uses: actions/checkout@v4
 
-    - name: Install pnpm
-      run: npm install -g pnpm
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
 
-    - name: Install dependencies
-      run: pnpm ci
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+          run_install: true
 
-    - name: Build the source code
-      run: pnpm build --if-present
+      - name: Build the source code
+        run: pnpm build --if-present
+      
+      
