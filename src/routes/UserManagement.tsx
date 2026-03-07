@@ -1,4 +1,4 @@
-import { Activity, useCallback, useMemo, useState } from "react";
+import { Activity, useCallback, useMemo } from "react";
 import { AddUsers } from "../components/AddUser";
 import Button from "../components/Button";
 import EditUser from "../components/EditUser";
@@ -13,6 +13,8 @@ import ViewUserCredentials from "../components/ViewUserCredentials";
 import { SuccessAlert } from "../components/SuccessAlert";
 import { ErrorAlert } from "../components/ErrorAlert";
 import { useAllUsersManagement, useFilteredUser } from "../data/user-management-data";
+import { useCommonState } from "../states/index-state";
+import { useAllUsersManagementState } from "../states/user-management-state";
 
 
 export default function UserManagement() {
@@ -21,16 +23,31 @@ export default function UserManagement() {
   const { users, isPending, isError } = useAllUsersManagement()
   const { filteredUser, setSearchUser, setSelectedStatus, selectedRole, setSelectedRole } = useFilteredUser()
 
-  const [ShowSuccessAlert, setShowSuccessAlert] = useState<boolean>(false);
-  const [ShowErrorAlert, setErrorShowAlert] = useState<boolean>(false);
-  const [showSuccessMessage, setShowSuccessMessage] = useState<string>("");
-  const [showErrorMessage, setShowErrorMessage] = useState<string>("");
-  const [isAddUserOpen, setIsAddUserOpen] = useState<boolean>(false);
-  const [isEditUserOpen, setIsEditUserOpen] = useState<boolean>(false);
-  const [isViewCredentialsOpen, setIsViewCredentialsOpen] = useState(false);
-  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState<boolean>(false);
-  const [selectedUserId, setSelectedUserId] = useState<string>("");
-  const [archiveUserId, setArchiveUserId] = useState<string>("");
+  const {
+    showSuccessAlert,
+    setShowSuccessAlert,
+    showErrorAlert,
+    setShowErrorAlert,
+    showSuccessMessage,
+    setShowSuccessMessage,
+    showErrorMessage,
+    setShowErrorMessage
+  } = useCommonState()
+
+  const {
+    isAddUserOpen,
+    setIsAddUserOpen,
+    isEditUserOpen,
+    setIsEditUserOpen,
+    isViewCredentialsOpen,
+    setIsViewCredentialsOpen,
+    isArchiveModalOpen,
+    setIsArchiveModalOpen,
+    selectedUserId,
+    setSelectedUserId,
+    archiveUserId,
+    setArchiveUserId,
+  } = useAllUsersManagementState()
 
   const selectedUser = useMemo(() => {
     return users.find((u) => u.id === selectedUserId);
@@ -50,12 +67,12 @@ export default function UserManagement() {
       },
       onError: () => {
         setIsArchiveModalOpen(false);
-        setErrorShowAlert(true);
+        setShowErrorAlert(true);
         setArchiveUserId("");
         setShowSuccessAlert(false);
         setShowErrorMessage("You cannot delete the logged-in user!");
         setTimeout(() => {
-          setErrorShowAlert(false);
+          setShowErrorAlert(false);
           setShowErrorMessage("");
         }, 3500);
       },
@@ -78,11 +95,11 @@ export default function UserManagement() {
 
   return (
     <div className="flex flex-col items-center py-8 px-4 w-full min-h-screen bg-gradient-to-br from-[#f8fafc] via-[#f1f5f9] to-[#eef2ff] animate-fadeIn">
-      <Activity mode={ShowSuccessAlert ? "visible" : "hidden"}>
+      <Activity mode={showSuccessAlert ? "visible" : "hidden"}>
         <SuccessAlert message={showSuccessMessage} />
       </Activity>
 
-      <Activity mode={ShowErrorAlert ? "visible" : "hidden"}>
+      <Activity mode={showErrorAlert ? "visible" : "hidden"}>
         <ErrorAlert message={showErrorMessage} />
       </Activity>
 
@@ -110,7 +127,7 @@ export default function UserManagement() {
             </span>
             <span className="hidden md:inline w-px h-5 bg-[#e5e7eb]" />
             <span className="text-sm font-medium text-[#64748b]">
-              {filteredUser.filter((a) => a.userRole ==="Admin" || a.userRole === "Staff").length} shown
+              {filteredUser.filter((a) => a.userRole === "Admin" || a.userRole === "Staff").length} shown
             </span>
           </div>
         </div>
@@ -127,11 +144,10 @@ export default function UserManagement() {
                 <button
                   key={role}
                   onClick={() => setSelectedRole(role)}
-                  className={`px-4 py-2.5 sm:px-5 sm:py-2 rounded-md font-medium text-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3730a3]/40 focus-visible:ring-offset-2 ${
-                    selectedRole === role
+                  className={`px-4 py-2.5 sm:px-5 sm:py-2 rounded-md font-medium text-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3730a3]/40 focus-visible:ring-offset-2 ${selectedRole === role
                       ? "bg-blue-500 text-white shadow-md shadow-[#3730a3]/25"
                       : "bg-white text-[#64748b] border border-[#e5e7eb] hover:border-[#3730a3]/40 hover:text-[#3730a3]"
-                  }`}
+                    }`}
                 >
                   {role.charAt(0).toUpperCase() + role.slice(1)}
                 </button>
@@ -178,9 +194,8 @@ export default function UserManagement() {
                     ].map((col, i) => (
                       <th
                         key={col}
-                        className={`sticky top-0 z-10 py-3.5 px-4 font-semibold text-xs uppercase tracking-wider text-[#64748b] bg-[#f8fafc] border-b border-[#e5e7eb] md:py-4 md:px-5 first:pl-5 last:pr-5 ${
-                          i === 0 ? "rounded-tl-xl" : ""
-                        } ${i === 6 ? "rounded-tr-xl" : ""}`}
+                        className={`sticky top-0 z-10 py-3.5 px-4 font-semibold text-xs uppercase tracking-wider text-[#64748b] bg-[#f8fafc] border-b border-[#e5e7eb] md:py-4 md:px-5 first:pl-5 last:pr-5 ${i === 0 ? "rounded-tl-xl" : ""
+                          } ${i === 6 ? "rounded-tr-xl" : ""}`}
                       >
                         {col}
                       </th>
