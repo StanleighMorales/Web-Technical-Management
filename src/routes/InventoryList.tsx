@@ -22,25 +22,38 @@ import html2canvas from "html2canvas";
 import SelectItemFilters from "../components/SelectItemFilters";
 import { InventoryTable } from "../components/InventoryTable";
 import { useAllInventoryItems, useFilteredItems } from "../data/inventory-data";
-import { useInventoryListStore } from "../stores/inventory-list-store";
+import { useInventoryListState } from "../states/inventory-list-state";
+import { useCommonState } from "../states/index-state";
 
 export default function InventoryList() {
   const { items, isPending, isError } = useAllInventoryItems()
-  const { filteredItems, setSearchItem, selectedCategory, setSelectedCategory, selectedCondition, setSelectedCondition, selectedStatus, setSelectedStatus } = useFilteredItems()
+  const { 
+    filteredItems, 
+    setSearchItem, 
+    selectedCategory, 
+    setSelectedCategory, 
+    selectedCondition, 
+    setSelectedCondition, 
+    selectedStatus, 
+    setSelectedStatus 
+  } = useFilteredItems()
+
+  const {
+    showSuccessAlert,
+    setShowSuccessAlert,
+    showErrorAlert,
+    setShowErrorAlert,
+    showSuccessMessage,
+    setShowSuccessMessage,
+    showErrorMessage,
+    setShowErrorMessage
+  } = useCommonState()
 
   const {
     currentPage,
     setCurrentPage,
-    showAlert,
-    setShowAlert,
-    showMessage,
-    setShowMessage,
     isAddItemFormOpen,
     setIsAddItemFormOpen,
-    showAlertSuccess,
-    setShowAlertSuccess,
-    showAlertFailed,
-    setShowAlertFailed,
     isImporting,
     isExporting,
     setIsImporting,
@@ -53,7 +66,7 @@ export default function InventoryList() {
     setPrintCurrentPage,
     isGeneratingPDF,
     setIsGeneratingPDF
-  } = useInventoryListStore()
+  } = useInventoryListState()
 
   const itemsPerPage = 10;
   const itemsPerPrintPage = 15;
@@ -165,9 +178,9 @@ export default function InventoryList() {
       "application/vnd.ms-excel",
     ];
     if (!validTypes.includes(file.type)) {
-      setShowAlertFailed(true);
+      setShowErrorAlert(true);
       setTimeout(() => {
-        setShowAlertFailed(false);
+        setShowErrorAlert(false);
       }, 3000);
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
@@ -176,9 +189,9 @@ export default function InventoryList() {
     // Validate file size (5MB limit)
     const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
-      setShowAlertFailed(true);
+      setShowErrorAlert(true);
       setTimeout(() => {
-        setShowAlertFailed(false);
+        setShowErrorAlert(false);
       }, 3000);
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
@@ -207,17 +220,17 @@ export default function InventoryList() {
     importItem(form, {
       onSuccess: () => {
         setIsImporting(false);
-        setShowAlertSuccess(true);
+        setShowSuccessAlert(true);
         setTimeout(() => {
-          setShowAlertSuccess(false);
+          setShowSuccessAlert(false);
         }, 3500);
       },
       onError: (error) => {
         setIsImporting(false);
         console.error(error.message);
-        setShowAlertFailed(true);
+        setShowErrorAlert(true);
         setTimeout(() => {
-          setShowAlertFailed(false);
+          setShowErrorAlert(false);
         }, 3500);
       },
     });
@@ -232,13 +245,13 @@ export default function InventoryList() {
   const handleExportItems = async () => {
     // Check if there are items to export
     if (filteredItems.length === 0) {
-      setShowAlert(true);
-      setShowMessage(
+      setShowSuccessAlert(true);
+      setShowErrorMessage(
         "No items to export. Please add items to your inventory first.",
       );
       setTimeout(() => {
-        setShowAlert(false);
-        setShowMessage("");
+        setShowSuccessAlert(false);
+        setShowErrorMessage("");
       }, 3000);
       return;
     }
@@ -293,23 +306,23 @@ export default function InventoryList() {
       XLSX.writeFile(workbook, filename);
 
       // Show success message
-      setShowAlert(true);
-      setShowMessage(
+      setShowSuccessAlert(true);
+      setShowSuccessMessage(
         `Successfully exported ${exportData.length} item${exportData.length !== 1 ? "s" : ""} to ${filename}`,
       );
       setTimeout(() => {
-        setShowAlert(false);
-        setShowMessage("");
+        setShowSuccessAlert(false);
+        setShowSuccessMessage("");
       }, 3500);
     } catch (error) {
       console.error("Export error:", error);
-      setShowAlert(true);
-      setShowMessage(
+      setShowSuccessAlert(true);
+      setShowSuccessMessage(
         `Export failed: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
       setTimeout(() => {
-        setShowAlert(false);
-        setShowMessage("");
+        setShowSuccessAlert(false);
+        setShowSuccessMessage("");
       }, 3500);
     } finally {
       setIsExporting(false);
@@ -416,26 +429,26 @@ export default function InventoryList() {
       pdf.save(filename);
 
       // Show success message
-      setShowAlert(true);
-      setShowMessage(
+      setShowSuccessAlert(true);
+      setShowSuccessMessage(
         `Successfully generated PDF with ${filteredItems.length} barcode${filteredItems.length !== 1 ? "s" : ""}`,
       );
       setTimeout(() => {
-        setShowAlert(false);
-        setShowMessage("");
+        setShowSuccessAlert(false);
+        setShowSuccessMessage("");
       }, 3000);
 
       // Close modal
       setShowPrintBarcodeModal(false);
     } catch (error) {
       console.error("PDF generation error:", error);
-      setShowAlert(true);
-      setShowMessage(
+      setShowSuccessAlert(true);
+      setShowSuccessMessage(
         `PDF generation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
       setTimeout(() => {
-        setShowAlert(false);
-        setShowMessage("");
+        setShowSuccessAlert(false);
+        setShowSuccessMessage("");
       }, 3000);
     } finally {
       setIsGeneratingPDF(false);
@@ -448,16 +461,16 @@ export default function InventoryList() {
 
   return (
     <div className="flex flex-col w-full antialiased bg-gradient-to-br animate-fadeIn inventory-list-container min-h-svh from-[#f8fafc] via-[#eef2ff] to-[#e0e7ff]">
-      <Activity mode={showAlert ? "visible" : "hidden"}>
-        <SuccessAlert message={showMessage} />
+      <Activity mode={showSuccessAlert ? "visible" : "hidden"}>
+        <SuccessAlert message={showSuccessMessage} />
       </Activity>
 
-      <Activity mode={showAlertSuccess ? "visible" : "hidden"}>
+      <Activity mode={showSuccessAlert ? "visible" : "hidden"}>
         <SuccessAlert message="Excel imported successfully!" />
       </Activity>
 
-      <Activity mode={showAlertFailed ? "visible" : "hidden"}>
-        {showAlertFailed && (
+      <Activity mode={showErrorAlert ? "visible" : "hidden"}>
+        {showErrorMessage && (
           <ErrorAlert message="Import failed. Please check your file format and try again." />
         )}
       </Activity>
@@ -720,10 +733,10 @@ export default function InventoryList() {
               ) : (
                 <InventoryTable
                   item={paginatedData}
-                  ShowAlert={showAlert}
-                  ShowMessage={showMessage}
-                  ShowAlertSuccess={showAlertSuccess}
-                  ShowAlertFailed={showAlertFailed}
+                  ShowAlert={showSuccessAlert}
+                  ShowMessage={showSuccessMessage}
+                  ShowAlertSuccess={showSuccessAlert}
+                  ShowAlertFailed={showErrorAlert}
                 />
               )}
               {paginatedData.length === 0 && (
