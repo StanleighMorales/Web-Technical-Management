@@ -79,7 +79,7 @@ export const recentlyBorrowItems = async (id?: string) => {
   const url = id ? `${item_borrow_end_point}/${id}` : item_borrow_end_point;
 
   const response = await api.get(url);
-  return response.data.data;
+  return response.data;
 };
 
 export const borrowItem = async (data: TBorrowItemData) => {
