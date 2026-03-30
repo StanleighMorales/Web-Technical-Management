@@ -196,11 +196,10 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
                   <React.Fragment key={s.id}>
                     <div className="flex items-center gap-1.5">
                       <span
-                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-medium transition-colors ${
-                          step >= s.id
-                            ? "bg-blue-800 text-white"
-                            : "bg-blue-200 text-blue-500"
-                        }`}
+                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-medium transition-colors ${step >= s.id
+                          ? "bg-blue-800 text-white"
+                          : "bg-blue-200 text-blue-500"
+                          }`}
                       >
                         {s.id}
                       </span>
@@ -221,221 +220,221 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
 
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
               {step === 1 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                <div>
-                  <label htmlFor="firstName" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
-                    First Name <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="firstName"
-                    name="firstName"
-                    className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(firstnameError)}`}
-                    value={formData.firstName}
-                    onChange={handleInputChange}
-                    placeholder="Enter first name"
-                    data-testid="firstName"
-                  />
-                  <Activity mode={firstnameError ? "visible" : "hidden"}>
-                    <p className="text-rose-500 text-xs mt-1">{firstnameError}</p>
-                  </Activity>
-                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  <div>
+                    <label htmlFor="firstName" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
+                      First Name <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="firstName"
+                      name="firstName"
+                      className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(firstnameError)}`}
+                      value={formData.firstName}
+                      onChange={handleInputChange}
+                      placeholder="Enter first name"
+                      data-testid="firstName"
+                    />
+                    <Activity mode={firstnameError ? "visible" : "hidden"}>
+                      <p className="text-rose-500 text-xs mt-1">{firstnameError}</p>
+                    </Activity>
+                  </div>
 
-                <div>
-                  <label htmlFor="lastName" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
-                    Last Name <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="lastName"
-                    name="lastName"
-                    className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(lastnameError)}`}
-                    value={formData.lastName}
-                    onChange={handleInputChange}
-                    placeholder="Enter last name"
-                    data-testid="lastName"
-                  />
-                  <Activity mode={lastnameError ? "visible" : "hidden"}>
-                    <p className="text-rose-500 text-xs mt-1">{lastnameError}</p>
-                  </Activity>
-                </div>
+                  <div>
+                    <label htmlFor="lastName" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
+                      Last Name <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="lastName"
+                      name="lastName"
+                      className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(lastnameError)}`}
+                      value={formData.lastName}
+                      onChange={handleInputChange}
+                      placeholder="Enter last name"
+                      data-testid="lastName"
+                    />
+                    <Activity mode={lastnameError ? "visible" : "hidden"}>
+                      <p className="text-rose-500 text-xs mt-1">{lastnameError}</p>
+                    </Activity>
+                  </div>
 
-                <div>
-                  <label htmlFor="middleName" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
-                    Middle Name <span className="text-slate-400">(Optional)</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="middleName"
-                    name="middleName"
-                    className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(middlenameError)}`}
-                    value={formData.middleName}
-                    onChange={handleInputChange}
-                    placeholder="Enter middle name"
-                    data-testid="middleName"
-                  />
-                  <Activity mode={middlenameError ? "visible" : "hidden"}>
-                    <p className="text-rose-500 text-xs mt-1">{middlenameError}</p>
-                  </Activity>
+                  <div>
+                    <label htmlFor="middleName" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
+                      Middle Name <span className="text-slate-400">(Optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="middleName"
+                      name="middleName"
+                      className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(middlenameError)}`}
+                      value={formData.middleName}
+                      onChange={handleInputChange}
+                      placeholder="Enter middle name"
+                      data-testid="middleName"
+                    />
+                    <Activity mode={middlenameError ? "visible" : "hidden"}>
+                      <p className="text-rose-500 text-xs mt-1">{middlenameError}</p>
+                    </Activity>
+                  </div>
                 </div>
-              </div>
               )}
 
               {step === 2 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                <div>
-                  <label htmlFor="username" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
-                    Username <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    id="username"
-                    name="username"
-                    type="text"
-                    className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(usernameError)}`}
-                    value={formData.username}
-                    onChange={handleInputChange}
-                    placeholder="Enter username"
-                    data-testid="username"
-                  />
-                  <Activity mode={usernameError ? "visible" : "hidden"}>
-                    <p className="text-rose-500 text-xs mt-1">{usernameError}</p>
-                  </Activity>
-                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  <div>
+                    <label htmlFor="username" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
+                      Username <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      id="username"
+                      name="username"
+                      type="text"
+                      className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(usernameError)}`}
+                      value={formData.username}
+                      onChange={handleInputChange}
+                      placeholder="Enter username"
+                      data-testid="username"
+                    />
+                    <Activity mode={usernameError ? "visible" : "hidden"}>
+                      <p className="text-rose-500 text-xs mt-1">{usernameError}</p>
+                    </Activity>
+                  </div>
 
-                <div>
-                  <label htmlFor="email" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
-                    Email <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="text"
-                    className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(emailError)}`}
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="example@example.com"
-                    data-testid="email"
-                  />
-                  <Activity mode={emailError ? "visible" : "hidden"}>
-                    <p className="text-rose-500 text-xs mt-1">{emailError}</p>
-                  </Activity>
-                </div>
+                  <div>
+                    <label htmlFor="email" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
+                      Email <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      id="email"
+                      name="email"
+                      type="text"
+                      className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(emailError)}`}
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      placeholder="example@example.com"
+                      data-testid="email"
+                    />
+                    <Activity mode={emailError ? "visible" : "hidden"}>
+                      <p className="text-rose-500 text-xs mt-1">{emailError}</p>
+                    </Activity>
+                  </div>
 
-                <div>
-                  <label htmlFor="phoneNumber" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
-                    Phone Number <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    id="phoneNumber"
-                    name="phoneNumber"
-                    type="tel"
-                    maxLength={10}
-                    className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(phoneNumberError)}`}
-                    value={formData.phoneNumber}
-                    onChange={handleInputChange}
-                    placeholder="9XXXXXXXXX"
-                    data-testid="phoneNumber"
-                  />
-                  <Activity mode={phoneNumberError ? "visible" : "hidden"}>
-                    <p className="text-rose-500 text-xs mt-1">{phoneNumberError}</p>
-                  </Activity>
+                  <div>
+                    <label htmlFor="phoneNumber" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
+                      Phone Number <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      id="phoneNumber"
+                      name="phoneNumber"
+                      type="tel"
+                      maxLength={11}
+                      className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(phoneNumberError)}`}
+                      value={formData.phoneNumber}
+                      onChange={handleInputChange}
+                      placeholder="9XXXXXXXXX"
+                      data-testid="phoneNumber"
+                    />
+                    <Activity mode={phoneNumberError ? "visible" : "hidden"}>
+                      <p className="text-rose-500 text-xs mt-1">{phoneNumberError}</p>
+                    </Activity>
+                  </div>
                 </div>
-              </div>
               )}
 
               {step === 3 && (
-              <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div className="relative">
-                  <label htmlFor="password" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
-                    Password <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(passwordError)}`}
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    placeholder="Enter password"
-                    data-testid="password"
-                  />
-                  {formData.password.length > 0 &&
-                    (showPassword ? (
-                      <FaEye
-                        onClick={() => setShowPassword(false)}
-                        className="absolute top-9 right-3 text-lg text-slate-400 cursor-pointer"
-                        aria-label="Hide password"
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div className="relative">
+                      <label htmlFor="password" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
+                        Password <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        id="password"
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(passwordError)}`}
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        placeholder="Enter password"
+                        data-testid="password"
                       />
-                    ) : (
-                      <FaEyeSlash
-                        onClick={() => setShowPassword(true)}
-                        className="absolute top-9 right-3 text-lg text-slate-400 cursor-pointer"
-                        aria-label="Show password"
-                      />
-                    ))}
-                  <Activity mode={passwordError ? "visible" : "hidden"}>
-                    <p className="text-rose-500 text-xs mt-1">{passwordError}</p>
-                  </Activity>
-                </div>
+                      {formData.password.length > 0 &&
+                        (showPassword ? (
+                          <FaEye
+                            onClick={() => setShowPassword(false)}
+                            className="absolute top-9 right-3 text-lg text-slate-400 cursor-pointer"
+                            aria-label="Hide password"
+                          />
+                        ) : (
+                          <FaEyeSlash
+                            onClick={() => setShowPassword(true)}
+                            className="absolute top-9 right-3 text-lg text-slate-400 cursor-pointer"
+                            aria-label="Show password"
+                          />
+                        ))}
+                      <Activity mode={passwordError ? "visible" : "hidden"}>
+                        <p className="text-rose-500 text-xs mt-1">{passwordError}</p>
+                      </Activity>
+                    </div>
 
-                <div className="relative">
-                  <label htmlFor="confirmPassword" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
-                    Confirm Password <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(confirmPasswordError)}`}
-                    value={formData.confirmPassword}
-                    onChange={handleInputChange}
-                    placeholder="Confirm password"
-                    data-testid="confirmPassword"
-                  />
-                  {formData.confirmPassword.length > 0 &&
-                    (showConfirmPassword ? (
-                      <FaEye
-                        onClick={() => setShowConfirmPassword(false)}
-                        className="absolute top-9 right-3 text-lg text-slate-400 cursor-pointer"
-                        aria-label="Hide password"
+                    <div className="relative">
+                      <label htmlFor="confirmPassword" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
+                        Confirm Password <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type={showConfirmPassword ? "text" : "password"}
+                        className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(confirmPasswordError)}`}
+                        value={formData.confirmPassword}
+                        onChange={handleInputChange}
+                        placeholder="Confirm password"
+                        data-testid="confirmPassword"
                       />
-                    ) : (
-                      <FaEyeSlash
-                        onClick={() => setShowConfirmPassword(true)}
-                        className="absolute top-9 right-3 text-lg text-slate-400 cursor-pointer"
-                        aria-label="Show password"
-                      />
-                    ))}
-                  <Activity mode={confirmPasswordError ? "visible" : "hidden"}>
-                    <p className="text-rose-500 text-xs mt-1">{confirmPasswordError}</p>
-                  </Activity>
-                </div>
-              </div>
+                      {formData.confirmPassword.length > 0 &&
+                        (showConfirmPassword ? (
+                          <FaEye
+                            onClick={() => setShowConfirmPassword(false)}
+                            className="absolute top-9 right-3 text-lg text-slate-400 cursor-pointer"
+                            aria-label="Hide password"
+                          />
+                        ) : (
+                          <FaEyeSlash
+                            onClick={() => setShowConfirmPassword(true)}
+                            className="absolute top-9 right-3 text-lg text-slate-400 cursor-pointer"
+                            aria-label="Show password"
+                          />
+                        ))}
+                      <Activity mode={confirmPasswordError ? "visible" : "hidden"}>
+                        <p className="text-rose-500 text-xs mt-1">{confirmPasswordError}</p>
+                      </Activity>
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div>
-                  <label htmlFor="role" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
-                    Role <span className="text-rose-500">*</span>
-                  </label>
-                  <select
-                    id="role"
-                    name="role"
-                    className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(roleError)}`}
-                    value={formData.role}
-                    onChange={handleInputChange}
-                    data-testid="role"
-                  >
-                    <option value="">Select Role</option>
-                    <option value="Admin">Admin</option>
-                    <option value="Staff">Staff</option>
-                  </select>
-                  <Activity mode={roleError ? "visible" : "hidden"}>
-                    <p className="text-rose-500 text-xs mt-1">{roleError}</p>
-                  </Activity>
-                </div>
-              </div>
-              </>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                      <label htmlFor="role" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
+                        Role <span className="text-rose-500">*</span>
+                      </label>
+                      <select
+                        id="role"
+                        name="role"
+                        className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(roleError)}`}
+                        value={formData.role}
+                        onChange={handleInputChange}
+                        data-testid="role"
+                      >
+                        <option value="">Select Role</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Staff">Staff</option>
+                      </select>
+                      <Activity mode={roleError ? "visible" : "hidden"}>
+                        <p className="text-rose-500 text-xs mt-1">{roleError}</p>
+                      </Activity>
+                    </div>
+                  </div>
+                </>
               )}
 
               <div className="flex items-center justify-between pt-4 border-t border-slate-100">
