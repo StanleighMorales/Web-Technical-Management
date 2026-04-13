@@ -105,8 +105,6 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
   };
 
   const validateStep3 = (): boolean => {
-    const passwordRegex =
-      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     let ok = true;
     if (!formData.role) {
       setRoleError("Role is required");
@@ -114,11 +112,6 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
     }
     if (!formData.password) {
       setPasswordError("Password is required");
-      ok = false;
-    } else if (!passwordRegex.test(formData.password)) {
-      setPasswordError(
-        "Password must include: uppercase, lowercase, number, special character and be at least 8 characters long.",
-      );
       ok = false;
     }
     if (!formData.confirmPassword) {
@@ -143,6 +136,7 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
 
   const submitUser = () => {
     if (!validateStep3()) return;
+    console.log(formData);
     mutate(formData, {
       onSuccess: () => {
         setShowAlert(true);
@@ -162,8 +156,8 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
           role: "",
         });
       },
-      onError: (error) => {
-        console.log(error);
+      onError: (error: any) => {
+        if (error.response) console.log(error.response?.data.errors);
       },
     });
   };
@@ -218,7 +212,7 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-5">
+            <form onSubmit={handleSubmit} className="p-6 space-y-5" method="post">
               {step === 1 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   <div>
@@ -327,7 +321,7 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
                     <input
                       id="phoneNumber"
                       name="phoneNumber"
-                      type="tel"
+                      type="text"
                       maxLength={11}
                       className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(phoneNumberError)}`}
                       value={formData.phoneNumber}
