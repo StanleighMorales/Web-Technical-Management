@@ -1,6 +1,6 @@
 import { api } from "./axios";
 import type {
-  TRegisterUser,
+  TUserFormData,
   TUpdateUsers,
   TUpdateStudent,
   TUpdatePassword,
@@ -37,7 +37,7 @@ export const allUsersApi = async () => {
   return response.data.data;
 };
 
-export const registerUserApi = async (data: TRegisterUser) => {
+export const registerUserApi = async (data: TUserFormData) => {
   const response = await api.post("/auth/register", data);
   return response.data;
 };
