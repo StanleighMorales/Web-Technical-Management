@@ -27,7 +27,6 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
   const [serialNumberError, setSerialNumberError] = useState<string>("");
   const [itemMakeError, setItemMakeError] = useState<string>("");
   const [descriptionError, setDescriptionError] = useState<string>("");
-  const [imageError, setImageError] = useState<string | null>(null);
   const [formData, setFormData] = useState<TItemForm>({
     serialNumber: "",
     image: null,
@@ -64,34 +63,18 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
 
       if (name === "itemName") setItemNameError("");
       if (name === "serialNumber") setSerialNumberError("");
-      if (name === "Image") setImageError("");
       if (name === "itemMake") setItemMakeError("");
       if (name === "itemModel") setItemModelError("");
       if (name === "description") setDescriptionError("");
-      if (name === "image") setImageError("");
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (step !== TOTAL_STEPS) return;
+
     let hasError = false;
-    if (
-      !formData.itemName &&
-      !formData.serialNumber &&
-      !formData.itemType &&
-      !formData.itemModel &&
-      !formData.itemMake &&
-      !formData.description &&
-      formData.image == null
-    ) {
-      setItemNameError("Item Name is required");
-      setSerialNumberError("Serial Num is required");
-      setImageError("Image is required");
-      setItemMakeError("Item Make is required");
-      setItemModelError("Item Model is required");
-      setDescriptionError("Description is required");
-      hasError = true;
-    }
 
     if (!formData.itemName) {
       setItemNameError("Item Name is required");
@@ -100,11 +83,6 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
 
     if (!formData.serialNumber) {
       setSerialNumberError("Serial Num is required");
-      hasError = true;
-    }
-
-    if (!formData.image) {
-      setImageError("Image is required");
       hasError = true;
     }
 
@@ -124,6 +102,7 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
     }
 
     if (hasError) return;
+
     submitItem();
   };
 
@@ -157,14 +136,6 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
     return ok;
   };
 
-  const validateStep3 = (): boolean => {
-    if (!formData.image) {
-      setImageError("Image is required");
-      return false;
-    }
-    return true;
-  };
-
   const goNext = () => {
     if (step === 1 && !validateStep1()) return;
     if (step === 2 && !validateStep2()) return;
@@ -176,7 +147,6 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
   };
 
   const submitItem = () => {
-    if (!validateStep3()) return;
     const newItem = {
       serialNumber: formData.serialNumber,
       image: formData.image,
@@ -188,8 +158,6 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
       category: formData.category,
       condition: formData.condition,
     };
-
-    console.log(newItem);
 
     mutate(newItem, {
       onSuccess: () => {
@@ -247,11 +215,10 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
                   <React.Fragment key={s.id}>
                     <div className="flex items-center gap-1.5">
                       <span
-                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-medium transition-colors ${
-                          step >= s.id
-                            ? "bg-blue-800 text-white"
-                            : "bg-blue-200 text-blue-500"
-                        }`}
+                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-medium transition-colors ${step >= s.id
+                          ? "bg-blue-800 text-white"
+                          : "bg-blue-200 text-blue-500"
+                          }`}
                       >
                         {s.id}
                       </span>
@@ -272,6 +239,11 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
 
             <form
               onSubmit={handleSubmit}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                }
+              }}
               className="p-6 space-y-5"
               encType="multipart/form-data"
             >
@@ -436,7 +408,7 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
                   </label>
                   <div className="flex flex-col sm:flex-row gap-4 items-start">
                     <input
-                      className={`flex-1 w-full px-3 py-2 rounded-lg border bg-white text-slate-700 text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(imageError ?? "")}`}
+                      className={`flex-1 w-full px-3 py-2 rounded-lg border bg-white text-slate-700 text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors`}
                       type="file"
                       id="image"
                       name="image"
@@ -452,9 +424,6 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
                       </Activity>
                     )}
                   </div>
-                  <Activity mode={imageError ? "visible" : "hidden"}>
-                    <p className="text-rose-500 text-xs mt-1">{imageError}</p>
-                  </Activity>
                 </div>
               )}
 
@@ -486,7 +455,8 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
                     </button>
                   ) : (
                     <button
-                      type="submit"
+                      type="button"
+                      onClick={(e) => handleSubmit(e as any)}
                       className="px-5 py-2.5 bg-blue-500 text-white text-sm font-medium rounded-lg shadow-sm hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-colors cursor-pointer"
                       data-testid="addItem-button"
                     >
