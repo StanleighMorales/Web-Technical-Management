@@ -8,6 +8,7 @@ import { useLogin } from "../../hooks/authHooks";
 
 export default function Login() {
   const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const [isShowPassword, setIsShowPassword] = useState<boolean>(false);
   const [usernameError, setUsernameError] = useState<string>("");
   const [passwordError, setPasswordError] = useState<string>("");
@@ -53,20 +54,19 @@ export default function Login() {
       onSuccess: () => {
         navigate({ to: "/home/dashboard" });
       },
-      onError: (err: Error) => {
-        console.error("Registration failed:", err.message);
+      onError: () => {
+        setErrorMessage("Invalid username or password.")
       },
     });
   };
 
   const hasInputError = (field: "identifier" | "password") => {
-    if (field === "identifier") return !!usernameError || (isError && error instanceof Error);
-    return !!passwordError || (isError && error instanceof Error);
+    if (field === "identifier") return !!usernameError || errorMessage
+    return !!passwordError || errorMessage
   };
 
   const inputClass = (field: "identifier" | "password") =>
-    `w-[400px] h-[55px] rounded-md border-2 bg-white/78 pl-4 pr-12 text-base outline-none transition placeholder:text-black/40 hover:bg-white/93 focus:bg-white max-lg:w-[90vw] max-lg:max-w-[98%] max-lg:min-w-[220px] max-sm:w-[98vw] max-sm:min-w-[120px] ${
-      hasInputError(field) ? "border-red-500" : "border-black/20 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+    `w-[400px] h-[55px] rounded-md border-2 bg-white/78 pl-4 pr-12 text-base outline-none transition placeholder:text-black/40 hover:bg-white/93 focus:bg-white max-lg:w-[90vw] max-lg:max-w-[98%] max-lg:min-w-[220px] max-sm:w-[98vw] max-sm:min-w-[120px] ${hasInputError(field) ? "border-red-500" : "border-black/20 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
     }`;
 
   return (
@@ -110,11 +110,9 @@ export default function Login() {
           <p className="mb-1.5 text-center text-black/62">
             Enter your credentials to log in.
           </p>
-          {isError && error instanceof Error && (
-            <div className="mt-2 text-red-500 text-md" role="alert">
-              {error.message}
-            </div>
-          )}
+          <div className="mt-2 text-red-500 text-md" role="alert">
+            {errorMessage}
+          </div>
         </div>
 
         <form
