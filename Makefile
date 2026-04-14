@@ -1,4 +1,4 @@
-.PHONY: install run test status log push build
+.PHONY: install run test status log push build deploy
 
 # install all the dependencies
 install:
@@ -26,3 +26,7 @@ log:
 # push your code
 push:
 	git push origin develop
+
+# deploy the app to cloudflare pages
+deploy:
+	npx wrangler pages deploy ./dist
