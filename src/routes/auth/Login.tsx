@@ -17,7 +17,7 @@ export default function Login() {
     password: "",
   });
 
-  const { mutate, isPending, error, isError } = useLogin();
+  const { mutate, isPending } = useLogin();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
