@@ -11,6 +11,7 @@ export default function DashboardBadges({ name, link, data }: BadgesProps) {
     <Link
       to={link}
       className={`
+        mt-4
         group
         flex flex-col flex-nowrap items-center justify-center
         p-8
@@ -22,7 +23,7 @@ export default function DashboardBadges({ name, link, data }: BadgesProps) {
         cursor-pointer
         w-full min-w-[140px] max-w-[350px]
 
-        hover:shadow-lg hover:-translate-y-1
+        hover:shadow-lg
 
         border-[#e5e7eb] hover:border-[#2563eb]
       `}
