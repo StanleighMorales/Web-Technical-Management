@@ -25,6 +25,9 @@ export default function Sidebar() {
   const [isItemsDropdownOpen, setIsItemsDropdownOpen] = useState<boolean>(false);
   const [wasItemsDropdownOpen, setWasItemsDropdownOpen] = useState<boolean>(false);
   const [isMobileItemsOpen, setIsMobileItemsOpen] = useState<boolean>(false);
+  const [isLogsDropdownOpen, setIsLogsDropdownOpen] = useState<boolean>(false);
+  const [wasLogsDropdownOpen, setWasLogsDropdownOpen] = useState<boolean>(false);
+  const [isMobileLogsOpen, setIsMobileLogsOpen] = useState<boolean>(false);
 
   const { mutate, isPending } = useLogoutUser();
   const { setIsSidebarExpanded } = useSidebar();
@@ -38,8 +41,6 @@ export default function Sidebar() {
 
   const sideBarListBottom = [
     { label: "Archives", link: "/home/archive-table", icon: MdInventory },
-    { label: "Borrow History", link: "/home/history-list", icon: MdHistory },
-    { label: "Logs", link: "/home/activity-logs", icon: BiLogoSass },
     { label: "Registered Module", link: "/home/registration-module", icon: MdAppRegistration },
     { label: "Profile", link: "/home/settings", icon: BsPersonCircle },
   ];
@@ -47,6 +48,11 @@ export default function Sidebar() {
   const itemsSubmenu = [
     { label: "Borrow Items", link: "/home/borrow-item", icon: GrStorage },
     { label: "Pending & Reservations", link: "/home/pending-reservations", icon: BsClipboardCheck },
+  ];
+
+  const logsSubmenu = [
+    { label: "Activity Logs", link: "/home/activity-logs", icon: BiLogoSass },
+    { label: "Borrowing Logs", link: "#", icon: MdHistory },
   ];
 
   // Toggle mobile menu
@@ -81,11 +87,14 @@ export default function Sidebar() {
         onMouseEnter={() => {
           setIsSidebarExpanded(true);
           setIsItemsDropdownOpen(wasItemsDropdownOpen);
+          setIsLogsDropdownOpen(wasLogsDropdownOpen);
         }}
         onMouseLeave={() => {
           setIsSidebarExpanded(false);
           setWasItemsDropdownOpen(isItemsDropdownOpen);
           setIsItemsDropdownOpen(false);
+          setWasLogsDropdownOpen(isLogsDropdownOpen);
+          setIsLogsDropdownOpen(false);
         }}
       >
         {/* Logo */}
@@ -165,6 +174,46 @@ export default function Sidebar() {
                             {pendingCount > 99 ? "99+" : pendingCount}
                           </span>
                         )}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+
+            {/* Logs Dropdown */}
+            <li>
+              <button
+                onClick={() => setIsLogsDropdownOpen(!isLogsDropdownOpen)}
+                className={`${navLinkBase} w-full text-left group relative`}
+              >
+                <span className={iconWrap + " relative"}>
+                  <BiLogoSass className="text-xl text-slate-500 group-hover:text-blue-600" />
+                </span>
+                <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex-1">
+                  Logs
+                </span>
+                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-400">
+                  {isLogsDropdownOpen ? <FaChevronDown /> : <FaChevronRight />}
+                </span>
+              </button>
+
+              <div
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${isLogsDropdownOpen ? "max-h-44 opacity-100" : "max-h-0 opacity-0"
+                  }`}
+              >
+                <ul className="flex flex-col gap-0.5 mt-1 ml-2 pl-4 border-l-2 border-slate-200/80">
+                  {logsSubmenu.map((subItem) => (
+                    <li key={subItem.label}>
+                      <Link
+                        to={subItem.link}
+                        className={`flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium text-sm text-slate-500 hover:bg-slate-100 hover:text-blue-600 transition-all duration-200 group`}
+                        activeProps={{ className: "!bg-blue-600 !text-white shadow-md shadow-blue-600/20" }}
+                      >
+                        <subItem.icon className="text-lg min-w-[22px] shrink-0" />
+                        <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex-1">
+                          {subItem.label}
+                        </span>
                       </Link>
                     </li>
                   ))}
@@ -310,6 +359,40 @@ export default function Sidebar() {
                               {pendingCount > 99 ? "99+" : pendingCount}
                             </span>
                           )}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </li>
+              {/* Logs Dropdown Mobile */}
+              <li>
+                <button
+                  onClick={() => setIsMobileLogsOpen(!isMobileLogsOpen)}
+                  className={`${navLinkBase} w-full text-left group`}
+                >
+                  <span className={iconWrap + " relative"}>
+                    <BiLogoSass className="text-xl text-slate-500" />
+                  </span>
+                  Logs
+                  <span className="ml-auto text-slate-400">
+                    {isMobileLogsOpen ? <FaChevronDown /> : <FaChevronRight />}
+                  </span>
+                </button>
+                <div
+                  className={`overflow-hidden transition-all duration-300 ${isMobileLogsOpen ? "max-h-40" : "max-h-0"}`}
+                >
+                  <ul className="flex flex-col gap-0.5 mt-1 ml-2 pl-4 border-l-2 border-slate-200">
+                    {logsSubmenu.map((subItem) => (
+                      <li key={subItem.label}>
+                        <Link
+                          to={subItem.link}
+                          onClick={closeMobileMenu}
+                          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-blue-600"
+                          activeProps={{ className: "!bg-blue-600 !text-white" }}
+                        >
+                          <subItem.icon className="text-lg shrink-0" />
+                          {subItem.label}
                         </Link>
                       </li>
                     ))}
