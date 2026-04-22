@@ -341,3 +341,24 @@ export type TSummary = {
   totalLentItems: number | null;
   totalItemsCategories: number | null;
 }
+
+export type TActivityLogs = {
+  action: string;
+  actorName: string;
+  actorRole: string;
+  actorUserId: string;
+  borrowedAt: string | null;
+  category: string;
+  createdAt: string;
+  id: string;
+  itemId: string;
+  itemName: string;
+  itemSerialNumber: string;
+  lentItemId: string;
+  newStatus: string;
+  previousStatus: string;
+  remarks: string | null;
+  reservedFor: string;
+  returnedAt: string | null;
+
+}
