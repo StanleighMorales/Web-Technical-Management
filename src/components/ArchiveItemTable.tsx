@@ -7,7 +7,7 @@ import box from "../assets/box.webp";
 
 type TArchiveTableProps = {
     id: string;
-    archivedAt: string;
+    createdAt: string;
     itemName: string;
     serialNumber: string;
     image: string | null;
@@ -17,7 +17,6 @@ type TArchiveTableProps = {
     description: string;
     category: string;
     condition: string;
-    barcodeImage: string;
     onDelete: (id: string) => void;
     onRestore: (id: string) => void;
     isRestoring: boolean;
@@ -80,15 +79,7 @@ export const ArchiveItemTable: FC<TArchiveItemNewProps> = (props) => {
                     {props.condition}
                 </span>
             </td>
-            <td className="py-3 px-4 font-mono text-sm">
-                {props.barcodeImage && <img
-                    src={props.barcodeImage}
-                    alt="Barcode"
-                    className="w-14 h-10"
-                />}
-
-            </td>
-            <td className="py-3 px-4">{FormattedDateTime(props.archivedAt)}</td>
+            <td className="py-3 px-4">{FormattedDateTime(props.createdAt)}</td>
             <td className="py-3 text-center">
                 <ShowButtonIfUserAdmin
                     userRole={data.userRole}
@@ -96,7 +87,6 @@ export const ArchiveItemTable: FC<TArchiveItemNewProps> = (props) => {
                     onHandleRestoreItem={() => props.onRestore(props.id)}
                 />
             </td>
-
         </>
     );
 }
