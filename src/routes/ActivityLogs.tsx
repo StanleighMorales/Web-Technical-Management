@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useActivityLogs } from "../hooks/logsHooks";
 import { Search, Activity, Calendar, User, Tag, ArrowRight, Sparkles } from "lucide-react";
-import type { TActivityLogs } from "../types/types";
+import type { TActivityLogs } from "../@types/types";
 
 export default function ActivityLogs() {
     const { data: logs, isLoading, isError } = useActivityLogs();
