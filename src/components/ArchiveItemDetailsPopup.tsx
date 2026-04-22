@@ -1,276 +1,214 @@
 import { useQuery } from "@tanstack/react-query";
-import {
-    MdInventory,
-    MdCategory,
-    MdBuild,
-    MdDescription,
-    MdCode,
-    MdImage,
-    MdQrCode,
-    MdArchive,
-} from "react-icons/md";
-import { FaBox, FaTag, FaCalendarAlt } from "react-icons/fa";
 import { useGetArchiveItemInfo } from "../hooks/itemHooks";
 import { FormattedDateTime } from "./FormattedDateTime.ts";
 import ErrorTable from "../components/ErrorTables.tsx";
-import CloseButton from "./CloseButton.tsx";
+import {
+  X,
+  Archive,
+  Package,
+  Hash,
+  Tag,
+  Layers,
+  Wrench,
+  CheckCircle,
+  FileText,
+  Calendar,
+  Image as ImageIcon,
+  Loader2,
+} from "lucide-react";
+import { SlugCondition } from "./SlugCondition";
 
 type TArchiveItemDetailsPopupProps = {
-    itemId: string;
-    isOpen: boolean;
-    onClose: () => void;
+  itemId: string;
+  isOpen: boolean;
+  onClose: () => void;
 };
 
 export default function ArchiveItemDetailsPopup({
-    itemId,
-    isOpen,
-    onClose,
+  itemId,
+  isOpen,
+  onClose,
 }: TArchiveItemDetailsPopupProps) {
-    const {
-        data: item,
-        isPending,
-        isError,
-    } = useQuery(useGetArchiveItemInfo(itemId));
+  const { data: item, isPending, isError } = useQuery(useGetArchiveItemInfo(itemId));
 
-    if (!isOpen) return null;
+  if (!isOpen) return null;
 
-    if (isPending) {
-        return (
-            <div className="flex fixed inset-0 z-50 justify-center items-center">
-                <div className="absolute inset-0 bg-black/50" />
-                <div className="overflow-hidden relative z-10 w-full max-w-4xl bg-white rounded-lg shadow-xl max-h-[90vh]">
-                    <div className="flex justify-center items-center h-64">
-                        <div className="w-12 h-12 rounded-full border-b-2 border-blue-600 animate-spin"></div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (isError || !item) {
-        <ErrorTable />;
-    }
-
+  if (isPending) {
     return (
-        <div className="flex fixed inset-0 z-50 justify-center items-center">
-            <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-            <div className="overflow-hidden relative z-10 w-full max-w-4xl bg-white rounded-lg shadow-xl max-h-[90vh]">
-                {/* Header */}
-                <div className="p-6 bg-white border-b border-gray-200">
-                    <div className="flex justify-between items-center">
-                        <div className="flex items-center space-x-3">
-                            <div className="p-2 bg-orange-100 rounded-full">
-                                <MdArchive className="text-2xl text-orange-600" />
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-bold text-gray-900">
-                                    Archived Item Details
-                                </h2>
-                                <p className="text-gray-600">
-                                    Complete archived item information
-                                </p>
-                            </div>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                            <div className="text-right">
-                                <p className="text-sm text-gray-500">Archived on</p>
-                                <p className="text-sm font-medium text-gray-900">
-                                    {FormattedDateTime(item.archivedAt)}
-                                </p>
-                            </div>
-                            <CloseButton onClick={onClose} />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Content */}
-                <div className="overflow-y-auto p-6 space-y-6 scrollbar-none max-h-[calc(90vh-120px)]">
-                    {/* Item Image and Basic Info */}
-                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                        {/* Item Image */}
-                        <div className="space-y-4">
-                            <h3 className="flex items-center text-lg font-semibold text-gray-900">
-                                <MdImage className="mr-2 text-blue-600" />
-                                Item Image
-                            </h3>
-                            <div className="flex justify-center items-center p-4 bg-gray-50 rounded-lg">
-                                {item.image ? (
-                                    <img
-                                        src={item.image}
-                                        alt={item.itemName}
-                                        className="object-contain max-w-full max-h-64 rounded-lg shadow-sm"
-                                        onError={(e) => {
-                                            e.currentTarget.style.display = "none";
-                                            e.currentTarget.nextElementSibling?.classList.remove(
-                                                "hidden",
-                                            );
-                                        }}
-                                    />
-                                ) : null}
-                                <div
-                                    className={`text-center text-gray-500 ${item.image ? "hidden" : ""}`}
-                                >
-                                    <MdImage className="mx-auto mb-2 text-6xl text-gray-300" />
-                                    <p>No image available</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Basic Information */}
-                        <div className="space-y-4">
-                            <h3 className="flex items-center text-lg font-semibold text-gray-900">
-                                <MdInventory className="mr-2 text-blue-600" />
-                                Basic Information
-                            </h3>
-                            <div className="space-y-3">
-                                <div className="flex items-center space-x-3">
-                                    <FaBox className="text-lg text-gray-400" />
-                                    <div>
-                                        <p className="text-sm text-gray-500">Item Name</p>
-                                        <p className="font-medium text-gray-900">
-                                            {item.itemName || "N/A"}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center space-x-3">
-                                    <MdCode className="text-lg text-gray-400" />
-                                    <div>
-                                        <p className="text-sm text-gray-500">Serial Number</p>
-                                        <p className="font-medium text-gray-900">
-                                            {item.serialNumber || "N/A"}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center space-x-3">
-                                    <MdCategory className="text-lg text-gray-400" />
-                                    <div>
-                                        <p className="text-sm text-gray-500">Category</p>
-                                        <p className="font-medium text-gray-900">
-                                            {item.category || "N/A"}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center space-x-3">
-                                    <MdBuild className="text-lg text-gray-400" />
-                                    <div>
-                                        <p className="text-sm text-gray-500">Type</p>
-                                        <p className="font-medium text-gray-900">
-                                            {item.itemType || "N/A"}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Technical Details */}
-                    <div className="p-6 bg-gray-50 rounded-lg">
-                        <h3 className="flex items-center mb-4 text-lg font-semibold text-gray-900">
-                            <MdBuild className="mr-2 text-blue-600" />
-                            Technical Details
-                        </h3>
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <div className="flex items-center space-x-3">
-                                <FaTag className="text-lg text-gray-400" />
-                                <div>
-                                    <p className="text-sm text-gray-500">Model</p>
-                                    <p className="font-medium text-gray-900">
-                                        {item.itemModel || "N/A"}
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="flex items-center space-x-3">
-                                <MdBuild className="text-lg text-gray-400" />
-                                <div>
-                                    <p className="text-sm text-gray-500">Make</p>
-                                    <p className="font-medium text-gray-900">
-                                        {item.itemMake || "N/A"}
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="flex items-center space-x-3">
-                                <MdCategory className="text-lg text-gray-400" />
-                                <div>
-                                    <p className="text-sm text-gray-500">Condition</p>
-                                    <span
-                                        className={`px-2 py-1 rounded-full text-xs font-semibold ${item.condition === "excellent"
-                                                ? "bg-green-100 text-green-800"
-                                                : item.condition === "good"
-                                                    ? "bg-blue-100 text-blue-800"
-                                                    : item.condition === "fair"
-                                                        ? "bg-yellow-100 text-yellow-800"
-                                                        : item.condition === "poor"
-                                                            ? "bg-red-100 text-red-800"
-                                                            : "bg-gray-100 text-gray-800"
-                                            }`}
-                                    >
-                                        {item.condition || "N/A"}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Description */}
-                    {item.description && (
-                        <div className="p-6 bg-gray-50 rounded-lg">
-                            <h3 className="flex items-center mb-4 text-lg font-semibold text-gray-900">
-                                <MdDescription className="mr-2 text-blue-600" />
-                                Description
-                            </h3>
-                            <p className="leading-relaxed text-gray-700">
-                                {item.description}
-                            </p>
-                        </div>
-                    )}
-
-                    {/* Barcode */}
-                    {item.barcodeImage && (
-                        <div className="p-6 bg-gray-50 rounded-lg">
-                            <h3 className="flex items-center mb-4 text-lg font-semibold text-gray-900">
-                                <MdQrCode className="mr-2 text-blue-600" />
-                                Barcode
-                            </h3>
-                            <div className="flex justify-center items-center p-4 bg-white rounded-lg">
-                                <img
-                                    src={item.barcodeImage}
-                                    alt="Item Barcode"
-                                    className="object-contain max-w-full max-h-32"
-                                    onError={(e) => {
-                                        e.currentTarget.style.display = "none";
-                                        e.currentTarget.nextElementSibling?.classList.remove(
-                                            "hidden",
-                                        );
-                                    }}
-                                />
-                                <div className="hidden text-center text-gray-500">
-                                    <MdQrCode className="mx-auto mb-2 text-4xl text-gray-300" />
-                                    <p>Barcode not available</p>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Archive Information */}
-                    <div className="p-6 bg-orange-50 rounded-lg border border-orange-200">
-                        <h3 className="flex items-center mb-4 text-lg font-semibold text-gray-900">
-                            <FaCalendarAlt className="mr-2 text-orange-600" />
-                            Archive Information
-                        </h3>
-                        <div className="flex items-center space-x-3">
-                            <div className="p-2 bg-orange-100 rounded-full">
-                                <MdArchive className="text-lg text-orange-600" />
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500">Archived Date</p>
-                                <p className="font-medium text-gray-900">
-                                    {FormattedDateTime(item.archivedAt)}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+        <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-lg flex items-center justify-center h-48 gap-3">
+          <Loader2 className="h-5 w-5 animate-spin text-amber-500" />
+          <span className="text-sm font-medium text-slate-500">Loading details...</span>
         </div>
+      </div>
     );
+  }
+
+  if (isError || !item) {
+    return (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+        onClick={onClose}
+      >
+        <div
+          className="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <ErrorTable />
+        </div>
+      </div>
+    );
+  }
+
+  const detailFields = [
+    { icon: <Hash className="h-3.5 w-3.5" />, label: "Serial Number", value: item.serialNumber, mono: true },
+    { icon: <Tag className="h-3.5 w-3.5" />, label: "Category", value: item.category },
+    { icon: <Layers className="h-3.5 w-3.5" />, label: "Type", value: item.itemType },
+    { icon: <Wrench className="h-3.5 w-3.5" />, label: "Make", value: item.itemMake },
+    { icon: <Package className="h-3.5 w-3.5" />, label: "Model", value: item.itemModel },
+  ];
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-2xl bg-white rounded-[2rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 flex-shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white shadow-md flex-shrink-0">
+              <Archive className="h-5 w-5" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-slate-900">{item.itemName}</h2>
+              <p className="text-xs text-slate-400 font-medium mt-0.5">Archived Item Details</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="h-8 w-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="overflow-y-auto flex-1 p-6 space-y-5">
+
+          <div className="flex flex-col sm:flex-row gap-5">
+            <div className="sm:w-44 flex-shrink-0 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-center p-4 min-h-[160px]">
+              {item.image ? (
+                <img
+                  src={item.image}
+                  alt={item.itemName}
+                  className="w-full h-36 object-cover rounded-xl shadow-sm"
+                  onError={(e) => { e.currentTarget.style.display = "none"; }}
+                />
+              ) : (
+                <div className="flex flex-col items-center gap-2 text-slate-300">
+                  <ImageIcon className="h-10 w-10" />
+                  <span className="text-xs font-medium">No image</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex-1">
+              <Section title="Item Information" icon={<Package className="h-4 w-4 text-blue-500" />}>
+                <Grid>
+                  {detailFields.map(({ icon, label, value, mono }) => (
+                    <Field key={label} icon={icon} label={label} value={value} mono={mono} />
+                  ))}
+                  <div className="bg-white px-4 py-3.5 flex flex-col gap-1">
+                    <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+                      <CheckCircle className="h-3.5 w-3.5" />
+                      Condition
+                    </div>
+                    <span className={`inline-flex w-fit items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border mt-0.5 ${SlugCondition(item.condition)}`}>
+                      {item.condition || "N/A"}
+                    </span>
+                  </div>
+                </Grid>
+              </Section>
+            </div>
+          </div>
+
+          {item.description && (
+            <Section title="Description" icon={<FileText className="h-4 w-4 text-slate-500" />}>
+              <div className="px-1">
+                <p className="text-sm text-slate-700 leading-relaxed">{item.description}</p>
+              </div>
+            </Section>
+          )}
+
+          <Section title="Archive Information" icon={<Calendar className="h-4 w-4 text-amber-500" />}>
+            <div className="grid grid-cols-1 gap-px bg-slate-100 rounded-xl overflow-hidden border border-slate-100">
+              <div className="bg-white px-4 py-3.5 flex flex-col gap-1">
+                <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+                  <Calendar className="h-3.5 w-3.5" />
+                  Archived Date
+                </div>
+                <p className="text-sm font-semibold text-amber-700">
+                  {FormattedDateTime(item.archivedAt)}
+                </p>
+              </div>
+            </div>
+          </Section>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Section({
+  title,
+  icon,
+  children,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+      <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2 bg-slate-50/60">
+        {icon}
+        <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">{title}</h3>
+      </div>
+      <div className="p-3">{children}</div>
+    </div>
+  );
+}
+
+function Grid({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-slate-100 rounded-xl overflow-hidden border border-slate-100">
+      {children}
+    </div>
+  );
+}
+
+function Field({
+  icon,
+  label,
+  value,
+  mono = false,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value?: string | null;
+  mono?: boolean;
+}) {
+  return (
+    <div className="bg-white px-4 py-3.5 flex flex-col gap-1">
+      <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+        {icon}
+        {label}
+      </div>
+      <p className={`text-sm font-semibold text-slate-900 ${mono ? "font-mono" : ""}`}>
+        {value || <span className="text-slate-300 font-normal italic text-xs">N/A</span>}
+      </p>
+    </div>
+  );
 }
