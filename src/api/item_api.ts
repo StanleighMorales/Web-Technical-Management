@@ -1,5 +1,5 @@
 import { api } from "./axios";
-import type { TBorrowItemData, TItemForm, TUpdateItem } from "../types/types";
+import type { TBorrowItemData, TItemForm, TUpdateItem } from "../@types/types";
 
 const item_end_point = "/items";
 const item_archive_end_point = "/archiveitems";
@@ -80,7 +80,7 @@ export const recentlyBorrowItems = async (id?: string) => {
 
   const response = await api.get(url);
 
-  if(id) return response.data;
+  if (id) return response.data;
 
   return response.data.data;
 };
