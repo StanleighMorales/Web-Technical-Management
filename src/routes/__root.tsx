@@ -15,6 +15,7 @@ import Registration from "./Registration";
 import { ProtectedRoute, PublicRoute } from "../utils/middleware/accessAuth";
 import ViewItem from "../components/ViewItem";
 import ActivityLogs from "./ActivityLogs";
+import ActivityLogDetail from "./ActivityLogDetail";
 import BorrowLogs from "./BorrowLogs";
 
 export const Route = createRootRoute({
@@ -107,6 +108,12 @@ const ActivityLogsRoute = createRoute({
     component: ActivityLogs
 })
 
+const ActivityLogDetailRoute = createRoute({
+    getParentRoute: () => homeRoute,
+    path: "activity-logs/$id",
+    component: ActivityLogDetail
+})
+
 const BorrowLogsRoute = createRoute({
     getParentRoute: () => homeRoute,
     path: "borrow-logs",
@@ -127,6 +134,7 @@ export const routeTree = Route.addChildren([
         RegistrationModuleRoute,
         ViewItemRoute,
         ActivityLogsRoute,
+        ActivityLogDetailRoute,
         BorrowLogsRoute
     ]),
 ]);
