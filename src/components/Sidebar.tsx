@@ -10,7 +10,7 @@ import {
   MdAppRegistration,
 } from "react-icons/md";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
-import { BiPackage } from "react-icons/bi";
+import { BiLogoSass, BiPackage } from "react-icons/bi";
 import { BsPersonCircle, BsClipboardCheck } from "react-icons/bs";
 import { useState, useEffect } from "react";
 import SidebarSkeletonLoader from "../loader/SidebarSkeletonLoader";
@@ -39,6 +39,7 @@ export default function Sidebar() {
   const sideBarListBottom = [
     { label: "Archives", link: "/home/archive-table", icon: MdInventory },
     { label: "Borrow History", link: "/home/history-list", icon: MdHistory },
+    { label: "Logs", link: "/home/activity-logs", icon: BiLogoSass },
     { label: "Registered Module", link: "/home/registration-module", icon: MdAppRegistration },
     { label: "Profile", link: "/home/settings", icon: BsPersonCircle },
   ];
@@ -59,7 +60,7 @@ export default function Sidebar() {
 
   const logoutUser = () => {
     mutate(undefined, {
-      onSuccess: () => navigate({ to: "/" }), // <--- Fixed for TanStack Router
+      onSuccess: () => navigate({ to: "/" }),
       onError: (err) => console.error(err.message),
     });
   };
@@ -144,9 +145,8 @@ export default function Sidebar() {
               </button>
 
               <div
-                className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                  isItemsDropdownOpen ? "max-h-44 opacity-100" : "max-h-0 opacity-0"
-                }`}
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${isItemsDropdownOpen ? "max-h-44 opacity-100" : "max-h-0 opacity-0"
+                  }`}
               >
                 <ul className="flex flex-col gap-0.5 mt-1 ml-2 pl-4 border-l-2 border-slate-200/80">
                   {itemsSubmenu.map((subItem) => (
