@@ -151,38 +151,53 @@ export type TArchiveItem = {
   description: string;
   category: string;
   condition: string;
-  barcodeImage: string;
-  archivedAt: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type TBorrowItemForm = {
-  itemId: string;
-  itemName: string;
-  borrowerFirstName: string;
-  borrowerLastName: string;
-  borrowerRole: string;
-  teacherFirstName: string | null;
-  teacherLastName: string | null;
-  room: string;
-  subjectTimeSchedule: string;
-  remarks: string | null;
-  studentIdNumber: string | null;
-  reservedFor?: string | null;
+  // itemId: string;
+  // itemName: string;
+  // borrowerFirstName: string;
+  // borrowerLastName: string;
+  // borrowerRole: string;
+  // teacherFirstName: string | null;
+  // teacherLastName: string | null;
+  // room: string;
+  // subjectTimeSchedule: string;
+  // remarks: string | null;
+  // studentIdNumber: string | null;
+  // reservedFor?: string | null;
+
+  tagUid: string,
+  borrowerFirstName: string,
+  borrowerLastName: string,
+  organization: null,
+  contactNumber: null,
+  purpose: null,
+  supervisorName: null,
+  room: string,
+  subjectTimeSchedule: string,
+  reservedFor: null,
+  remarks: null,
+  status: null,
+  guestImage: null
 };
 
 export type TBorrowItemData = {
-  itemId: string;
+  tagUid: string;
   borrowerFirstName: string;
   borrowerLastName: string;
-  borrowerRole: string;
-  teacherFirstName: string | null;
-  teacherLastName: string | null;
+  organization: string | null;
+  contactNumber: string | null;
+  purpose: string | null;
+  supervisorName: string | null;
   room: string;
   subjectTimeSchedule: string;
+  reservedFor: string | null;
   remarks: string | null;
-  studentIdNumber: string | null;
-  reservedFor?: string | null;
-  status?: "Borrowed" | "Reserved";
+  status: "Borrowed" | "Reserved" | null;
+  guestImage: string | null;
 };
 
 export type TStudent = {
