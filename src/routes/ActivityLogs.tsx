@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useActivityLogs } from "../hooks/logsHooks";
+import { useNavigate } from "@tanstack/react-router";
 import { Search, Activity, Calendar, User, Tag, ArrowRight, Sparkles } from "lucide-react";
 import type { TActivityLogs } from "../@types/types";
 
 export default function ActivityLogs() {
     const { data: logs, isLoading, isError } = useActivityLogs();
     const [searchTerm, setSearchTerm] = useState("");
+    const navigate = useNavigate();
 
     const filteredLogs = logs?.data.filter((log: TActivityLogs) =>
         log.actorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -134,7 +136,8 @@ export default function ActivityLogs() {
                                 filteredLogs.map((log: TActivityLogs) => (
                                     <tr
                                         key={log.id}
-                                        className="group transition-all duration-300 hover:bg-indigo-50/30 relative"
+                                        onClick={() => navigate({ to: "/home/activity-logs/$id", params: { id: log.id } })}
+                                        className="group transition-all duration-300 hover:bg-indigo-50/30 relative cursor-pointer"
                                     >
                                         <td className="px-8 py-5">
                                             <div className="flex items-center gap-4">
