@@ -199,7 +199,7 @@ export default function Archive() {
   const activeLabel = filterTabs.find((t) => t.key === activeFilter)?.label ?? "";
 
   // Column headers per filter
-  const itemHeaders = ["Serial No.", "Image", "Name", "Category", "Condition", "Barcode", "Archived At", "Action"];
+  const itemHeaders = ["Serial No.", "Image", "Name", "Category", "Condition", "Archived At", "Action"];
   const userHeaders = ["User ID", "Full Name", "Username", "Email", "Phone", "Role", "Status", "Action"];
   const teacherHeaders = ["Teacher ID", "Full Name", "Username", "Role", "Status", "Action"];
   const studentHeaders = ["Student ID", "Full Name", "Course", "Section", "Year", "Role", "Status", "Action"];
@@ -321,14 +321,13 @@ export default function Archive() {
                           >
                             <ArchiveItemTable
                               id={item.id}
-                              archivedAt={item.archivedAt}
+                              createdAt={item.createdAt}
                               itemName={item.itemName}
                               serialNumber={item.serialNumber}
                               image={item.image || null}
                               description={item.description}
                               category={item.category}
                               condition={item.condition}
-                              barcodeImage={item.barcodeImage}
                               onRestore={handleRestoreItem}
                               onDelete={handleDeleteItem}
                               isRestoring={restoreItemMutation.isPending}
