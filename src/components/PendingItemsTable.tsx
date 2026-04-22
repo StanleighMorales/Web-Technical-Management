@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import type { THistoryBorrwedItems } from "../types/types";
+import type { THistoryBorrwedItems } from "../@types/types";
 import { FormattedDateTime } from "./FormattedDateTime";
 import { SlugStatus } from "./SlugStatus";
 import SearchBar from "./SearchBar";

@@ -5,7 +5,7 @@ import type {
   TUpdateStudent,
   TUpdatePassword,
   TUpdatedTeacher,
-} from "../types/types";
+} from "../@types/types";
 
 type TUpdateUserApiPayload = {
   id: string;

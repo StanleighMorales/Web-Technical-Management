@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import type { TArchiveItem, TUsers } from "../types/types";
+import type { TArchiveItem, TUsers } from "../@types/types";
 import { useAllItemsArchive } from "../hooks/itemHooks";
 import { useQuery } from "@tanstack/react-query";
 import { useAllUsersArchive } from "../hooks/userHooks";

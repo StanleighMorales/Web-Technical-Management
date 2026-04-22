@@ -2,7 +2,7 @@ import { useRecentlyBorrowItems } from './../hooks/itemHooks';
 import { useQuery } from "@tanstack/react-query";
 import { useSummaryData } from "../hooks/itemHooks";
 import { useEffect, useState } from "react";
-import type { TRecentBorrowItemProps, TSummary } from '../types/types';
+import type { TRecentBorrowItemProps, TSummary } from '../@types/types';
 
 export const useSummarriesData = () => {
 

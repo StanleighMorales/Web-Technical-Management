@@ -1,7 +1,7 @@
 import { SlugCondition } from "./SlugCondition";
 import { MdSwapHoriz } from "react-icons/md";
 import box from "../assets/box.webp";
-import type { TItemList } from "../types/types";
+import type { TItemList } from "../@types/types";
 import {
   useReactTable,
   getCoreRowModel,
@@ -41,16 +41,18 @@ export const BrowseBorrowItem = ({
     }),
     columnHelper.accessor("itemName", { header: "Item" }),
     columnHelper.accessor("category", { header: "Category" }),
-    columnHelper.accessor("condition", { header: "Condition", cell: ({row})=> {
-      const classCondition = SlugCondition(row.original.condition)
-      return (
-              <span
-                className={`px-2 py-1 rounded-full text-xs font-semibold ${classCondition}`}
-              >
-                {row.original.condition}
-              </span>
-      )
-    } }),
+    columnHelper.accessor("condition", {
+      header: "Condition", cell: ({ row }) => {
+        const classCondition = SlugCondition(row.original.condition)
+        return (
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-semibold ${classCondition}`}
+          >
+            {row.original.condition}
+          </span>
+        )
+      }
+    }),
     columnHelper.accessor("description", { header: "Description" }),
     columnHelper.display({
       id: "borrow",
@@ -92,7 +94,7 @@ export const BrowseBorrowItem = ({
       <tbody>
         {table.getCoreRowModel().rows.map((row) => (
           <tr key={row.id}
-          
+
             onClick={() => handleRowClick(row.original)}
           >
             {row.getVisibleCells().map((cell: any) => (

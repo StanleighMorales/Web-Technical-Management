@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FaUser } from "react-icons/fa6";
-import type { TUpdatedTeacher } from "../types/types";
+import type { TUpdatedTeacher } from "../@types/types";
 import { useUpdateTeacher } from "../hooks/userHooks";
 
 type EditTeacherProps = {

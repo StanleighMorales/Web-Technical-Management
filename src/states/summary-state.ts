@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import type { TSummary } from "../types/types"
+import type { TSummary } from "../@types/types"
 
 type SummaryStore = {
     dataSummary: TSummary,

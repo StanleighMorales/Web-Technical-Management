@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import type { TUpdateUsers } from "../types/types";
+import type { TUpdateUsers } from "../@types/types";
 import { useUpdateUser } from "../hooks/userHooks";
 import { FaUser, FaPhone } from "react-icons/fa6";
 import { MdOutlineEmail } from "react-icons/md";

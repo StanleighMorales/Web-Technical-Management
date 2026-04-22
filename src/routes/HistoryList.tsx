@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import SearchBar from "../components/SearchBar";
 import HistoryListSkeletonLoader from "../loader/HistoryListSkeletonLoader";
 import { useQuery } from "@tanstack/react-query";
-import type { THistoryBorrwedItems } from "../types/types";
+import type { THistoryBorrwedItems } from "../@types/types";
 import HistoryTable from "../components/HistoryTable";
 import ErrorTable from "../components/ErrorTables";
 import Pagination from "../components/Pagination";
@@ -112,11 +112,10 @@ export default function HistoryList({
         <div className="flex gap-2 mb-6 border-b border-gray-200 overflow-x-auto">
           <button
             onClick={() => setActiveTab("all")}
-            className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${
-              activeTab === "all"
+            className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${activeTab === "all"
                 ? "border-blue-600 text-blue-600"
                 : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
+              }`}
           >
             All
             {statusCounts.all > 0 && (
@@ -127,11 +126,10 @@ export default function HistoryList({
           </button>
           <button
             onClick={() => setActiveTab("pending")}
-            className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${
-              activeTab === "pending"
+            className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${activeTab === "pending"
                 ? "border-yellow-600 text-yellow-600"
                 : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
+              }`}
           >
             Pending
             {statusCounts.pending > 0 && (
@@ -142,11 +140,10 @@ export default function HistoryList({
           </button>
           <button
             onClick={() => setActiveTab("approved")}
-            className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${
-              activeTab === "approved"
+            className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${activeTab === "approved"
                 ? "border-emerald-600 text-emerald-600"
                 : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
+              }`}
           >
             Approved
             {statusCounts.approved > 0 && (
@@ -157,11 +154,10 @@ export default function HistoryList({
           </button>
           <button
             onClick={() => setActiveTab("borrowed")}
-            className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${
-              activeTab === "borrowed"
+            className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${activeTab === "borrowed"
                 ? "border-blue-600 text-blue-600"
                 : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
+              }`}
           >
             Borrowed
             {statusCounts.borrowed > 0 && (
@@ -172,11 +168,10 @@ export default function HistoryList({
           </button>
           <button
             onClick={() => setActiveTab("returned")}
-            className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${
-              activeTab === "returned"
+            className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${activeTab === "returned"
                 ? "border-green-600 text-green-600"
                 : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
+              }`}
           >
             Returned
             {statusCounts.returned > 0 && (
@@ -187,11 +182,10 @@ export default function HistoryList({
           </button>
           <button
             onClick={() => setActiveTab("denied")}
-            className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${
-              activeTab === "denied"
+            className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${activeTab === "denied"
                 ? "border-red-600 text-red-600"
                 : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
+              }`}
           >
             Denied
             {statusCounts.denied > 0 && (
@@ -202,11 +196,10 @@ export default function HistoryList({
           </button>
           <button
             onClick={() => setActiveTab("canceled")}
-            className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${
-              activeTab === "canceled"
+            className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${activeTab === "canceled"
                 ? "border-gray-600 text-gray-600"
                 : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
+              }`}
           >
             Canceled
             {statusCounts.canceled > 0 && (

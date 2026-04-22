@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import HistoryListSkeletonLoader from "../loader/HistoryListSkeletonLoader";
 import { useQuery } from "@tanstack/react-query";
-import type { THistoryBorrwedItems } from "../types/types";
+import type { THistoryBorrwedItems } from "../@types/types";
 import PendingItemsTable from "../components/PendingItemsTable";
 import ErrorTable from "../components/ErrorTables";
 import ApproveConfirmationModal from "../components/ApproveConfirmationModal";
@@ -217,11 +217,10 @@ export default function PendingReservations() {
         <div className="flex gap-2 mb-6 border-b border-gray-200">
           <button
             onClick={() => setActiveTab("pending")}
-            className={`px-6 py-3 font-semibold text-base transition-all duration-200 border-b-2 ${
-              activeTab === "pending"
+            className={`px-6 py-3 font-semibold text-base transition-all duration-200 border-b-2 ${activeTab === "pending"
                 ? "border-blue-600 text-blue-600"
                 : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
+              }`}
           >
             Pending Requests
             {pendingItems.length > 0 && (
@@ -232,11 +231,10 @@ export default function PendingReservations() {
           </button>
           <button
             onClick={() => setActiveTab("reservations")}
-            className={`px-6 py-3 font-semibold text-base transition-all duration-200 border-b-2 ${
-              activeTab === "reservations"
+            className={`px-6 py-3 font-semibold text-base transition-all duration-200 border-b-2 ${activeTab === "reservations"
                 ? "border-blue-600 text-blue-600"
                 : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
+              }`}
           >
             Reservations
             {reservationItems.length > 0 && (

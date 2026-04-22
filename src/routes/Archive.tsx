@@ -2,7 +2,7 @@ import { type FC } from "react";
 import { FaTrash, FaUser } from "react-icons/fa6";
 import { useState, useMemo, useCallback } from "react";
 import ArchiveSkeletonLoader from "../loader/ArchiveSkeletonLoader.tsx";
-import type { TUsers } from "../types/types.ts";
+import type { TUsers } from "../@types/types.ts";
 import { useDeleteItem } from "../hooks/itemHooks.ts";
 import { useRestoreItem } from "../hooks/itemHooks.ts";
 import { useRestoreUser } from "../hooks/userHooks.ts";

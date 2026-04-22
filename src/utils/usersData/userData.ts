@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useLoggedInUser } from "../../hooks/userHooks";
-import type { TUsers } from "../../types/types";
+import type { TUsers } from "../../@types/types";
 
 export const UserData = () => {
     type TUserRequired = Pick<

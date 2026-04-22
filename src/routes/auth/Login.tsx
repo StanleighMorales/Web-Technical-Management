@@ -3,7 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { FaEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa6";
 import logo from "../../assets/aclcLogo.webp";
-import type { TLoginUser } from "../../types/types";
+import type { TLoginUser } from "../../@types/types";
 import { useLogin } from "../../hooks/authHooks";
 
 export default function Login() {

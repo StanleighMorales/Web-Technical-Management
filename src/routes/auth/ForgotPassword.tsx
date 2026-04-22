@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import type { TForgotPasswordUser } from "../../types/types";
+import type { TForgotPasswordUser } from "../../@types/types";
 import CloseButton from "../../components/CloseButton";
 
 type ForgotPasswordProps = {

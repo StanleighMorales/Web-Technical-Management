@@ -1,4 +1,4 @@
-import type { THistoryBorrwedItems } from "../types/types";
+import type { THistoryBorrwedItems } from "../@types/types";
 
 type ApproveConfirmationModalProps = {
     isOpen: boolean;

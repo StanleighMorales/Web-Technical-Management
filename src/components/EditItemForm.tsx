@@ -6,7 +6,7 @@ import {
   type FormEvent,
 } from "react";
 import CloseButton from "./CloseButton";
-import type { TItemForm, TItemList } from "../types/types";
+import type { TItemForm, TItemList } from "../@types/types";
 import { useQuery } from "@tanstack/react-query";
 import { useGetItemInfo } from "../hooks/itemHooks";
 import { SuccessAlert } from "./SuccessAlert";

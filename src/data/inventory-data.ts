@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import type { TItemList } from "../types/types";
+import type { TItemList } from "../@types/types";
 import { useQuery } from "@tanstack/react-query";
 import { useAllItems } from "../hooks/itemHooks";
 

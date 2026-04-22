@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
-import type { TStudent, TTeacher } from "../types/types";
+import type { TStudent, TTeacher } from "../@types/types.ts";
 import { EditTeacher } from "./EditTeacher";
 import { EditStudent } from "./EditStudent";
 import SearchBar from "./SearchBar";
@@ -210,8 +210,8 @@ export default function RegistrationModule() {
                             <button
                                 onClick={() => setSelectedRole("Teacher")}
                                 className={`px-4 py-2 rounded-lg font-medium transition-all duration-150 ${selectedRole === "Teacher"
-                                        ? "bg-blue-500 text-white shadow-md"
-                                        : "bg-[#f1f5f9] text-gray-500 border-2 border-white/30 hover:border-[#2563eb] hover:text-[#2563eb]"
+                                    ? "bg-blue-500 text-white shadow-md"
+                                    : "bg-[#f1f5f9] text-gray-500 border-2 border-white/30 hover:border-[#2563eb] hover:text-[#2563eb]"
                                     }`}
                             >
                                 Teachers
@@ -219,8 +219,8 @@ export default function RegistrationModule() {
                             <button
                                 onClick={() => setSelectedRole("Student")}
                                 className={`px-4 py-2 rounded-lg font-medium transition-all duration-150 ${selectedRole === "Student"
-                                        ? "bg-blue-500 text-white shadow-md"
-                                        : "bg-[#f1f5f9] text-gray-500 border-2 border-white/30 hover:border-[#2563eb] hover:text-[#2563eb]"
+                                    ? "bg-blue-500 text-white shadow-md"
+                                    : "bg-[#f1f5f9] text-gray-500 border-2 border-white/30 hover:border-[#2563eb] hover:text-[#2563eb]"
                                     }`}
                             >
                                 Students

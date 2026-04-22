@@ -9,7 +9,7 @@ import SettingsSkeletonLoader from "../loader/SettingsSkeletonLoader";
 import { FiEdit3, FiLock } from "react-icons/fi";
 import ChangePasswordModal from "../components/ChangePasswordModal";
 import EditProfileModal from "../components/EditProfileModal";
-import type { TUsers } from "../types/types";
+import type { TUsers } from "../@types/types";
 import ErrorTable from "../components/ErrorTables";
 
 export default function Settings() {

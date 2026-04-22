@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useAllItems } from "../hooks/itemHooks";
 import { useQuery } from "@tanstack/react-query";
-import type { TItemList } from "../types/types";
+import type { TItemList } from "../@types/types.ts";
 import InventoryListSkeletonLoader from "../loader/InventoryListSkeletonLoader";
 import SearchBar from "../components/SearchBar";
 import Pagination from "../components/Pagination";

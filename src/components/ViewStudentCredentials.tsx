@@ -1,7 +1,7 @@
 import { MdEmail, MdPhone, MdLocationOn, MdSchool, MdPerson, MdBadge, MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { IoIdCard } from "react-icons/io5";
 import { useState, type FC } from "react";
-import type { TStudent } from "../types/types";
+import type { TStudent } from "../@types/types";
 import { FaPlus } from "react-icons/fa6";
 
 type ViewStudentCredentialsProps = {

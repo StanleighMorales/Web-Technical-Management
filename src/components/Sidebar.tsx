@@ -52,7 +52,7 @@ export default function Sidebar() {
 
   const logsSubmenu = [
     { label: "Activity Logs", link: "/home/activity-logs", icon: BiLogoSass },
-    { label: "Borrowing Logs", link: "#", icon: MdHistory },
+    { label: "Borrowing Logs", link: "/home/borrow-logs", icon: MdHistory },
   ];
 
   // Toggle mobile menu

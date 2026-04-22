@@ -1,5 +1,5 @@
 import React, { Activity, useState } from "react";
-import type { TItemForm } from "../types/types";
+import type { TItemForm } from "../@types/types";
 import CloseButton from "./CloseButton";
 import { useAddItem } from "../hooks/itemHooks";
 import { SuccessAlert } from "./SuccessAlert";

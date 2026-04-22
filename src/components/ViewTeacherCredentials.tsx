@@ -1,7 +1,7 @@
 import { MdEmail, MdPhone, MdSchool, MdPerson } from "react-icons/md";
 import { IoIdCard } from "react-icons/io5";
 import type { FC } from "react";
-import type { TTeacher } from "../types/types";
+import type { TTeacher } from "../@types/types";
 import { FaPlus } from "react-icons/fa6";
 import { FormattedPhoneNumber } from "./FormatedPhoneNumber";
 type ViewTeacherCredentialsProps = {

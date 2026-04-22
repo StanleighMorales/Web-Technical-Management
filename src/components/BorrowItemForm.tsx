@@ -1,5 +1,5 @@
 import { Activity, useState, useEffect } from "react";
-import type { TBorrowItemForm, TItemList } from "../types/types";
+import type { TBorrowItemForm, TItemList } from "../@types/types";
 import { ReservationConfirmModal } from "../components/ReservationConfirmModal";
 import { useQuery } from "@tanstack/react-query";
 import { useAllItems } from "../hooks/itemHooks";
@@ -432,11 +432,10 @@ export const BorrowItemForm = ({
                   }
                 }}
                 placeholder="Scan or enter item barcode (e.g., ITEM-SN-12345)"
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${
-                  scanError
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${scanError
                     ? "border-red-500 focus:ring-red-500"
                     : "border-gray-300 focus:ring-blue-500"
-                }`}
+                  }`}
               />
               {scanError && (
                 <p className="text-red-500 text-sm mt-2">{scanError}</p>
@@ -649,15 +648,14 @@ export const BorrowItemForm = ({
                     </div>
                     <p className="text-gray-600 ml-11 text-sm">
                       <span
-                        className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                          scannedItemDetails.status === "Available"
+                        className={`px-2 py-1 rounded-full text-xs font-semibold ${scannedItemDetails.status === "Available"
                             ? "bg-green-100 text-green-800"
                             : scannedItemDetails.status === "Borrowed"
                               ? "bg-blue-100 text-blue-800"
                               : scannedItemDetails.status === "Maintenance"
                                 ? "bg-yellow-100 text-yellow-800"
                                 : "bg-gray-100 text-gray-800"
-                        }`}
+                          }`}
                       >
                         {scannedItemDetails.status}
                       </span>
@@ -1095,11 +1093,10 @@ export const BorrowItemForm = ({
               type="button"
               onClick={(e) => handleSubmit(e as any, "Reserved")}
               disabled={borrowItemMutation.isPending}
-              className={`flex items-center gap-2 px-6 py-2 bg-purple-600 text-white font-medium rounded-lg shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition ${
-                borrowItemMutation.isPending
+              className={`flex items-center gap-2 px-6 py-2 bg-purple-600 text-white font-medium rounded-lg shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition ${borrowItemMutation.isPending
                   ? "opacity-50 cursor-not-allowed"
                   : ""
-              }`}
+                }`}
               data-testid="submit-reservation-button"
             >
               {borrowItemMutation.isPending ? (
@@ -1148,11 +1145,10 @@ export const BorrowItemForm = ({
             <button
               type="submit"
               disabled={borrowItemMutation.isPending}
-              className={`flex items-center gap-2 px-6 py-2 bg-blue-600 text-white font-medium rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ${
-                borrowItemMutation.isPending
+              className={`flex items-center gap-2 px-6 py-2 bg-blue-600 text-white font-medium rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ${borrowItemMutation.isPending
                   ? "opacity-50 cursor-not-allowed"
                   : ""
-              }`}
+                }`}
               data-testid="submit-borrow-button"
             >
               {borrowItemMutation.isPending ? (

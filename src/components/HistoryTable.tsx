@@ -1,4 +1,4 @@
-import type { THistoryBorrwedItems } from "../types/types";
+import type { THistoryBorrwedItems } from "../@types/types";
 import { FormattedDateTime } from "./FormattedDateTime";
 import { SlugStatus } from "./SlugStatus";
 import box from "../assets/box.webp"

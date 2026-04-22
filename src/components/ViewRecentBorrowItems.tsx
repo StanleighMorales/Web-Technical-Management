@@ -19,7 +19,7 @@ import {
 } from "react-icons/fa";
 import { FormattedDateTime } from "./FormattedDateTime.ts";
 import CloseButton from "./CloseButton.tsx";
-import type { TRecentBorrowItemProps } from "../types/types.ts";
+import type { TRecentBorrowItemProps } from "../@types/types.ts";
 import ErrorTable from "../components/ErrorTables.tsx";
 import { useEffect, useState } from "react";
 import { useRecentlyBorrowItems } from "../hooks/itemHooks";

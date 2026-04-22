@@ -1,7 +1,7 @@
 import { MdEmail, MdPhone, MdPerson } from "react-icons/md";
 import { FiLock } from "react-icons/fi";
 import { IoIdCard } from "react-icons/io5";
-import type { TUsers } from "../types/types";
+import type { TUsers } from "../@types/types";
 import { FaPlus } from "react-icons/fa6";
 import { useState } from "react";
 import ChangePasswordModal from "./ChangePasswordModal";

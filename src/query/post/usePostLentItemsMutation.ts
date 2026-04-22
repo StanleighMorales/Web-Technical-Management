@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { getToken, removeToken } from "../../utils/token";
-import type { TBorrowItemForm } from "../../types/types";
+import type { TBorrowItemForm } from "../../@types/types";
 
 type LentItemsProps = {
   formData: TBorrowItemForm;

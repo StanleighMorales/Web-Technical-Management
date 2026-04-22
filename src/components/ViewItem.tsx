@@ -1,6 +1,6 @@
 import { Link, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import type { TItemList } from "../types/types";
+import type { TItemList } from "../@types/types";
 import { useGetItemInfo } from "../hooks/itemHooks";
 import ViewItemSkeletonLoader from "../loader/ViewItemSkeletonLoader";
 import { FaArrowCircleLeft, FaEdit } from "react-icons/fa";

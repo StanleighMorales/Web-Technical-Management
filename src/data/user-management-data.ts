@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { TUsers } from "../types/types";
+import type { TUsers } from "../@types/types";
 import { useEffect, useMemo, useState } from "react";
 import { useAllUsers } from "../hooks/userHooks";
 

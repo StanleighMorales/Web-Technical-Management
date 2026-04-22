@@ -3,7 +3,7 @@ import SearchBar from "../components/SearchBar";
 import { DashboardSkeletonLoader } from "../loader/DashboardSkeletonLoader";
 import DashboardBadges from "../components/DashboardBadges";
 import ErrorTable from "../components/ErrorTables";
-import type { TRecentBorrowItemProps } from "../types/types";
+import type { TRecentBorrowItemProps } from "../@types/types";
 import Pagination from "../components/Pagination";
 import { ViewRecentBorrowItems } from "../components/ViewRecentBorrowItems";
 import { useReturnItem } from "../hooks/itemHooks";

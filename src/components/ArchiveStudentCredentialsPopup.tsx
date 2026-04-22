@@ -11,7 +11,7 @@ import {
 } from "react-icons/md";
 import { IoIdCard } from "react-icons/io5";
 import { FormattedDateTime } from "./FormattedDateTime";
-import type { TArchiveStudent } from "../types/types";
+import type { TArchiveStudent } from "../@types/types";
 import CloseButton from "./CloseButton";
 
 type ArchiveStudentCredentialsPopupProps = {
@@ -262,8 +262,8 @@ export default function ArchiveStudentCredentialsPopup({
                                 </label>
                                 <span
                                     className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${student.userRole === "Admin"
-                                            ? "bg-red-100 text-red-800"
-                                            : "bg-blue-100 text-blue-800"
+                                        ? "bg-red-100 text-red-800"
+                                        : "bg-blue-100 text-blue-800"
                                         }`}
                                 >
                                     {student.userRole || "N/A"}

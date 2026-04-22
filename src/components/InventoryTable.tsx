@@ -9,7 +9,7 @@ import { SlugStatus } from "./SlugStatus";
 import { UserData } from "../utils/usersData/userData";
 import PopUpModal from "./PopUpModal";
 import { useNavigate } from "@tanstack/react-router";
-import type { TItemList } from "../types/types";
+import type { TItemList } from "../@types/types";
 import {
     useReactTable,
     getCoreRowModel,

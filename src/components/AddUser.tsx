@@ -1,5 +1,5 @@
 import React, { Activity, useState } from "react";
-import type { TUserFormData } from "../types/types";
+import type { TUserFormData } from "../@types/types";
 import CloseButton from "./CloseButton";
 import { useRegisterUser } from "../hooks/userHooks";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";

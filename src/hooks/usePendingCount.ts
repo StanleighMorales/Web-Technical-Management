@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRecentlyBorrowItems } from "./itemHooks";
-import type { THistoryBorrwedItems } from "../types/types";
+import type { THistoryBorrwedItems } from "../@types/types";
 
 /**
  * Custom hook to get the count of pending and reserved items

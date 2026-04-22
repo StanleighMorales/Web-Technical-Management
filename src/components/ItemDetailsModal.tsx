@@ -1,4 +1,4 @@
-import type { TItemList } from "../types/types";
+import type { TItemList } from "../@types/types";
 import { IoMdClose } from "react-icons/io";
 import { FaHashtag } from "react-icons/fa6";
 import { FaCheckCircle, FaTools } from "react-icons/fa";
