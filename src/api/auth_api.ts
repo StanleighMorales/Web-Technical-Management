@@ -1,5 +1,5 @@
 import { api } from "./axios";
-import type { TLoginUser } from "../types/types";
+import type { TLoginUser } from "../@types/types";
 import { removeToken } from "../utils/token";
 
 export const LoginUserApi = async (data: TLoginUser) => {
