@@ -14,6 +14,7 @@ import Settings from "./Settings";
 import Registration from "./Registration";
 import { ProtectedRoute, PublicRoute } from "../utils/middleware/accessAuth";
 import ViewItem from "../components/ViewItem";
+import ActivityLogs from "./ActivityLogs";
 
 export const Route = createRootRoute({
     component: App,
@@ -99,6 +100,12 @@ export const ViewItemRoute = createRoute({
     component: ViewItem
 })
 
+const ActivityLogsRoute = createRoute({
+    getParentRoute: () => homeRoute,
+    path: "activity-logs",
+    component: ActivityLogs
+})
+
 export const routeTree = Route.addChildren([
     indexRoute,
     homeRoute.addChildren([
@@ -111,6 +118,7 @@ export const routeTree = Route.addChildren([
         PendingReservationRoute,
         SettingsRoute,
         RegistrationModuleRoute,
-        ViewItemRoute
+        ViewItemRoute,
+        ActivityLogsRoute
     ]),
 ]);
