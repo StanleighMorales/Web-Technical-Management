@@ -1,489 +1,415 @@
 import React, { useState } from "react";
-import CloseButton from "./CloseButton";
 import type { TStudent } from "../@types/types";
 import { useUpdateStudent } from "../hooks/userHooks";
 import type { TUpdateStudent } from "../@types/types";
 import { SuccessAlert } from "./SuccessAlert";
+import { X, Pencil, GraduationCap, Phone, MapPin } from "lucide-react";
+
+const inputClass = (hasError: boolean) =>
+  `w-full px-4 py-2.5 rounded-xl border text-sm bg-slate-50 hover:bg-white focus:bg-white outline-none transition-all focus:ring-4 ${
+    hasError
+      ? "border-rose-300 focus:border-rose-500 focus:ring-rose-500/10"
+      : "border-slate-200 focus:border-blue-500 focus:ring-blue-500/10"
+  }`;
+
+const labelClass = "block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5";
 
 export const EditStudent = ({
-    id,
-    firstName,
-    middleName,
-    lastName,
+  id,
+  firstName,
+  middleName,
+  lastName,
+  studentIdNumber,
+  phoneNumber,
+  course,
+  section,
+  year,
+  street,
+  cityMunicipality,
+  province,
+  postalCode,
+  username,
+  email,
+  userRole,
+  status,
+  onClose,
+}: TUpdateStudent) => {
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showAlert, setShowAlert] = useState(false);
+  const { mutate } = useUpdateStudent();
+
+  const [formData, setFormData] = useState<TStudent>({
+    frontStudentIdPicture: null,
+    backStudentIdPicture: null,
     studentIdNumber,
     phoneNumber,
     course,
     section,
     year,
+    profilePicture: null,
     street,
     cityMunicipality,
     province,
     postalCode,
+    id,
     username,
     email,
     userRole,
     status,
-    onClose,
-}: TUpdateStudent) => {
-    const [firstnameError, setFirstnameError] = useState<string>("");
-    const [lastnameError, setLastnameError] = useState<string>("");
-    const [middlenameError, setMiddlenameError] = useState<string>("");
-    const [studentIdError, setStudentIdError] = useState<string>("");
-    const [courseError, setCourseError] = useState<string>("");
-    const [sectionError, setSectionError] = useState<string>("");
-    const [yearError, setYearError] = useState<string>("");
-    const [phoneError, setPhoneError] = useState<string>("");
-    const [usernameError, setUsernameError] = useState<string>("");
-    const [emailError, setEmailError] = useState<string>("");
-    const [streetError, setStreetError] = useState<string>("");
-    const [cityError, setCityError] = useState<string>("");
-    const [provinceError, setProvinceError] = useState<string>("");
-    const [postalCodeError, setPostalCodeError] = useState<string>("");
-    const [showAlert, setShowAlert] = useState<boolean>(false);
-    const { mutate } = useUpdateStudent();
+    lastName,
+    middleName,
+    firstName,
+  });
 
-    const [formData, setFormData] = useState<TStudent>({
-        frontStudentIdPicture: null,
-        backStudentIdPicture: null,
-        studentIdNumber: studentIdNumber,
-        phoneNumber: phoneNumber,
-        course: course,
-        section: section,
-        year: year,
-        profilePicture: null,
-        street: street,
-        cityMunicipality: cityMunicipality,
-        province: province,
-        postalCode: postalCode,
-        id: id,
-        username: username,
-        email: email,
-        userRole: userRole,
-        status: status,
-        lastName: lastName,
-        middleName: middleName,
-        firstName: firstName,
-    });
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
 
-        if (name === "firstName") return setFirstnameError("");
-        if (name === "lastName") return setLastnameError("");
-        if (name === "middleName") return setMiddlenameError("");
-        if (name === "studentIdNumber") return setStudentIdError("");
-        if (name === "course") return setCourseError("");
-        if (name === "section") return setSectionError("");
-        if (name === "year") return setYearError("");
-        if (name === "phoneNumber") return setPhoneError("");
-        if (name === "username") return setUsernameError("");
-        if (name === "email") return setEmailError("");
-        if (name === "street") return setStreetError("");
-        if (name === "cityMunicipality") return setCityError("");
-        if (name === "province") return setProvinceError("");
-        if (name === "postalCode") return setPostalCodeError("");
-    };
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-
-        const updatedStudent: Omit<TUpdateStudent, "onClose"> = {
-            frontStudentIdPicture: formData.frontStudentIdPicture,
-            backStudentIdPicture: formData.backStudentIdPicture,
-            studentIdNumber: formData.studentIdNumber,
-            phoneNumber: formData.phoneNumber,
-            course: formData.course,
-            section: formData.section,
-            year: formData.year,
-            profilePicture: formData.profilePicture,
-            street: formData.street,
-            cityMunicipality: formData.cityMunicipality,
-            province: formData.province,
-            postalCode: formData.postalCode,
-            id: formData.id,
-            username: formData.username,
-            email: formData.email,
-            userRole: formData.userRole,
-            status: formData.status,
-            lastName: formData.lastName,
-            middleName: formData.middleName,
-            firstName: formData.firstName,
-        };
-
-        mutate(
-            { id: formData.id, data: updatedStudent },
-            {
-                onSuccess: () => {
-                    setShowAlert(true);
-                    setTimeout(() => {
-                        setShowAlert(false);
-                        onClose();
-                    }, 1500);
-                },
-                onError: (error) => {
-                    console.log(error.message);
-                },
-            },
-        );
-    };
-
-    return (
-        <div className="flex fixed inset-0 z-50 justify-center items-center animate-fadeIn bg-gray-900/60">
-            {showAlert && <SuccessAlert message="Student updated successfully!" />}
-            <div className="overflow-y-auto relative p-8 w-full max-w-5xl bg-white rounded-3xl shadow-2xl scrollbar-none animate-fadeInUp max-h-[90vh]">
-                <button
-                    className="absolute top-4 right-4 text-2xl transition-colors text-[#64748b] hover:text-[#2563eb]"
-                    aria-label="Close"
-                    onClick={onClose}
-                >
-                    <CloseButton onClick={onClose} />
-                </button>
-                <h2 className="mb-6 text-3xl font-extrabold tracking-tight text-center text-[#1e293b]">
-                    Edit Student
-                </h2>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="flex flex-col gap-4 md:flex-row">
-                        <div className="flex-1">
-                            <label
-                                htmlFor="firstName"
-                                className="block mb-1 font-semibold text-[#2563eb]"
-                            >
-                                First Name <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                id="firstName"
-                                name="firstName"
-                                className={`w-full px-4 py-3 rounded-xl border ${firstnameError ? "border-red-500" : "border-[#e0e7ef]"
-                                    } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                                value={formData.firstName}
-                                onChange={handleInputChange}
-                                placeholder="Enter first name"
-                            />
-                            {firstnameError && (
-                                <p className="mt-1 text-sm text-red-500">{firstnameError}</p>
-                            )}
-                        </div>
-
-                        <div className="flex-1">
-                            <label
-                                htmlFor="lastName"
-                                className="block mb-1 font-semibold text-[#2563eb]"
-                            >
-                                Last Name <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                id="lastName"
-                                name="lastName"
-                                className={`w-full px-4 py-3 rounded-xl border ${lastnameError ? "border-red-500" : "border-[#e0e7ef]"
-                                    } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                                value={formData.lastName}
-                                onChange={handleInputChange}
-                                placeholder="Enter last name"
-                            />
-                            {lastnameError && (
-                                <p className="mt-1 text-sm text-red-500">{lastnameError}</p>
-                            )}
-                        </div>
-
-                        <div className="flex-1">
-                            <label
-                                htmlFor="middleName"
-                                className="block mb-1 font-semibold text-[#2563eb]"
-                            >
-                                Middle Name <span className="text-gray-400/50">(Optional)</span>
-                            </label>
-                            <input
-                                type="text"
-                                id="middleName"
-                                name="middleName"
-                                className={`w-full px-4 py-3 rounded-xl border ${middlenameError ? "border-red-500" : "border-[#e0e7ef]"
-                                    } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                                value={formData.middleName}
-                                onChange={handleInputChange}
-                                placeholder="Enter Middle Initial"
-                            />
-                            {middlenameError && (
-                                <p className="mt-1 text-sm text-red-500">{middlenameError}</p>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col gap-4 md:flex-row">
-                        <div className="flex-1">
-                            <label
-                                htmlFor="studentIdNumber"
-                                className="block mb-1 font-semibold text-[#2563eb]"
-                            >
-                                Student ID Number <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                id="studentIdNumber"
-                                name="studentIdNumber"
-                                className={`w-full px-4 py-3 rounded-xl border ${studentIdError ? "border-red-500" : "border-[#e0e7ef]"
-                                    } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                                value={formData.studentIdNumber}
-                                onChange={handleInputChange}
-                                placeholder="Enter student ID number"
-                            />
-                            {studentIdError && (
-                                <p className="mt-1 text-sm text-red-500">{studentIdError}</p>
-                            )}
-                        </div>
-                        <div className="flex-1">
-                            <label
-                                htmlFor="course"
-                                className="block mb-1 font-semibold text-[#2563eb]"
-                            >
-                                Course <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                id="course"
-                                name="course"
-                                className={`w-full px-4 py-3 rounded-xl border ${courseError ? "border-red-500" : "border-[#e0e7ef]"
-                                    } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                                value={formData.course}
-                                onChange={handleInputChange}
-                                placeholder="Enter course"
-                            />
-                            {courseError && (
-                                <p className="mt-1 text-sm text-red-500">{courseError}</p>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col gap-4 md:flex-row">
-                        <div className="flex-1">
-                            <label
-                                htmlFor="section"
-                                className="block mb-1 font-semibold text-[#2563eb]"
-                            >
-                                Section <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                id="section"
-                                name="section"
-                                className={`w-full px-4 py-3 rounded-xl border ${sectionError ? "border-red-500" : "border-[#e0e7ef]"
-                                    } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                                value={formData.section}
-                                onChange={handleInputChange}
-                                placeholder="Enter section"
-                            />
-                            {sectionError && (
-                                <p className="mt-1 text-sm text-red-500">{sectionError}</p>
-                            )}
-                        </div>
-                        <div className="flex-1">
-                            <label
-                                htmlFor="year"
-                                className="block mb-1 font-semibold text-[#2563eb]"
-                            >
-                                Year <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                id="year"
-                                name="year"
-                                className={`w-full px-4 py-3 rounded-xl border ${yearError ? "border-red-500" : "border-[#e0e7ef]"
-                                    } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                                value={formData.year}
-                                onChange={handleInputChange}
-                                placeholder="Enter year"
-                            />
-                            {yearError && (
-                                <p className="mt-1 text-sm text-red-500">{yearError}</p>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Contact Information Section */}
-                    <div className="pt-6 border-t">
-                        <h3 className="mb-4 text-xl font-bold text-[#1e293b]">
-                            Contact Information
-                        </h3>
-                        <div className="flex flex-col gap-4 md:flex-row">
-                            <div className="flex-1">
-                                <label
-                                    htmlFor="resetPhoneNumber"
-                                    className="block mb-1 font-semibold text-[#2563eb]"
-                                >
-                                    Phone Number <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="tel"
-                                    id="resetPhoneNumber"
-                                    name="phoneNumber"
-                                    className={`w-full px-4 py-3 rounded-xl border ${phoneError ? "border-red-500" : "border-[#e0e7ef]"
-                                        } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                                    value={formData.phoneNumber}
-                                    maxLength={10}
-                                    onChange={handleInputChange}
-                                    placeholder="9XXXXXXXXX"
-                                />
-                                {phoneError && (
-                                    <p className="mt-1 text-sm text-red-500">{phoneError}</p>
-                                )}
-                            </div>
-                            <div className="flex-1">
-                                <label
-                                    htmlFor="resetEmail"
-                                    className="block mb-1 font-semibold text-[#2563eb]"
-                                >
-                                    Email Address <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="email"
-                                    id="resetEmail"
-                                    name="email"
-                                    className={`w-full px-4 py-3 rounded-xl border ${emailError ? "border-red-500" : "border-[#e0e7ef]"
-                                        } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                                    value={formData.email}
-                                    onChange={handleInputChange}
-                                    placeholder="Enter email address"
-                                />
-                                {emailError && (
-                                    <p className="mt-1 text-sm text-red-500">{emailError}</p>
-                                )}
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-4 mt-4 md:flex-row">
-                            <div className="flex-1">
-                                <label
-                                    htmlFor="resetUsername"
-                                    className="block mb-1 font-semibold text-[#2563eb]"
-                                >
-                                    Username <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    id="resetUsername"
-                                    name="username"
-                                    className={`w-full px-4 py-3 rounded-xl border ${usernameError ? "border-red-500" : "border-[#e0e7ef]"
-                                        } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                                    value={formData.username}
-                                    onChange={handleInputChange}
-                                    placeholder="Enter username"
-                                />
-                                {usernameError && (
-                                    <p className="mt-1 text-sm text-red-500">{usernameError}</p>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Address Section */}
-                    <div className="pt-6 border-t">
-                        <h3 className="mb-4 text-xl font-bold text-[#1e293b]">
-                            Address Information
-                        </h3>
-                        <div className="flex flex-col gap-4 md:flex-row">
-                            <div className="flex-1">
-                                <label
-                                    htmlFor="street"
-                                    className="block mb-1 font-semibold text-[#2563eb]"
-                                >
-                                    Street Address <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    id="street"
-                                    name="street"
-                                    className={`w-full px-4 py-3 rounded-xl border ${streetError ? "border-red-500" : "border-[#e0e7ef]"
-                                        } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                                    value={formData.street}
-                                    onChange={handleInputChange}
-                                    placeholder="Enter street address"
-                                />
-                                {streetError && (
-                                    <p className="mt-1 text-sm text-red-500">{streetError}</p>
-                                )}
-                            </div>
-                            <div className="flex-1">
-                                <label
-                                    htmlFor="cityMunicipality"
-                                    className="block mb-1 font-semibold text-[#2563eb]"
-                                >
-                                    City/Municipality <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    id="cityMunicipality"
-                                    name="cityMunicipality"
-                                    className={`w-full px-4 py-3 rounded-xl border ${cityError ? "border-red-500" : "border-[#e0e7ef]"
-                                        } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                                    value={formData.cityMunicipality}
-                                    onChange={handleInputChange}
-                                    placeholder="Enter city/municipality"
-                                />
-                                {cityError && (
-                                    <p className="mt-1 text-sm text-red-500">{cityError}</p>
-                                )}
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-4 mt-4 md:flex-row">
-                            <div className="flex-1">
-                                <label
-                                    htmlFor="province"
-                                    className="block mb-1 font-semibold text-[#2563eb]"
-                                >
-                                    Province <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    id="province"
-                                    name="province"
-                                    className={`w-full px-4 py-3 rounded-xl border ${provinceError ? "border-red-500" : "border-[#e0e7ef]"
-                                        } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                                    value={formData.province}
-                                    onChange={handleInputChange}
-                                    placeholder="Enter province"
-                                />
-                                {provinceError && (
-                                    <p className="mt-1 text-sm text-red-500">{provinceError}</p>
-                                )}
-                            </div>
-                            <div className="flex-1">
-                                <label
-                                    htmlFor="postalCode"
-                                    className="block mb-1 font-semibold text-[#2563eb]"
-                                >
-                                    Postal Code <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    id="postalCode"
-                                    name="postalCode"
-                                    className={`w-full px-4 py-3 rounded-xl border ${postalCodeError ? "border-red-500" : "border-[#e0e7ef]"
-                                        } bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg`}
-                                    value={formData.postalCode}
-                                    onChange={handleInputChange}
-                                    placeholder="Enter postal code"
-                                />
-                                {postalCodeError && (
-                                    <p className="mt-1 text-sm text-red-500">{postalCodeError}</p>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex justify-center pt-2">
-                        <button
-                            type="submit"
-                            className="py-3 px-8 font-bold text-white bg-blue-500 rounded-xl shadow-lg transition-all duration-150 cursor-pointer hover:shadow-2xl hover:scale-105 "
-                        >
-                            Save Changes
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+    mutate(
+      {
+        id: formData.id,
+        data: {
+          frontStudentIdPicture: formData.frontStudentIdPicture,
+          backStudentIdPicture: formData.backStudentIdPicture,
+          studentIdNumber: formData.studentIdNumber,
+          phoneNumber: formData.phoneNumber,
+          course: formData.course,
+          section: formData.section,
+          year: formData.year,
+          profilePicture: formData.profilePicture,
+          street: formData.street,
+          cityMunicipality: formData.cityMunicipality,
+          province: formData.province,
+          postalCode: formData.postalCode,
+          id: formData.id,
+          username: formData.username,
+          email: formData.email,
+          userRole: formData.userRole,
+          status: formData.status,
+          lastName: formData.lastName,
+          middleName: formData.middleName,
+          firstName: formData.firstName,
+        },
+      },
+      {
+        onSuccess: () => {
+          setShowAlert(true);
+          setTimeout(() => { setShowAlert(false); onClose(); }, 1500);
+        },
+        onError: (error) => console.log(error.message),
+      },
     );
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      {showAlert && <SuccessAlert message="Student updated successfully!" />}
+
+      <div
+        className="w-full max-w-3xl bg-white rounded-[2rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-xl bg-emerald-50 flex items-center justify-center">
+              <GraduationCap className="h-4 w-4 text-emerald-500" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-slate-900">Edit Student</h2>
+              <p className="text-xs text-slate-400 font-medium mt-0.5">Update student information</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="h-8 w-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="overflow-y-auto flex-1 p-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
+
+            <FormSection title="Personal Information" icon={<GraduationCap className="h-4 w-4 text-emerald-500" />}>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label htmlFor="firstName" className={labelClass}>
+                    First Name <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="firstName"
+                    name="firstName"
+                    placeholder="Enter first name"
+                    value={formData.firstName}
+                    onChange={handleInputChange}
+                    className={inputClass(!!errors.firstName)}
+                  />
+                  {errors.firstName && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.firstName}</p>}
+                </div>
+                <div>
+                  <label htmlFor="lastName" className={labelClass}>
+                    Last Name <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="lastName"
+                    name="lastName"
+                    placeholder="Enter last name"
+                    value={formData.lastName}
+                    onChange={handleInputChange}
+                    className={inputClass(!!errors.lastName)}
+                  />
+                  {errors.lastName && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.lastName}</p>}
+                </div>
+                <div>
+                  <label htmlFor="middleName" className={labelClass}>
+                    Middle Name <span className="text-slate-300 text-[10px]">(Optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="middleName"
+                    name="middleName"
+                    placeholder="Enter middle name"
+                    value={formData.middleName}
+                    onChange={handleInputChange}
+                    className={inputClass(!!errors.middleName)}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                <div>
+                  <label htmlFor="studentIdNumber" className={labelClass}>
+                    Student ID Number <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="studentIdNumber"
+                    name="studentIdNumber"
+                    placeholder="Enter student ID"
+                    value={formData.studentIdNumber}
+                    onChange={handleInputChange}
+                    className={inputClass(!!errors.studentIdNumber)}
+                  />
+                  {errors.studentIdNumber && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.studentIdNumber}</p>}
+                </div>
+                <div>
+                  <label htmlFor="course" className={labelClass}>
+                    Course <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="course"
+                    name="course"
+                    placeholder="Enter course"
+                    value={formData.course}
+                    onChange={handleInputChange}
+                    className={inputClass(!!errors.course)}
+                  />
+                  {errors.course && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.course}</p>}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                <div>
+                  <label htmlFor="section" className={labelClass}>
+                    Section <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="section"
+                    name="section"
+                    placeholder="Enter section"
+                    value={formData.section}
+                    onChange={handleInputChange}
+                    className={inputClass(!!errors.section)}
+                  />
+                  {errors.section && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.section}</p>}
+                </div>
+                <div>
+                  <label htmlFor="year" className={labelClass}>
+                    Year Level <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="year"
+                    name="year"
+                    placeholder="Enter year"
+                    value={formData.year}
+                    onChange={handleInputChange}
+                    className={inputClass(!!errors.year)}
+                  />
+                  {errors.year && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.year}</p>}
+                </div>
+              </div>
+            </FormSection>
+
+            <FormSection title="Contact Information" icon={<Phone className="h-4 w-4 text-blue-500" />}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="phoneNumber" className={labelClass}>
+                    Phone Number <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    id="phoneNumber"
+                    name="phoneNumber"
+                    placeholder="9XXXXXXXXX"
+                    value={formData.phoneNumber}
+                    maxLength={10}
+                    onChange={handleInputChange}
+                    className={inputClass(!!errors.phoneNumber)}
+                  />
+                  {errors.phoneNumber && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.phoneNumber}</p>}
+                </div>
+                <div>
+                  <label htmlFor="email" className={labelClass}>
+                    Email Address <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Enter email address"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className={inputClass(!!errors.email)}
+                  />
+                  {errors.email && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.email}</p>}
+                </div>
+              </div>
+              <div className="mt-4">
+                <label htmlFor="username" className={labelClass}>
+                  Username <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  placeholder="Enter username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  className={inputClass(!!errors.username)}
+                />
+                {errors.username && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.username}</p>}
+              </div>
+            </FormSection>
+
+            <FormSection title="Address Information" icon={<MapPin className="h-4 w-4 text-violet-500" />}>
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label htmlFor="street" className={labelClass}>
+                    Street Address <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="street"
+                    name="street"
+                    placeholder="Enter street address"
+                    value={formData.street}
+                    onChange={handleInputChange}
+                    className={inputClass(!!errors.street)}
+                  />
+                  {errors.street && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.street}</p>}
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+                <div>
+                  <label htmlFor="cityMunicipality" className={labelClass}>
+                    City / Municipality <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="cityMunicipality"
+                    name="cityMunicipality"
+                    placeholder="Enter city"
+                    value={formData.cityMunicipality}
+                    onChange={handleInputChange}
+                    className={inputClass(!!errors.cityMunicipality)}
+                  />
+                  {errors.cityMunicipality && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.cityMunicipality}</p>}
+                </div>
+                <div>
+                  <label htmlFor="province" className={labelClass}>
+                    Province <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="province"
+                    name="province"
+                    placeholder="Enter province"
+                    value={formData.province}
+                    onChange={handleInputChange}
+                    className={inputClass(!!errors.province)}
+                  />
+                  {errors.province && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.province}</p>}
+                </div>
+                <div>
+                  <label htmlFor="postalCode" className={labelClass}>
+                    Postal Code <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="postalCode"
+                    name="postalCode"
+                    placeholder="Enter postal code"
+                    value={formData.postalCode}
+                    onChange={handleInputChange}
+                    className={inputClass(!!errors.postalCode)}
+                  />
+                  {errors.postalCode && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.postalCode}</p>}
+                </div>
+              </div>
+            </FormSection>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-all shadow-sm shadow-blue-200"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+                Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
 };
+
+function FormSection({
+  title,
+  icon,
+  children,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+      <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2 bg-slate-50/60">
+        {icon}
+        <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">{title}</h3>
+      </div>
+      <div className="p-4">{children}</div>
+    </div>
+  );
+}
