@@ -1,4 +1,4 @@
-import { Activity, useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { AddUsers } from "../components/AddUser";
 import Button from "../components/Button";
 import EditUser from "../components/EditUser";
@@ -15,13 +15,17 @@ import { ErrorAlert } from "../components/ErrorAlert";
 import { useAllUsersManagement, useFilteredUser } from "../data/user-management-data";
 import { useCommonState } from "../states/index-state";
 import { useAllUsersManagementState } from "../states/user-management-state";
-
+import {
+  Users,
+  Sparkles,
+  ChevronRight,
+  Search,
+} from "lucide-react";
 
 export default function UserManagement() {
-
   const { mutate } = useArchiveUser();
-  const { users, isPending, isError } = useAllUsersManagement()
-  const { filteredUser, setSearchUser, setSelectedStatus, selectedRole, setSelectedRole } = useFilteredUser()
+  const { users, isPending, isError } = useAllUsersManagement();
+  const { filteredUser, setSearchUser, setSelectedStatus, selectedRole, setSelectedRole } = useFilteredUser();
 
   const {
     showSuccessAlert,
@@ -31,8 +35,8 @@ export default function UserManagement() {
     showSuccessMessage,
     setShowSuccessMessage,
     showErrorMessage,
-    setShowErrorMessage
-  } = useCommonState()
+    setShowErrorMessage,
+  } = useCommonState();
 
   const {
     isAddUserOpen,
@@ -47,11 +51,12 @@ export default function UserManagement() {
     setSelectedUserId,
     archiveUserId,
     setArchiveUserId,
-  } = useAllUsersManagementState()
+  } = useAllUsersManagementState();
 
-  const selectedUser = useMemo(() => {
-    return users.find((u) => u.id === selectedUserId);
-  }, [users, selectedUserId]);
+  const selectedUser = useMemo(
+    () => users.find((u) => u.id === selectedUserId),
+    [users, selectedUserId],
+  );
 
   const confirmArchiveUser = useCallback(() => {
     mutate(archiveUserId, {
@@ -89,177 +94,172 @@ export default function UserManagement() {
     setIsViewCredentialsOpen(true);
   };
 
-  if (isPending) {
-    return <UserSkeletonLoader />;
-  }
+  const tableUsers = filteredUser.filter(
+    (user) => user.userRole === "Admin" || user.userRole === "Staff",
+  );
+
+  const onlineCount = users.filter(
+    (u) => u.status.toLowerCase() === "online",
+  ).length;
+
+  if (isPending) return <UserSkeletonLoader />;
 
   return (
-    <div className="flex flex-col items-center py-8 px-4 w-full min-h-screen bg-gradient-to-br from-[#f8fafc] via-[#f1f5f9] to-[#eef2ff] animate-fadeIn">
-      <Activity mode={showSuccessAlert ? "visible" : "hidden"}>
-        <SuccessAlert message={showSuccessMessage} />
-      </Activity>
+    <div className="min-h-screen bg-slate-50 p-6 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
 
-      <Activity mode={showErrorAlert ? "visible" : "hidden"}>
-        <ErrorAlert message={showErrorMessage} />
-      </Activity>
+      {/* Alerts */}
+      {showSuccessAlert && <SuccessAlert message={showSuccessMessage} />}
+      {showErrorAlert && <ErrorAlert message={showErrorMessage} />}
 
-      <div className="relative p-6 w-full max-w-[2000px] rounded-2xl md:rounded-3xl border border-[#e5e7eb]/80 shadow-[0_4px_24px_-4px_rgba(30,41,59,0.08),0_8px_48px_-8px_rgba(30,41,59,0.06)] bg-white/90 backdrop-blur-sm md:p-10 mx-auto">
-        {/* Header */}
-        <div className="flex flex-col gap-4 mb-8 pb-6 border-b border-[#e5e7eb]/60 md:flex-row md:justify-between md:items-end">
-          <div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#1e293b] mb-1.5">
-              Technical User Management
-            </h1>
-            <p className="text-sm sm:text-base text-[#475569]">
-              Manage staff, search users, and update statuses with ease.
-            </p>
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+        <div>
+          <div className="inline-flex mt-12 md:mt-0 items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-semibold mb-4">
+            <Sparkles className="h-3.5 w-3.5" />
+            <span>Staff directory</span>
           </div>
-
-          {/* Stats */}
-          <div className="flex flex-wrap gap-3 items-center mt-4 md:mt-0">
-            <span className="inline-flex gap-2 items-center py-2 px-4 text-sm font-medium rounded-full bg-[#eef2ff] text-[#3730a3] border border-[#c7d2fe]/50 shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-[#22c55e] ring-2 ring-[#22c55e]/30" />
-              {
-                users.filter((user) => user.status.toLowerCase() === "online")
-                  .length
-              }{" "}
-              online
-            </span>
-            <span className="hidden md:inline w-px h-5 bg-[#e5e7eb]" />
-            <span className="text-sm font-medium text-[#64748b]">
-              {filteredUser.filter((a) => a.userRole === "Admin" || a.userRole === "Staff").length} shown
-            </span>
-          </div>
+          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 mb-2">
+            User Management
+          </h1>
+          <p className="text-slate-500 font-medium text-base max-w-xl leading-relaxed">
+            Manage staff accounts, update roles, and monitor online status across your team.
+          </p>
         </div>
 
-        {/* Actions & Filters */}
-        <section className="flex flex-col gap-4 mb-6 lg:flex-row md:flex-row justify-between md:items-center">
-          <div>
-            <Button onClick={() => setIsAddUserOpen(true)} name={"New User"} />
+        {/* Live stats */}
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white border border-slate-200 shadow-sm text-sm font-medium text-slate-600">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-emerald-200 animate-pulse" />
+            <span>{onlineCount} online</span>
           </div>
+          <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white border border-slate-200 shadow-sm text-sm font-medium text-slate-600">
+            <Users className="h-4 w-4 text-slate-400" />
+            <span>{tableUsers.length} shown</span>
+          </div>
+        </div>
+      </div>
 
-          <div className="flex flex-col gap-3 w-full sm:flex-row sm:items-center md:order-2 md:w-auto">
-            <div className="flex flex-wrap gap-2 items-center">
+      <div className="bg-white rounded-[2rem] border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
+
+        {/* Toolbar */}
+        <div className="px-6 md:px-8 py-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <Button onClick={() => setIsAddUserOpen(true)} name="New User" />
+
+          <div className="flex flex-wrap lg:justify-end items-center gap-2">
+            {/* Role filter pills */}
+            <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl">
               {["all", "admin", "staff"].map((role) => (
                 <button
                   key={role}
                   onClick={() => setSelectedRole(role)}
-                  className={`px-4 py-2.5 sm:px-5 sm:py-2 rounded-md font-medium text-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3730a3]/40 focus-visible:ring-offset-2 ${selectedRole === role
-                      ? "bg-blue-500 text-white shadow-md shadow-[#3730a3]/25"
-                      : "bg-white text-[#64748b] border border-[#e5e7eb] hover:border-[#3730a3]/40 hover:text-[#3730a3]"
-                    }`}
+                  className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                    selectedRole === role
+                      ? "bg-white text-slate-900 shadow-sm"
+                      : "text-slate-500 hover:text-slate-700"
+                  }`}
                 >
                   {role.charAt(0).toUpperCase() + role.slice(1)}
                 </button>
               ))}
-              <SelectUserStatus onChangeStatus={setSelectedStatus} />
-              <div className="min-w-0 flex-1 sm:flex-initial">
-                <SearchBar
-                  onChangeValue={(value) => setSearchUser(value)}
-                  name={"Search Users"}
-                  placeholder={"Search by name, role, or status"}
-                />
-              </div>
             </div>
-          </div>
-        </section>
 
-        {/* User Table */}
-        <div className="overflow-hidden rounded-xl border border-[#e5e7eb] bg-white shadow-[0_1px_3px_0_rgba(30,41,59,0.06)] h-[50vh] sm:h-[60vh]">
-          {isError ? (
-            <ErrorTable />
-          ) : filteredUser.length === 0 ? (
-            <div className="flex flex-col justify-center items-center p-12 w-full h-full text-center">
-              <div className="inline-flex justify-center items-center mb-4 w-14 h-14 rounded-2xl bg-[#eef2ff] text-[#3730a3] border border-[#c7d2fe]/50">
-                <span className="text-2xl" aria-hidden>🔎</span>
-              </div>
-              <p className="font-semibold text-[#0f172a] text-lg">No users found</p>
-              <p className="max-w-sm mt-1 text-sm text-[#64748b]">
-                Try adjusting your filters or search query, or add a new user.
-              </p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto h-full">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr>
-                    {[
-                      "Firstname",
-                      "Lastname",
-                      "Username",
-                      "Email",
-                      "Role",
-                      "Status",
-                      "Action",
-                    ].map((col, i) => (
-                      <th
-                        key={col}
-                        className={`sticky top-0 z-10 py-3.5 px-4 font-semibold text-xs uppercase tracking-wider text-[#64748b] bg-[#f8fafc] border-b border-[#e5e7eb] md:py-4 md:px-5 first:pl-5 last:pr-5 ${i === 0 ? "rounded-tl-xl" : ""
-                          } ${i === 6 ? "rounded-tr-xl" : ""}`}
-                      >
-                        {col}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUser
-                    .filter(
-                      (user) =>
-                        user.userRole === "Admin" || user.userRole === "Staff",
-                    )
-                    .map((user) => (
-                      <tr
-                        key={user.id}
-                        onClick={() => handleViewUserCredentials(user.id)}
-                        className="transition-colors duration-150 odd:bg-white even:bg-[#f8fafc]/70 hover:bg-[#f1f5f9] cursor-pointer border-b border-[#e5e7eb]/50 last:border-b-0"
-                      >
-                        <UserTable
-                          id={user.id}
-                          firstName={user.firstName}
-                          lastName={user.lastName}
-                          username={user.username}
-                          email={user.email}
-                          userRole={user.userRole}
-                          status={user.status}
-                          onSetEditUserId={(userId) => {
-                            setSelectedUserId(userId);
-                            setIsEditUserOpen(true);
-                          }}
-                          onSetIsEditUserOpen={setIsEditUserOpen}
-                          onMutate={(userId) => {
-                            setArchiveUserId(userId);
-                            setIsArchiveModalOpen(true);
-                          }}
-                        />
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+            <SelectUserStatus onChangeStatus={setSelectedStatus} />
+
+            <SearchBar
+              onChangeValue={(value) => setSearchUser(value)}
+              name="Search Users"
+              placeholder="Search by name, role, or status"
+            />
+          </div>
         </div>
 
-        {/* Tip */}
-        <p className="mt-5 py-2.5 px-4 text-sm text-center text-[#64748b] rounded-lg bg-[#f8fafc]/80 border border-[#e5e7eb]/60 inline-block mx-auto">
-          <span className="font-semibold text-[#475569]">Tip:</span> Use role and status filters plus search to find users quickly.
-        </p>
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <div className="min-h-[55vh] max-h-[55vh] overflow-y-auto">
+            {isError ? (
+              <ErrorTable />
+            ) : tableUsers.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-24 text-center px-8">
+                <div className="h-16 w-16 rounded-full bg-slate-50 flex items-center justify-center mb-4 border border-slate-100 shadow-sm">
+                  <Search className="h-8 w-8 text-slate-300" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 mb-1">No users found</h3>
+                <p className="text-sm text-slate-500 leading-relaxed max-w-sm">
+                  Try adjusting your filters or search query, or add a new user.
+                </p>
+              </div>
+            ) : (
+              <table className="w-full text-left text-sm whitespace-nowrap">
+                <thead>
+                  <tr className="border-b border-slate-100">
+                    {["First Name", "Last Name", "Username", "Email", "Role", "Status", "Action"].map(
+                      (col) => (
+                        <th
+                          key={col}
+                          className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400"
+                        >
+                          {col}
+                        </th>
+                      ),
+                    )}
+                    <th className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4" />
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {tableUsers.map((user) => (
+                    <tr
+                      key={user.id}
+                      onClick={() => handleViewUserCredentials(user.id)}
+                      className="group transition-all duration-200 hover:bg-indigo-50/30 cursor-pointer"
+                    >
+                      <UserTable
+                        id={user.id}
+                        firstName={user.firstName}
+                        lastName={user.lastName}
+                        username={user.username}
+                        email={user.email}
+                        userRole={user.userRole}
+                        status={user.status}
+                        onSetEditUserId={(userId) => {
+                          setSelectedUserId(userId);
+                          setIsEditUserOpen(true);
+                        }}
+                        onSetIsEditUserOpen={setIsEditUserOpen}
+                        onMutate={(userId) => {
+                          setArchiveUserId(userId);
+                          setIsArchiveModalOpen(true);
+                        }}
+                      />
+                      <td className="px-6 py-4">
+                        <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-indigo-500 transition-colors" />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+
+        {/* Footer hint */}
+        <div className="px-8 py-4 border-t border-slate-100 bg-slate-50/50">
+          <p className="text-xs text-slate-400 font-medium">
+            <span className="font-semibold text-slate-500">Tip:</span> Click any row to view user credentials. Use role and status filters to narrow results.
+          </p>
+        </div>
       </div>
 
-      <Activity mode={isAddUserOpen ? "visible" : "hidden"}>
+      {isAddUserOpen && (
         <AddUsers onClose={() => setIsAddUserOpen(false)} />
-      </Activity>
-
-      {isEditUserOpen && selectedUser && (
-        <Activity mode="visible">
-          <EditUser
-            user={selectedUser}
-            onClose={() => setIsEditUserOpen(false)}
-          />
-        </Activity>
       )}
 
-      <Activity mode={isArchiveModalOpen ? "visible" : "hidden"}>
+      {isEditUserOpen && selectedUser && (
+        <EditUser
+          user={selectedUser}
+          onClose={() => setIsEditUserOpen(false)}
+        />
+      )}
+
+      {isArchiveModalOpen && (
         <PopUpModal
           title="Archive User"
           label="archive"
@@ -268,16 +268,14 @@ export default function UserManagement() {
           onHandleCancelAction={cancelArchiveUser}
           onHandleConfirmAction={confirmArchiveUser}
         />
-      </Activity>
+      )}
 
       {selectedUser && isViewCredentialsOpen && (
-        <Activity mode="visible">
-          <ViewUserCredentials
-            user={selectedUser}
-            isOpen={isViewCredentialsOpen}
-            onClose={() => setIsViewCredentialsOpen(false)}
-          />
-        </Activity>
+        <ViewUserCredentials
+          user={selectedUser}
+          isOpen={isViewCredentialsOpen}
+          onClose={() => setIsViewCredentialsOpen(false)}
+        />
       )}
     </div>
   );
