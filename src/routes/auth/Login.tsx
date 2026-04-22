@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { FaEye } from "react-icons/fa";
-import { FaEyeSlash } from "react-icons/fa6";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import logo from "../../assets/aclcLogo.webp";
 import type { TLoginUser } from "../../@types/types";
 import { useLogin } from "../../hooks/authHooks";
@@ -22,182 +21,217 @@ export default function Login() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setSubmitForm((prev) => ({ ...prev, [name]: value }));
-
-    if (name === "identifier") setUsernameError("");
-    if (name === "password") setPasswordError("");
+    if (name === "identifier") { setUsernameError(""); setErrorMessage(""); }
+    if (name === "password") { setPasswordError(""); setErrorMessage(""); }
   };
 
-  const handleSubmitLoginForm = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     let hasError = false;
-
-    if (!submitForm.identifier && !submitForm.password) {
-      setUsernameError("Username is required");
-      setPasswordError("Password is required");
-      hasError = true;
-    }
-
-    if (!submitForm.identifier) {
-      setUsernameError("Username is required");
-      hasError = true;
-    }
-
-    if (!submitForm.password) {
-      setPasswordError("Password is required");
-      hasError = true;
-    }
-
+    if (!submitForm.identifier) { setUsernameError("Username is required"); hasError = true; }
+    if (!submitForm.password) { setPasswordError("Password is required"); hasError = true; }
     if (hasError) return;
 
     mutate(submitForm, {
-      onSuccess: () => {
-        navigate({ to: "/home/dashboard" });
-      },
-      onError: () => {
-        setErrorMessage("Invalid username or password.")
-      },
+      onSuccess: () => navigate({ to: "/home/dashboard" }),
+      onError: () => setErrorMessage("Invalid username or password."),
     });
   };
 
-  const hasInputError = (field: "identifier" | "password") => {
-    if (field === "identifier") return !!usernameError || errorMessage
-    return !!passwordError || errorMessage
-  };
-
-  const inputClass = (field: "identifier" | "password") =>
-    `w-[400px] h-[55px] rounded-md border-2 bg-white/78 pl-4 pr-12 text-base outline-none transition placeholder:text-black/40 hover:bg-white/93 focus:bg-white max-lg:w-[90vw] max-lg:max-w-[98%] max-lg:min-w-[220px] max-sm:w-[98vw] max-sm:min-w-[120px] ${hasInputError(field) ? "border-red-500" : "border-black/20 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-    }`;
+  const hasError = (field: "identifier" | "password") =>
+    field === "identifier"
+      ? !!usernameError || !!errorMessage
+      : !!passwordError || !!errorMessage;
 
   return (
-    <div className="relative w-full min-h-screen bg-blue-600 lg:py-4">
-      {/* Left: logo */}
-      <div className="animate-fadeIn flex w-full justify-center lg:justify-start">
+    <div className="relative flex min-h-screen w-full overflow-hidden">
+
+      <div className="relative hidden lg:flex lg:flex-1 flex-col justify-between overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800 px-14 py-5">
+
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-24 -left-24 h-80 w-80 rounded-full bg-white/5" />
+          <div className="absolute bottom-0 right-0 h-[500px] w-[500px] rounded-full bg-blue-900/30 translate-x-1/3 translate-y-1/3" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[700px] w-[700px] rounded-full border border-white/5" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[450px] w-[450px] rounded-full border border-white/5" />
+        </div>
+
+        {/* Logo */}
         <a
           href="https://www.facebook.com/aclcmandaueph"
-          className="ml-[4%] mt-[2%]"
           target="_blank"
           rel="noreferrer"
           title="Go to ACLC Page"
+          className="relative z-10 w-fit"
         >
           <img
             src={logo}
-            alt="Logo"
-            className="w-24 rounded-full cursor-pointer lg:w-30"
+            alt="ACLC Logo"
+            className="w-30 h-30 rounded-full object-cover hover:ring-white/40 transition-all duration-300"
           />
         </a>
-      </div>
 
-      {/* Left: title + subtitle */}
-      <div className="animate-fadeIn max-w-[1000px] mx-[4%] mt-[7%] mb-[4%] max-lg:mx-[2%] max-lg:mt-[4%] max-lg:mb-[2%] max-lg:max-w-full max-sm:mx-[1%] max-sm:mt-[2%] max-sm:mb-[1%] max-sm:p-0">
-        <div className="flex max-w-4xl w-full justify-center items-center">
-          <h1 className="m-0 mb-4 font-bold text-center lg:text-left text-white text-[65px] drop-shadow-[0_4px_12px_rgba(0,0,0,0.45)] leading-[4.2rem] max-sm:text-[2.2rem] max-sm:leading-[2.7rem]">
-            Technical Equipment Borrowing System
+        {/* Hero copy */}
+        <div className="relative z-10 max-w-2xl -mt-30">
+          <h1 className="text-6xl font-extrabold text-white leading-tight tracking-tight drop-shadow-md">
+            Technical Equipment<br />Borrowing System
           </h1>
+          <p className="text-xl text-blue-100/75 font-medium leading-relaxed">
+            Managing resources, tracking items and borrowers. Ensures smooth lifecycle management.
+          </p>
+          <div className="flex flex-wrap gap-2 pt-1">
+            {["Inventory", "Borrow Logs", "User Roles", "Activity Logs"].map((tag) => (
+              <span
+                key={tag}
+                className="px-3 py-1 rounded-full bg-white/10 border border-white/15 text-white/70 text-xs font-semibold"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
         </div>
-        <p className="text-lg text-center lg:text-left text-white/75">
-          Managing resources, while tracking items and borrowers. Ensures
-          smooth lifecycle management.
+
+        {/* Footer */}
+        <p className="relative z-10 text-white/30 text-xs font-medium">
+          © {new Date().getFullYear()} ACLC College of Mandaue
         </p>
       </div>
 
-      {/* Right: login panel */}
-      <div className="animate-fadeIn absolute top-0 right-0 w-[35%] h-screen bg-white flex flex-col justify-center items-center max-lg:w-full max-lg:relative max-lg:min-h-[60vh] max-sm:min-h-[60vh] max-sm:py-4 max-sm:px-2">
-        <div className="my-4 mb-10 text-center max-sm:-mt-80">
-          <h1 className="m-0 text-black text-[2.4rem] mb-[-0.3rem] max-sm:text-[1.5rem]">
-            Welcome Back
-          </h1>
-          <p className="mb-1.5 text-center text-black/62">
-            Enter your credentials to log in.
-          </p>
-          <div className="mt-2 text-red-500 text-md" role="alert">
-            {errorMessage}
-          </div>
+      <div className="flex w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 flex-col items-center justify-center bg-white px-10 py-14">
+
+        {/* Mobile logo */}
+        <div className="-mt-20 mb-30 lg:hidden">
+          <img src={logo} alt="ACLC Logo" className="w-25 h-25 rounded-full mx-auto" />
         </div>
 
-        <form
-          className="flex flex-col justify-center items-center"
-          onSubmit={handleSubmitLoginForm}
-          method="post"
-          data-testid="login-form"
-        >
-          <div className="flex relative flex-col mb-6">
-            <input
-              id="identifier"
-              className={`${inputClass("identifier")} pr-4 mb-1`}
-              autoFocus
-              type="text"
-              name="identifier"
-              placeholder="Username"
-              value={submitForm.identifier}
-              onChange={handleChange}
-              data-testid="identifier"
-              disabled={isPending}
-              aria-invalid={!!usernameError}
-              aria-describedby={usernameError ? "identifier-err" : undefined}
-            />
-            {usernameError && (
-              <p id="identifier-err" className="absolute mt-14 text-base text-red-500" role="alert">
-                {usernameError}
-              </p>
-            )}
+        <div className="w-full max-w-xl space-y-8">
+
+          {/* Heading */}
+          <div className="space-y-1">
+            <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">
+              Welcome back
+            </h2>
+            <p className="text-sm text-slate-400 font-medium">
+              Sign in to your account to continue.
+            </p>
           </div>
 
-          <div className="flex relative flex-col">
-            <div className="relative">
+          {errorMessage && (
+            <div
+              role="alert"
+              className="flex items-center gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600 animate-in fade-in slide-in-from-top-2 duration-200"
+            >
+              <span className="h-2 w-2 flex-shrink-0 rounded-full bg-rose-500" />
+              {errorMessage}
+            </div>
+          )}
+
+          {/* Form */}
+          <form
+            onSubmit={handleSubmit}
+            method="post"
+            data-testid="login-form"
+            className="space-y-5"
+          >
+            {/* Username */}
+            <div className="space-y-1.5">
+              <label
+                htmlFor="identifier"
+                className="block text-xs font-bold uppercase tracking-widest text-slate-500"
+              >
+                Username
+              </label>
               <input
-                id="password"
-                className={inputClass("password")}
-                type={isShowPassword ? "text" : "password"}
-                name="password"
-                placeholder="Password"
-                value={submitForm.password}
+                id="identifier"
+                type="text"
+                name="identifier"
+                placeholder="Enter your username"
+                value={submitForm.identifier}
                 onChange={handleChange}
-                data-testid="password"
+                autoFocus
                 disabled={isPending}
-                aria-invalid={!!passwordError}
-                aria-describedby={passwordError ? "password-err" : undefined}
+                data-testid="identifier"
+                aria-invalid={hasError("identifier")}
+                aria-describedby={usernameError ? "identifier-err" : undefined}
+                className={`w-full h-12 rounded-2xl border px-4 text-sm text-slate-900 placeholder:text-slate-300 bg-slate-50 outline-none transition-all duration-200 hover:bg-white focus:bg-white focus:ring-4 disabled:opacity-50 ${
+                  hasError("identifier")
+                    ? "border-rose-400 focus:border-rose-500 focus:ring-rose-500/10"
+                    : "border-slate-200 focus:border-blue-500 focus:ring-blue-500/10"
+                }`}
               />
-              {submitForm.password.length > 0 && (
-                <button
-                  type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer rounded p-1 hover:bg-black/5 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
-                  onClick={() => setIsShowPassword((prev) => !prev)}
-                  aria-label={isShowPassword ? "Hide password" : "Show password"}
-                  tabIndex={-1}
-                >
-                  {isShowPassword ? (
-                    <FaEye className="text-[1.6rem]" />
-                  ) : (
-                    <FaEyeSlash className="text-[1.6rem]" />
-                  )}
-                </button>
+              {usernameError && (
+                <p id="identifier-err" className="text-xs font-medium text-rose-500" role="alert">
+                  {usernameError}
+                </p>
               )}
             </div>
-            {passwordError && (
-              <p id="password-err" className="text-base text-red-500 mt-1" role="alert">
-                {passwordError}
-              </p>
-            )}
-          </div>
 
-          <div className="mt-20 max-sm:mt-4">
+            {/* Password */}
+            <div className="space-y-1.5">
+              <label
+                htmlFor="password"
+                className="block text-xs font-bold uppercase tracking-widest text-slate-500"
+              >
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  type={isShowPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Enter your password"
+                  value={submitForm.password}
+                  onChange={handleChange}
+                  disabled={isPending}
+                  data-testid="password"
+                  aria-invalid={hasError("password")}
+                  aria-describedby={passwordError ? "password-err" : undefined}
+                  className={`w-full h-12 rounded-2xl border px-4 pr-12 text-sm text-slate-900 placeholder:text-slate-300 bg-slate-50 outline-none transition-all duration-200 hover:bg-white focus:bg-white focus:ring-4 disabled:opacity-50 ${
+                    hasError("password")
+                      ? "border-rose-400 focus:border-rose-500 focus:ring-rose-500/10"
+                      : "border-slate-200 focus:border-blue-500 focus:ring-blue-500/10"
+                  }`}
+                />
+                {submitForm.password.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setIsShowPassword((p) => !p)}
+                    aria-label={isShowPassword ? "Hide password" : "Show password"}
+                    tabIndex={-1}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 rounded-lg p-1 text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    {isShowPassword
+                      ? <EyeOff className="h-4 w-4" />
+                      : <Eye className="h-4 w-4" />
+                    }
+                  </button>
+                )}
+              </div>
+              {passwordError && (
+                <p id="password-err" className="text-xs font-medium text-rose-500" role="alert">
+                  {passwordError}
+                </p>
+              )}
+            </div>
+
+            {/* Submit */}
             <button
               type="submit"
               disabled={isPending}
-              className="w-[400px] h-[55px] rounded-md border-0 bg-blue-500 text-lg font-medium text-white cursor-pointer outline-none transition hover:bg-[rgb(54,117,253)] focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 max-lg:w-[90vw] max-lg:max-w-[98%] max-lg:min-w-[220px] max-sm:w-[98vw] max-sm:min-w-[120px]"
               data-testid="login-button"
+              className="w-full h-12 rounded-2xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-sm font-bold tracking-wide shadow-md shadow-blue-200 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
-              {isPending ? (
-                <div className="flex justify-center items-center">
-                  <div className="w-5 h-5 rounded-full border-2 border-blue-600 animate-spin border-t-white" />
-                </div>
-              ) : (
-                "Login"
-              )}
+              {isPending
+                ? <Loader2 className="h-4 w-4 animate-spin" />
+                : "Sign In"
+              }
             </button>
-          </div>
-        </form>
+          </form>
+
+          {/* Footer */}
+          <p className="text-center text-xs text-slate-300 font-medium">
+            © {new Date().getFullYear()} ACLC College of Mandaue
+          </p>
+        </div>
       </div>
     </div>
   );
