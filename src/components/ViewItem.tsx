@@ -55,12 +55,12 @@ export default function ViewItem() {
   const isAvailable = item.status?.toLowerCase() === "available";
 
   const detailFields = [
-    { icon: <Hash className="h-4 w-4" />, color: "bg-indigo-500", label: "Serial Number", value: item.serialNumber },
-    { icon: <CheckCircle className="h-4 w-4" />, color: "bg-emerald-500", label: "Condition", value: item.condition },
-    { icon: <Tag className="h-4 w-4" />, color: "bg-teal-500", label: "Category", value: item.category },
-    { icon: <Wrench className="h-4 w-4" />, color: "bg-blue-500", label: "Item Make", value: item.itemMake },
-    { icon: <Layers className="h-4 w-4" />, color: "bg-purple-500", label: "Item Type", value: item.itemType },
-    { icon: <Package className="h-4 w-4" />, color: "bg-orange-500", label: "Item Model", value: item.itemModel || "N/A" },
+    { icon: <Hash className="h-4 w-4" />, color: "bg-indigo-500", label: "Serial Number", value: item.serialNumber || "Not provided" },
+    { icon: <CheckCircle className="h-4 w-4" />, color: "bg-emerald-500", label: "Condition", value: item.condition || "Not provided" },
+    { icon: <Tag className="h-4 w-4" />, color: "bg-teal-500", label: "Category", value: item.category || "Not provided" },
+    { icon: <Wrench className="h-4 w-4" />, color: "bg-blue-500", label: "Item Make", value: item.itemMake || "Not provided" },
+    { icon: <Layers className="h-4 w-4" />, color: "bg-purple-500", label: "Item Type", value: item.itemType || "Not provided" },
+    { icon: <Package className="h-4 w-4" />, color: "bg-orange-500", label: "Item Model", value: item.itemModel || "Not provided" },
     { icon: <Calendar className="h-4 w-4" />, color: "bg-rose-500", label: "Date Added", value: FormattedDateTime(item.createdAt) },
     ...(item.updatedAt
       ? [{ icon: <Calendar className="h-4 w-4" />, color: "bg-slate-500", label: "Last Updated", value: FormattedDateTime(item.updatedAt) }]
@@ -120,22 +120,18 @@ export default function ViewItem() {
                     <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
                       {item.itemName}
                     </h1>
+                    <p className="mt-1.5 text-xs text-slate-400 font-medium mb-1">
+                      {item.rfidUid || "Not provided"}
+                    </p>
                   </div>
-                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
-                    isAvailable
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${isAvailable
                       ? "bg-emerald-50 text-emerald-700 border-emerald-100"
                       : "bg-rose-50 text-rose-700 border-rose-100"
-                  }`}>
+                    }`}>
                     <span className={`h-1.5 w-1.5 rounded-full ${isAvailable ? "bg-emerald-500" : "bg-rose-500"}`} />
                     {item.status}
                   </span>
                 </div>
-
-                {item.description && (
-                  <p className="mt-3 text-sm text-slate-500 leading-relaxed max-w-lg">
-                    {item.description}
-                  </p>
-                )}
               </div>
 
               {/* Quick stats row */}
@@ -160,7 +156,7 @@ export default function ViewItem() {
               <div className="min-w-0">
                 <p className="text-xs text-slate-400 font-medium">{label}</p>
                 <p className="text-sm font-semibold text-slate-900 truncate mt-0.5">
-                  {value || <span className="text-slate-300 italic font-normal">N/A</span>}
+                  {value || <span className="text-slate-300 italic font-normal">Not provided</span>}
                 </p>
               </div>
             </div>
