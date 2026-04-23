@@ -3,6 +3,7 @@ import { useActivityLogs } from "../hooks/logsHooks";
 import { useNavigate } from "@tanstack/react-router";
 import { Search, Activity, Calendar, User, Tag, ArrowRight, Sparkles } from "lucide-react";
 import type { TActivityLogs } from "../@types/types";
+import ActivityLogsSkeletonLoader from "../loader/ActivityLogsSkeletonLoader";
 
 export default function ActivityLogs() {
     const { data: logs, isLoading, isError } = useActivityLogs();
@@ -46,22 +47,7 @@ export default function ActivityLogs() {
     };
 
     if (isLoading) {
-        return (
-            <div className="flex h-[80vh] items-center justify-center">
-                <div className="flex flex-col items-center gap-6">
-                    <div className="relative flex h-16 w-16 items-center justify-center">
-                        <div className="absolute inset-0 animate-ping rounded-full bg-indigo-200 opacity-75"></div>
-                        <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-600 to-violet-500 shadow-lg">
-                            <Activity className="h-6 w-6 text-white animate-pulse" />
-                        </div>
-                    </div>
-                    <div className="text-center space-y-1">
-                        <h3 className="text-lg font-semibold text-slate-900">Fetching Activity</h3>
-                        <p className="text-sm text-slate-500 font-medium">Gathering the latest logs for you...</p>
-                    </div>
-                </div>
-            </div>
-        );
+        return <ActivityLogsSkeletonLoader />;
     }
 
     if (isError) {
