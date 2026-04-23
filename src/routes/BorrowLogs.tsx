@@ -15,6 +15,7 @@ import {
     ChevronRight,
 } from "lucide-react";
 import type { TBorrowingLogs } from "../@types/types";
+import BorrowLogsSkeletonLoader from "../loader/BorrowLogsSkeletonLoader";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -165,24 +166,8 @@ export default function BorrowLogs() {
         setCurrentPage(1);
     };
 
-    // ── Loading ──────────────────────────────────────────────────────────────
     if (isLoading) {
-        return (
-            <div className="flex h-[80vh] items-center justify-center">
-                <div className="flex flex-col items-center gap-6">
-                    <div className="relative flex h-16 w-16 items-center justify-center">
-                        <div className="absolute inset-0 animate-ping rounded-full bg-blue-200 opacity-75" />
-                        <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 shadow-lg">
-                            <BookOpen className="h-6 w-6 text-white animate-pulse" />
-                        </div>
-                    </div>
-                    <div className="text-center space-y-1">
-                        <h3 className="text-lg font-semibold text-slate-900">Loading Borrow Logs</h3>
-                        <p className="text-sm text-slate-500 font-medium">Fetching borrowing history...</p>
-                    </div>
-                </div>
-            </div>
-        );
+        return <BorrowLogsSkeletonLoader />;
     }
 
     // ── Error ────────────────────────────────────────────────────────────────
