@@ -81,22 +81,37 @@ export type TItemForm = {
 };
 
 export type TItemList = {
-  id: string;
-  serialNumber: string;
-  image: string;
-  itemName: string;
-  itemType: string;
-  itemModel: string;
-  itemMake: string;
-  description: string;
-  category: string;
-  condition: string;
-  status: string;
-  barcode: "";
-  barcodeImage: "";
-  createdAt: string;
-  updatedAt?: string;
-  action?: string;
+  // id: string;
+  // serialNumber: string;
+  // image: string;
+  // itemName: string;
+  // itemType: string;
+  // itemModel: string;
+  // itemMake: string;
+  // description: string;
+  // category: string;
+  // condition: string;
+  // status: string;
+  // barcode: "";
+  // barcodeImage: "";
+  // createdAt: string;
+  // updatedAt?: string;
+  // action?: string;
+
+  id: string,
+  serialNumber: string,
+  rfidUid: string,
+  image: null,
+  itemName: string,
+  itemType: string,
+  itemModel: string | null,
+  itemMake: string,
+  description: string | null,
+  category: string,
+  condition: string,
+  status: string,
+  createdAt: string,
+  updatedAt: string
 };
 
 export type TEditItemForm = {
