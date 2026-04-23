@@ -1,6 +1,4 @@
-import { FaTrash } from "react-icons/fa6";
 import { UserData } from "../utils/usersData/userData";
-import { FaTrashRestore } from "react-icons/fa";
 import type { FC } from "react";
 
 type ArchiveTeacherTableProps = {
@@ -34,25 +32,24 @@ export const ArchiveTeacherTable: FC<Required<ArchiveTeacherTableProps>> = (
     }: checkIfUserAdminProps) => {
         if (userRole !== "Admin" && userRole !== "SuperAdmin") return null;
         return (
-            <>
+            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                 <button
-                    onClick={(e) => { e.stopPropagation(); onHandleDeleteTeacher(); }}
+                    onClick={onHandleDeleteTeacher}
                     disabled={props.isDeleting}
                     title="Delete Teacher"
-                    className="mr-2 text-2xl text-red-600 cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    <FaTrash />
+                    Delete
                 </button>
-
                 <button
-                    onClick={(e) => { e.stopPropagation(); onHandleRestoreTeacher(); }}
+                    onClick={onHandleRestoreTeacher}
                     disabled={props.isRestoring}
                     title="Restore Teacher"
-                    className="text-2xl text-orange-300 cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-amber-600 bg-amber-50 hover:bg-amber-100 border border-amber-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    <FaTrashRestore />
+                    Restore
                 </button>
-            </>
+            </div>
         );
     };
     return (
@@ -88,13 +85,11 @@ export const ArchiveTeacherTable: FC<Required<ArchiveTeacherTableProps>> = (
                 </span>
             </td>
             <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
-                <div className="flex flex-row">
-                    <ShowButtonIfUserAdmin
-                        userRole={data.userRole}
-                        onHandleDeleteTeacher={() => props.onDelete(props.id)}
-                        onHandleRestoreTeacher={() => props.onRestore(props.id)}
-                    />
-                </div>
+                <ShowButtonIfUserAdmin
+                    userRole={data.userRole}
+                    onHandleDeleteTeacher={() => props.onDelete(props.id)}
+                    onHandleRestoreTeacher={() => props.onRestore(props.id)}
+                />
             </td>
         </>
     );
