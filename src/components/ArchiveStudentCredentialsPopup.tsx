@@ -1,312 +1,243 @@
 import { useGetArchiveUserInfo } from "../hooks/userHooks";
 import { useQuery } from "@tanstack/react-query";
-import {
-    MdEmail,
-    MdPhone,
-    MdLocationOn,
-    MdSchool,
-    MdPerson,
-    MdBadge,
-    MdArchive,
-} from "react-icons/md";
-import { IoIdCard } from "react-icons/io5";
 import { FormattedDateTime } from "./FormattedDateTime";
 import type { TArchiveStudent } from "../@types/types";
-import CloseButton from "./CloseButton";
+import {
+  X,
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  GraduationCap,
+  BadgeCheck,
+  AtSign,
+  BookOpen,
+  Hash,
+  Building,
+  Navigation,
+  Archive,
+  Calendar,
+  Loader2,
+} from "lucide-react";
 
 type ArchiveStudentCredentialsPopupProps = {
-    studentId: string;
-    isOpen: boolean;
-    onClose: () => void;
+  studentId: string;
+  isOpen: boolean;
+  onClose: () => void;
 };
 
 export default function ArchiveStudentCredentialsPopup({
-    studentId,
-    isOpen,
-    onClose,
+  studentId,
+  isOpen,
+  onClose,
 }: ArchiveStudentCredentialsPopupProps) {
-    const { data, isLoading, error } = useQuery(useGetArchiveUserInfo(studentId));
+  const { data, isLoading, error } = useQuery(useGetArchiveUserInfo(studentId));
 
-    if (!isOpen) return null;
+  if (!isOpen) return null;
 
-    if (isLoading) {
-        return (
-            <div className="flex fixed inset-0 z-50 justify-center items-center">
-                <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-                <div className="overflow-hidden relative z-10 w-full max-w-4xl bg-white rounded-lg shadow-xl max-h-[90vh]">
-                    <div className="flex justify-center items-center h-96">
-                        <div className="w-16 h-16 rounded-full border-b-2 border-blue-600 animate-spin"></div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="flex fixed inset-0 z-50 justify-center items-center">
-                <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-                <div className="overflow-hidden relative z-10 w-full max-w-4xl bg-white rounded-lg shadow-xl max-h-[90vh]">
-                    <div className="flex justify-center items-center h-96">
-                        <div className="text-center">
-                            <h2 className="mb-2 text-2xl font-bold text-red-600">Error</h2>
-                            <p className="text-gray-600">
-                                Failed to load archived student credentials
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (!data) {
-        return (
-            <div className="flex fixed inset-0 z-50 justify-center items-center">
-                <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-                <div className="overflow-hidden relative z-10 w-full max-w-4xl bg-white rounded-lg shadow-xl max-h-[90vh]">
-                    <div className="flex justify-center items-center h-96">
-                        <div className="text-center">
-                            <h2 className="mb-2 text-2xl font-bold text-gray-600">No Data</h2>
-                            <p className="text-gray-600">No archived student data found</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    const student = data as TArchiveStudent;
-
-    const getFullName = () => {
-        const middleInitial = student.middleName
-            ? `${student.middleName.charAt(0)}.`
-            : "";
-        return `${student.firstName} ${middleInitial} ${student.lastName}`
-            .replace(/\s+/g, " ")
-            .trim();
-    };
-
-    const getFullAddress = () => {
-        return `${student.street}, ${student.cityMunicipality}, ${student.province} ${student.postalCode}`;
-    };
+  if (isLoading) {
     return (
-        <div className="flex fixed inset-0 z-50 justify-center items-center">
-            <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-            <div className="overflow-hidden relative z-10 w-full max-w-4xl bg-white rounded-lg shadow-xl max-h-[90vh]">
-                {/* Header */}
-                <div className="p-6 bg-white border-b border-gray-200">
-                    <div className="flex justify-between items-center">
-                        <div className="flex items-center space-x-3">
-                            <div className="p-2 bg-orange-100 rounded-full">
-                                <MdArchive className="text-2xl text-orange-600" />
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-bold text-gray-900">
-                                    Archived Student Credentials
-                                </h2>
-                                <p className="text-gray-600">
-                                    Complete archived student information
-                                </p>
-                            </div>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                            <div className="text-right">
-                                <p className="text-sm text-gray-500">Archived on</p>
-                                <p className="text-sm font-medium text-gray-900">
-                                    {FormattedDateTime(student.archivedAt)}
-                                </p>
-                            </div>
-                            <CloseButton onClick={onClose} />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Content */}
-                <div className="overflow-y-auto p-6 space-y-6 scrollbar-none max-h-[calc(90vh-120px)]">
-                    {/* Personal Information */}
-                    <div className="p-6 bg-white rounded-lg shadow-lg">
-                        <h3 className="flex items-center mb-4 text-lg font-semibold text-gray-900">
-                            <MdPerson className="mr-2 text-blue-600" />
-                            Personal Information
-                        </h3>
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">
-                                    Full Name
-                                </label>
-                                <p className="font-medium text-gray-900">{getFullName()}</p>
-                            </div>
-                            <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">
-                                    Username
-                                </label>
-                                <p className="text-gray-900">{student.username || "N/A"}</p>
-                            </div>
-                            <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">
-                                    Email
-                                </label>
-                                <div className="flex items-center">
-                                    <MdEmail className="mr-2 text-gray-400" />
-                                    <p className="text-gray-900">{student.email || "N/A"}</p>
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">
-                                    Phone Number
-                                </label>
-                                <div className="flex items-center">
-                                    <MdPhone className="mr-2 text-gray-400" />
-                                    <p className="text-gray-900">
-                                        {student.phoneNumber || "N/A"}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Student Information */}
-                    <div className="p-6 bg-white rounded-lg shadow-lg">
-                        <h3 className="flex items-center mb-4 text-lg font-semibold text-gray-900">
-                            <MdSchool className="mr-2 text-blue-600" />
-                            Student Information
-                        </h3>
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">
-                                    Student ID Number
-                                </label>
-                                <div className="flex items-center">
-                                    <MdBadge className="mr-2 text-gray-400" />
-                                    <p className="font-mono text-gray-900">
-                                        {student.studentIdNumber || "N/A"}
-                                    </p>
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">
-                                    Course
-                                </label>
-                                <p className="text-gray-900">{student.course || "N/A"}</p>
-                            </div>
-                            <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">
-                                    Section
-                                </label>
-                                <p className="text-gray-900">{student.section || "N/A"}</p>
-                            </div>
-                            <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">
-                                    Year Level
-                                </label>
-                                <p className="text-gray-900">{student.year || "N/A"}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Address Information */}
-                    <div className="p-6 bg-white rounded-lg shadow-lg">
-                        <h3 className="flex items-center mb-4 text-lg font-semibold text-gray-900">
-                            <MdLocationOn className="mr-2 text-green-600" />
-                            Address Information
-                        </h3>
-                        <div className="space-y-3">
-                            <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">
-                                    Street
-                                </label>
-                                <p className="text-gray-900">{student.street || "N/A"}</p>
-                            </div>
-                            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                                <div>
-                                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                                        City/Municipality
-                                    </label>
-                                    <p className="text-gray-900">
-                                        {student.cityMunicipality || "N/A"}
-                                    </p>
-                                </div>
-                                <div>
-                                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                                        Province
-                                    </label>
-                                    <p className="text-gray-900">{student.province || "N/A"}</p>
-                                </div>
-                                <div>
-                                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                                        Postal Code
-                                    </label>
-                                    <p className="text-gray-900">{student.postalCode || "N/A"}</p>
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">
-                                    Complete Address
-                                </label>
-                                <p className="text-gray-900">{getFullAddress()}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Account Information */}
-                    <div className="p-6 bg-white rounded-lg shadow-lg">
-                        <h3 className="flex items-center mb-4 text-lg font-semibold text-gray-900">
-                            <IoIdCard className="mr-2 text-purple-600" />
-                            Account Information
-                        </h3>
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">
-                                    User Role
-                                </label>
-                                <span
-                                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${student.userRole === "Admin"
-                                        ? "bg-red-100 text-red-800"
-                                        : "bg-blue-100 text-blue-800"
-                                        }`}
-                                >
-                                    {student.userRole || "N/A"}
-                                </span>
-                            </div>
-                            <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">
-                                    Status
-                                </label>
-                                <span className="inline-flex py-1 px-2 text-xs font-semibold text-orange-800 bg-orange-100 rounded-full">
-                                    {student.status}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Archive Information */}
-                    <div className="p-6 bg-orange-50 rounded-lg shadow-lg">
-                        <h3 className="flex items-center mb-4 text-lg font-semibold text-gray-900">
-                            <MdArchive className="mr-2 text-orange-600" />
-                            Archive Information
-                        </h3>
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">
-                                    Archived At
-                                </label>
-                                <p className="text-gray-900">
-                                    {FormattedDateTime(student.archivedAt)}
-                                </p>
-                            </div>
-                            <div>
-                                <label className="block mb-1 text-sm font-medium text-gray-700">
-                                    Original User ID
-                                </label>
-                                <p className="font-mono text-sm text-gray-900">
-                                    {student.originalUserId || "N/A"}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+        <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-lg flex items-center justify-center h-48 gap-3">
+          <Loader2 className="h-5 w-5 animate-spin text-amber-500" />
+          <span className="text-sm font-medium text-slate-500">Loading credentials...</span>
         </div>
+      </div>
     );
+  }
+
+  if (error || !data) {
+    return (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+        onClick={onClose}
+      >
+        <div
+          className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm p-8 text-center"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="h-14 w-14 rounded-full bg-rose-50 flex items-center justify-center mx-auto mb-4">
+            <Archive className="h-7 w-7 text-rose-400" />
+          </div>
+          <h3 className="text-base font-bold text-slate-900 mb-1">Failed to load</h3>
+          <p className="text-sm text-slate-500">Could not load archived student credentials.</p>
+          <button
+            onClick={onClose}
+            className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-700"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const student = data as TArchiveStudent;
+
+  const getFullName = () => {
+    const middleInitial = student.middleName ? `${student.middleName.charAt(0)}.` : "";
+    return `${student.firstName} ${middleInitial} ${student.lastName}`.replace(/\s+/g, " ").trim();
+  };
+
+  const initials =
+    student.firstName && student.lastName
+      ? `${student.firstName.charAt(0)}${student.lastName.charAt(0)}`.toUpperCase()
+      : "S";
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-4xl bg-white rounded-[2rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 flex-shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-extrabold text-lg shadow-md">
+              {initials}
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-slate-900">{getFullName()}</h2>
+              <p className="text-xs text-slate-400 font-medium mt-0.5">Archived Student Credentials</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="h-8 w-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="overflow-y-auto flex-1 p-6 space-y-5">
+
+          <Section title="Personal Information" icon={<User className="h-4 w-4 text-blue-500" />}>
+            <Grid>
+              <Field label="Full Name" value={getFullName()} icon={<User className="h-3.5 w-3.5" />} />
+              <Field label="Username" value={student.username} icon={<AtSign className="h-3.5 w-3.5" />} />
+              <Field label="Email" value={student.email} icon={<Mail className="h-3.5 w-3.5" />} />
+              <Field label="Phone Number" value={student.phoneNumber} icon={<Phone className="h-3.5 w-3.5" />} />
+            </Grid>
+          </Section>
+
+          <Section title="Student Information" icon={<GraduationCap className="h-4 w-4 text-indigo-500" />}>
+            <Grid>
+              <Field label="Student ID" value={student.studentIdNumber} icon={<Hash className="h-3.5 w-3.5" />} mono />
+              <Field label="Course" value={student.course} icon={<BookOpen className="h-3.5 w-3.5" />} />
+              <Field label="Section" value={student.section} icon={<BadgeCheck className="h-3.5 w-3.5" />} />
+              <Field label="Year Level" value={student.year} icon={<GraduationCap className="h-3.5 w-3.5" />} />
+            </Grid>
+          </Section>
+
+          <Section title="Address Information" icon={<MapPin className="h-4 w-4 text-emerald-500" />}>
+            <div className="grid grid-cols-1 gap-px bg-slate-100 rounded-xl overflow-hidden border border-slate-100">
+              <Field label="Street" value={student.street} icon={<Navigation className="h-3.5 w-3.5" />} full />
+              <Field label="City / Municipality" value={student.cityMunicipality} icon={<Building className="h-3.5 w-3.5" />} />
+              <Field label="Province" value={student.province} icon={<MapPin className="h-3.5 w-3.5" />} />
+              <Field label="Postal Code" value={student.postalCode} icon={<Hash className="h-3.5 w-3.5" />} />
+            </div>
+          </Section>
+
+          <Section title="Account Information" icon={<BadgeCheck className="h-4 w-4 text-violet-500" />}>
+            <Grid>
+              <div className="bg-white px-4 py-3.5 flex flex-col gap-1">
+                <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+                  <BadgeCheck className="h-3.5 w-3.5" />
+                  Role
+                </div>
+                <span className={`inline-flex w-fit items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border mt-0.5 ${
+                  student.userRole?.toLowerCase() === "admin"
+                    ? "bg-red-50 text-red-700 border-red-100"
+                    : "bg-blue-50 text-blue-700 border-blue-100"
+                }`}>
+                  {student.userRole || "N/A"}
+                </span>
+              </div>
+              <div className="bg-white px-4 py-3.5 flex flex-col gap-1">
+                <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+                  <BadgeCheck className="h-3.5 w-3.5" />
+                  Status
+                </div>
+                <span className="inline-flex w-fit items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border bg-amber-50 text-amber-700 border-amber-100 mt-0.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                  {student.status || "Archived"}
+                </span>
+              </div>
+            </Grid>
+          </Section>
+
+          <Section title="Archive Information" icon={<Archive className="h-4 w-4 text-amber-500" />}>
+            <div className="grid grid-cols-1 gap-px bg-slate-100 rounded-xl overflow-hidden border border-slate-100">
+              <div className="bg-white px-4 py-3.5 flex flex-col gap-1">
+                <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+                  <Calendar className="h-3.5 w-3.5" />
+                  Archived At
+                </div>
+                <p className="text-sm font-semibold text-amber-700">
+                  {FormattedDateTime(student.archivedAt)}
+                </p>
+              </div>
+              <Field label="Original User ID" value={student.originalUserId} icon={<Hash className="h-3.5 w-3.5" />} mono full />
+            </div>
+          </Section>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Section({
+  title,
+  icon,
+  children,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+      <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2 bg-slate-50/60">
+        {icon}
+        <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">{title}</h3>
+      </div>
+      <div className="p-3">{children}</div>
+    </div>
+  );
+}
+
+function Grid({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-slate-100 rounded-xl overflow-hidden border border-slate-100">
+      {children}
+    </div>
+  );
+}
+
+function Field({
+  label,
+  value,
+  icon,
+  mono = false,
+  full = false,
+}: {
+  label: string;
+  value?: string | null;
+  icon: React.ReactNode;
+  mono?: boolean;
+  full?: boolean;
+}) {
+  return (
+    <div className={`bg-white px-4 py-3.5 flex flex-col gap-1 ${full ? "col-span-full" : ""}`}>
+      <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+        {icon}
+        {label}
+      </div>
+      <p className={`text-sm font-semibold text-slate-900 ${mono ? "font-mono" : ""}`}>
+        {value || <span className="text-slate-300 font-normal italic text-xs">Not provided</span>}
+      </p>
+    </div>
+  );
 }
