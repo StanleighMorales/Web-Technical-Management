@@ -321,7 +321,7 @@ export default function Archive() {
                           >
                             <ArchiveItemTable
                               id={item.id}
-                              createdAt={item.createdAt}
+                              archivedAt={item.createdAt}
                               itemName={item.itemName}
                               serialNumber={item.serialNumber}
                               image={item.image || null}
