@@ -44,9 +44,9 @@ const ShowButtonIfUserAdmin: FC<ShowButtonIfUserAdminProps> = ({
                 onHandleArchive();
             }}
             title="Archive item"
-            className="text-2xl text-orange-600 transition-colors cursor-pointer hover:text-orange-700"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-            <IoArchive />
+            <IoArchive /> Archive
         </button>
     );
 };
