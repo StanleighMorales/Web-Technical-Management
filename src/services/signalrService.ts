@@ -17,7 +17,10 @@ class SignalRService {
             return;
         }
 
-        const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5278';
+        // Strip the /api/v1 path suffix — the hub is mounted at the root, not under the API prefix
+        const apiUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5278')
+            .replace(/\/api\/v\d+\/?$/, '')
+            .replace(/\/$/, '');
 
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl(`${apiUrl}/notificationHub`, {
