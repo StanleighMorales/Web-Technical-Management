@@ -6,7 +6,6 @@ import {
     Calendar,
     User,
     ArrowRight,
-    Sparkles,
     Package,
     Hash,
     Clock,
@@ -216,10 +215,6 @@ export default function BorrowLogs() {
             {/* Header */}
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
                 <div>
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-xs font-semibold mb-4">
-                        <Sparkles className="h-3.5 w-3.5" />
-                        <span>Borrowing history</span>
-                    </div>
                     <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 mb-2">
                         Borrow Logs
                     </h1>

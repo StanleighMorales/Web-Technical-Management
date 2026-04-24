@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useActivityLogs } from "../hooks/logsHooks";
 import { useNavigate } from "@tanstack/react-router";
-import { Search, Activity, Calendar, User, Tag, ArrowRight, Sparkles } from "lucide-react";
+import { Search, Activity, Calendar, User, Tag, ArrowRight } from "lucide-react";
 import type { TActivityLogs } from "../@types/types";
 
 export default function ActivityLogs() {
@@ -89,10 +89,6 @@ export default function ActivityLogs() {
         <div className="p-6 md:p-8 max-w-[100rem] mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 relative">
                 <div className="relative z-10">
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-semibold mb-4">
-                        <Sparkles className="h-3.5 w-3.5" />
-                        <span>Real-time tracking</span>
-                    </div>
                     <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 mb-2">
                         Activity Logs
                     </h1>

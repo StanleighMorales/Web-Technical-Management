@@ -13,6 +13,8 @@ import { SlugStatus } from "../components/SlugStatus.ts";
 import { BorrowItemsTable } from "../components/BorrowItemsTable.tsx";
 import { ItemDetailsModal } from "../components/ItemDetailsModal.tsx";
 import { BorrowItemForm } from "../components/BorrowItemForm.tsx";
+import { GuestBorrowWizard } from "../components/GuestBorrowWizard";
+import { useQueryClient } from "@tanstack/react-query";
 
 type LentItemDetailsModalProps = {
   lentItem: any;
@@ -347,7 +349,8 @@ const LentItemDetailsModal: React.FC<LentItemDetailsModalProps> = ({
 };
 
 export default function BorrowItem() {
-  const [activeTab, setActiveTab] = useState<"browse" | "form">("form");
+  const [activeTab, setActiveTab] = useState<"browse" | "form" | "guest">("form");
+  const queryClient = useQueryClient();
   const [prefilledItemId, setPrefilledItemId] = useState<string>("");
   const [prefilledItemName, setPrefilledItemName] = useState<string>("");
   const [scannedItem, setScannedItem] = useState<TItemList | null>(null);
@@ -554,6 +557,15 @@ export default function BorrowItem() {
           >
             Browse Items
           </button>
+          <button
+            onClick={() => setActiveTab("guest")}
+            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === "guest"
+                ? "bg-blue-600 text-white shadow-md"
+                : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+              }`}
+          >
+            Guest Borrow
+          </button>
         </div>
       </header>
 
@@ -561,6 +573,14 @@ export default function BorrowItem() {
       <div className="flex-1 overflow-hidden">
         {activeTab === "browse" ? (
           <BorrowItemsTable onBorrowClick={handleBorrowClick} />
+        ) : activeTab === "guest" ? (
+          <div className="h-full overflow-y-auto px-4 py-4 md:py-6">
+            <div className="max-w-6xl mx-auto">
+              <GuestBorrowWizard
+                onSuccess={() => queryClient.invalidateQueries({ queryKey: ['lentItems'] })}
+              />
+            </div>
+          </div>
         ) : (
           <div className="h-full overflow-y-auto px-4 py-4 md:py-6">
             <div className="max-w-6xl mx-auto">

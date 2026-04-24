@@ -27,8 +27,8 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       removeToken();
-      return;
     }
+    // Always re-reject so callers receive a proper Error, never undefined
     return Promise.reject(error);
   },
 );

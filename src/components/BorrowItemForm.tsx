@@ -7,7 +7,7 @@ import { useBorrowItem } from "../hooks/itemHooks";
 import { MdSwapHoriz } from "react-icons/md";
 import { FormattedDateTime } from "./FormattedDateTime";
 import box from "../assets/box.webp";
-import { SuccessAlert } from "./SuccessAlert";
+import { BorrowSuccessModal } from "./BorrowSuccessModal";
 import { ErrorAlert } from "./ErrorAlert";
 import { IoMdClose } from "react-icons/io";
 import { FaTools, FaHashtag, FaCheckCircle } from "react-icons/fa";
@@ -24,6 +24,8 @@ export const BorrowItemForm = ({
 }) => {
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const [successMessage, setSuccessMessage] = useState<string>("");
+  const [successModalTitle, setSuccessModalTitle] = useState<string>("");
+  const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
   const [showErrorAlert, setShowErrorAlert] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [showScanModal, setShowScanModal] = useState<boolean>(false);
@@ -231,12 +233,10 @@ export const BorrowItemForm = ({
         status: "Reserved",
       });
 
-      setSuccessMessage("Reservation Submitted Successfully");
-      setShowAlert(true);
-      setTimeout(() => {
-        setShowAlert(false);
-        setSuccessMessage("");
-      }, 3000);
+      setSuccessModalTitle("Reservation Submitted");
+      setSuccessMessage("The reservation has been recorded successfully.");
+      setShowSuccessModal(true);
+      setShowAlert(false);
 
       setFormData({
         itemId: "",
@@ -348,12 +348,10 @@ export const BorrowItemForm = ({
         status: "Borrowed",
       });
 
-      setSuccessMessage("Borrow Request Submitted Successfully");
-      setShowAlert(true);
-      setTimeout(() => {
-        setShowAlert(false);
-        setSuccessMessage("");
-      }, 3000);
+      setSuccessModalTitle("Borrow Completed");
+      setSuccessMessage("The item has been successfully borrowed and recorded.");
+      setShowSuccessModal(true);
+      setShowAlert(false);
 
       // Reset form
       setFormData({
@@ -382,11 +380,13 @@ export const BorrowItemForm = ({
 
   return (
     <>
-      <Activity mode={showAlert ? "visible" : "hidden"}>
-        <SuccessAlert
-          message={successMessage || "Request Submitted Successfully"}
+      {showSuccessModal && (
+        <BorrowSuccessModal
+          title={successModalTitle}
+          message={successMessage}
+          onClose={() => setShowSuccessModal(false)}
         />
-      </Activity>
+      )}
       <Activity mode={showErrorAlert ? "visible" : "hidden"}>
         <ErrorAlert message={errorMessage} />
       </Activity>

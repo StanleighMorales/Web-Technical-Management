@@ -379,3 +379,25 @@ export type TBorrowingLogs = {
   remarks: string;
   createdAt: string;
 }
+
+export type TGuestBorrowFormData = {
+  // Step 1 — Item
+  tagUid: string;
+
+  // Step 2 — Guest Info
+  borrowerFirstName: string;
+  borrowerLastName: string;
+  organization: string | null;
+  contactNumber: string | null;
+  purpose: string | null;
+  supervisorName: string | null;
+  room: string;
+  subjectTimeSchedule: string;
+  remarks: string | null;
+  reservedFor: string | null;
+  status: "Borrowed" | "Reserved";
+
+  // Step 3 — Photo
+  guestImage: File | null;
+  guestImagePreview: string | null; // data URL for display only, not sent to API
+};
