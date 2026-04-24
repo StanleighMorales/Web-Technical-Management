@@ -344,6 +344,9 @@ export type TRecentBorrowItemProps = {
   barcode?: string | null;
   barcodeImage?: string | null;
   reservedFor?: string | null;
+  guestImage?: string | null;
+  frontStudentIdPicture?: string | null;
+  studentIdNumber?: string | null;
   item: {
     id: string;
     serialNumber: string;

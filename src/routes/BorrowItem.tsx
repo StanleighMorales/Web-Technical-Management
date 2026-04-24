@@ -1,4 +1,4 @@
-import React, { useState, Activity } from "react";
+import React, { useState } from "react";
 import { SuccessAlert } from "../components/SuccessAlert.tsx";
 import { ErrorAlert } from "../components/ErrorAlert.tsx";
 import { useReturnItem } from "../hooks/itemHooks.ts";
@@ -11,9 +11,17 @@ import { MdOutlineDescription } from "react-icons/md";
 import { SlugStatus } from "../components/SlugStatus.ts";
 import { GuestBorrowWizard } from "../components/GuestBorrowWizard";
 import { useQueryClient } from "@tanstack/react-query";
+import type { TRecentBorrowItemProps } from "../@types/types";
+
+/** The lent-item detail response includes extra fields beyond TRecentBorrowItemProps */
+type TLentItemDetail = TRecentBorrowItemProps & {
+  studentIdNumber?: string | null;
+  frontStudentIdPicture?: string | null;
+  itemName?: string;
+};
 
 type LentItemDetailsModalProps = {
-  lentItem: any;
+  lentItem: TLentItemDetail;
   onClose: () => void;
   onReturnSuccess?: () => void;
 };
@@ -46,7 +54,7 @@ const LentItemDetailsModal: React.FC<LentItemDetailsModalProps> = ({
     setReturnError("");
 
     try {
-      const encodedBarcode = encodeURIComponent(lentItem.barcode);
+      const encodedBarcode = encodeURIComponent(lentItem.barcode ?? "");
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/api/v1/lentItems/scan/${encodedBarcode}`,
         {
@@ -73,8 +81,8 @@ const LentItemDetailsModal: React.FC<LentItemDetailsModalProps> = ({
           onReturnSuccess();
         }
       }, 1500);
-    } catch (error: any) {
-      setReturnError(error.message || "Failed to return item");
+    } catch (error: unknown) {
+      setReturnError(error instanceof Error ? error.message : "Failed to return item");
     } finally {
       setIsReturning(false);
     }
@@ -344,10 +352,12 @@ const LentItemDetailsModal: React.FC<LentItemDetailsModalProps> = ({
   );
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default function BorrowItem() {
   const [activeTab, setActiveTab] = useState<"guest" | "reserve">("guest");
   const queryClient = useQueryClient();
-  const [scannedLentItem, setScannedLentItem] = useState<any>(null);
+  const [scannedLentItem, setScannedLentItem] = useState<TLentItemDetail | null>(null);
   const [showReturnModal, setShowReturnModal] = useState<boolean>(false);
   const [returnBarcode, setReturnBarcode] = useState<string>("");
   const [returnError, setReturnError] = useState<string>("");
@@ -380,8 +390,8 @@ export default function BorrowItem() {
       setTimeout(() => {
         setReturnSuccess(false);
       }, 3000);
-    } catch (error: any) {
-      setReturnErrorMessage(error.message || "Failed to return item");
+    } catch (error: unknown) {
+      setReturnErrorMessage(error instanceof Error ? error.message : "Failed to return item");
       setShowReturnError(true);
       setShowReturnModal(false);
       setReturnBarcode("");
@@ -395,16 +405,12 @@ export default function BorrowItem() {
   return (
     <div className="h-screen w-full bg-gradient-to-br from-[#f8fafc] via-[#e8eef7] to-[#dbeafe] flex flex-col overflow-hidden">
       {/* Return Success Alert */}
-      <Activity mode={returnSuccess ? "visible" : "hidden"}>
-        <SuccessAlert message="Item returned successfully!" />
-      </Activity>
+      {returnSuccess && <SuccessAlert message="Item returned successfully!" />}
 
-      <Activity mode={showReturnError ? "visible" : "hidden"}>
-        <ErrorAlert message={returnErrorMessage} />
-      </Activity>
+      {showReturnError && <ErrorAlert message={returnErrorMessage} />}
 
       {/* Return Item Modal */}
-      <Activity mode={showReturnModal ? "visible" : "hidden"}>
+      {showReturnModal && (
         <div
           className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={() => setShowReturnModal(false)}
@@ -505,7 +511,7 @@ export default function BorrowItem() {
             </div>
           </div>
         </div>
-      </Activity>
+      )}
 
       {/* Header */}
       <header className="flex-shrink-0 pt-6 md:pt-8 px-4 md:px-8 pb-4 md:pb-6 bg-white/70 backdrop-blur-md shadow-sm border-b border-[#e5e9f2] flex flex-col items-center">
@@ -545,29 +551,26 @@ export default function BorrowItem() {
 
       {/* Content */}
       <div className="flex-1 overflow-hidden">
-        {activeTab === "guest" ? (
-          <div className="h-full overflow-y-auto px-4 py-4 md:py-6">
-            <div className="max-w-6xl mx-auto">
-              <GuestBorrowWizard
-                mode="borrow"
-                onSuccess={() => queryClient.invalidateQueries({ queryKey: ['lentItems'] })}
-              />
-            </div>
+        <div className={`h-full overflow-y-auto px-4 py-4 md:py-6 ${activeTab === "guest" ? "" : "hidden"}`}>
+          <div className="max-w-6xl mx-auto">
+            <GuestBorrowWizard
+              mode="borrow"
+              onSuccess={() => queryClient.invalidateQueries({ queryKey: ['lentItems'] })}
+            />
           </div>
-        ) : (
-          <div className="h-full overflow-y-auto px-4 py-4 md:py-6">
-            <div className="max-w-6xl mx-auto">
-              <GuestBorrowWizard
-                mode="reserve"
-                onSuccess={() => queryClient.invalidateQueries({ queryKey: ['lentItems'] })}
-              />
-            </div>
+        </div>
+        <div className={`h-full overflow-y-auto px-4 py-4 md:py-6 ${activeTab === "reserve" ? "" : "hidden"}`}>
+          <div className="max-w-6xl mx-auto">
+            <GuestBorrowWizard
+              mode="reserve"
+              onSuccess={() => queryClient.invalidateQueries({ queryKey: ['lentItems'] })}
+            />
           </div>
-        )}
+        </div>
       </div>
 
       {/* Scanned Lent Item Details Modal */}
-      <Activity mode={scannedLentItem ? "visible" : "hidden"}>
+      {scannedLentItem && (
         <LentItemDetailsModal
           lentItem={scannedLentItem}
           onClose={() => setScannedLentItem(null)}
@@ -579,7 +582,7 @@ export default function BorrowItem() {
             }, 3000);
           }}
         />
-      </Activity>
+      )}
 
       {/* Floating Action Buttons - Reverse D Shape */}
       <div
@@ -669,15 +672,13 @@ export default function BorrowItem() {
 
       {/* Click outside to close menu when opened by click */}
       {menuOpenedByClick && showFloatingMenu && (
-        <Activity mode="visible">
-          <div
-            className="fixed inset-0 z-30"
-            onClick={() => {
-              setShowFloatingMenu(false);
-              setMenuOpenedByClick(false);
-            }}
-          />
-        </Activity>
+        <div
+          className="fixed inset-0 z-30"
+          onClick={() => {
+            setShowFloatingMenu(false);
+            setMenuOpenedByClick(false);
+          }}
+        />
       )}
     </div>
   );

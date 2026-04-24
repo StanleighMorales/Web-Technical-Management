@@ -23,7 +23,10 @@ interface UseGuestBorrowWizardReturn {
   nextStep: () => boolean;
   prevStep: () => void;
   submit: () => Promise<void>;
+  /** Wipes all form data and returns to step 1 (used after a successful submission). */
   reset: () => void;
+  /** Returns to step 1 but keeps all form data intact (used when the user cancels mid-review). */
+  cancel: () => void;
 }
 
 const makeInitialFormData = (mode: "borrow" | "reserve"): TGuestBorrowFormData => ({
@@ -257,6 +260,17 @@ export function useGuestBorrowWizard(mode: "borrow" | "reserve" = "borrow"): Use
     setIsCheckingName(false);
   };
 
+  /**
+   * Cancel the current transaction — returns to step 1 but preserves all
+   * form data so the user doesn't have to re-enter everything.
+   */
+  const cancel = () => {
+    setStep(1);
+    setErrors({});
+    setSubmitError(null);
+    setIsCheckingName(false);
+  };
+
   const submit = useCallback(async () => {
     // Prevent duplicate / simultaneous submissions
     if (isSubmittingRef.current) return;
@@ -304,5 +318,6 @@ export function useGuestBorrowWizard(mode: "borrow" | "reserve" = "borrow"): Use
     prevStep,
     submit,
     reset,
+    cancel,
   };
 }

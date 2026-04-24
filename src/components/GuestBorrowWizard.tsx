@@ -48,6 +48,7 @@ export const GuestBorrowWizard = ({
     prevStep,
     submit,
     reset,
+    cancel,
   } = useGuestBorrowWizard(mode);
 
   const isReserve = mode === "reserve";
@@ -501,7 +502,7 @@ export const GuestBorrowWizard = ({
             formData={formData}
             countdown={countdown}
             onManualSubmit={submit}
-            onCancel={reset}
+            onCancel={cancel}
             isSubmitting={isSubmitting}
           />
         </div>

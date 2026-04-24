@@ -10,7 +10,7 @@ import {
   MdAppRegistration,
 } from "react-icons/md";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
-import { BiLogoSass, BiPackage } from "react-icons/bi";
+import { BiLogoSass, BiPackage, BiListCheck } from "react-icons/bi";
 import { BsPersonCircle, BsClipboardCheck } from "react-icons/bs";
 import { useState, useEffect } from "react";
 import SidebarSkeletonLoader from "../loader/SidebarSkeletonLoader";
@@ -48,6 +48,7 @@ export default function Sidebar() {
   const itemsSubmenu = [
     { label: "Borrow Items", link: "/home/borrow-item", icon: GrStorage },
     { label: "Pending & Reservations", link: "/home/pending-reservations", icon: BsClipboardCheck },
+    { label: "Active Borrowed Items", link: "/home/active-borrowed-items", icon: BiListCheck },
   ];
 
   const logsSubmenu = [
@@ -154,7 +155,7 @@ export default function Sidebar() {
               </button>
 
               <div
-                className={`overflow-hidden transition-all duration-300 ease-in-out ${isItemsDropdownOpen ? "max-h-44 opacity-100" : "max-h-0 opacity-0"
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${isItemsDropdownOpen ? "max-h-64 opacity-100" : "max-h-0 opacity-0"
                   }`}
               >
                 <ul className="flex flex-col gap-0.5 mt-1 ml-2 pl-4 border-l-2 border-slate-200/80">
@@ -341,7 +342,7 @@ export default function Sidebar() {
                   </span>
                 </button>
                 <div
-                  className={`overflow-hidden transition-all duration-300 ${isMobileItemsOpen ? "max-h-40" : "max-h-0"}`}
+                  className={`overflow-hidden transition-all duration-300 ${isMobileItemsOpen ? "max-h-56" : "max-h-0"}`}
                 >
                   <ul className="flex flex-col gap-0.5 mt-1 ml-2 pl-4 border-l-2 border-slate-200">
                     {itemsSubmenu.map((subItem) => (
