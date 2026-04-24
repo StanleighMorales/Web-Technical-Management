@@ -133,7 +133,7 @@ export default function Sidebar() {
 
             {/* Manage Borrow Items Dropdown */}
             <li>
-              {/* <button
+              <button
                 onClick={() => setIsItemsDropdownOpen(!isItemsDropdownOpen)}
                 className={`${navLinkBase} w-full text-left group relative`}
               >
@@ -151,7 +151,7 @@ export default function Sidebar() {
                 <span className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-400">
                   {isItemsDropdownOpen ? <FaChevronDown /> : <FaChevronRight />}
                 </span>
-              </button> */}
+              </button>
 
               <div
                 className={`overflow-hidden transition-all duration-300 ease-in-out ${isItemsDropdownOpen ? "max-h-44 opacity-100" : "max-h-0 opacity-0"
