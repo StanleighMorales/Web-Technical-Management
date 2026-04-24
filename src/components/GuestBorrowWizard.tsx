@@ -9,11 +9,20 @@ import { BorrowSuccessModal } from "./BorrowSuccessModal";
 interface GuestBorrowWizardProps {
   prefilledTagUid?: string;
   onSuccess?: () => void;
+  mode?: "borrow" | "reserve";
 }
 
-const STEPS = [
+const BORROW_STEPS = [
   { label: "Scan Item" },
   { label: "Guest Info" },
+  { label: "Photo" },
+  { label: "Review" },
+];
+
+const RESERVE_STEPS = [
+  { label: "Scan Item" },
+  { label: "Guest Info" },
+  { label: "Schedule" },
   { label: "Photo" },
   { label: "Review" },
 ];
@@ -21,6 +30,7 @@ const STEPS = [
 export const GuestBorrowWizard = ({
   prefilledTagUid,
   onSuccess,
+  mode = "borrow",
 }: GuestBorrowWizardProps) => {
   const {
     step,
@@ -38,7 +48,10 @@ export const GuestBorrowWizard = ({
     prevStep,
     submit,
     reset,
-  } = useGuestBorrowWizard();
+  } = useGuestBorrowWizard(mode);
+
+  const isReserve = mode === "reserve";
+  const STEPS = isReserve ? RESERVE_STEPS : BORROW_STEPS;
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
@@ -71,8 +84,8 @@ export const GuestBorrowWizard = ({
       {/* Success modal */}
       {showSuccessModal && (
         <BorrowSuccessModal
-          title="Borrow Completed"
-          message="The guest borrow has been submitted successfully."
+          title={isReserve ? "Reservation Completed" : "Borrow Completed"}
+          message={isReserve ? "The guest reservation has been submitted successfully." : "The guest borrow has been submitted successfully."}
           onClose={() => {
             setShowSuccessModal(false);
             reset();
@@ -95,7 +108,7 @@ export const GuestBorrowWizard = ({
               Scan Item
             </h2>
             <p className="text-sm text-gray-500">
-              Enter the RFID tag UID of the item to borrow. The system will
+              Enter the RFID tag UID of the item to {isReserve ? "reserve" : "borrow"}. The system will
               verify availability before proceeding.
             </p>
           </div>
@@ -370,8 +383,63 @@ export const GuestBorrowWizard = ({
         </div>
       )}
 
-      {/* Step 3: Photo */}
-      {step === 3 && (
+      {/* Step 3 (borrow) / Step 3 (reserve): Schedule — reserve mode only */}
+      {isReserve && step === 3 && (
+        <div className="flex flex-col gap-4">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-1">
+              Reservation Schedule
+            </h2>
+            <p className="text-sm text-gray-500">
+              Set the date and time for the reservation.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField label="Reservation Date" required error={errors.reservedForDate}>
+              <input
+                type="date"
+                value={formData.reservedForDate ?? ""}
+                min={new Date().toISOString().split("T")[0]}
+                onChange={(e) => updateField("reservedForDate", e.target.value || null)}
+                className={inputClass(!!errors.reservedForDate)}
+              />
+            </FormField>
+
+            <FormField label="Reservation Time" required error={errors.reservedForTime}>
+              <input
+                type="time"
+                value={formData.reservedForTime ?? "07:30"}
+                min="07:30"
+                max="20:30"
+                onChange={(e) => updateField("reservedForTime", e.target.value || null)}
+                className={inputClass(!!errors.reservedForTime)}
+              />
+              <p className="text-xs text-gray-400 mt-1">Between 7:30 AM and 8:30 PM</p>
+            </FormField>
+          </div>
+
+          <div className="flex justify-between">
+            <button
+              type="button"
+              onClick={prevStep}
+              className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Back
+            </button>
+            <button
+              type="button"
+              onClick={nextStep}
+              className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Step 3 (borrow) / Step 4 (reserve): Photo */}
+      {((!isReserve && step === 3) || (isReserve && step === 4)) && (
         <div className="flex flex-col gap-4">
           <div>
             <h2 className="text-xl font-semibold text-gray-900 mb-1">
@@ -417,8 +485,8 @@ export const GuestBorrowWizard = ({
         </div>
       )}
 
-      {/* Step 4: Review */}
-      {step === 4 && (
+      {/* Step 4 (borrow) / Step 5 (reserve): Review */}
+      {((!isReserve && step === 4) || (isReserve && step === 5)) && (
         <div className="flex flex-col gap-4">
           <div>
             <h2 className="text-xl font-semibold text-gray-900 mb-1">

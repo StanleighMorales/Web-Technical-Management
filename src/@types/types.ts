@@ -425,7 +425,10 @@ export type TGuestBorrowFormData = {
   subjectTimeSchedule: string;
   remarks: string | null;
   reservedFor: string | null;
-  status: "Borrowed" | "Reserved";
+  // Split date/time fields for the reservation schedule step
+  reservedForDate: string | null;
+  reservedForTime: string | null;
+  status: "Borrowed" | "Reserved" | "Pending";
 
   // Step 3 — Photo
   guestImage: File | null;

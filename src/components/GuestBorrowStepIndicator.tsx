@@ -1,5 +1,5 @@
 interface GuestBorrowStepIndicatorProps {
-  currentStep: 1 | 2 | 3 | 4;
+  currentStep: 1 | 2 | 3 | 4 | 5;
   steps: { label: string }[];
 }
 
@@ -8,14 +8,14 @@ export const GuestBorrowStepIndicator = ({
   steps,
 }: GuestBorrowStepIndicatorProps) => {
   return (
-    <div className="flex items-center justify-between mb-8">
+    <div className="flex items-start justify-center mb-8">
       {steps.map((step, index) => {
         const stepNumber = index + 1;
         const isCompleted = stepNumber < currentStep;
         const isActive = stepNumber === currentStep;
 
         return (
-          <div key={stepNumber} className="flex items-center flex-1">
+          <div key={stepNumber} className="flex items-start">
             {/* Step circle + label */}
             <div className="flex flex-col items-center">
               <div
@@ -57,7 +57,7 @@ export const GuestBorrowStepIndicator = ({
             {/* Connector line (not after last step) */}
             {index < steps.length - 1 && (
               <div
-                className={`flex-1 h-0.5 mx-2 mb-5 transition-colors duration-200 ${
+                className={`w-16 md:w-24 h-0.5 mx-2 mt-4 shrink-0 transition-colors duration-200 ${
                   isCompleted ? "bg-blue-600" : "bg-gray-200"
                 }`}
               />

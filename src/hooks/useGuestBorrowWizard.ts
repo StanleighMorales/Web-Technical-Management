@@ -6,7 +6,7 @@ import { api } from "../api/axios";
 type WizardErrors = Partial<Record<keyof TGuestBorrowFormData | "rfid" | "duplicateName", string>>;
 
 interface UseGuestBorrowWizardReturn {
-  step: 1 | 2 | 3 | 4;
+  step: 1 | 2 | 3 | 4 | 5;
   formData: TGuestBorrowFormData;
   errors: WizardErrors;
   isSubmitting: boolean;
@@ -26,7 +26,7 @@ interface UseGuestBorrowWizardReturn {
   reset: () => void;
 }
 
-const initialFormData: TGuestBorrowFormData = {
+const makeInitialFormData = (mode: "borrow" | "reserve"): TGuestBorrowFormData => ({
   tagUid: "",
   borrowerFirstName: "",
   borrowerLastName: "",
@@ -38,14 +38,17 @@ const initialFormData: TGuestBorrowFormData = {
   subjectTimeSchedule: "",
   remarks: null,
   reservedFor: null,
-  status: "Borrowed", // Always Borrowed for guest borrows
+  reservedForDate: null,
+  reservedForTime: "07:30",
+  status: mode === "reserve" ? "Pending" : "Borrowed",
   guestImage: null,
   guestImagePreview: null,
-};
+});
 
 function validateStep(
-  step: 1 | 2 | 3 | 4,
-  formData: TGuestBorrowFormData
+  step: 1 | 2 | 3 | 4 | 5,
+  formData: TGuestBorrowFormData,
+  mode: "borrow" | "reserve"
 ): { errors: WizardErrors; isValid: boolean } {
   const errors: WizardErrors = {};
 
@@ -66,19 +69,39 @@ function validateStep(
     if (!formData.subjectTimeSchedule.trim()) {
       errors.subjectTimeSchedule = "Subject/Time/Schedule is required";
     }
-  } else if (step === 3) {
+  } else if (mode === "reserve" && step === 3) {
+    // Schedule step — reserve mode only
+    if (!formData.reservedForDate) {
+      errors.reservedForDate = "Please select a date";
+    }
+    if (!formData.reservedForTime) {
+      errors.reservedForTime = "Please select a time";
+    } else {
+      const [hours, minutes] = formData.reservedForTime.split(":").map(Number);
+      const timeInMinutes = hours * 60 + minutes;
+      if (timeInMinutes < 7 * 60 + 30 || timeInMinutes > 20 * 60 + 30) {
+        errors.reservedForTime = "Time must be between 7:30 AM and 8:30 PM";
+      }
+    }
+  } else if ((!mode || mode === "borrow") && step === 3) {
+    // Photo step — borrow mode
+    if (!formData.guestImage) {
+      errors.guestImage = "A photo is required. Please capture a photo before proceeding.";
+    }
+  } else if (mode === "reserve" && step === 4) {
+    // Photo step — reserve mode
     if (!formData.guestImage) {
       errors.guestImage = "A photo is required. Please capture a photo before proceeding.";
     }
   }
-  // Step 4: review step — no additional validation
+  // Last step: review — no additional validation
 
   return { errors, isValid: Object.keys(errors).length === 0 };
 }
 
-export function useGuestBorrowWizard(): UseGuestBorrowWizardReturn {
-  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
-  const [formData, setFormData] = useState<TGuestBorrowFormData>(initialFormData);
+export function useGuestBorrowWizard(mode: "borrow" | "reserve" = "borrow"): UseGuestBorrowWizardReturn {
+  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
+  const [formData, setFormData] = useState<TGuestBorrowFormData>(() => makeInitialFormData(mode));
   const [errors, setErrors] = useState<WizardErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCheckingRfid, setIsCheckingRfid] = useState(false);
@@ -89,22 +112,25 @@ export function useGuestBorrowWizard(): UseGuestBorrowWizardReturn {
   // Guard against concurrent / duplicate submissions
   const isSubmittingRef = useRef(false);
 
+  // Max step depends on mode: borrow = 4, reserve = 5
+  const maxStep = mode === "reserve" ? 5 : 4;
+
   // ── Auto-submit countdown (lives in the hook, not the component) ──────────
   const COUNTDOWN_SECONDS = 10;
   const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS);
   // Stable ref so the interval closure always calls the latest submit
   const submitRef = useRef<() => Promise<void>>();
 
-  // Reset countdown whenever the user reaches step 4
+  // Reset countdown whenever the user reaches the review step
   useEffect(() => {
-    if (step === 4) {
+    if (step === maxStep) {
       setCountdown(COUNTDOWN_SECONDS);
     }
-  }, [step]);
+  }, [step, maxStep]);
 
-  // Run the interval only while on step 4 and not yet submitting
+  // Run the interval only while on the review step and not yet submitting
   useEffect(() => {
-    if (step !== 4 || isSubmitting) return;
+    if (step !== maxStep || isSubmitting) return;
 
     const interval = setInterval(() => {
       setCountdown((prev) => {
@@ -118,7 +144,6 @@ export function useGuestBorrowWizard(): UseGuestBorrowWizardReturn {
     }, 1000);
 
     return () => clearInterval(interval);
-  // Re-run only when step or isSubmitting changes — countdown state is managed inside
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, isSubmitting]);
 
@@ -141,7 +166,7 @@ export function useGuestBorrowWizard(): UseGuestBorrowWizardReturn {
   // Step 2 "Next" checks if the guest already has an active borrow.
   // All other steps use synchronous validation only.
   const nextStep = (): boolean => {
-    const { errors: stepErrors, isValid } = validateStep(step, formData);
+    const { errors: stepErrors, isValid } = validateStep(step, formData, mode);
     if (!isValid) {
       setErrors(stepErrors);
       return false;
@@ -156,11 +181,11 @@ export function useGuestBorrowWizard(): UseGuestBorrowWizardReturn {
           const status = item.status?.toLowerCase();
           if (status !== "available") {
             setErrors({
-              rfid: `Item is not available for borrowing. Current status: ${item.status}.`,
+              rfid: `Item is not available for ${mode === "reserve" ? "reservation" : "borrowing"}. Current status: ${item.status}.`,
             });
           } else {
             setErrors({});
-            setStep((prev) => (prev < 4 ? ((prev + 1) as 1 | 2 | 3 | 4) : prev));
+            setStep((prev) => (prev < maxStep ? ((prev + 1) as 1 | 2 | 3 | 4 | 5) : prev));
           }
         })
         .catch(() => {
@@ -198,25 +223,25 @@ export function useGuestBorrowWizard(): UseGuestBorrowWizardReturn {
             });
           } else {
             setErrors({});
-            setStep((prev) => (prev < 4 ? ((prev + 1) as 1 | 2 | 3 | 4) : prev));
+            setStep((prev) => (prev < maxStep ? ((prev + 1) as 1 | 2 | 3 | 4 | 5) : prev));
           }
         })
         .catch(() => {
           // If the check fails, allow proceeding — don't block on a network error
           setErrors({});
-          setStep((prev) => (prev < 4 ? ((prev + 1) as 1 | 2 | 3 | 4) : prev));
+          setStep((prev) => (prev < maxStep ? ((prev + 1) as 1 | 2 | 3 | 4 | 5) : prev));
         })
         .finally(() => setIsCheckingName(false));
       return true;
     }
 
     setErrors({});
-    setStep((prev) => (prev < 4 ? ((prev + 1) as 1 | 2 | 3 | 4) : prev));
+    setStep((prev) => (prev < maxStep ? ((prev + 1) as 1 | 2 | 3 | 4 | 5) : prev));
     return true;
   };
 
   const prevStep = () => {
-    setStep((prev) => (prev > 1 ? ((prev - 1) as 1 | 2 | 3 | 4) : prev));
+    setStep((prev) => (prev > 1 ? ((prev - 1) as 1 | 2 | 3 | 4 | 5) : prev));
   };
 
   const reset = () => {
@@ -224,7 +249,7 @@ export function useGuestBorrowWizard(): UseGuestBorrowWizardReturn {
       URL.revokeObjectURL(formData.guestImagePreview);
     }
     setStep(1);
-    setFormData(initialFormData);
+    setFormData(makeInitialFormData(mode));
     setErrors({});
     setSubmitError(null);
     setSubmitSuccess(false);
@@ -239,7 +264,12 @@ export function useGuestBorrowWizard(): UseGuestBorrowWizardReturn {
     setIsSubmitting(true);
     setSubmitError(null);
     try {
-      await borrowGuestItem(formData);
+      // For reserve mode, combine date + time into reservedFor ISO string
+      const submitData: TGuestBorrowFormData = { ...formData };
+      if (mode === "reserve" && formData.reservedForDate && formData.reservedForTime) {
+        submitData.reservedFor = `${formData.reservedForDate}T${formData.reservedForTime}:00`;
+      }
+      await borrowGuestItem(submitData);
       // Set success FIRST — the component watches this to show the modal.
       // Do NOT call reset() here; the component calls it after the user
       // dismisses the success dialog so the state is still readable.
@@ -253,7 +283,7 @@ export function useGuestBorrowWizard(): UseGuestBorrowWizardReturn {
       isSubmittingRef.current = false;
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData]);
+  }, [formData, mode]);
 
   // Keep the ref current so the interval closure always calls the latest version
   submitRef.current = submit;

@@ -1,5 +1,4 @@
 import React, { useState, Activity } from "react";
-import type { TItemList } from "../@types/types.ts";
 import { SuccessAlert } from "../components/SuccessAlert.tsx";
 import { ErrorAlert } from "../components/ErrorAlert.tsx";
 import { useReturnItem } from "../hooks/itemHooks.ts";
@@ -10,9 +9,6 @@ import { FaHashtag, FaTools, FaCheckCircle } from "react-icons/fa";
 import { BsCalendar2Date } from "react-icons/bs";
 import { MdOutlineDescription } from "react-icons/md";
 import { SlugStatus } from "../components/SlugStatus.ts";
-import { BorrowItemsTable } from "../components/BorrowItemsTable.tsx";
-import { ItemDetailsModal } from "../components/ItemDetailsModal.tsx";
-import { BorrowItemForm } from "../components/BorrowItemForm.tsx";
 import { GuestBorrowWizard } from "../components/GuestBorrowWizard";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -349,11 +345,8 @@ const LentItemDetailsModal: React.FC<LentItemDetailsModalProps> = ({
 };
 
 export default function BorrowItem() {
-  const [activeTab, setActiveTab] = useState<"browse" | "form" | "guest">("form");
+  const [activeTab, setActiveTab] = useState<"guest" | "reserve">("guest");
   const queryClient = useQueryClient();
-  const [prefilledItemId, setPrefilledItemId] = useState<string>("");
-  const [prefilledItemName, setPrefilledItemName] = useState<string>("");
-  const [scannedItem, setScannedItem] = useState<TItemList | null>(null);
   const [scannedLentItem, setScannedLentItem] = useState<any>(null);
   const [showReturnModal, setShowReturnModal] = useState<boolean>(false);
   const [returnBarcode, setReturnBarcode] = useState<string>("");
@@ -366,14 +359,8 @@ export default function BorrowItem() {
 
   const returnItemMutation = useReturnItem();
 
-  const handleBorrowClick = (itemId: string, itemName: string) => {
-    setPrefilledItemId(itemId);
-    setPrefilledItemName(itemName);
-    setActiveTab("form");
-  };
-
-  const handleLentItemScanned = (lentItem: any) => {
-    setScannedLentItem(lentItem);
+  const handleLentItemScanned = (_lentItem: any) => {
+    // reserved for future use
   };
 
   const handleReturnSubmit = async () => {
@@ -540,43 +527,33 @@ export default function BorrowItem() {
         {/* Tabs */}
         <div className="mt-4 md:mt-6 flex gap-2 bg-white/90 p-1.5 rounded-xl shadow-md">
           <button
-            onClick={() => setActiveTab("form")}
-            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === "form"
-                ? "bg-blue-600 text-white shadow-md"
-                : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-              }`}
-          >
-            Borrow Form
-          </button>
-          <button
-            onClick={() => setActiveTab("browse")}
-            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === "browse"
-                ? "bg-blue-600 text-white shadow-md"
-                : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-              }`}
-          >
-            Browse Items
-          </button>
-          <button
             onClick={() => setActiveTab("guest")}
             className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === "guest"
                 ? "bg-blue-600 text-white shadow-md"
                 : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
               }`}
           >
-            Guest Borrow
+            Borrow as Guest
+          </button>
+          <button
+            onClick={() => setActiveTab("reserve")}
+            className={`px-4 md:px-6 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 ${activeTab === "reserve"
+                ? "bg-blue-600 text-white shadow-md"
+                : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+              }`}
+          >
+            Reserve as Guest
           </button>
         </div>
       </header>
 
       {/* Content */}
       <div className="flex-1 overflow-hidden">
-        {activeTab === "browse" ? (
-          <BorrowItemsTable onBorrowClick={handleBorrowClick} />
-        ) : activeTab === "guest" ? (
+        {activeTab === "guest" ? (
           <div className="h-full overflow-y-auto px-4 py-4 md:py-6">
             <div className="max-w-6xl mx-auto">
               <GuestBorrowWizard
+                mode="borrow"
                 onSuccess={() => queryClient.invalidateQueries({ queryKey: ['lentItems'] })}
               />
             </div>
@@ -584,26 +561,14 @@ export default function BorrowItem() {
         ) : (
           <div className="h-full overflow-y-auto px-4 py-4 md:py-6">
             <div className="max-w-6xl mx-auto">
-              <BorrowItemForm
-                prefilledItemId={prefilledItemId}
-                prefilledItemName={prefilledItemName}
-                onLentItemScanned={handleLentItemScanned}
+              <GuestBorrowWizard
+                mode="reserve"
+                onSuccess={() => queryClient.invalidateQueries({ queryKey: ['lentItems'] })}
               />
             </div>
           </div>
         )}
       </div>
-
-      {/* Scanned Item Details Modal */}
-      {scannedItem && (
-        <Activity mode="visible">
-          <ItemDetailsModal
-            item={scannedItem}
-            onClose={() => setScannedItem(null)}
-            onBorrow={handleBorrowClick}
-          />
-        </Activity>
-      )}
 
       {/* Scanned Lent Item Details Modal */}
       <Activity mode={scannedLentItem ? "visible" : "hidden"}>
@@ -631,50 +596,6 @@ export default function BorrowItem() {
         }}
       >
         <div className="flex flex-col items-end gap-3">
-          {/* Scan Button - Slides from right */}
-          <button
-            onClick={() => {
-              setActiveTab("form");
-              setShowFloatingMenu(false);
-              setMenuOpenedByClick(false);
-              // Trigger scan modal if BorrowItemForm has scan functionality
-              setTimeout(() => {
-                const scanButton = document.querySelector(
-                  "[data-scan-trigger]",
-                ) as HTMLButtonElement;
-                if (scanButton) scanButton.click();
-              }, 100);
-            }}
-            className={`flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 py-3 overflow-hidden ${showFloatingMenu
-                ? "translate-x-0 opacity-100 pointer-events-auto delay-75 pr-4 pl-3"
-                : "translate-x-full opacity-0 pointer-events-none pr-0 pl-3"
-              }`}
-            style={{
-              borderRadius: "9999px 0 0 9999px",
-            }}
-            title="Scan Item"
-          >
-            <svg
-              className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
-              />
-            </svg>
-            <span
-              className={`text-sm font-medium whitespace-nowrap transition-all duration-300 ${showFloatingMenu ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"
-                }`}
-            >
-              Scan Item
-            </span>
-          </button>
-
           {/* Return Button - Slides from right */}
           <button
             onClick={() => {
@@ -683,7 +604,7 @@ export default function BorrowItem() {
               setMenuOpenedByClick(false);
             }}
             className={`flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 py-3 overflow-hidden ${showFloatingMenu
-                ? "translate-x-0 opacity-100 pointer-events-auto delay-150 pr-4 pl-3"
+                ? "translate-x-0 opacity-100 pointer-events-auto delay-75 pr-4 pl-3"
                 : "translate-x-full opacity-0 pointer-events-none pr-0 pl-3"
               }`}
             style={{
