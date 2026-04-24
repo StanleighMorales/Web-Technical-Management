@@ -359,10 +359,6 @@ export default function BorrowItem() {
 
   const returnItemMutation = useReturnItem();
 
-  const handleLentItemScanned = (_lentItem: any) => {
-    // reserved for future use
-  };
-
   const handleReturnSubmit = async () => {
     setReturnError("");
     const barcode = returnBarcode.trim();

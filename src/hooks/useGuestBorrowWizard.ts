@@ -119,7 +119,7 @@ export function useGuestBorrowWizard(mode: "borrow" | "reserve" = "borrow"): Use
   const COUNTDOWN_SECONDS = 10;
   const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS);
   // Stable ref so the interval closure always calls the latest submit
-  const submitRef = useRef<() => Promise<void>>();
+  const submitRef = useRef<(() => Promise<void>) | undefined>(undefined);
 
   // Reset countdown whenever the user reaches the review step
   useEffect(() => {

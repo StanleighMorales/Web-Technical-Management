@@ -1,6 +1,6 @@
 import { api } from "./axios";
 import { getToken } from "../utils/token";
-import type { TBorrowItemData, TGuestBorrowFormData, TItemForm, TUpdateItem } from "../@types/types";
+import type { TBorrowItemData, TGuestBorrowFormData, TItemForm, TItemList, TUpdateItem } from "../@types/types";
 
 const item_end_point = "/items";
 const item_archive_end_point = "/archiveitems";
