@@ -61,9 +61,9 @@ export default function UserTable({
             <button
                 onClick={(e) => { e.stopPropagation(); onHandleArchiveUser(); }}
                 title="Archive item"
-                className="text-2xl text-orange-600 transition-colors cursor-pointer hover:text-orange-700"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-                <IoArchive />
+                <IoArchive /> Archive
             </button>
         );
     };
@@ -81,13 +81,13 @@ export default function UserTable({
                     {status}
                 </span>
             </td>
-            <td className="flex flex-row py-3 px-6">
+            <td className="flex flex-row py-3 px-6 gap-2">
                 <button
-                    className="mr-2 text-2xl text-blue-500 transition-colors hover:text-blue-700"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-blue-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={(e) => { e.stopPropagation(); handleEditUser(id) }}
                     title="Edit user"
                 >
-                    <CiEdit />
+                    <CiEdit /> Edit
                 </button>
                 <ShowButtonIfUserAdmin userRole={data.userRole} onHandleArchiveUser={handleArchiveUser} />
             </td >

@@ -1,6 +1,4 @@
 import { UserData } from "../utils/usersData/userData";
-import { FaTrash } from "react-icons/fa6";
-import { FaTrashRestore } from "react-icons/fa";
 import type { FC } from "react";
 
 type ArchiveItemTableProps = {
@@ -19,9 +17,7 @@ type ArchiveItemTableProps = {
     isDeleting: boolean;
 };
 
-export const ArchiveStudentTable: FC<Required<ArchiveItemTableProps>> = (
-    props
-) => {
+export const ArchiveStudentTable: FC<Required<ArchiveItemTableProps>> = (props) => {
     type checkIfUserAdminProps = {
         userRole?: string;
         onHandleRestoreStudent: () => void;
@@ -36,27 +32,27 @@ export const ArchiveStudentTable: FC<Required<ArchiveItemTableProps>> = (
     }: checkIfUserAdminProps) => {
         if (userRole !== "Admin" && userRole !== "SuperAdmin") return null;
         return (
-            <>
+            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                 <button
-                    onClick={(e) => { e.stopPropagation(); onHandleDeleteStudent() }}
+                    onClick={onHandleDeleteStudent}
                     disabled={props.isDeleting}
-                    title="Delete item"
-                    className="mr-2 text-2xl text-red-600 cursor-pointer"
+                    title="Delete student"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    <FaTrash />
+                    Delete
                 </button>
-
                 <button
-                    onClick={(e) => { e.stopPropagation(); onHandleRestoreStudent() }}
+                    onClick={onHandleRestoreStudent}
                     disabled={props.isRestoring}
-                    title="Restore item"
-                    className="text-2xl text-orange-300 cursor-pointer"
+                    title="Restore student"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-amber-600 bg-amber-50 hover:bg-amber-100 border border-amber-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    <FaTrashRestore />
+                    Restore
                 </button>
-            </>
+            </div>
         );
     };
+
     return (
         <>
             <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
@@ -76,33 +72,25 @@ export const ArchiveStudentTable: FC<Required<ArchiveItemTableProps>> = (
                 {props.year}
             </td>
             <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
-                <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${props.userRole === "student"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-800"
-                        }`}
-                >
+                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                    props.userRole === "student" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
+                }`}>
                     {props.userRole}
                 </span>
             </td>
             <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
-                <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${props.status === "active"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                        }`}
-                >
+                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                    props.status === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                }`}>
                     {props.status}
                 </span>
             </td>
             <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
-                <div className="flex flex-row">
-                    <ShowButtonIfUserAdmin
-                        userRole={data.userRole}
-                        onHandleRestoreStudent={() => props.onRestore(props.id)}
-                        onHandleDeleteStudent={() => props.onDelete(props.id)}
-                    />
-                </div>
+                <ShowButtonIfUserAdmin
+                    userRole={data.userRole}
+                    onHandleRestoreStudent={() => props.onRestore(props.id)}
+                    onHandleDeleteStudent={() => props.onDelete(props.id)}
+                />
             </td>
         </>
     );

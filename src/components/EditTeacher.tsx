@@ -1,188 +1,198 @@
 import React, { useState } from "react";
-import { FaUser } from "react-icons/fa6";
 import type { TUpdatedTeacher } from "../@types/types";
 import { useUpdateTeacher } from "../hooks/userHooks";
+import { X, Pencil, BookOpen, Loader2 } from "lucide-react";
 
 type EditTeacherProps = {
-    id: string;
-    firstName: string;
-    middleName: string;
-    lastName: string;
-    department: string;
-    onClose: () => void;
+  id: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  department: string;
+  onClose: () => void;
 };
 
+const inputClass =
+  "w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm bg-slate-50 hover:bg-white focus:bg-white outline-none transition-all focus:ring-4 focus:border-blue-500 focus:ring-blue-500/10";
+
+const labelClass =
+  "block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5";
+
 export const EditTeacher = ({
-    id,
+  id,
+  firstName,
+  middleName,
+  lastName,
+  department,
+  onClose,
+}: EditTeacherProps) => {
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { mutate } = useUpdateTeacher();
+
+  const [formData, setFormData] = useState<TUpdatedTeacher>({
     firstName,
     middleName,
     lastName,
     department,
-    onClose,
-}: EditTeacherProps) => {
-    const [errorMessage, setErrorMessage] = useState<string>("");
-    const [successMessage, setSuccessMessage] = useState<string>("");
-    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-    const { mutate } = useUpdateTeacher();
+  });
 
-    const [formData, setFormData] = useState<TUpdatedTeacher>({
-        firstName: firstName,
-        middleName: middleName,
-        lastName: lastName,
-        department: department,
-    });
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-
-        const updatedTeacher: TUpdatedTeacher = {
-            firstName: formData.firstName,
-            middleName: formData.middleName,
-            lastName: formData.lastName,
-            department: formData.department,
-        };
-
-        mutate(
-            { id, data: updatedTeacher },
-            {
-                onSuccess: (data) => {
-                    setIsSubmitting(false);
-                    setSuccessMessage(data.message);
-                    setTimeout(() => {
-                        setSuccessMessage("");
-                        onClose();
-                    }, 3500);
-                },
-                onError: (error) => {
-                    setIsSubmitting(false);
-                    setErrorMessage(error.message);
-                    setTimeout(() => {
-                        setErrorMessage("");
-                        onClose();
-                    }, 3500);
-                },
-            },
-        );
-    };
-
-    return (
-        <div className="flex fixed inset-0 justify-center items-center z-[60]">
-            <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-            <div className="relative z-10 p-6 w-full max-w-2xl rounded-2xl border shadow-2xl border-white/60 bg-white/80 backdrop-blur">
-                <h3 className="mb-4 text-lg font-semibold text-slate-900">
-                    Edit Profile
-                </h3>
-
-                <form
-                    onSubmit={handleSubmit}
-                    className="grid grid-cols-1 gap-4 md:grid-cols-2"
-                >
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700">
-                            First Name
-                        </label>
-                        <div className="relative mt-1">
-                            <input
-                                type="text"
-                                className="py-2 px-3 pr-9 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
-                                value={formData.firstName ?? ""}
-                                name="firstName"
-                                onChange={handleInputChange}
-                                placeholder="Your firstname"
-                                required
-                            />
-                            <span className="inline-flex absolute inset-y-0 right-2 items-center pointer-events-none text-slate-400">
-                                <FaUser />
-                            </span>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700">
-                            Last Name
-                        </label>
-                        <div className="relative mt-1">
-                            <input
-                                type="text"
-                                className="py-2 px-3 pr-9 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
-                                value={formData.lastName ?? ""}
-                                name="lastName"
-                                onChange={handleInputChange}
-                                placeholder="Your lastname"
-                                required
-                            />
-                            <span className="inline-flex absolute inset-y-0 right-2 items-center pointer-events-none text-slate-400">
-                                <FaUser />
-                            </span>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700">
-                            Middle Name
-                        </label>
-                        <input
-                            type="text"
-                            className="py-2 px-3 mt-1 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
-                            value={formData.middleName ?? ""}
-                            name="middleName"
-                            onChange={handleInputChange}
-                            placeholder="Your middle name"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700">
-                            Department
-                        </label>
-                        <input
-                            type="text"
-                            className="py-2 px-3 mt-1 w-full rounded-lg border shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none border-slate-300 bg-white/90 text-slate-900"
-                            value={formData.department ?? ""}
-                            name="department"
-                            onChange={handleInputChange}
-                            placeholder="Your middle name"
-                        />
-                    </div>
-
-                    {errorMessage && (
-                        <div className="py-2 px-3 text-sm text-red-700 bg-red-50 rounded-md border border-red-200 md:col-span-2">
-                            {errorMessage}
-                        </div>
-                    )}
-                    {successMessage && (
-                        <div className="py-2 px-3 text-sm text-green-700 bg-green-50 rounded-md border border-green-200 md:col-span-2">
-                            {successMessage}
-                        </div>
-                    )}
-
-                    <div className="flex gap-3 justify-end pt-2 md:col-span-2">
-                        <button
-                            type="button"
-                            className="py-2 px-4 text-sm font-medium bg-white rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50"
-                            onClick={onClose}
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="py-2 px-4 text-sm font-semibold text-white bg-blue-600 rounded-lg shadow-sm hover:bg-blue-500 disabled:opacity-60 disabled:cursor-not-allowed"
-                        >
-                            {isSubmitting ? "Saving..." : "Save Changes"}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+    mutate(
+      { id, data: { firstName: formData.firstName, middleName: formData.middleName, lastName: formData.lastName, department: formData.department } },
+      {
+        onSuccess: (data) => {
+          setIsSubmitting(false);
+          setSuccessMessage(data.message);
+          setTimeout(() => { setSuccessMessage(""); onClose(); }, 3500);
+        },
+        onError: (error) => {
+          setIsSubmitting(false);
+          setErrorMessage(error.message);
+          setTimeout(() => { setErrorMessage(""); onClose(); }, 3500);
+        },
+      },
     );
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-lg bg-white rounded-[2rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-xl bg-blue-50 flex items-center justify-center">
+              <BookOpen className="h-4 w-4 text-blue-500" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-slate-900">Edit Teacher</h2>
+              <p className="text-xs text-slate-400 font-medium mt-0.5">Update teacher information</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="h-8 w-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="firstName" className={labelClass}>
+                First Name <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="firstName"
+                name="firstName"
+                placeholder="Enter first name"
+                value={formData.firstName ?? ""}
+                onChange={handleInputChange}
+                required
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="lastName" className={labelClass}>
+                Last Name <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="lastName"
+                name="lastName"
+                placeholder="Enter last name"
+                value={formData.lastName ?? ""}
+                onChange={handleInputChange}
+                required
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="middleName" className={labelClass}>
+                Middle Name <span className="text-slate-300 text-[10px]">(Optional)</span>
+              </label>
+              <input
+                type="text"
+                id="middleName"
+                name="middleName"
+                placeholder="Enter middle name"
+                value={formData.middleName ?? ""}
+                onChange={handleInputChange}
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="department" className={labelClass}>
+                Department
+              </label>
+              <input
+                type="text"
+                id="department"
+                name="department"
+                placeholder="Enter department"
+                value={formData.department ?? ""}
+                onChange={handleInputChange}
+                className={inputClass}
+              />
+            </div>
+          </div>
+
+          {errorMessage && (
+            <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-medium">
+              <span className="h-2 w-2 rounded-full bg-rose-500 flex-shrink-0" />
+              {errorMessage}
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-medium">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 flex-shrink-0" />
+              {successMessage}
+            </div>
+          )}
+
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-all shadow-sm shadow-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Pencil className="h-3.5 w-3.5" />
+              )}
+              {isSubmitting ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 };

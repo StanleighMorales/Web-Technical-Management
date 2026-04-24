@@ -3,34 +3,40 @@ import {
   useMemo,
   useState,
   type ChangeEvent,
-  type FormEvent,
 } from "react";
-import CloseButton from "./CloseButton";
 import type { TItemForm, TItemList } from "../@types/types";
 import { useQuery } from "@tanstack/react-query";
-import { useGetItemInfo } from "../hooks/itemHooks";
+import { useGetItemInfo, useUpdateItem } from "../hooks/itemHooks";
 import { SuccessAlert } from "./SuccessAlert";
 import { ErrorAlert } from "./ErrorAlert";
-import { useUpdateItem } from "../hooks/itemHooks";
+import {
+  X,
+  Pencil,
+  Upload,
+  Loader2,
+  ImageIcon,
+} from "lucide-react";
 
 type EditItemFormProps = {
   onClose: () => void;
   id: string;
 };
 
+const inputClass = (hasError: boolean) =>
+  `w-full px-4 py-2.5 rounded-xl border text-sm bg-slate-50 hover:bg-white focus:bg-white outline-none transition-all focus:ring-4 disabled:opacity-50 ${
+    hasError
+      ? "border-rose-300 focus:border-rose-500 focus:ring-rose-500/10"
+      : "border-slate-200 focus:border-blue-500 focus:ring-blue-500/10"
+  }`;
+
+const labelClass = "block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5";
+
 export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
   const { data, isLoading, error } = useQuery(useGetItemInfo(id));
   const [originalData, setOriginalData] = useState<TItemForm | null>(null);
-  const [showAlert, setShowAlert] = useState<boolean>(false);
-  const [showAlertFailed, setShowAlertFailed] = useState<boolean>(false);
-  const [itemNameError, setItemNameError] = useState<string>("");
-  const [itemTypeError, setItemTypeError] = useState<string>("");
-  const [itemModelError, setItemModelError] = useState<string>("");
-  const [itemMakeError, setItemMakeError] = useState<string>("");
-  const [categoryError, setCategoryError] = useState<string>("");
-  const [conditionError, setConditionError] = useState<string>("");
-  const [descriptionError, setDescriptionError] = useState<string>("");
-  const [imageError, setImageError] = useState<string | null>(null);
+  const [showAlert, setShowAlert] = useState(false);
+  const [showAlertFailed, setShowAlertFailed] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { mutate } = useUpdateItem();
 
@@ -62,7 +68,6 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
         image: null,
         preview: typeof item.image === "string" ? item.image : "",
       };
-
       setFormData(itemData);
       setOriginalData(itemData);
     }
@@ -77,20 +82,10 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
           image: files[0],
           preview: URL.createObjectURL(files[0]),
         }));
-        setImageError("");
+        setErrors((prev) => ({ ...prev, image: "" }));
       } else {
-        setFormData((prev) => ({
-          ...prev,
-          [name]: value,
-        }));
-
-        if (name === "itemName") setItemNameError("");
-        if (name === "itemType") setItemTypeError("");
-        if (name === "itemMake") setItemMakeError("");
-        if (name === "itemModel") setItemModelError("");
-        if (name === "category") setCategoryError("");
-        if (name === "condition") setConditionError("");
-        if (name === "description") setDescriptionError("");
+        setFormData((prev) => ({ ...prev, [name]: value }));
+        setErrors((prev) => ({ ...prev, [name]: "" }));
       }
     },
     [],
@@ -98,7 +93,6 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
 
   const hasChanges = useMemo(() => {
     if (!originalData) return false;
-
     return (
       formData.serialNumber !== originalData.serialNumber ||
       formData.itemName !== originalData.itemName ||
@@ -112,65 +106,41 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
     );
   }, [formData, originalData]);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const newErrors: Record<string, string> = {};
+    if (!formData.itemName) newErrors.itemName = "Item Name is required";
+    if (!formData.itemType) newErrors.itemType = "Item Type is required";
+    if (!formData.itemMake) newErrors.itemMake = "Item Make is required";
+    if (!formData.itemModel) newErrors.itemModel = "Item Model is required";
+    if (!formData.category) newErrors.category = "Category is required";
+    if (!formData.condition) newErrors.condition = "Condition is required";
+    if (!formData.description) newErrors.description = "Description is required";
 
-    if (!formData.itemName) {
-      setItemNameError("Item Name is required");
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
-
-    if (!formData.itemType) {
-      setItemTypeError("Item Type is required");
-      return;
-    }
-
-    if (!formData.itemMake) {
-      setItemMakeError("Item Make is required");
-      return;
-    }
-
-    if (!formData.itemModel) {
-      setItemModelError("Item Model is required");
-      return;
-    }
-
-    if (!formData.category) {
-      setCategoryError("Category is required");
-      return;
-    }
-
-    if (!formData.condition) {
-      setConditionError("Condition is required");
-      return;
-    }
-
-    if (!formData.description) {
-      setDescriptionError("Description is required");
-      return;
-    }
-
-    const updateItem = {
-      serialNumber: formData.serialNumber,
-      image: formData.image,
-      itemName: formData.itemName,
-      itemType: formData.itemType,
-      itemModel: formData.itemModel,
-      itemMake: formData.itemMake,
-      description: formData.description,
-      category: formData.category,
-      condition: formData.condition,
-    };
 
     mutate(
-      { id, data: updateItem },
+      {
+        id,
+        data: {
+          serialNumber: formData.serialNumber,
+          image: formData.image,
+          itemName: formData.itemName,
+          itemType: formData.itemType,
+          itemModel: formData.itemModel,
+          itemMake: formData.itemMake,
+          description: formData.description,
+          category: formData.category,
+          condition: formData.condition,
+        },
+      },
       {
         onSuccess: () => {
           setShowAlert(true);
-          setTimeout(() => {
-            setShowAlert(false);
-            onClose();
-          }, 3500);
+          setTimeout(() => { setShowAlert(false); onClose(); }, 3500);
           setFormData({
             serialNumber: "",
             image: null,
@@ -186,101 +156,103 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
         },
         onError: () => {
           setShowAlertFailed(true);
-          setTimeout(() => {
-            setShowAlertFailed(false);
-          }, 3500);
+          setTimeout(() => setShowAlertFailed(false), 3500);
         },
       },
     );
   };
 
   return (
-    <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-        {showAlert && <SuccessAlert message={"Item Updated Successfully"} />}
-        {showAlertFailed && <ErrorAlert message={"Update Failed"} />}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-2xl relative animate-fadeInUp">
-          <button
-            className="absolute top-4 right-4 text-2xl text-[#64748b] hover:text-[#2563eb] transition-colors"
-            onClick={onClose}
-            aria-label="Close"
-          >
-            <CloseButton onClick={onClose} />
-          </button>
-          <h2 className="text-3xl font-extrabold text-[#1e293b] mb-6 text-center tracking-tight">
-            Edit Item
-          </h2>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      {showAlert && <SuccessAlert message="Item Updated Successfully" />}
+      {showAlertFailed && <ErrorAlert message="Update Failed" />}
 
+      <div
+        className="w-full max-w-2xl bg-white rounded-[2rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-xl bg-blue-50 flex items-center justify-center">
+              <Pencil className="h-4 w-4 text-blue-500" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-slate-900">Edit Item</h2>
+              <p className="text-xs text-slate-400 font-medium mt-0.5">Update item information</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="h-8 w-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="overflow-y-auto flex-1 p-6">
           {isLoading ? (
-            <div className="py-16 text-center text-slate-500">Loading...</div>
+            <div className="flex items-center justify-center h-48 gap-3">
+              <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
+              <span className="text-sm font-medium text-slate-500">Loading item...</span>
+            </div>
           ) : error ? (
-            <div className="py-16 text-center text-red-500">
-              Failed to load item.
+            <div className="flex items-center justify-center h-48">
+              <p className="text-sm font-medium text-rose-500">Failed to load item.</p>
             </div>
           ) : (
-            <form
-              onSubmit={handleSubmit}
-              className="space-y-6"
-              encType="multipart/form-data"
-            >
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1">
-                  <label
-                    htmlFor="itemName"
-                    className="block text-[#2563eb] font-semibold mb-1"
-                  >
-                    Item Name <span className="text-red-500">*</span>
+            <form onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="itemName" className={labelClass}>
+                    Item Name <span className="text-rose-500">*</span>
                   </label>
                   <input
-                    className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${itemNameError ? "border-red-500" : ""}`}
-                    type="text"
                     id="itemName"
                     name="itemName"
+                    type="text"
                     placeholder="Enter item name"
                     value={formData.itemName}
                     onChange={handleChange}
                     data-testid="edit-itemName"
+                    className={inputClass(!!errors.itemName)}
                   />
-                  {itemNameError && (
-                    <p className="text-red-500 text-sm mt-1">{itemNameError}</p>
-                  )}
+                  {errors.itemName && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.itemName}</p>}
                 </div>
-                <div className="flex-1">
-                  <label
-                    htmlFor="serialNumber"
-                    className="block text-[#2563eb] font-semibold mb-1"
-                  >
-                    Serial Number <span className="text-red-500">*</span>
+
+                <div>
+                  <label htmlFor="serialNumber" className={labelClass}>
+                    Serial Number
                   </label>
                   <input
-                    className="w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg"
-                    type="text"
                     id="serialNumber"
                     name="serialNumber"
-                    placeholder="Enter serial number"
+                    type="text"
+                    placeholder="Serial number"
                     value={formData.serialNumber}
                     onChange={handleChange}
                     data-testid="edit-serialNumber"
                     readOnly
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm bg-slate-100 text-slate-500 cursor-not-allowed outline-none"
                   />
                 </div>
               </div>
 
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1">
-                  <label
-                    htmlFor="category"
-                    className="block text-[#2563eb] font-semibold mb-1"
-                  >
-                    Category <span className="text-red-500">*</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="category" className={labelClass}>
+                    Category <span className="text-rose-500">*</span>
                   </label>
                   <select
-                    className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${categoryError ? "border-red-500" : ""}`}
                     id="category"
                     name="category"
                     value={formData.category}
                     onChange={handleChange}
                     data-testid="edit-category"
+                    className={inputClass(!!errors.category)}
                   >
                     <option value="Electronics">Electronics</option>
                     <option value="Keys">Keys</option>
@@ -288,24 +260,20 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
                     <option value="Tools">Tools</option>
                     <option value="Miscellaneous">Miscellaneous</option>
                   </select>
-                  {categoryError && (
-                    <p className="text-red-500 text-sm mt-1">{categoryError}</p>
-                  )}
+                  {errors.category && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.category}</p>}
                 </div>
-                <div className="flex-1">
-                  <label
-                    htmlFor="condition"
-                    className="block text-[#2563eb] font-semibold mb-1"
-                  >
-                    Condition <span className="text-red-500">*</span>
+
+                <div>
+                  <label htmlFor="condition" className={labelClass}>
+                    Condition <span className="text-rose-500">*</span>
                   </label>
                   <select
-                    className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${conditionError ? "border-red-500" : ""}`}
                     id="condition"
                     name="condition"
                     value={formData.condition}
                     onChange={handleChange}
                     data-testid="edit-condition"
+                    className={inputClass(!!errors.condition)}
                   >
                     <option value="New">New</option>
                     <option value="Good">Good</option>
@@ -313,147 +281,143 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
                     <option value="Refurbished">Refurbished</option>
                     <option value="NeedRepair">Need Repair</option>
                   </select>
-                  {conditionError && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {conditionError}
-                    </p>
-                  )}
+                  {errors.condition && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.condition}</p>}
                 </div>
               </div>
 
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1">
-                  <label
-                    htmlFor="itemType"
-                    className="block text-[#2563eb] font-semibold mb-1"
-                  >
-                    Item Type <span className="text-red-500">*</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="itemType" className={labelClass}>
+                    Item Type <span className="text-rose-500">*</span>
                   </label>
                   <input
-                    className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${itemTypeError ? "border-red-500" : ""}`}
-                    type="text"
                     id="itemType"
                     name="itemType"
+                    type="text"
                     placeholder="Enter item type"
                     value={formData.itemType}
                     onChange={handleChange}
                     data-testid="edit-itemType"
+                    className={inputClass(!!errors.itemType)}
                   />
-                  {itemTypeError && (
-                    <p className="text-red-500 text-sm mt-1">{itemTypeError}</p>
-                  )}
+                  {errors.itemType && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.itemType}</p>}
                 </div>
-                <div className="flex-1">
-                  <label
-                    htmlFor="itemModel"
-                    className="block text-[#2563eb] font-semibold mb-1"
-                  >
-                    Item Model <span className="text-red-500">*</span>
+
+                <div>
+                  <label htmlFor="itemModel" className={labelClass}>
+                    Item Model <span className="text-rose-500">*</span>
                   </label>
                   <input
-                    className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${itemModelError ? "border-red-500" : ""}`}
-                    type="text"
                     id="itemModel"
                     name="itemModel"
+                    type="text"
                     placeholder="Enter item model"
                     value={formData.itemModel}
                     onChange={handleChange}
                     data-testid="edit-itemModel"
+                    className={inputClass(!!errors.itemModel)}
                   />
-                  {itemModelError && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {itemModelError}
-                    </p>
-                  )}
+                  {errors.itemModel && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.itemModel}</p>}
                 </div>
               </div>
 
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1">
-                  <label
-                    htmlFor="itemMake"
-                    className="block text-[#2563eb] font-semibold mb-1"
-                  >
-                    Item Make <span className="text-red-500">*</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="itemMake" className={labelClass}>
+                    Item Make <span className="text-rose-500">*</span>
                   </label>
                   <input
-                    className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${itemMakeError ? "border-red-500" : ""}`}
-                    type="text"
                     id="itemMake"
                     name="itemMake"
+                    type="text"
                     placeholder="Enter item make"
                     value={formData.itemMake}
                     onChange={handleChange}
                     data-testid="edit-itemMake"
+                    className={inputClass(!!errors.itemMake)}
                   />
-                  {itemMakeError && (
-                    <p className="text-red-500 text-sm mt-1">{itemMakeError}</p>
-                  )}
+                  {errors.itemMake && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.itemMake}</p>}
                 </div>
-                <div className="flex-1">
-                  <label
-                    htmlFor="description"
-                    className="block text-[#2563eb] font-semibold mb-1"
-                  >
-                    Description <span className="text-red-500">*</span>
+
+                <div>
+                  <label htmlFor="description" className={labelClass}>
+                    Description <span className="text-rose-500">*</span>
                   </label>
                   <input
-                    className={`w-full px-4 py-3 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-lg ${descriptionError ? "border-red-500" : ""}`}
-                    type="text"
                     id="description"
                     name="description"
+                    type="text"
                     placeholder="Enter description"
                     value={formData.description}
                     onChange={handleChange}
                     data-testid="edit-description"
+                    className={inputClass(!!errors.description)}
                   />
-                  {descriptionError && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {descriptionError}
-                    </p>
-                  )}
+                  {errors.description && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.description}</p>}
                 </div>
               </div>
 
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1 flex flex-col">
-                  <label
-                    htmlFor="image"
-                    className="block text-[#2563eb] font-semibold mb-1"
-                  >
-                    Item Image (optional)
-                  </label>
+              <div>
+                <label htmlFor="image" className={labelClass}>
+                  Item Image <span className="text-slate-300 text-[10px]">(Optional)</span>
+                </label>
+                <label
+                  htmlFor="image"
+                  className={`flex items-center gap-3 w-full px-4 py-2.5 rounded-xl border border-dashed cursor-pointer transition-all ${
+                    errors.image
+                      ? "border-rose-300 bg-rose-50"
+                      : "border-slate-300 bg-slate-50 hover:bg-white hover:border-blue-400"
+                  }`}
+                >
+                  <Upload className="h-4 w-4 text-slate-400 flex-shrink-0" />
+                  <span className="text-sm text-slate-400 truncate">
+                    {formData.image instanceof File ? formData.image.name : "Click to upload image"}
+                  </span>
                   <input
-                    className={`w-full px-4 py-2 rounded-xl border border-[#e0e7ef] bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-base ${imageError ? "border-red-500" : ""}`}
-                    type="file"
                     id="image"
                     name="image"
+                    type="file"
                     accept="image/*"
                     onChange={handleChange}
                     data-testid="edit-image"
+                    className="hidden"
                   />
-                  {imageError && (
-                    <p className="text-red-500 text-sm mt-1">{imageError}</p>
-                  )}
-                  {formData.preview && (
-                    <div className="mt-2 flex justify-center">
-                      <img
-                        src={formData.preview}
-                        alt="Preview"
-                        className="h-24 rounded-xl shadow"
-                      />
+                </label>
+                {errors.image && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.image}</p>}
+
+                {formData.preview && (
+                  <div className="mt-3 flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <img
+                      src={formData.preview}
+                      alt="Preview"
+                      className="h-16 w-16 object-cover rounded-xl shadow-sm flex-shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-slate-700">Image Preview</p>
+                      <p className="text-xs text-slate-400 mt-0.5 truncate">
+                        {formData.image instanceof File ? formData.image.name : "Current image"}
+                      </p>
                     </div>
-                  )}
-                </div>
+                    <ImageIcon className="h-4 w-4 text-slate-300 ml-auto flex-shrink-0" />
+                  </div>
+                )}
               </div>
 
-              <div className="flex justify-center pt-2">
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-colors"
+                >
+                  Cancel
+                </button>
                 <button
                   type="submit"
-                  className={`px-8 py-3 bg-blue-500 text-white font-bold rounded-xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-150 flex items-center gap-2 cursor-pointer ${!hasChanges ? "hover:cursor-not-allowed" : ""}`}
-                  data-testid="editItem-button"
                   disabled={!hasChanges}
+                  data-testid="editItem-button"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-all shadow-sm shadow-blue-200 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
+                  <Pencil className="h-3.5 w-3.5" />
                   Save Changes
                 </button>
               </div>
@@ -461,6 +425,6 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 };

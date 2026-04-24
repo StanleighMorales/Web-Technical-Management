@@ -1,4 +1,4 @@
-import { Activity, useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import SearchBar from "../components/SearchBar";
 import { DashboardSkeletonLoader } from "../loader/DashboardSkeletonLoader";
 import DashboardBadges from "../components/DashboardBadges";
@@ -9,7 +9,6 @@ import { ViewRecentBorrowItems } from "../components/ViewRecentBorrowItems";
 import { useReturnItem } from "../hooks/itemHooks";
 import { SuccessAlert } from "../components/SuccessAlert";
 import { ErrorAlert } from "../components/ErrorAlert";
-import { IoMdClose } from "react-icons/io";
 import { getToken } from "../utils/token";
 import { LentItemDetailsModal } from "../components/LentItemDetailsModal";
 import { FloatingActionButtons } from "../components/FloatingActionButtons";
@@ -20,11 +19,22 @@ import {
 } from "@tanstack/react-table";
 import { SlugStatus } from "../components/SlugStatus";
 import { useRecentlyAllBorrowItems, useSummarriesData } from "../data/dashboard-data";
+import {
+  Package,
+  Users,
+  BookOpen,
+  LayoutGrid,
+  ScanLine,
+  RotateCcw,
+  X,
+  Clock,
+  ChevronRight,
+} from "lucide-react";
 
 const columnHelper = createColumnHelper<TRecentBorrowItemProps>();
 
 const columns = [
-  columnHelper.accessor("item.serialNumber", { header: "Serial Number" }),
+  columnHelper.accessor("item.serialNumber", { header: "Serial No." }),
   columnHelper.accessor("item.image", {
     header: "Image",
     cell: ({ row }) => (
@@ -35,7 +45,7 @@ const columns = [
             : undefined
         }
         alt={row.original.item.itemName}
-        className="w-12 h-12 object-cover rounded"
+        className="w-10 h-10 object-cover rounded-xl border border-slate-100"
       />
     ),
     enableResizing: true,
@@ -60,7 +70,7 @@ const columns = [
     cell: ({ row }) => {
       const colorClass = SlugStatus(row.original.status);
       return (
-        <span className={`px-3 py-1 rounded-full text-sm ${colorClass}`}>
+        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${colorClass}`}>
           {row.original.status}
         </span>
       );
@@ -69,23 +79,33 @@ const columns = [
   }),
 ];
 
-export default function Dashboard() {
+const badgeIcons = [
+  <Package className="h-5 w-5" />,
+  <LayoutGrid className="h-5 w-5" />,
+  <Users className="h-5 w-5" />,
+  <BookOpen className="h-5 w-5" />,
+];
 
-  const { dataSummary } = useSummarriesData()
-  const { borrowedItemData, isBorrowedItemLoading, isBorrowedItemError } = useRecentlyAllBorrowItems()
+const badgeGradients = [
+  "from-blue-500 to-indigo-600",
+  "from-violet-500 to-purple-600",
+  "from-emerald-500 to-teal-600",
+  "from-amber-500 to-orange-500",
+];
+
+export default function Dashboard() {
+  const { dataSummary } = useSummarriesData();
+  const { borrowedItemData, isBorrowedItemLoading, isBorrowedItemError } = useRecentlyAllBorrowItems();
 
   const [onViewBorrowItemOpen, setOnViewBorrowItemOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Floating menu states
   const [showFloatingMenu, setShowFloatingMenu] = useState<boolean>(false);
   const [menuOpenedByClick, setMenuOpenedByClick] = useState<boolean>(false);
 
-  // Return item states
   const [showReturnModal, setShowReturnModal] = useState<boolean>(false);
   const [returnBarcode, setReturnBarcode] = useState<string>("");
   const [returnError, setReturnError] = useState<string>("");
@@ -93,65 +113,35 @@ export default function Dashboard() {
   const [returnErrorMessage, setReturnErrorMessage] = useState<string>("");
   const [showReturnError, setShowReturnError] = useState<boolean>(false);
 
-  // Borrow item success state
   const [borrowSuccess, setBorrowSuccess] = useState<boolean>(false);
 
-  // Scan lent item states
   const [showScanModal, setShowScanModal] = useState<boolean>(false);
   const [scannedBarcode, setScannedBarcode] = useState<string>("");
   const [scanError, setScanError] = useState<string>("");
-  const [scannedLentItemId, setScannedLentItemId] = useState<string | null>(
-    null,
-  );
+  const [scannedLentItemId, setScannedLentItemId] = useState<string | null>(null);
 
   const returnItemMutation = useReturnItem();
 
   const badges = [
-    {
-      name: "Total Items",
-      data: dataSummary.totalItems,
-      link: "/home/inventory-list",
-    },
-    {
-      name: "Categories",
-      data: dataSummary.totalItemsCategories,
-      link: "/home/inventory-list",
-    },
-    {
-      name: "Active Users",
-      data: dataSummary.totalActiveUsers,
-      link: "/home/user-management",
-    },
-    {
-      name: "Total Borrowed",
-      data: dataSummary.totalLentItems,
-      link: "/home/history-list",
-    },
+    { name: "Total Items", data: dataSummary.totalItems, link: "/home/inventory-list" },
+    { name: "Categories", data: dataSummary.totalItemsCategories, link: "/home/inventory-list" },
+    { name: "Active Users", data: dataSummary.totalActiveUsers, link: "/home/user-management" },
+    { name: "Total Borrowed", data: dataSummary.totalLentItems, link: "/home/history-list" },
   ];
 
-  // Filter logic
   const filteredData = useMemo(
     () =>
       borrowedItemData.filter(
         (item) =>
           item.status === "Borrowed" &&
-          (item.item.itemName
-            ?.toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
-            item.item.serialNumber
-              ?.toLowerCase()
-              .includes(searchTerm.toLowerCase())),
+          (item.item.itemName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.item.serialNumber?.toLowerCase().includes(searchTerm.toLowerCase())),
       ),
     [borrowedItemData, searchTerm],
   );
 
-  // Pagination logic
   const paginatedData = useMemo(
-    () =>
-      filteredData.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage,
-      ),
+    () => filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage),
     [filteredData, currentPage],
   );
 
@@ -162,15 +152,9 @@ export default function Dashboard() {
     columnResizeMode: "onChange",
   });
 
-  const totalPages = useMemo(
-    () => Math.ceil(filteredData.length / itemsPerPage),
-    [filteredData],
-  );
+  const totalPages = useMemo(() => Math.ceil(filteredData.length / itemsPerPage), [filteredData]);
 
-  const handlePageChange = useCallback(
-    (page: number) => setCurrentPage(page),
-    [],
-  );
+  const handlePageChange = useCallback((page: number) => setCurrentPage(page), []);
 
   const handleViewBorrowItemOpen = (id: string) => {
     setSelectedId(id);
@@ -185,103 +169,53 @@ export default function Dashboard() {
   const handleReturnSubmit = async () => {
     setReturnError("");
     const barcode = returnBarcode.trim();
-
-    if (!barcode) {
-      setReturnError("Please enter a barcode");
-      return;
-    }
-
+    if (!barcode) { setReturnError("Please enter a barcode"); return; }
     try {
-      // Proceed with return - backend will validate the item status
       await returnItemMutation.mutateAsync(barcode);
-
       setShowReturnModal(false);
       setReturnBarcode("");
       setReturnError("");
       setReturnSuccess(true);
-
-      setTimeout(() => {
-        setReturnSuccess(false);
-      }, 3000);
+      setTimeout(() => setReturnSuccess(false), 3000);
     } catch (error: any) {
       setReturnErrorMessage(error.message || "Failed to return item");
       setShowReturnError(true);
       setShowReturnModal(false);
       setReturnBarcode("");
-
-      setTimeout(() => {
-        setShowReturnError(false);
-      }, 5000);
+      setTimeout(() => setShowReturnError(false), 5000);
     }
   };
 
   const handleScanSubmit = async () => {
     setScanError("");
     const lentItemBarcode = scannedBarcode.trim();
-
-    if (!lentItemBarcode) {
-      setScanError("Please enter a lent item barcode");
+    if (!lentItemBarcode) { setScanError("Please enter a lent item barcode"); return; }
+    if (!lentItemBarcode.startsWith("LENT-") || lentItemBarcode.length !== 17 || !/^LENT-\d{8}-\d{3}$/.test(lentItemBarcode)) {
+      setScanError("Invalid lent item barcode format. Expected format: LENT-YYYYMMDD-XXX");
       return;
     }
-
-    if (
-      !lentItemBarcode.startsWith("LENT-") ||
-      lentItemBarcode.length !== 17 ||
-      !/^LENT-\d{8}-\d{3}$/.test(lentItemBarcode)
-    ) {
-      setScanError(
-        "Invalid lent item barcode format. Expected format: LENT-YYYYMMDD-XXX",
-      );
-      return;
-    }
-
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/api/v1/lentItems/barcode/${lentItemBarcode}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-            "Content-Type": "application/json",
-          },
-        },
+        { method: "GET", headers: { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" } },
       );
-
       const contentType = response.headers.get("content-type");
-      const hasJsonContent =
-        contentType && contentType.includes("application/json");
-
+      const hasJsonContent = contentType && contentType.includes("application/json");
       if (!response.ok) {
         let errorMessage = "Lent item not found";
-
         if (hasJsonContent) {
-          try {
-            const errorData = await response.json();
-            errorMessage = errorData.message || errorMessage;
-          } catch (jsonError) {
-            console.error("Failed to parse error response:", jsonError);
-          }
+          try { const errorData = await response.json(); errorMessage = errorData.message || errorMessage; }
+          catch (jsonError) { console.error("Failed to parse error response:", jsonError); }
         } else {
           const textResponse = await response.text();
-          errorMessage =
-            textResponse || `HTTP ${response.status}: ${response.statusText}`;
+          errorMessage = textResponse || `HTTP ${response.status}: ${response.statusText}`;
         }
-
         throw new Error(errorMessage);
       }
-
-      if (!hasJsonContent) {
-        throw new Error("Invalid response format from server");
-      }
-
+      if (!hasJsonContent) throw new Error("Invalid response format from server");
       const responseData = await response.json();
-
-      if (!responseData || !responseData.data) {
-        throw new Error("Invalid response structure from server");
-      }
-
+      if (!responseData || !responseData.data) throw new Error("Invalid response structure from server");
       const lentItem = responseData.data;
-
       setShowScanModal(false);
       setScannedBarcode("");
       setScanError("");
@@ -295,182 +229,53 @@ export default function Dashboard() {
   if (isBorrowedItemLoading) return <DashboardSkeletonLoader />;
 
   return (
-    <div className="flex z-40 flex-col items-center py-10 px-2 w-full min-h-screen animate-fadeIn bg-linear-to-br from-[#f8fafc] via-[#e0e7ef] to-[#c7d2fe]">
-      {/* Success Alerts */}
-      <Activity mode={returnSuccess ? "visible" : "hidden"}>
-        <SuccessAlert message="Item returned successfully!" />
-      </Activity>
+    <div className="min-h-screen bg-slate-50 p-6 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
 
-      <Activity mode={borrowSuccess ? "visible" : "hidden"}>
-        <SuccessAlert message="Item borrowed successfully!" />
-      </Activity>
+      {returnSuccess && <SuccessAlert message="Item returned successfully!" />}
+      {borrowSuccess && <SuccessAlert message="Item borrowed successfully!" />}
+      {showReturnError && <ErrorAlert message={returnErrorMessage} />}
 
-      <Activity mode={showReturnError ? "visible" : "hidden"}>
-        <ErrorAlert message={returnErrorMessage} />
-      </Activity>
-
-      {/* Return Item Modal */}
-      <Activity mode={showReturnModal ? "visible" : "hidden"}>
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          onClick={() => setShowReturnModal(false)}
-        >
-          <div
-            className="bg-white rounded-2xl shadow-2xl max-w-md w-full"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="border-b border-gray-200 px-6 py-4 flex justify-between items-center rounded-t-2xl">
-              <h2 className="text-xl font-bold text-gray-900">Return Item</h2>
-              <button
-                onClick={() => setShowReturnModal(false)}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <IoMdClose className="w-6 h-6" />
-              </button>
-            </div>
-            <div className="p-6">
-              <p className="text-sm text-gray-600 mb-4">
-                Scan the <strong>item barcode</strong> to mark it as returned.
-                The system will automatically find and update the active
-                borrowed record.
-              </p>
-              <input
-                type="text"
-                autoFocus
-                value={returnBarcode}
-                onChange={(e) => {
-                  setReturnBarcode(e.target.value);
-                  setReturnError("");
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleReturnSubmit();
-                  }
-                }}
-                placeholder="Scan or enter item barcode"
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${returnError
-                  ? "border-red-500 focus:ring-red-500"
-                  : "border-gray-300 focus:ring-blue-500"
-                  }`}
-              />
-              {returnError && (
-                <p className="text-red-500 text-sm mt-2">{returnError}</p>
-              )}
-              <div className="flex gap-3 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowReturnModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleReturnSubmit}
-                  disabled={returnItemMutation.isPending}
-                  className={`flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors ${returnItemMutation.isPending
-                    ? "opacity-50 cursor-not-allowed"
-                    : ""
-                    }`}
-                >
-                  {returnItemMutation.isPending
-                    ? "Processing..."
-                    : "Confirm Return"}
-                </button>
-              </div>
-            </div>
-          </div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-indigo-500 mb-1">Overview</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Dashboard</h1>
+          <p className="text-slate-500 text-sm mt-1 font-medium">
+            Monitor inventory, users, and borrowing activity at a glance.
+          </p>
         </div>
-      </Activity>
-
-      {/* Scan Lent Item Modal */}
-      <Activity mode={showScanModal ? "visible" : "hidden"}>
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          onClick={() => setShowScanModal(false)}
-        >
-          <div
-            className="bg-white rounded-2xl shadow-2xl max-w-md w-full"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="border-b border-gray-200 px-6 py-4 flex justify-between items-center rounded-t-2xl">
-              <h2 className="text-xl font-bold text-gray-900">
-                Scan Lent Item
-              </h2>
-              <button
-                onClick={() => setShowScanModal(false)}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <IoMdClose className="w-6 h-6" />
-              </button>
-            </div>
-            <div className="p-6">
-              <p className="text-sm text-gray-600 mb-4">
-                Scan the lent item barcode to view its details.
-              </p>
-              <input
-                type="text"
-                autoFocus
-                value={scannedBarcode}
-                onChange={(e) => {
-                  setScannedBarcode(e.target.value);
-                  setScanError("");
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleScanSubmit();
-                  }
-                }}
-                placeholder="Scan or enter lent item barcode"
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${scanError
-                  ? "border-red-500 focus:ring-red-500"
-                  : "border-gray-300 focus:ring-blue-500"
-                  }`}
-              />
-              {scanError && (
-                <p className="text-red-500 text-sm mt-2">{scanError}</p>
-              )}
-              <div className="flex gap-3 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowScanModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleScanSubmit}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Confirm
-                </button>
-              </div>
-            </div>
-          </div>
+        <div className="flex items-center gap-2 text-xs text-slate-400 font-medium bg-white border border-slate-200 rounded-xl px-4 py-2.5 shadow-sm">
+          <Clock className="h-3.5 w-3.5 text-slate-400" />
+          {new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" }).format(new Date())}
         </div>
-      </Activity>
+      </div>
 
-      <div className="grid grid-cols-1 justify-items-center gap-8 mb-8 w-full max-w-7xl sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {badges.map((item, index) => (
-          <DashboardBadges
-            key={index}
-            name={item.name}
-            link={item.link}
-            data={item.data}
-          />
+          <div key={index} className="relative group">
+            {/* gradient accent bar */}
+            <div className={`absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-gradient-to-r ${badgeGradients[index]} opacity-80`} />
+            <DashboardBadges name={item.name} link={item.link} data={item.data} />
+            {/* icon overlay */}
+            <div className={`absolute top-4 right-4 h-9 w-9 rounded-xl bg-gradient-to-tr ${badgeGradients[index]} flex items-center justify-center text-white shadow-md opacity-80 group-hover:opacity-100 transition-opacity`}>
+              {badgeIcons[index]}
+            </div>
+          </div>
         ))}
       </div>
 
-      <div className="p-8 w-full rounded-2xl border shadow-md bg-white/90 border-[#e0e7ef]">
-        {/* Pagination & Search */}
-        <div className="flex flex-wrap lg:flex-row justify-between items-center  ">
+      <div className="bg-white rounded-[2rem] border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
+
+        <div className="px-6 md:px-8 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="mb-4 w-full text-2xl font-bold text-left text-[#1e293b]">
+            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-blue-500 inline-block" />
               Recently Borrowed Items
-            </h1>
+            </h2>
+            <p className="text-xs text-slate-400 font-medium mt-0.5">
+              {filteredData.length} active borrow{filteredData.length !== 1 ? "s" : ""}
+            </p>
           </div>
-          <div className="flex flex-col md:flex-row lg:flex-row gap-2 ">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
             <Pagination
               totalPages={totalPages || 1}
               currentPage={currentPage}
@@ -484,75 +289,216 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-xl shadow-inner h-[55vh] bg-white/95">
-          {isBorrowedItemError ? (
-            <ErrorTable />
-          ) : (
-            <table className="relative w-full text-left border-collapse">
-              <thead>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <tr key={headerGroup.id}>
-                    {headerGroup.headers.map((header: any) => (
-                      <th
-                        key={header.id}
-                        className="sticky bg-white top-0 py-4 px-6 text-sm font-semibold tracking-wider text-left uppercase text-[#64748b]"
+        {/* Table body */}
+        <div className="overflow-x-auto">
+          <div className="min-h-[55vh] max-h-[55vh] overflow-y-auto">
+            {isBorrowedItemError ? (
+              <ErrorTable />
+            ) : (
+              <table className="w-full text-left text-sm whitespace-nowrap">
+                <thead>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <tr key={headerGroup.id} className="border-b border-slate-100">
+                      {headerGroup.headers.map((header: any) => (
+                        <th
+                          key={header.id}
+                          className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400"
+                        >
+                          {header.isPlaceholder ? null : header.column.columnDef.header}
+                        </th>
+                      ))}
+                      <th className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4" />
+                    </tr>
+                  ))}
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {table.getRowModel().rows.length > 0 ? (
+                    table.getRowModel().rows.map((row) => (
+                      <tr
+                        key={row.id}
+                        onClick={() => handleViewBorrowItemOpen(row.original.id)}
+                        className="group transition-all duration-200 hover:bg-indigo-50/30 cursor-pointer"
                       >
-                        {header.isPlaceholder
-                          ? null
-                          : header.column.columnDef.header}
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-              <tbody>
-                {table.getRowModel().rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="transition-colors odd:bg-white even:bg-[#f8fafc] hover:bg-[#f1f5f9] cursor-pointer"
-                    onClick={() => handleViewBorrowItemOpen(row.original.id)}
-                  >
-                    {row.getVisibleCells().map((cell: any) => (
-                      <td key={cell.id} className="px-6 py-4">
-                        {cell.column.columnDef.cell
-                          ? cell.column.columnDef.cell(cell.getContext())
-                          : cell.renderValue()}
+                        {row.getVisibleCells().map((cell: any) => (
+                          <td key={cell.id} className="px-6 py-4 text-slate-700 font-medium">
+                            {cell.column.columnDef.cell
+                              ? cell.column.columnDef.cell(cell.getContext())
+                              : cell.renderValue() ?? <span className="text-slate-300 italic text-xs">—</span>}
+                          </td>
+                        ))}
+                        <td className="px-6 py-4">
+                          <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-indigo-500 transition-colors" />
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={columns.length + 1} className="px-8 py-20 text-center">
+                        <div className="flex flex-col items-center gap-3 text-slate-400">
+                          <BookOpen className="h-10 w-10 text-slate-200" />
+                          <p className="font-semibold text-slate-500">No borrowed items found</p>
+                          <p className="text-xs">Try adjusting your search term.</p>
+                        </div>
                       </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            )}
+          </div>
         </div>
       </div>
 
       {onViewBorrowItemOpen && selectedId && (
-        <Activity mode={"visible"}>
-          <ViewRecentBorrowItems
-            itemId={selectedId}
-            isOpen={onViewBorrowItemOpen}
-            onClose={handleViewBorrowItemClose}
-          />
-        </Activity>
+        <ViewRecentBorrowItems
+          itemId={selectedId}
+          isOpen={onViewBorrowItemOpen}
+          onClose={handleViewBorrowItemClose}
+        />
       )}
 
-      {/* Scanned Lent Item Details Modal */}
       <LentItemDetailsModal
         itemId={scannedLentItemId || ""}
         isOpen={!!scannedLentItemId}
         onClose={() => setScannedLentItemId(null)}
         fromScan={true}
         onProceedToScan={() => {
-          // Show success message for borrowed item
           setBorrowSuccess(true);
-          setTimeout(() => {
-            setBorrowSuccess(false);
-          }, 3000);
+          setTimeout(() => setBorrowSuccess(false), 3000);
         }}
       />
 
-      {/* Floating Action Buttons - Reverse D Shape */}
+      {showReturnModal && (
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={() => setShowReturnModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-xl bg-orange-50 flex items-center justify-center">
+                  <RotateCcw className="h-4.5 w-4.5 text-orange-500" />
+                </div>
+                <h2 className="text-base font-bold text-slate-900">Return Item</h2>
+              </div>
+              <button
+                onClick={() => setShowReturnModal(false)}
+                className="h-8 w-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <p className="text-sm text-slate-500 leading-relaxed">
+                Scan the <span className="font-semibold text-slate-700">item barcode</span> to mark it as returned. The system will automatically find and update the active borrowed record.
+              </p>
+              <div>
+                <input
+                  type="text"
+                  autoFocus
+                  value={returnBarcode}
+                  onChange={(e) => { setReturnBarcode(e.target.value); setReturnError(""); }}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleReturnSubmit(); }}
+                  placeholder="Scan or enter item barcode"
+                  className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-4 transition-all ${
+                    returnError
+                      ? "border-rose-300 focus:ring-rose-500/10 focus:border-rose-500"
+                      : "border-slate-200 focus:ring-indigo-500/10 focus:border-indigo-500"
+                  }`}
+                />
+                {returnError && <p className="text-rose-500 text-xs mt-1.5 font-medium">{returnError}</p>}
+              </div>
+              <div className="flex gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowReturnModal(false)}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleReturnSubmit}
+                  disabled={returnItemMutation.isPending}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {returnItemMutation.isPending ? "Processing..." : "Confirm Return"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showScanModal && (
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={() => setShowScanModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-xl bg-green-50 flex items-center justify-center">
+                  <ScanLine className="h-4.5 w-4.5 text-green-500" />
+                </div>
+                <h2 className="text-base font-bold text-slate-900">Scan Lent Item</h2>
+              </div>
+              <button
+                onClick={() => setShowScanModal(false)}
+                className="h-8 w-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <p className="text-sm text-slate-500 leading-relaxed">
+                Scan the <span className="font-semibold text-slate-700">lent item barcode</span> to view its details.
+              </p>
+              <div>
+                <input
+                  type="text"
+                  autoFocus
+                  value={scannedBarcode}
+                  onChange={(e) => { setScannedBarcode(e.target.value); setScanError(""); }}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleScanSubmit(); }}
+                  placeholder="Scan or enter lent item barcode"
+                  className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-4 transition-all ${
+                    scanError
+                      ? "border-rose-300 focus:ring-rose-500/10 focus:border-rose-500"
+                      : "border-slate-200 focus:ring-indigo-500/10 focus:border-indigo-500"
+                  }`}
+                />
+                {scanError && <p className="text-rose-500 text-xs mt-1.5 font-medium">{scanError}</p>}
+              </div>
+              <div className="flex gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowScanModal(false)}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleScanSubmit}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-green-500 hover:bg-green-600 text-white text-sm font-semibold transition-colors"
+                >
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <FloatingActionButtons
         showFloatingMenu={showFloatingMenu}
         setShowFloatingMenu={() => setShowFloatingMenu(true)}
@@ -562,18 +508,12 @@ export default function Dashboard() {
         setShowReturnModal={() => setShowReturnModal(true)}
       />
 
-      {/* Click outside to close menu */}
-      <Activity
-        mode={menuOpenedByClick && showFloatingMenu ? "visible" : "hidden"}
-      >
+      {menuOpenedByClick && showFloatingMenu && (
         <div
           className="fixed inset-0 z-30"
-          onClick={() => {
-            setShowFloatingMenu(false);
-            setMenuOpenedByClick(false);
-          }}
+          onClick={() => { setShowFloatingMenu(false); setMenuOpenedByClick(false); }}
         />
-      </Activity>
+      )}
     </div>
   );
 }

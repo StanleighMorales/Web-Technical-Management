@@ -63,9 +63,9 @@ export default function TeacherTable({
             <button
                 onClick={(e) => { e.stopPropagation(); onHandleArchiveUser(); }}
                 title="Archive item"
-                className="text-orange-600 text-2xl cursor-pointer hover:text-orange-700 transition-colors"
+                className="inline-flex items-center px-2.5 py-1.5 gap-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-                <IoArchive />
+                <IoArchive /> Archive
             </button>
         );
     };
@@ -88,13 +88,13 @@ export default function TeacherTable({
                     {status}
                 </span>
             </td>
-            <td className="py-3 px-6 flex flex-row">
+            <td className="py-3 px-6 flex flex-row gap-2">
                 <button
-                    className="mr-2 text-blue-500 text-2xl hover:text-blue-700 transition-colors"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-blue-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={(e) => { e.stopPropagation(); handleEditTeacher(id) }}
                     title="Edit user"
                 >
-                    <CiEdit />
+                    <CiEdit /> Edit
                 </button>
                 <ShowButtonIfUserAdmin userRole={data.userRole} onHandleArchiveUser={handleArchiveUser} />
             </td>
