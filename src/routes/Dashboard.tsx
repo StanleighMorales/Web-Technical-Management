@@ -7,7 +7,7 @@ import { ViewRecentBorrowItems } from "../components/ViewRecentBorrowItems";
 import { useReturnItem } from "../hooks/itemHooks";
 import { showToast } from "../components/AppToast";
 import { getToken } from "../utils/token";
-import { LentItemDetailsModal } from "../components/LentItemDetailsModal";
+import { BorrowDetailDialog } from "../components/BorrowDetailDialog";
 import { FloatingActionButtons } from "../components/FloatingActionButtons";
 import {
   createColumnHelper,
@@ -315,7 +315,7 @@ export default function Dashboard() {
         />
       )}
 
-      <LentItemDetailsModal
+      <BorrowDetailDialog
         itemId={scannedLentItemId || ""}
         isOpen={!!scannedLentItemId}
         onClose={() => setScannedLentItemId(null)}

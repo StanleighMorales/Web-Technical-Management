@@ -9,7 +9,7 @@ import DenyConfirmationModal from "../components/DenyConfirmationModal";
 import MarkBorrowedConfirmationModal from "../components/MarkBorrowedConfirmationModal";
 import { useUpdateLentItemStatusMutation } from "../query/patch/useUpdateLentItemStatusMutation";
 import { showToast } from "../components/AppToast";
-import { LentItemDetailsModal } from "../components/LentItemDetailsModal";
+import { BorrowDetailDialog } from "../components/BorrowDetailDialog";
 import { useRecentlyBorrowItems } from "../hooks/itemHooks";
 
 export default function PendingReservations() {
@@ -252,7 +252,7 @@ export default function PendingReservations() {
       />
 
       {selectedItemId && (
-        <LentItemDetailsModal
+        <BorrowDetailDialog
           itemId={selectedItemId}
           isOpen={isDetailsModalOpen}
           onClose={handleCloseDetailsModal}
