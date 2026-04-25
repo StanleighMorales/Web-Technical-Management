@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import type { TUpdateUsers } from "../@types/types";
 import { useUpdateUser } from "../hooks/userHooks";
-import { SuccessAlert } from "./SuccessAlert";
-import { ErrorAlert } from "./ErrorAlert";
+import { showToast } from "./AppToast";
 import { X, Pencil, Users, Loader2 } from "lucide-react";
 
 type TPathUserTypes = Omit<TUpdateUsers, "id">;
@@ -31,8 +30,6 @@ const labelClass =
 const positions = ["Intern", "Full-Time", "Part-Time", "Head-Staff"];
 
 export default function EditUser({ user, onClose }: EditItemProps) {
-  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
-  const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -74,23 +71,21 @@ export default function EditUser({ user, onClose }: EditItemProps) {
       {
         onSuccess: () => {
           setIsSubmitting(false);
-          setShowSuccessAlert(true);
           setSuccessMessage("User profile updated.");
+          showToast.success("User Updated", "User profile updated successfully.");
           setTimeout(() => {
-            setShowSuccessAlert(false);
             setSuccessMessage("");
             onClose();
-          }, 3500);
+          }, 1500);
         },
         onError: () => {
           setIsSubmitting(false);
-          setShowErrorAlert(true);
           setErrorMessage("You don't have permission to update this user.");
+          showToast.error("Update Failed", "You don't have permission to update this user.");
           setTimeout(() => {
-            setShowErrorAlert(false);
             setErrorMessage("");
             onClose();
-          }, 3500);
+          }, 1500);
         },
       },
     );
@@ -101,8 +96,6 @@ export default function EditUser({ user, onClose }: EditItemProps) {
       className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
       onClick={onClose}
     >
-      {showSuccessAlert && <SuccessAlert message={successMessage} />}
-      {showErrorAlert && <ErrorAlert message={errorMessage} />}
 
       <div
         className="w-full max-w-2xl bg-white rounded-[2rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
@@ -120,9 +113,9 @@ export default function EditUser({ user, onClose }: EditItemProps) {
           </div>
           <button
             onClick={onClose}
-            className="h-8 w-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            className="h-10 w-10 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-red-500 transition-colors"
           >
-            <X className="h-4 w-4" />
+            <X className="h-5 w-5" />
           </button>
         </div>
 

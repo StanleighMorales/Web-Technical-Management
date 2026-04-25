@@ -1,100 +1,56 @@
-import { useEffect, useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { signalRService } from '../services/signalrService';
 import { getToken } from '../utils/token';
 
 /**
- * React hook for SignalR real-time notifications
- * Automatically connects/disconnects based on authentication
+ * Thin hook over the SignalRService singleton.
+ *
+ * connect() is called by AdminNotificationListener directly after registering
+ * all handlers, so the service can replay any queued handlers immediately.
+ * This hook just exposes the service methods as stable callbacks.
  */
 export const useSignalR = () => {
     const token = getToken();
-    const [isReady, setIsReady] = useState(false);
 
-    useEffect(() => {
-        if (!token) return;
-
-        // Connect to SignalR hub
-        signalRService
-            .connect(token)
-            .then(() => {
-                setIsReady(true);
-            })
-            .catch((error) => {
-                console.error('Failed to connect to SignalR:', error);
-            });
-
-        // Cleanup on unmount
-        return () => {
-            setIsReady(false);
-            signalRService.disconnect();
-        };
+    const connect = useCallback(async () => {
+        if (!token) {
+            console.warn('[useSignalR] No token — skipping connect');
+            return;
+        }
+        await signalRService.connect(token);
     }, [token]);
 
-    /**
-     * Subscribe to a SignalR event
-     * Returns an unsubscribe function
-     */
     const subscribe = useCallback(
-        (eventName: string, callback: (data: any) => void) => {
-            if (!isReady) {
-                console.warn('SignalR not ready yet, subscription will be delayed');
-                // Wait for connection to be ready
-                const checkInterval = setInterval(() => {
-                    if (signalRService.isConnected()) {
-                        clearInterval(checkInterval);
-                        signalRService.on(eventName, callback);
-                    }
-                }, 100);
-
-                return () => {
-                    clearInterval(checkInterval);
-                    signalRService.off(eventName, callback);
-                };
-            }
-
+        (eventName: string, callback: (data: any) => void): (() => void) => {
             signalRService.on(eventName, callback);
-
-            // Return unsubscribe function
             return () => signalRService.off(eventName, callback);
         },
-        [isReady]
+        []
     );
 
-    /**
-     * Join admin/staff group
-     */
     const joinAdminStaffGroup = useCallback(async () => {
         await signalRService.joinAdminStaffGroup();
     }, []);
 
-    /**
-     * Leave admin/staff group
-     */
-    const leaveAdminStaffGroup = useCallback(async () => {
-        await signalRService.leaveAdminStaffGroup();
-    }, []);
-
-    /**
-     * Join user-specific group
-     */
     const joinUserGroup = useCallback(async (userId: string) => {
         await signalRService.joinUserGroup(userId);
     }, []);
 
-    /**
-     * Leave user-specific group
-     */
+    const leaveAdminStaffGroup = useCallback(async () => {
+        await signalRService.leaveAdminStaffGroup();
+    }, []);
+
     const leaveUserGroup = useCallback(async (userId: string) => {
         await signalRService.leaveUserGroup(userId);
     }, []);
 
     return {
+        connect,
         subscribe,
         joinAdminStaffGroup,
         leaveAdminStaffGroup,
         joinUserGroup,
         leaveUserGroup,
         isConnected: signalRService.isConnected(),
-        isReady,
     };
 };

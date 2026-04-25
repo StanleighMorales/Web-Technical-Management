@@ -21,9 +21,8 @@ type LentItemDetails = {
 
 const GetLentItemByBarcode = async (barcode: string): Promise<LentItemDetails> => {
     const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    const VERSION = "v1";
     const encodedBarcode = encodeURIComponent(barcode);
-    const END_POINT = `/api/${VERSION}/lentItems/barcode/${encodedBarcode}`;
+    const END_POINT = `/lentItems/barcode/${encodedBarcode}`;
 
     const res = await fetch(`${BASE_URL}${END_POINT}`, {
         method: "GET",

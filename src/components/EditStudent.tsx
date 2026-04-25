@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import type { TStudent } from "../@types/types";
 import { useUpdateStudent } from "../hooks/userHooks";
 import type { TUpdateStudent } from "../@types/types";
-import { SuccessAlert } from "./SuccessAlert";
+import { showToast } from "./AppToast";
 import { X, Pencil, GraduationCap, Phone, MapPin } from "lucide-react";
 
 const inputClass = (hasError: boolean) =>
@@ -35,7 +35,6 @@ export const EditStudent = ({
   onClose,
 }: TUpdateStudent) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [showAlert, setShowAlert] = useState(false);
   const { mutate } = useUpdateStudent();
 
   const [formData, setFormData] = useState<TStudent>({
@@ -98,8 +97,8 @@ export const EditStudent = ({
       },
       {
         onSuccess: () => {
-          setShowAlert(true);
-          setTimeout(() => { setShowAlert(false); onClose(); }, 1500);
+          showToast.success("Student Updated", "Student updated successfully!");
+          setTimeout(() => onClose(), 1000);
         },
         onError: (error) => console.log(error.message),
       },
@@ -111,8 +110,6 @@ export const EditStudent = ({
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
       onClick={onClose}
     >
-      {showAlert && <SuccessAlert message="Student updated successfully!" />}
-
       <div
         className="w-full max-w-3xl bg-white rounded-[2rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
@@ -129,9 +126,9 @@ export const EditStudent = ({
           </div>
           <button
             onClick={onClose}
-            className="h-8 w-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            className="h-10 w-10 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-red-500 transition-colors"
           >
-            <X className="h-4 w-4" />
+            <X className="h-5 w-5" />
           </button>
         </div>
 

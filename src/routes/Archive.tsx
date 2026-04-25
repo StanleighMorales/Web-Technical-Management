@@ -18,7 +18,7 @@ import { ArchiveStudentTable } from "../components/ArchiveStudentTable.tsx";
 import ArchiveStudentCredentialsPopup from "../components/ArchiveStudentCredentialsPopup.tsx";
 import ArchiveTeacherCredentialsPopup from "../components/ArchiveTeacherCredentialsPopup.tsx";
 import ArchiveItemDetailsPopup from "../components/ArchiveItemDetailsPopup.tsx";
-import { SuccessAlert } from "../components/SuccessAlert.tsx";
+import { showToast } from "../components/AppToast";
 import {
   useAllItemInArchive,
   useAllUsersInArchive,
@@ -66,8 +66,6 @@ export default function Archive() {
   const { filteredUsers, activeFilter, setActiveFilter, setSelectedCategory } =
     useFilteredUsers({ searchItem });
 
-  const [ShowAlert, setShowAlert] = useState<boolean>(false);
-  const [showMessage, setShowMessage] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 10;
 
@@ -112,9 +110,7 @@ export default function Archive() {
       onSuccess: (data) => {
         setIsRestoreConfirmOpen(false);
         setRestoreSelectedItemId(null);
-        setShowAlert(true);
-        setShowMessage(data.message);
-        setTimeout(() => { setShowAlert(false); setShowMessage(""); }, 3500);
+        showToast.success("Item Restored", data.message);
       },
     });
   }, [restoreItemMutation, restoreSelectedItemId]);
@@ -125,9 +121,7 @@ export default function Archive() {
       onSuccess: (data) => {
         setIsDeleteItemConfirmOpen(false);
         setDeleteSelectedId(null);
-        setShowAlert(true);
-        setShowMessage(data.message);
-        setTimeout(() => { setShowAlert(false); setShowMessage(""); }, 3500);
+        showToast.success("Item Deleted", data.message);
       },
     });
   }, [deleteItemMutation, deleteSelectedId]);
@@ -138,9 +132,7 @@ export default function Archive() {
       onSuccess: (data) => {
         setIsUserRestoreConfirmOpen(false);
         setUserRestoreSelectedId(null);
-        setShowAlert(true);
-        setShowMessage(data.message);
-        setTimeout(() => { setShowAlert(false); setShowMessage(""); }, 3500);
+        showToast.success("User Restored", data.message);
       },
     });
   }, [restoreUserMutation, userRestoreSelectedId]);
@@ -151,9 +143,7 @@ export default function Archive() {
       onSuccess: (data) => {
         setIsUserDeleteConfirmOpen(false);
         setUserDeleteSelectedId(null);
-        setShowAlert(true);
-        setShowMessage(data.message);
-        setTimeout(() => { setShowAlert(false); setShowMessage(""); }, 3500);
+        showToast.success("User Deleted", data.message);
       },
     });
   }, [deleteUserMutation, userDeleteSelectedId]);
@@ -211,8 +201,6 @@ export default function Archive() {
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
-
-      {ShowAlert && <SuccessAlert message={showMessage} />}
 
       {/* ── Page header ─────────────────────────────────────────────────── */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">

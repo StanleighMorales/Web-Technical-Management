@@ -3,12 +3,9 @@ import { FaFileImport } from "react-icons/fa6";
 import * as XLSX from "xlsx";
 // import { usePostImportExcelUserMutation } from "../query/post/usePostImportUserMutation";
 import { useImportUser } from "../hooks/userHooks";
-import { SuccessAlert } from "./SuccessAlert";
-import { ErrorAlert } from "./ErrorAlert";
+import { showToast } from "./AppToast";
 
 export default function ExcelImportUserButton() {
-  const [showAlertSuccess, setShowAlertSuccess] = useState<boolean>(false);
-  const [showAlertFailed, setShowAlertFailed] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [fileData, setFileData] = useState<File | null>(null);
 
@@ -41,30 +38,19 @@ export default function ExcelImportUserButton() {
 
     importUser(form, {
       onSuccess: () => {
-        setShowAlertSuccess(true);
-        setTimeout(() => {
-          setShowAlertSuccess(false);
-        }, 3500);
+        showToast.success("Import Successful", "Students imported successfully!");
       },
       onError: (error: unknown) => {
-        setShowAlertFailed(true);
         if (error instanceof Error) {
           console.log(error.message);
-          setTimeout(() => {
-            setShowAlertFailed(false);
-          }, 3500);
         }
+        showToast.error("Import Failed", "Excel import failed. Please check your file.");
       },
     });
   };
 
   return (
     <div>
-      {showAlertSuccess && (
-        <SuccessAlert message="Excel imported successfully!" />
-      )}
-      {showAlertFailed && <ErrorAlert message="Excel imported failed" />}
-
       <input
         type="file"
         accept=".xlsx,.xls"

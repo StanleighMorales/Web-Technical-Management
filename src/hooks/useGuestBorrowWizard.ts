@@ -23,7 +23,10 @@ interface UseGuestBorrowWizardReturn {
   nextStep: () => boolean;
   prevStep: () => void;
   submit: () => Promise<void>;
+  /** Wipes all form data and returns to step 1 (used after a successful submission). */
   reset: () => void;
+  /** Returns to step 1 but keeps all form data intact (used when the user cancels mid-review). */
+  cancel: () => void;
 }
 
 const makeInitialFormData = (mode: "borrow" | "reserve"): TGuestBorrowFormData => ({
@@ -81,6 +84,15 @@ function validateStep(
       const timeInMinutes = hours * 60 + minutes;
       if (timeInMinutes < 7 * 60 + 30 || timeInMinutes > 20 * 60 + 30) {
         errors.reservedForTime = "Time must be between 7:30 AM and 8:30 PM";
+      }
+    }
+    // 1-week max: reservedForDate must be within 7 days from today
+    if (formData.reservedForDate) {
+      const maxDate = new Date();
+      maxDate.setDate(maxDate.getDate() + 7);
+      const selected = new Date(formData.reservedForDate);
+      if (selected > maxDate) {
+        errors.reservedForDate = "Reservations can only be made up to 7 days in advance";
       }
     }
   } else if ((!mode || mode === "borrow") && step === 3) {
@@ -257,6 +269,17 @@ export function useGuestBorrowWizard(mode: "borrow" | "reserve" = "borrow"): Use
     setIsCheckingName(false);
   };
 
+  /**
+   * Cancel the current transaction — returns to step 1 but preserves all
+   * form data so the user doesn't have to re-enter everything.
+   */
+  const cancel = () => {
+    setStep(1);
+    setErrors({});
+    setSubmitError(null);
+    setIsCheckingName(false);
+  };
+
   const submit = useCallback(async () => {
     // Prevent duplicate / simultaneous submissions
     if (isSubmittingRef.current) return;
@@ -304,5 +327,6 @@ export function useGuestBorrowWizard(mode: "borrow" | "reserve" = "borrow"): Use
     prevStep,
     submit,
     reset,
+    cancel,
   };
 }

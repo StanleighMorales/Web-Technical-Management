@@ -15,10 +15,10 @@ function HomeContent() {
 
   return (
     <div className="layout-container relative flex min-h-[100vh] w-full">
-      {/* Toast notifications container with custom styling */}
+      {/* Toast notifications container */}
       <ToastContainer
         position="top-right"
-        autoClose={8000}
+        autoClose={5000}
         hideProgressBar={false}
         newestOnTop
         closeOnClick
@@ -27,18 +27,8 @@ function HomeContent() {
         draggable
         pauseOnHover
         theme="light"
-        limit={3}
-        style={{ zIndex: 9999 }}
-        toastStyle={{
-          backgroundColor: "#fff",
-          color: "#1f2937",
-          fontSize: "15px",
-          fontWeight: "500",
-          borderRadius: "12px",
-          boxShadow: "0 10px 25px rgba(249, 115, 22, 0.3)",
-          border: "2px solid #fb923c",
-        }}
-        progressClassName="toast-progress-orange"
+        limit={4}
+        style={{ zIndex: 9999, minWidth: 320 }}
       />
 
       {/* Mount notification listener for Admin/Staff only */}

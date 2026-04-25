@@ -19,9 +19,8 @@ type ScanLentItemData = {
 
 const ScanLentItem = async (data: ScanLentItemData) => {
     const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    const VERSION = "v1";
     const encodedBarcode = encodeURIComponent(data.barcode);
-    const END_POINT = `/api/${VERSION}/lentItems/scan/${encodedBarcode}`;
+    const END_POINT = `/lentItems/scan/${encodedBarcode}`;
 
     const statusValue = LentItemsStatus[data.lentItemsStatus];
     console.log(`Sending status: ${data.lentItemsStatus} = ${statusValue}`);

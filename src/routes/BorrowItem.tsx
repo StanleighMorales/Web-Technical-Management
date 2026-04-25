@@ -1,359 +1,28 @@
-import React, { useState, Activity } from "react";
-import { SuccessAlert } from "../components/SuccessAlert.tsx";
-import { ErrorAlert } from "../components/ErrorAlert.tsx";
+import React, { useState } from "react";
+import { showToast } from "../components/AppToast";
 import { useReturnItem } from "../hooks/itemHooks.ts";
-import { getToken } from "../utils/token/index.tsx";
-import { FormattedDateTime } from "../components/FormattedDateTime.ts";
 import { IoMdClose } from "react-icons/io";
-import { FaHashtag, FaTools, FaCheckCircle } from "react-icons/fa";
-import { BsCalendar2Date } from "react-icons/bs";
-import { MdOutlineDescription } from "react-icons/md";
-import { SlugStatus } from "../components/SlugStatus.ts";
 import { GuestBorrowWizard } from "../components/GuestBorrowWizard";
+import { BorrowDetailDialog } from "../components/BorrowDetailDialog";
 import { useQueryClient } from "@tanstack/react-query";
+import type { TRecentBorrowItemProps } from "../@types/types";
 
-type LentItemDetailsModalProps = {
-  lentItem: any;
-  onClose: () => void;
-  onReturnSuccess?: () => void;
+/** The lent-item detail response includes extra fields beyond TRecentBorrowItemProps */
+type TLentItemDetail = TRecentBorrowItemProps & {
+  studentIdNumber?: string | null;
+  frontStudentIdPicture?: string | null;
+  itemName?: string;
 };
 
-const LentItemDetailsModal: React.FC<LentItemDetailsModalProps> = ({
-  lentItem,
-  onClose,
-  onReturnSuccess,
-}) => {
-  const [isReturning, setIsReturning] = useState(false);
-  const [returnError, setReturnError] = useState<string>("");
-  const [showReturnSuccess, setShowReturnSuccess] = useState(false);
-
-  // Fetch student details if borrower is a student
-  const isStudent = lentItem?.borrowerRole.toLowerCase() === "student";
-
-  // Handle both camelCase and PascalCase field names
-  const studentIdNumber = lentItem?.studentIdNumber;
-
-  // Get the front ID picture from the lent item response (already included in the API response)
-  const frontStudentIdPicture = lentItem?.frontStudentIdPicture;
-
-  // Check if item can be returned (only Borrowed status)
-  const canReturn = lentItem?.status.toLowerCase() === "borrowed";
-
-  const handleReturn = async () => {
-    if (!canReturn) return;
-
-    setIsReturning(true);
-    setReturnError("");
-
-    try {
-      const encodedBarcode = encodeURIComponent(lentItem.barcode);
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/v1/lentItems/scan/${encodedBarcode}`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            lentItemsStatus: "Returned",
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to return item");
-      }
-
-      setShowReturnSuccess(true);
-      setTimeout(() => {
-        onClose();
-        if (onReturnSuccess) {
-          onReturnSuccess();
-        }
-      }, 1500);
-    } catch (error: any) {
-      setReturnError(error.message || "Failed to return item");
-    } finally {
-      setIsReturning(false);
-    }
-  };
-
-  return (
-    <div
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[85vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center rounded-t-2xl z-10">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-900">
-            Lent Item Details
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <IoMdClose className="w-6 h-6" />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="p-4 md:p-6">
-          {/* Title */}
-          <div className="text-center mb-4">
-            <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">
-              {lentItem?.itemName}
-            </h3>
-            <p className="text-gray-600 font-semibold">
-              Barcode: {lentItem?.barcode}
-            </p>
-          </div>
-
-          {/* Student ID Picture - Only show for students */}
-          {isStudent && frontStudentIdPicture && (
-            <div className="mb-6">
-              <div className="text-center">
-                <h4 className="text-lg font-semibold text-gray-900 mb-3">
-                  Student ID Picture
-                </h4>
-                <div className="inline-block bg-gray-50 rounded-lg p-4 shadow-md">
-                  <img
-                    src={frontStudentIdPicture}
-                    alt={`${lentItem?.borrowerFullName} - Student ID`}
-                    className="max-w-sm max-h-64 object-contain rounded-lg shadow-sm"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = "none";
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Details Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-            <div className="bg-gray-50 rounded-lg p-3">
-              <div className="flex items-center mb-2">
-                <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center mr-3">
-                  <FaHashtag className="text-white w-4 h-4" />
-                </div>
-                <h4 className="font-semibold text-gray-900 text-sm">
-                  Borrower
-                </h4>
-              </div>
-              <p className="text-gray-600 ml-11 text-sm">
-                {lentItem?.borrowerFullName}
-              </p>
-            </div>
-
-            <div className="bg-gray-50 rounded-lg p-3">
-              <div className="flex items-center mb-2">
-                <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center mr-3">
-                  <FaCheckCircle className="text-white w-4 h-4" />
-                </div>
-                <h4 className="font-semibold text-gray-900 text-sm">Role</h4>
-              </div>
-              <p className="text-gray-600 ml-11 text-sm">
-                {lentItem?.borrowerRole}
-              </p>
-            </div>
-
-            {studentIdNumber && (
-              <div className="bg-gray-50 rounded-lg p-3">
-                <div className="flex items-center mb-2">
-                  <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
-                    <FaHashtag className="text-white w-4 h-4" />
-                  </div>
-                  <h4 className="font-semibold text-gray-900 text-sm">
-                    Student ID
-                  </h4>
-                </div>
-                <p className="text-gray-600 ml-11 text-sm">{studentIdNumber}</p>
-              </div>
-            )}
-
-            <div className="bg-gray-50 rounded-lg p-3">
-              <div className="flex items-center mb-2">
-                <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mr-3">
-                  <FaTools className="text-white w-4 h-4" />
-                </div>
-                <h4 className="font-semibold text-gray-900 text-sm">Room</h4>
-              </div>
-              <p className="text-gray-600 ml-11 text-sm">{lentItem?.room}</p>
-            </div>
-
-            <div className="bg-gray-50 rounded-lg p-3">
-              <div className="flex items-center mb-2">
-                <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center mr-3">
-                  <BsCalendar2Date className="text-white w-4 h-4" />
-                </div>
-                <h4 className="font-semibold text-gray-900 text-sm">
-                  Schedule
-                </h4>
-              </div>
-              <p className="text-gray-600 ml-11 text-sm">
-                {lentItem?.subjectTimeSchedule}
-              </p>
-            </div>
-
-            <div className="bg-gray-50 rounded-lg p-3">
-              <div className="flex items-center mb-2">
-                <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center mr-3">
-                  <BsCalendar2Date className="text-white w-4 h-4" />
-                </div>
-                <h4 className="font-semibold text-gray-900 text-sm">Lent At</h4>
-              </div>
-              <p className="text-gray-600 ml-11 text-sm">
-                {FormattedDateTime(lentItem?.lentAt)}
-              </p>
-            </div>
-
-            {lentItem?.returnedAt && (
-              <div className="bg-gray-50 rounded-lg p-3">
-                <div className="flex items-center mb-2">
-                  <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mr-3">
-                    <BsCalendar2Date className="text-white w-4 h-4" />
-                  </div>
-                  <h4 className="font-semibold text-gray-900 text-sm">
-                    Returned At
-                  </h4>
-                </div>
-                <p className="text-gray-600 ml-11 text-sm">
-                  {FormattedDateTime(lentItem?.returnedAt)}
-                </p>
-              </div>
-            )}
-
-            <div className="bg-gray-50 rounded-lg p-3">
-              <div className="flex items-center mb-2">
-                <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center mr-3">
-                  <FaCheckCircle className="text-white w-4 h-4" />
-                </div>
-                <h4 className="font-semibold text-gray-900 text-sm">Status</h4>
-              </div>
-              <p className="text-gray-600 ml-11 text-sm">
-                <span
-                  className={`px-2 py-1 rounded-full text-xs font-semibold ${SlugStatus(lentItem?.status)}`}
-                >
-                  {lentItem?.status}
-                </span>
-              </p>
-            </div>
-          </div>
-
-          {/* Remarks */}
-          {lentItem?.remarks && (
-            <div className="bg-gray-50 rounded-lg p-3 mb-4">
-              <div className="flex items-center mb-2">
-                <div className="w-8 h-8 bg-gray-500 rounded-lg flex items-center justify-center mr-3">
-                  <MdOutlineDescription className="text-white w-4 h-4" />
-                </div>
-                <h4 className="font-semibold text-gray-900 text-sm">Remarks</h4>
-              </div>
-              <p className="text-gray-600 ml-11 text-sm">{lentItem?.remarks}</p>
-            </div>
-          )}
-
-          {/* Return Success Message */}
-          {showReturnSuccess && (
-            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <div className="flex items-center gap-2 text-green-800">
-                <FaCheckCircle className="text-green-600" />
-                <span className="font-semibold">
-                  Item returned successfully!
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* Return Error Message */}
-          {returnError && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <div className="flex items-center gap-2 text-red-800">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <span className="font-semibold">{returnError}</span>
-              </div>
-            </div>
-          )}
-
-          {/* Return Button - Only show for Borrowed status */}
-          {canReturn && (
-            <div className="flex justify-center pt-2">
-              <button
-                onClick={handleReturn}
-                disabled={isReturning}
-                className={`flex items-center gap-2 px-6 py-3 font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg ${isReturning
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-green-600 text-white hover:bg-green-700"
-                  }`}
-              >
-                {isReturning ? (
-                  <>
-                    <svg
-                      className="animate-spin h-5 w-5"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Returning...
-                  </>
-                ) : (
-                  <>
-                    <FaCheckCircle className="text-xl" />
-                    Return Item
-                  </>
-                )}
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
+// ─────────────────────────────────────────────────────────────────────────────
 
 export default function BorrowItem() {
   const [activeTab, setActiveTab] = useState<"guest" | "reserve">("guest");
   const queryClient = useQueryClient();
-  const [scannedLentItem, setScannedLentItem] = useState<any>(null);
+  const [scannedLentItem, setScannedLentItem] = useState<TLentItemDetail | null>(null);
   const [showReturnModal, setShowReturnModal] = useState<boolean>(false);
   const [returnBarcode, setReturnBarcode] = useState<string>("");
   const [returnError, setReturnError] = useState<string>("");
-  const [returnSuccess, setReturnSuccess] = useState<boolean>(false);
-  const [returnErrorMessage, setReturnErrorMessage] = useState<string>("");
-  const [showReturnError, setShowReturnError] = useState<boolean>(false);
   const [showFloatingMenu, setShowFloatingMenu] = useState<boolean>(false);
   const [menuOpenedByClick, setMenuOpenedByClick] = useState<boolean>(false);
 
@@ -375,36 +44,20 @@ export default function BorrowItem() {
       setShowReturnModal(false);
       setReturnBarcode("");
       setReturnError("");
-      setReturnSuccess(true);
-
-      setTimeout(() => {
-        setReturnSuccess(false);
-      }, 3000);
-    } catch (error: any) {
-      setReturnErrorMessage(error.message || "Failed to return item");
-      setShowReturnError(true);
+      showToast.success("Item Returned", "Item returned successfully!");
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Failed to return item";
+      showToast.error("Return Failed", msg);
       setShowReturnModal(false);
       setReturnBarcode("");
-
-      setTimeout(() => {
-        setShowReturnError(false);
-      }, 5000);
     }
   };
 
   return (
     <div className="h-screen w-full bg-gradient-to-br from-[#f8fafc] via-[#e8eef7] to-[#dbeafe] flex flex-col overflow-hidden">
-      {/* Return Success Alert */}
-      <Activity mode={returnSuccess ? "visible" : "hidden"}>
-        <SuccessAlert message="Item returned successfully!" />
-      </Activity>
-
-      <Activity mode={showReturnError ? "visible" : "hidden"}>
-        <ErrorAlert message={returnErrorMessage} />
-      </Activity>
 
       {/* Return Item Modal */}
-      <Activity mode={showReturnModal ? "visible" : "hidden"}>
+      {showReturnModal && (
         <div
           className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={() => setShowReturnModal(false)}
@@ -505,7 +158,7 @@ export default function BorrowItem() {
             </div>
           </div>
         </div>
-      </Activity>
+      )}
 
       {/* Header */}
       <header className="flex-shrink-0 pt-6 md:pt-8 px-4 md:px-8 pb-4 md:pb-6 bg-white/70 backdrop-blur-md shadow-sm border-b border-[#e5e9f2] flex flex-col items-center">
@@ -545,41 +198,35 @@ export default function BorrowItem() {
 
       {/* Content */}
       <div className="flex-1 overflow-hidden">
-        {activeTab === "guest" ? (
-          <div className="h-full overflow-y-auto px-4 py-4 md:py-6">
-            <div className="max-w-6xl mx-auto">
-              <GuestBorrowWizard
-                mode="borrow"
-                onSuccess={() => queryClient.invalidateQueries({ queryKey: ['lentItems'] })}
-              />
-            </div>
+        <div className={`h-full overflow-y-auto px-4 py-4 md:py-6 ${activeTab === "guest" ? "" : "hidden"}`}>
+          <div className="max-w-6xl mx-auto">
+            <GuestBorrowWizard
+              mode="borrow"
+              onSuccess={() => queryClient.invalidateQueries({ queryKey: ['lentItems'] })}
+            />
           </div>
-        ) : (
-          <div className="h-full overflow-y-auto px-4 py-4 md:py-6">
-            <div className="max-w-6xl mx-auto">
-              <GuestBorrowWizard
-                mode="reserve"
-                onSuccess={() => queryClient.invalidateQueries({ queryKey: ['lentItems'] })}
-              />
-            </div>
+        </div>
+        <div className={`h-full overflow-y-auto px-4 py-4 md:py-6 ${activeTab === "reserve" ? "" : "hidden"}`}>
+          <div className="max-w-6xl mx-auto">
+            <GuestBorrowWizard
+              mode="reserve"
+              onSuccess={() => queryClient.invalidateQueries({ queryKey: ['lentItems'] })}
+            />
           </div>
-        )}
+        </div>
       </div>
 
       {/* Scanned Lent Item Details Modal */}
-      <Activity mode={scannedLentItem ? "visible" : "hidden"}>
-        <LentItemDetailsModal
+      {scannedLentItem && (
+        <BorrowDetailDialog
           lentItem={scannedLentItem}
           onClose={() => setScannedLentItem(null)}
           onReturnSuccess={() => {
             setScannedLentItem(null);
-            setReturnSuccess(true);
-            setTimeout(() => {
-              setReturnSuccess(false);
-            }, 3000);
+            showToast.success("Item Returned", "Item returned successfully!");
           }}
         />
-      </Activity>
+      )}
 
       {/* Floating Action Buttons - Reverse D Shape */}
       <div
@@ -669,15 +316,13 @@ export default function BorrowItem() {
 
       {/* Click outside to close menu when opened by click */}
       {menuOpenedByClick && showFloatingMenu && (
-        <Activity mode="visible">
-          <div
-            className="fixed inset-0 z-30"
-            onClick={() => {
-              setShowFloatingMenu(false);
-              setMenuOpenedByClick(false);
-            }}
-          />
-        </Activity>
+        <div
+          className="fixed inset-0 z-30"
+          onClick={() => {
+            setShowFloatingMenu(false);
+            setMenuOpenedByClick(false);
+          }}
+        />
       )}
     </div>
   );

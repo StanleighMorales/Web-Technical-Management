@@ -3,7 +3,7 @@ import { useGuestBorrowWizard } from "../hooks/useGuestBorrowWizard";
 import { GuestBorrowStepIndicator } from "./GuestBorrowStepIndicator";
 import { WebcamCapture } from "./WebcamCapture";
 import { ReviewCountdown } from "./ReviewCountdown";
-import { ErrorAlert } from "./ErrorAlert";
+import { showToast } from "./AppToast";
 import { BorrowSuccessModal } from "./BorrowSuccessModal";
 
 interface GuestBorrowWizardProps {
@@ -48,6 +48,7 @@ export const GuestBorrowWizard = ({
     prevStep,
     submit,
     reset,
+    cancel,
   } = useGuestBorrowWizard(mode);
 
   const isReserve = mode === "reserve";
@@ -68,6 +69,13 @@ export const GuestBorrowWizard = ({
       setShowSuccessModal(true);
     }
   }, [submitSuccess]);
+
+  // Show error toast when submission fails
+  useEffect(() => {
+    if (submitError) {
+      showToast.error("Submission Failed", submitError);
+    }
+  }, [submitError]);
 
   const handleCapture = (file: File | null) => {
     if (file) {
@@ -94,8 +102,7 @@ export const GuestBorrowWizard = ({
         />
       )}
 
-      {/* Error alert */}
-      {submitError && <ErrorAlert message={submitError} />}
+      {/* Error alert — handled via toast (see useEffect above) */}
 
       {/* Step indicator */}
       <GuestBorrowStepIndicator currentStep={step} steps={STEPS} />
@@ -391,7 +398,7 @@ export const GuestBorrowWizard = ({
               Reservation Schedule
             </h2>
             <p className="text-sm text-gray-500">
-              Set the date and time for the reservation.
+              Set the date and time for the reservation. Reservations can only be made up to 7 days in advance.
             </p>
           </div>
 
@@ -401,9 +408,15 @@ export const GuestBorrowWizard = ({
                 type="date"
                 value={formData.reservedForDate ?? ""}
                 min={new Date().toISOString().split("T")[0]}
+                max={(() => {
+                  const d = new Date();
+                  d.setDate(d.getDate() + 7);
+                  return d.toISOString().split("T")[0];
+                })()}
                 onChange={(e) => updateField("reservedForDate", e.target.value || null)}
                 className={inputClass(!!errors.reservedForDate)}
               />
+              <p className="text-xs text-gray-400 mt-1">Up to 7 days from today</p>
             </FormField>
 
             <FormField label="Reservation Time" required error={errors.reservedForTime}>
@@ -501,7 +514,7 @@ export const GuestBorrowWizard = ({
             formData={formData}
             countdown={countdown}
             onManualSubmit={submit}
-            onCancel={reset}
+            onCancel={cancel}
             isSubmitting={isSubmitting}
           />
         </div>
