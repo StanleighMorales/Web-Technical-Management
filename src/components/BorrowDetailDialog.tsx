@@ -259,7 +259,7 @@ function DialogContent({ data, onClose, fromScan, onProceedToScan, onReturnSucce
             </div>
             <button
               onClick={onClose}
-              className="ml-4 flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+              className="ml-4 shrink-0 w-10 h-10 flex items-center justify-center rounded-full text-gray-400 hover:text-white hover:bg-red-500 transition-colors"
             >
               <IoMdClose className="w-5 h-5" />
             </button>
@@ -484,7 +484,7 @@ function DialogContent({ data, onClose, fromScan, onProceedToScan, onReturnSucce
           >
             <div className="border-b border-gray-100 px-6 py-4 flex justify-between items-center">
               <h2 className="text-base font-bold text-gray-900">Scan Item Barcode</h2>
-              <button onClick={() => setShowScanModal(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
+              <button onClick={() => setShowScanModal(false)} className="w-10 h-10 flex items-center justify-center rounded-full text-gray-400 hover:text-white hover:bg-red-500 transition-colors">
                 <IoMdClose className="w-5 h-5" />
               </button>
             </div>
