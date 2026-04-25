@@ -18,6 +18,15 @@ export default function PendingReservations() {
   const [searchItem, setSearchItem] = useState("");
   const [borrowedItem, setBorrowedItem] = useState<THistoryBorrwedItems[]>([]);
 
+  // If navigated here from the due-soon dialog, open the Reservations tab directly
+  useEffect(() => {
+    const intent = sessionStorage.getItem("pendingReservationsTab");
+    if (intent === "reservations") {
+      setActiveTab("reservations");
+      sessionStorage.removeItem("pendingReservationsTab");
+    }
+  }, []);
+
   // Modal state
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
   const [isDenyModalOpen, setIsDenyModalOpen] = useState(false);

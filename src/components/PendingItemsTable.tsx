@@ -160,7 +160,7 @@ export default function PendingItemsTable({
 
                                         {/* Action buttons */}
                                         <td className="py-4 px-6">
-                                            <div className="flex gap-2 flex-wrap">
+                                            <div className="flex flex-col gap-2">
                                                 {isApprovedReservation ? (
                                                     <>
                                                         {/* Manual borrow fallback — for when RFID scan doesn't fire */}
@@ -169,7 +169,7 @@ export default function PendingItemsTable({
                                                                 e.stopPropagation();
                                                                 onMarkBorrowed(item);
                                                             }}
-                                                            className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm whitespace-nowrap"
+                                                            className="w-full px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm whitespace-nowrap text-center"
                                                             title="Mark as borrowed manually (use when RFID scan is unavailable)"
                                                         >
                                                             Mark Borrowed
@@ -180,7 +180,7 @@ export default function PendingItemsTable({
                                                                 e.stopPropagation();
                                                                 onDeny(item);
                                                             }}
-                                                            className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm"
+                                                            className="w-full px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm text-center"
                                                         >
                                                             Cancel
                                                         </button>
@@ -193,7 +193,7 @@ export default function PendingItemsTable({
                                                                 e.stopPropagation();
                                                                 onApprove(item);
                                                             }}
-                                                            className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm"
+                                                            className="w-full px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm text-center"
                                                         >
                                                             Approve
                                                         </button>
@@ -202,7 +202,7 @@ export default function PendingItemsTable({
                                                                 e.stopPropagation();
                                                                 onDeny(item);
                                                             }}
-                                                            className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm"
+                                                            className="w-full px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm text-center"
                                                         >
                                                             Deny
                                                         </button>
