@@ -222,7 +222,7 @@ export default function PendingReservations() {
                 : "border-transparent text-gray-500 hover:text-gray-700"
               }`}
           >
-            Pending Requests
+            Pending Reservations
             {pendingItems.length > 0 && (
               <span className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-600 rounded-full">
                 {pendingItems.length}
