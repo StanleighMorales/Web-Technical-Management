@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSignalR } from '../hooks/useSignalR';
-import { toast } from 'react-toastify';
+import { showToast } from './AppToast';
 import { useQueryClient } from '@tanstack/react-query';
 import ReservationDueSoonDialog, {
     type ReservationDueSoonNotification,
@@ -110,19 +110,15 @@ const AdminNotificationListener = () => {
         // Step 1: Register all handlers BEFORE connecting so none are missed
         const unsubNewRequest = subscribe('ReceiveNewPendingRequest',
             (n: NewPendingRequestNotification) => {
-                toast.info(
-                    <div style={{ color: '#1f2937' }}>
-                        <div style={{ fontSize: '16px', fontWeight: '700', color: '#f97316', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ fontSize: '20px' }}>🔔</span> New Pending Request
-                        </div>
-                        <p style={{ margin: '4px 0', fontSize: '14px', color: '#374151' }}>{n.message}</p>
-                        {n.reservedFor && (
-                            <small style={{ color: '#6b7280', fontSize: '12px' }}>
-                                Scheduled pickup: {new Date(n.reservedFor).toLocaleString()}
-                            </small>
-                        )}
-                    </div>,
-                    { autoClose: 8000, onClick: () => { window.location.href = '/home/pending-reservations'; }, style: { background: 'linear-gradient(135deg, #fff5ed 0%, #ffedd5 100%)', borderLeft: '5px solid #f97316' } }
+                showToast.info(
+                    'New Pending Request',
+                    n.reservedFor
+                        ? `${n.message} — Pickup: ${new Date(n.reservedFor).toLocaleString()}`
+                        : n.message,
+                    {
+                        autoClose: 8000,
+                        onClick: () => { window.location.href = '/home/pending-reservations'; },
+                    },
                 );
                 queryClient.invalidateQueries({ queryKey: ['lentItems'] });
             }
@@ -130,15 +126,7 @@ const AdminNotificationListener = () => {
 
         const unsubApproval = subscribe('ReceiveApprovalNotification',
             (n: ApprovalNotification) => {
-                toast.success(
-                    <div style={{ color: '#1f2937' }}>
-                        <div style={{ fontSize: '16px', fontWeight: '700', color: '#16a34a', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ fontSize: '20px' }}>✅</span> Reservation Approved
-                        </div>
-                        <p style={{ margin: '0', fontSize: '14px', color: '#374151' }}>{n.message}</p>
-                    </div>,
-                    { autoClose: 6000, style: { background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', borderLeft: '5px solid #16a34a' } }
-                );
+                showToast.success('Reservation Approved', n.message, { autoClose: 6000 });
                 queryClient.invalidateQueries({ queryKey: ['lentItems'] });
             }
         );
@@ -146,17 +134,12 @@ const AdminNotificationListener = () => {
         const unsubStatusChange = subscribe('ReceiveStatusChangeNotification',
             (n: StatusChangeNotification) => {
                 if (n.newStatus === 'Returned' || n.newStatus === 'Borrowed') {
-                    const emoji = n.newStatus === 'Returned' ? '↩️' : '📦';
-                    const color = n.newStatus === 'Returned' ? '#2563eb' : '#f97316';
-                    toast.info(
-                        <div style={{ color: '#1f2937' }}>
-                            <div style={{ fontSize: '16px', fontWeight: '700', color, marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <span style={{ fontSize: '20px' }}>{emoji}</span> Item {n.newStatus}
-                            </div>
-                            <p style={{ margin: '0', fontSize: '14px', color: '#374151' }}>{n.message}</p>
-                        </div>,
-                        { autoClose: 6000, style: { background: 'linear-gradient(135deg, #fff5ed 0%, #ffedd5 100%)', borderLeft: `5px solid ${color}` } }
-                    );
+                    const title = `Item ${n.newStatus}`;
+                    if (n.newStatus === 'Returned') {
+                        showToast.info(title, n.message, { autoClose: 6000 });
+                    } else {
+                        showToast.info(title, n.message, { autoClose: 6000 });
+                    }
                 }
                 queryClient.invalidateQueries({ queryKey: ['lentItems'] });
                 queryClient.invalidateQueries({ queryKey: ['items'] });
@@ -165,17 +148,13 @@ const AdminNotificationListener = () => {
 
         const unsubExpired = subscribe('ReceiveReservationExpired',
             (n: ReservationExpiredNotification) => {
-                toast.warning(
-                    <div style={{ color: '#1f2937' }}>
-                        <div style={{ fontSize: '16px', fontWeight: '700', color: '#b45309', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ fontSize: '20px' }}>⏰</span> Reservation Expired
-                        </div>
-                        <p style={{ margin: '4px 0', fontSize: '14px', color: '#374151' }}>
-                            <strong>{n.borrowerName}</strong>'s reservation for <strong>{n.itemName}</strong> has expired.
-                        </p>
-                        <small style={{ color: '#6b7280', fontSize: '12px' }}>Was scheduled: {new Date(n.reservedFor).toLocaleString()}</small>
-                    </div>,
-                    { autoClose: 10000, onClick: () => { window.location.href = '/home/pending-reservations'; }, style: { background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', borderLeft: '5px solid #f59e0b' } }
+                showToast.warning(
+                    'Reservation Expired',
+                    `${n.borrowerName}'s reservation for ${n.itemName} has expired. Was scheduled: ${new Date(n.reservedFor).toLocaleString()}`,
+                    {
+                        autoClose: 10000,
+                        onClick: () => { window.location.href = '/home/pending-reservations'; },
+                    },
                 );
                 queryClient.invalidateQueries({ queryKey: ['lentItems'] });
                 queryClient.invalidateQueries({ queryKey: ['items'] });

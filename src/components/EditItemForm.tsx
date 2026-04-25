@@ -7,8 +7,7 @@ import {
 import type { TItemForm, TItemList } from "../@types/types";
 import { useQuery } from "@tanstack/react-query";
 import { useGetItemInfo, useUpdateItem } from "../hooks/itemHooks";
-import { SuccessAlert } from "./SuccessAlert";
-import { ErrorAlert } from "./ErrorAlert";
+import { showToast } from "./AppToast";
 import {
   X,
   Pencil,
@@ -34,8 +33,6 @@ const labelClass = "block text-xs font-bold uppercase tracking-wider text-slate-
 export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
   const { data, isLoading, error } = useQuery(useGetItemInfo(id));
   const [originalData, setOriginalData] = useState<TItemForm | null>(null);
-  const [showAlert, setShowAlert] = useState(false);
-  const [showAlertFailed, setShowAlertFailed] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { mutate } = useUpdateItem();
@@ -139,8 +136,8 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
       },
       {
         onSuccess: () => {
-          setShowAlert(true);
-          setTimeout(() => { setShowAlert(false); onClose(); }, 3500);
+          showToast.success("Item Updated", "Item updated successfully!");
+          setTimeout(() => onClose(), 1000);
           setFormData({
             serialNumber: "",
             image: null,
@@ -155,8 +152,7 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
           });
         },
         onError: () => {
-          setShowAlertFailed(true);
-          setTimeout(() => setShowAlertFailed(false), 3500);
+          showToast.error("Update Failed", "Failed to update item. Please try again.");
         },
       },
     );
@@ -167,9 +163,6 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
       onClick={onClose}
     >
-      {showAlert && <SuccessAlert message="Item Updated Successfully" />}
-      {showAlertFailed && <ErrorAlert message="Update Failed" />}
-
       <div
         className="w-full max-w-2xl bg-white rounded-[2rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}

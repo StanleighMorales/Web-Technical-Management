@@ -5,8 +5,7 @@ import ErrorTable from "../components/ErrorTables";
 import type { TRecentBorrowItemProps } from "../@types/types";
 import { ViewRecentBorrowItems } from "../components/ViewRecentBorrowItems";
 import { useReturnItem } from "../hooks/itemHooks";
-import { SuccessAlert } from "../components/SuccessAlert";
-import { ErrorAlert } from "../components/ErrorAlert";
+import { showToast } from "../components/AppToast";
 import { getToken } from "../utils/token";
 import { LentItemDetailsModal } from "../components/LentItemDetailsModal";
 import { FloatingActionButtons } from "../components/FloatingActionButtons";
@@ -104,11 +103,6 @@ export default function Dashboard() {
   const [showReturnModal, setShowReturnModal] = useState<boolean>(false);
   const [returnBarcode, setReturnBarcode] = useState<string>("");
   const [returnError, setReturnError] = useState<string>("");
-  const [returnSuccess, setReturnSuccess] = useState<boolean>(false);
-  const [returnErrorMessage, setReturnErrorMessage] = useState<string>("");
-  const [showReturnError, setShowReturnError] = useState<boolean>(false);
-
-  const [borrowSuccess, setBorrowSuccess] = useState<boolean>(false);
 
   const [showScanModal, setShowScanModal] = useState<boolean>(false);
   const [scannedBarcode, setScannedBarcode] = useState<string>("");
@@ -158,14 +152,11 @@ export default function Dashboard() {
       setShowReturnModal(false);
       setReturnBarcode("");
       setReturnError("");
-      setReturnSuccess(true);
-      setTimeout(() => setReturnSuccess(false), 3000);
+      showToast.success("Item Returned", "Item returned successfully!");
     } catch (error: any) {
-      setReturnErrorMessage(error.message || "Failed to return item");
-      setShowReturnError(true);
+      showToast.error("Return Failed", error.message || "Failed to return item");
       setShowReturnModal(false);
       setReturnBarcode("");
-      setTimeout(() => setShowReturnError(false), 5000);
     }
   };
 
@@ -213,10 +204,6 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
-
-      {returnSuccess && <SuccessAlert message="Item returned successfully!" />}
-      {borrowSuccess && <SuccessAlert message="Item borrowed successfully!" />}
-      {showReturnError && <ErrorAlert message={returnErrorMessage} />}
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -334,8 +321,7 @@ export default function Dashboard() {
         onClose={() => setScannedLentItemId(null)}
         fromScan={true}
         onProceedToScan={() => {
-          setBorrowSuccess(true);
-          setTimeout(() => setBorrowSuccess(false), 3000);
+          showToast.success("Item Borrowed", "Item borrowed successfully!");
         }}
       />
 

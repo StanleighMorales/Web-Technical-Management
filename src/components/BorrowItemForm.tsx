@@ -1,8 +1,7 @@
 import { useState } from "react";
 import type { TBorrowItemData } from "../@types/types";
 import { useBorrowItem } from "../hooks/itemHooks";
-import { SuccessAlert } from "./SuccessAlert";
-import { ErrorAlert } from "./ErrorAlert";
+import { showToast } from "./AppToast";
 import {
   ScanLine,
   User,
@@ -28,8 +27,6 @@ export const BorrowItemForm = ({
 }) => {
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const [successMessage, setSuccessMessage] = useState<string>("");
-  const [showErrorAlert, setShowErrorAlert] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string>("");
   const [showReservationModal, setShowReservationModal] = useState<boolean>(false);
   const [reservationDate, setReservationDate] = useState<string>("");
   const [reservationTime, setReservationTime] = useState<string>("07:30");
@@ -105,14 +102,12 @@ export const BorrowItemForm = ({
         status: "Reserved",
       });
 
-      setSuccessMessage("Reservation Submitted Successfully");
+      showToast.success("Reservation Submitted", "Reservation submitted successfully!");
       setShowAlert(true);
       setTimeout(() => { setShowAlert(false); setSuccessMessage(""); }, 3000);
       resetForm();
     } catch (error: any) {
-      setErrorMessage(error.message || "Failed to submit reservation");
-      setShowErrorAlert(true);
-      setTimeout(() => setShowErrorAlert(false), 5000);
+      showToast.error("Reservation Failed", error.message || "Failed to submit reservation");
     }
   };
 
@@ -130,14 +125,12 @@ export const BorrowItemForm = ({
 
     try {
       await borrowItemMutation.mutateAsync({ ...formData, status: "Borrowed" });
-      setSuccessMessage("Borrow Request Submitted Successfully");
+      showToast.success("Borrow Request Submitted", "Borrow request submitted successfully!");
       setShowAlert(true);
       setTimeout(() => { setShowAlert(false); setSuccessMessage(""); }, 3000);
       resetForm();
     } catch (error: any) {
-      setErrorMessage(error.message || "Failed to submit request");
-      setShowErrorAlert(true);
-      setTimeout(() => setShowErrorAlert(false), 5000);
+      showToast.error("Borrow Failed", error.message || "Failed to submit request");
     }
   };
 
@@ -165,9 +158,6 @@ export const BorrowItemForm = ({
 
   return (
     <>
-      {showAlert && <SuccessAlert message={successMessage} />}
-      {showErrorAlert && <ErrorAlert message={errorMessage} />}
-
       {/* Reservation Modal */}
       {showReservationModal && (
         <div

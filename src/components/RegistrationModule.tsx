@@ -12,7 +12,7 @@ import ViewStudentCredentials from "./ViewStudentCredentials";
 import ViewTeacherCredentials from "./ViewTeacherCredentials";
 import PopUpModal from "./PopUpModal";
 import ErrorTable from "./ErrorTables.tsx";
-import { SuccessAlert } from "./SuccessAlert.tsx";
+import { showToast } from "./AppToast";
 import ExcelImportUserButton from "./ExcelImportUserButton.tsx";
 import {
     BookOpen,
@@ -29,8 +29,6 @@ interface RegistrationModuleProps {
 }
 
 export default function RegistrationModule({ embedded = false }: RegistrationModuleProps) {
-    const [ShowAlert, setShowAlert] = useState<boolean>(false);
-    const [showMessage, setShowMessage] = useState<string>("");
     const [isEditTeacherOpen, setIsEditTeacherOpen] = useState<boolean>(false);
     const [isEditStudentOpen, setIsEditStudentOpen] = useState<boolean>(false);
     const [isViewStudentOpen, setIsViewStudentOpen] = useState<boolean>(false);
@@ -94,9 +92,7 @@ export default function RegistrationModule({ embedded = false }: RegistrationMod
             onSuccess: (data) => {
                 setIsArchiveStudentOpen(false);
                 setArchiveStudentId(null);
-                setShowAlert(true);
-                setShowMessage(data.message);
-                setTimeout(() => { setShowAlert(false); setShowMessage(""); }, 3500);
+                showToast.success("Student Archived", data.message);
             },
         });
     }, [archiveStudentId, archiveStudent]);
@@ -107,9 +103,7 @@ export default function RegistrationModule({ embedded = false }: RegistrationMod
             onSuccess: (data) => {
                 setIsArchiveTeacherOpen(false);
                 setArchiveTeacherId(null);
-                setShowAlert(true);
-                setShowMessage(data.message);
-                setTimeout(() => { setShowAlert(false); setShowMessage(""); }, 3500);
+                showToast.success("Teacher Archived", data.message);
             },
         });
     }, [archiveTeacherId, archiveTeacher]);
@@ -380,7 +374,6 @@ export default function RegistrationModule({ embedded = false }: RegistrationMod
     if (embedded) {
         return (
             <>
-                {ShowAlert && <SuccessAlert message={showMessage} />}
                 {tableSection}
                 {modals}
             </>
@@ -390,8 +383,6 @@ export default function RegistrationModule({ embedded = false }: RegistrationMod
     // ── Standalone page mode ──
     return (
         <div className="min-h-screen bg-slate-50 p-6 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
-
-            {ShowAlert && <SuccessAlert message={showMessage} />}
 
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
                 <div>

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { SuccessAlert } from "../components/SuccessAlert.tsx";
-import { ErrorAlert } from "../components/ErrorAlert.tsx";
+import { showToast } from "../components/AppToast";
 import { useReturnItem } from "../hooks/itemHooks.ts";
 import { getToken } from "../utils/token/index.tsx";
 import { FormattedDateTime } from "../components/FormattedDateTime.ts";
@@ -361,9 +360,6 @@ export default function BorrowItem() {
   const [showReturnModal, setShowReturnModal] = useState<boolean>(false);
   const [returnBarcode, setReturnBarcode] = useState<string>("");
   const [returnError, setReturnError] = useState<string>("");
-  const [returnSuccess, setReturnSuccess] = useState<boolean>(false);
-  const [returnErrorMessage, setReturnErrorMessage] = useState<string>("");
-  const [showReturnError, setShowReturnError] = useState<boolean>(false);
   const [showFloatingMenu, setShowFloatingMenu] = useState<boolean>(false);
   const [menuOpenedByClick, setMenuOpenedByClick] = useState<boolean>(false);
 
@@ -385,29 +381,17 @@ export default function BorrowItem() {
       setShowReturnModal(false);
       setReturnBarcode("");
       setReturnError("");
-      setReturnSuccess(true);
-
-      setTimeout(() => {
-        setReturnSuccess(false);
-      }, 3000);
+      showToast.success("Item Returned", "Item returned successfully!");
     } catch (error: unknown) {
-      setReturnErrorMessage(error instanceof Error ? error.message : "Failed to return item");
-      setShowReturnError(true);
+      const msg = error instanceof Error ? error.message : "Failed to return item";
+      showToast.error("Return Failed", msg);
       setShowReturnModal(false);
       setReturnBarcode("");
-
-      setTimeout(() => {
-        setShowReturnError(false);
-      }, 5000);
     }
   };
 
   return (
     <div className="h-screen w-full bg-gradient-to-br from-[#f8fafc] via-[#e8eef7] to-[#dbeafe] flex flex-col overflow-hidden">
-      {/* Return Success Alert */}
-      {returnSuccess && <SuccessAlert message="Item returned successfully!" />}
-
-      {showReturnError && <ErrorAlert message={returnErrorMessage} />}
 
       {/* Return Item Modal */}
       {showReturnModal && (
@@ -576,10 +560,7 @@ export default function BorrowItem() {
           onClose={() => setScannedLentItem(null)}
           onReturnSuccess={() => {
             setScannedLentItem(null);
-            setReturnSuccess(true);
-            setTimeout(() => {
-              setReturnSuccess(false);
-            }, 3000);
+            showToast.success("Item Returned", "Item returned successfully!");
           }}
         />
       )}

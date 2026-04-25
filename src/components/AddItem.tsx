@@ -2,7 +2,7 @@ import React, { Activity, useState } from "react";
 import type { TItemForm } from "../@types/types";
 import CloseButton from "./CloseButton";
 import { useAddItem } from "../hooks/itemHooks";
-import { SuccessAlert } from "./SuccessAlert";
+import { showToast } from "./AppToast";
 
 const CATEGORIES = ["Electronics", "Keys", "MediaEquipment", "Tools", "Miscellaneous"] as const;
 const CONDITIONS = ["New", "Good", "Defective", "Refurbished", "NeedRepair"] as const;
@@ -21,7 +21,6 @@ const TOTAL_STEPS = STEPS.length;
 
 const AddItemForm = ({ onClose }: AddItemFormProps) => {
   const [step, setStep] = useState<number>(1);
-  const [showAlert, setShowAlert] = useState<boolean>(false);
   const [itemNameError, setItemNameError] = useState<string>("");
   const [itemModelError, setItemModelError] = useState<string>("");
   const [serialNumberError, setSerialNumberError] = useState<string>("");
@@ -161,11 +160,8 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
 
     mutate(newItem, {
       onSuccess: () => {
-        setShowAlert(true);
-        setTimeout(() => {
-          setShowAlert(false);
-          onClose();
-        }, 3500);
+        showToast.success("Item Created", "Item created successfully!");
+        setTimeout(() => onClose(), 1000);
         setFormData({
           serialNumber: "",
           image: null,
@@ -188,10 +184,6 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
   return (
     <>
       <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center min-h-screen p-4 sm:p-6">
-        <Activity mode={showAlert ? "visible" : "hidden"}>
-          <SuccessAlert message="Item Created Successfully" />
-        </Activity>
-
         <div className="w-full max-w-3xl relative animate-fadeInUp my-8">
           <div className="bg-white rounded-2xl shadow-xl border border-slate-200/80 overflow-hidden">
             {/* Header + Step indicator */}

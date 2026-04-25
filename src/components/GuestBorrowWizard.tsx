@@ -3,7 +3,7 @@ import { useGuestBorrowWizard } from "../hooks/useGuestBorrowWizard";
 import { GuestBorrowStepIndicator } from "./GuestBorrowStepIndicator";
 import { WebcamCapture } from "./WebcamCapture";
 import { ReviewCountdown } from "./ReviewCountdown";
-import { ErrorAlert } from "./ErrorAlert";
+import { showToast } from "./AppToast";
 import { BorrowSuccessModal } from "./BorrowSuccessModal";
 
 interface GuestBorrowWizardProps {
@@ -70,6 +70,13 @@ export const GuestBorrowWizard = ({
     }
   }, [submitSuccess]);
 
+  // Show error toast when submission fails
+  useEffect(() => {
+    if (submitError) {
+      showToast.error("Submission Failed", submitError);
+    }
+  }, [submitError]);
+
   const handleCapture = (file: File | null) => {
     if (file) {
       updateField("guestImage", file);
@@ -95,8 +102,7 @@ export const GuestBorrowWizard = ({
         />
       )}
 
-      {/* Error alert */}
-      {submitError && <ErrorAlert message={submitError} />}
+      {/* Error alert — handled via toast (see useEffect above) */}
 
       {/* Step indicator */}
       <GuestBorrowStepIndicator currentStep={step} steps={STEPS} />

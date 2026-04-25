@@ -10,10 +10,8 @@ import UserTable from "../components/UserTable";
 import ErrorTable from "../components/ErrorTables";
 import PopUpModal from "../components/PopUpModal";
 import ViewUserCredentials from "../components/ViewUserCredentials";
-import { SuccessAlert } from "../components/SuccessAlert";
-import { ErrorAlert } from "../components/ErrorAlert";
+import { showToast } from "../components/AppToast";
 import { useAllUsersManagement, useFilteredUser } from "../data/user-management-data";
-import { useCommonState } from "../states/index-state";
 import { useAllUsersManagementState } from "../states/user-management-state";
 import RegistrationModule from "../components/RegistrationModule";
 import {
@@ -33,17 +31,6 @@ export default function UserManagement() {
   const { mutate } = useArchiveUser();
   const { users, isPending, isError } = useAllUsersManagement();
   const { filteredUser, setSearchUser, setSelectedStatus, selectedRole, setSelectedRole } = useFilteredUser();
-
-  const {
-    showSuccessAlert,
-    setShowSuccessAlert,
-    showErrorAlert,
-    setShowErrorAlert,
-    showSuccessMessage,
-    setShowSuccessMessage,
-    showErrorMessage,
-    setShowErrorMessage,
-  } = useCommonState();
 
   const {
     isAddUserOpen,
@@ -69,24 +56,13 @@ export default function UserManagement() {
     mutate(archiveUserId, {
       onSuccess: (d) => {
         setIsArchiveModalOpen(false);
-        setShowSuccessAlert(true);
         setArchiveUserId("");
-        setShowSuccessMessage(d.message);
-        setTimeout(() => {
-          setShowSuccessAlert(false);
-          setShowSuccessMessage("");
-        }, 3500);
+        showToast.success("User Archived", d.message);
       },
       onError: () => {
         setIsArchiveModalOpen(false);
-        setShowErrorAlert(true);
         setArchiveUserId("");
-        setShowSuccessAlert(false);
-        setShowErrorMessage("You cannot delete the logged-in user!");
-        setTimeout(() => {
-          setShowErrorAlert(false);
-          setShowErrorMessage("");
-        }, 3500);
+        showToast.error("Action Failed", "You cannot delete the logged-in user!");
       },
     });
   }, [archiveUserId, mutate]);
@@ -113,10 +89,6 @@ export default function UserManagement() {
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
-
-      {/* Alerts */}
-      {showSuccessAlert && <SuccessAlert message={showSuccessMessage} />}
-      {showErrorAlert && <ErrorAlert message={showErrorMessage} />}
 
       {/* Page header */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">

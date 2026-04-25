@@ -8,8 +8,7 @@ import ApproveConfirmationModal from "../components/ApproveConfirmationModal";
 import DenyConfirmationModal from "../components/DenyConfirmationModal";
 import MarkBorrowedConfirmationModal from "../components/MarkBorrowedConfirmationModal";
 import { useUpdateLentItemStatusMutation } from "../query/patch/useUpdateLentItemStatusMutation";
-import { SuccessAlert } from "../components/SuccessAlert";
-import { ErrorAlert } from "../components/ErrorAlert";
+import { showToast } from "../components/AppToast";
 import { LentItemDetailsModal } from "../components/LentItemDetailsModal";
 import { useRecentlyBorrowItems } from "../hooks/itemHooks";
 
@@ -33,10 +32,6 @@ export default function PendingReservations() {
   const [isMarkBorrowedModalOpen, setIsMarkBorrowedModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<THistoryBorrwedItems | null>(null);
 
-  // Alert state
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
   // Details modal
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
@@ -49,19 +44,6 @@ export default function PendingReservations() {
   useEffect(() => {
     if (data) setBorrowedItem(data);
   }, [data]);
-
-  // Auto-dismiss alerts
-  useEffect(() => {
-    if (!successMessage) return;
-    const t = setTimeout(() => setSuccessMessage(null), 3000);
-    return () => clearTimeout(t);
-  }, [successMessage]);
-
-  useEffect(() => {
-    if (!errorMessage) return;
-    const t = setTimeout(() => setErrorMessage(null), 5000);
-    return () => clearTimeout(t);
-  }, [errorMessage]);
 
   // ── Filtered lists ──────────────────────────────────────────────────────
   const pendingItems = useMemo(() => {
@@ -92,18 +74,18 @@ export default function PendingReservations() {
   };
 
   const handleConfirmApprove = () => {
-    if (!selectedItem) { setErrorMessage("No item selected."); setIsApproveModalOpen(false); return; }
+    if (!selectedItem) { showToast.error("Action Failed", "No item selected."); setIsApproveModalOpen(false); return; }
 
     approveLentItem(
       { id: selectedItem.id, lentItemsStatus: "Approved" },
       {
         onSuccess: () => {
-          setSuccessMessage(`Reservation approved for ${selectedItem.item.itemName}`);
+          showToast.success("Reservation Approved", `Reservation approved for ${selectedItem.item.itemName}`);
           setIsApproveModalOpen(false);
           setSelectedItem(null);
         },
         onError: (error) => {
-          setErrorMessage(error.message || "Failed to approve reservation");
+          showToast.error("Approval Failed", error.message || "Failed to approve reservation");
           setIsApproveModalOpen(false);
         },
       },
@@ -117,7 +99,7 @@ export default function PendingReservations() {
   };
 
   const handleConfirmDeny = () => {
-    if (!selectedItem) { setErrorMessage("No item selected."); setIsDenyModalOpen(false); return; }
+    if (!selectedItem) { showToast.error("Action Failed", "No item selected."); setIsDenyModalOpen(false); return; }
 
     // Approved reservations → "Canceled"; pending requests → "Denied"
     const statusToSet = selectedItem.status === "Approved" ? "Canceled" : "Denied";
@@ -127,12 +109,12 @@ export default function PendingReservations() {
       {
         onSuccess: () => {
           const actionText = selectedItem.status === "Approved" ? "canceled reservation" : "denied borrow request";
-          setSuccessMessage(`Successfully ${actionText} for ${selectedItem.item.itemName}`);
+          showToast.success("Request Processed", `Successfully ${actionText} for ${selectedItem.item.itemName}`);
           setIsDenyModalOpen(false);
           setSelectedItem(null);
         },
         onError: (error) => {
-          setErrorMessage(error.message || "Failed to process request");
+          showToast.error("Action Failed", error.message || "Failed to process request");
           setIsDenyModalOpen(false);
         },
       },
@@ -146,20 +128,20 @@ export default function PendingReservations() {
   };
 
   const handleConfirmMarkBorrowed = () => {
-    if (!selectedItem) { setErrorMessage("No item selected."); setIsMarkBorrowedModalOpen(false); return; }
+    if (!selectedItem) { showToast.error("Action Failed", "No item selected."); setIsMarkBorrowedModalOpen(false); return; }
 
     borrowLentItem(
       { id: selectedItem.id, lentItemsStatus: "Borrowed" },
       {
         onSuccess: () => {
-          setSuccessMessage(`${selectedItem.item.itemName} marked as borrowed for ${selectedItem.borrowerFullName}`);
+          showToast.success("Marked as Borrowed", `${selectedItem.item.itemName} marked as borrowed for ${selectedItem.borrowerFullName}`);
           setIsMarkBorrowedModalOpen(false);
           setSelectedItem(null);
           // Switch to pending tab so the user sees the updated state
           setActiveTab("reservations");
         },
         onError: (error) => {
-          setErrorMessage(error.message || "Failed to mark item as borrowed");
+          showToast.error("Action Failed", error.message || "Failed to mark item as borrowed");
           setIsMarkBorrowedModalOpen(false);
         },
       },
@@ -181,9 +163,6 @@ export default function PendingReservations() {
 
   return (
     <div className="relative flex flex-col items-center py-10 px-2 w-full min-h-screen lg:h-full bg-gradient-to-br animate-fadeIn from-[#f8fafc] via-[#e0e7ef] to-[#c7d2fe]">
-      {successMessage && <SuccessAlert message={successMessage} />}
-      {errorMessage   && <ErrorAlert   message={errorMessage}   />}
-
       <div className="w-full bg-white/90 rounded-2xl p-8 relative">
         {/* Title */}
         <div className="flex flex-col gap-4 mb-8 md:flex-row md:justify-between md:items-center">

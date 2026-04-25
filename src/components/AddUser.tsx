@@ -3,7 +3,7 @@ import type { TUserFormData } from "../@types/types";
 import CloseButton from "./CloseButton";
 import { useRegisterUser } from "../hooks/userHooks";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
-import { SuccessAlert } from "./SuccessAlert";
+import { showToast } from "./AppToast";
 
 type AddUserProps = {
   onClose: () => void;
@@ -30,7 +30,6 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
   const [showConfirmPassword, setShowConfirmPassword] =
     useState<boolean>(false);
   const [confirmPasswordError, setConfirmPasswordError] = useState<string>("");
-  const [showAlert, setShowAlert] = useState<boolean>(false);
   const [formData, setFormData] = useState<TUserFormData>({
     firstName: "",
     lastName: "",
@@ -139,11 +138,8 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
     console.log(formData);
     mutate(formData, {
       onSuccess: () => {
-        setShowAlert(true);
-        setTimeout(() => {
-          setShowAlert(false);
-          onClose();
-        }, 1000);
+        showToast.success("User Created", "User created successfully!");
+        setTimeout(() => onClose(), 1000);
         setFormData({
           firstName: "",
           lastName: "",
@@ -165,10 +161,6 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
   return (
     <>
       <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center min-h-screen p-4 sm:p-6">
-        <Activity mode={showAlert ? "visible" : "hidden"}>
-          <SuccessAlert message="User Created Successfully" />
-        </Activity>
-
         <div className="w-full max-w-3xl relative animate-fadeInUp my-8">
           <div className="bg-white rounded-2xl shadow-xl border border-slate-200/80 overflow-hidden">
             <div className="border-b border-slate-100 bg-slate-50/80 px-6 py-4">
