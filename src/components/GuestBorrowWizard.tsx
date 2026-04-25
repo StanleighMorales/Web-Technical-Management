@@ -392,7 +392,7 @@ export const GuestBorrowWizard = ({
               Reservation Schedule
             </h2>
             <p className="text-sm text-gray-500">
-              Set the date and time for the reservation.
+              Set the date and time for the reservation. Reservations can only be made up to 7 days in advance.
             </p>
           </div>
 
@@ -402,9 +402,15 @@ export const GuestBorrowWizard = ({
                 type="date"
                 value={formData.reservedForDate ?? ""}
                 min={new Date().toISOString().split("T")[0]}
+                max={(() => {
+                  const d = new Date();
+                  d.setDate(d.getDate() + 7);
+                  return d.toISOString().split("T")[0];
+                })()}
                 onChange={(e) => updateField("reservedForDate", e.target.value || null)}
                 className={inputClass(!!errors.reservedForDate)}
               />
+              <p className="text-xs text-gray-400 mt-1">Up to 7 days from today</p>
             </FormField>
 
             <FormField label="Reservation Time" required error={errors.reservedForTime}>

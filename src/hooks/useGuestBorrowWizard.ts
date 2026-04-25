@@ -86,6 +86,15 @@ function validateStep(
         errors.reservedForTime = "Time must be between 7:30 AM and 8:30 PM";
       }
     }
+    // 1-week max: reservedForDate must be within 7 days from today
+    if (formData.reservedForDate) {
+      const maxDate = new Date();
+      maxDate.setDate(maxDate.getDate() + 7);
+      const selected = new Date(formData.reservedForDate);
+      if (selected > maxDate) {
+        errors.reservedForDate = "Reservations can only be made up to 7 days in advance";
+      }
+    }
   } else if ((!mode || mode === "borrow") && step === 3) {
     // Photo step — borrow mode
     if (!formData.guestImage) {

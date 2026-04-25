@@ -17,7 +17,8 @@ export default function DenyConfirmationModal({
 }: DenyConfirmationModalProps) {
     if (!isOpen || !item) return null;
 
-    const isReservation = item.status === "Reserved";
+    // "Approved" = reservation that has been approved and is awaiting pickup
+    const isReservation = item.status === "Approved";
     const title = isReservation ? "Cancel Reservation" : "Deny Borrow Request";
     const description = isReservation
         ? "Are you sure you want to cancel this reservation?"

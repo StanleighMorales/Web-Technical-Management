@@ -35,9 +35,19 @@ interface StatusChangeNotification {
     timestamp: string;
 }
 
+interface ReservationExpiredNotification {
+    type: 'reservation_expired';
+    lentItemId: string;
+    itemName: string;
+    borrowerName: string;
+    reservedFor: string;
+    message: string;
+    timestamp: string;
+}
+
 /**
- * Component that listens for admin/staff notifications
- * Should be mounted when user is Admin or Staff
+ * Component that listens for admin/staff notifications via SignalR.
+ * Mounted once in Home layout for Admin/Staff users only.
  */
 const AdminNotificationListener = () => {
     const { subscribe, joinAdminStaffGroup, isReady } = useSignalR();
@@ -49,13 +59,10 @@ const AdminNotificationListener = () => {
         // Join admin/staff group to receive notifications
         joinAdminStaffGroup();
 
-        // Listen for new pending requests
+        // ── New pending request ────────────────────────────────────────────
         const unsubscribeNewRequest = subscribe(
             'ReceiveNewPendingRequest',
             (notification: NewPendingRequestNotification) => {
-                console.log('New pending request:', notification);
-
-                // Show toast notification with orange theme
                 toast.info(
                     <div style={{ color: '#1f2937' }}>
                         <div style={{
@@ -75,15 +82,13 @@ const AdminNotificationListener = () => {
                         </p>
                         {notification.reservedFor && (
                             <small style={{ color: '#6b7280', fontSize: '12px' }}>
-                                Reserved for: {new Date(notification.reservedFor).toLocaleString()}
+                                Scheduled pickup: {new Date(notification.reservedFor).toLocaleString()}
                             </small>
                         )}
                     </div>,
                     {
                         autoClose: 8000,
-                        onClick: () => {
-                            window.location.href = '/home/pending-reservations';
-                        },
+                        onClick: () => { window.location.href = '/home/pending-reservations'; },
                         style: {
                             background: 'linear-gradient(135deg, #fff5ed 0%, #ffedd5 100%)',
                             borderLeft: '5px solid #f97316',
@@ -91,19 +96,14 @@ const AdminNotificationListener = () => {
                     }
                 );
 
-                // Invalidate queries to refresh the pending requests list
                 queryClient.invalidateQueries({ queryKey: ['lentItems'] });
-                queryClient.invalidateQueries({ queryKey: ['pendingRequests'] });
             }
         );
 
-        // Listen for approval notifications (admin might want to see these too)
+        // ── Reservation approved ───────────────────────────────────────────
         const unsubscribeApproval = subscribe(
             'ReceiveApprovalNotification',
             (notification: ApprovalNotification) => {
-                console.log('Approval notification:', notification);
-
-                // Show toast for admins with orange theme
                 toast.success(
                     <div style={{ color: '#1f2937' }}>
                         <div style={{
@@ -116,7 +116,7 @@ const AdminNotificationListener = () => {
                             gap: '8px'
                         }}>
                             <span style={{ fontSize: '20px' }}>✅</span>
-                            Request Approved
+                            Reservation Approved
                         </div>
                         <p style={{ margin: '0', fontSize: '14px', color: '#374151' }}>
                             {notification.message}
@@ -125,24 +125,20 @@ const AdminNotificationListener = () => {
                     {
                         autoClose: 6000,
                         style: {
-                            background: 'linear-gradient(135deg, #fff5ed 0%, #ffedd5 100%)',
+                            background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
                             borderLeft: '5px solid #16a34a',
                         },
                     }
                 );
 
-                // Refresh data
                 queryClient.invalidateQueries({ queryKey: ['lentItems'] });
             }
         );
 
-        // Listen for status changes
+        // ── Status change (Returned / Borrowed) ───────────────────────────
         const unsubscribeStatusChange = subscribe(
             'ReceiveStatusChangeNotification',
             (notification: StatusChangeNotification) => {
-                console.log('Status change:', notification);
-
-                // Show toast for important status changes
                 if (notification.newStatus === 'Returned' || notification.newStatus === 'Borrowed') {
                     const emoji = notification.newStatus === 'Returned' ? '↩️' : '📦';
                     const color = notification.newStatus === 'Returned' ? '#2563eb' : '#f97316';
@@ -152,14 +148,14 @@ const AdminNotificationListener = () => {
                             <div style={{
                                 fontSize: '16px',
                                 fontWeight: '700',
-                                color: color,
+                                color,
                                 marginBottom: '4px',
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '8px'
                             }}>
                                 <span style={{ fontSize: '20px' }}>{emoji}</span>
-                                Status Changed
+                                Item {notification.newStatus}
                             </div>
                             <p style={{ margin: '0', fontSize: '14px', color: '#374151' }}>
                                 {notification.message}
@@ -175,20 +171,61 @@ const AdminNotificationListener = () => {
                     );
                 }
 
-                // Refresh data
                 queryClient.invalidateQueries({ queryKey: ['lentItems'] });
+                queryClient.invalidateQueries({ queryKey: ['items'] });
             }
         );
 
-        // Cleanup subscriptions on unmount
+        // ── Reservation expired ────────────────────────────────────────────
+        const unsubscribeExpired = subscribe(
+            'ReceiveReservationExpired',
+            (notification: ReservationExpiredNotification) => {
+                toast.warning(
+                    <div style={{ color: '#1f2937' }}>
+                        <div style={{
+                            fontSize: '16px',
+                            fontWeight: '700',
+                            color: '#b45309',
+                            marginBottom: '6px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                        }}>
+                            <span style={{ fontSize: '20px' }}>⏰</span>
+                            Reservation Expired
+                        </div>
+                        <p style={{ margin: '4px 0', fontSize: '14px', color: '#374151' }}>
+                            <strong>{notification.borrowerName}</strong>'s reservation for{' '}
+                            <strong>{notification.itemName}</strong> has expired — item is now available.
+                        </p>
+                        <small style={{ color: '#6b7280', fontSize: '12px' }}>
+                            Was scheduled: {new Date(notification.reservedFor).toLocaleString()}
+                        </small>
+                    </div>,
+                    {
+                        autoClose: 10000,
+                        onClick: () => { window.location.href = '/home/pending-reservations'; },
+                        style: {
+                            background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
+                            borderLeft: '5px solid #f59e0b',
+                        },
+                    }
+                );
+
+                // Refresh both lists so the expired item disappears from the Reservations tab
+                queryClient.invalidateQueries({ queryKey: ['lentItems'] });
+                queryClient.invalidateQueries({ queryKey: ['items'] });
+            }
+        );
+
         return () => {
             unsubscribeNewRequest();
             unsubscribeApproval();
             unsubscribeStatusChange();
+            unsubscribeExpired();
         };
     }, [isReady, subscribe, joinAdminStaffGroup, queryClient]);
 
-    // This is a listener component, it doesn't render anything
     return null;
 };
 
