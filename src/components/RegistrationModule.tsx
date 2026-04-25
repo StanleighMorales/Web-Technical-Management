@@ -22,7 +22,13 @@ import {
     Search,
 } from "lucide-react";
 
-export default function RegistrationModule() {
+interface RegistrationModuleProps {
+    /** When true, strips the standalone page wrapper (bg, padding, page header).
+     *  Use this when embedding inside another page like UserManagement. */
+    embedded?: boolean;
+}
+
+export default function RegistrationModule({ embedded = false }: RegistrationModuleProps) {
     const [ShowAlert, setShowAlert] = useState<boolean>(false);
     const [showMessage, setShowMessage] = useState<string>("");
     const [isEditTeacherOpen, setIsEditTeacherOpen] = useState<boolean>(false);
@@ -119,207 +125,191 @@ export default function RegistrationModule() {
     const teacherHeaders = ["Full Name", "Username", "Role", "Department", "Status", "Actions"];
     const studentHeaders = ["Student ID", "Full Name", "Course", "Section", "Year", "Role", "Actions"];
 
-    return (
-        <div className="min-h-screen bg-slate-50 p-6 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
+    const tableSection = (
+        <div className="bg-white rounded-[2rem] border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
 
-            {ShowAlert && <SuccessAlert message={showMessage} />}
+            {/* Toolbar */}
+            <div className="px-6 md:px-8 py-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
 
-            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+                {/* Segmented role tabs */}
+                <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl w-fit">
+                    <button
+                        onClick={() => { setSelectedRole("Teacher"); setSearchUser(""); }}
+                        className={`relative inline-flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                            isTeacher ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                        }`}
+                    >
+                        <BookOpen className="h-3.5 w-3.5" />
+                        Teachers
+                        {activeTeachers.length > 0 && (
+                            <span className="relative flex h-4 w-4">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
+                                <span className="relative inline-flex items-center justify-center h-4 w-4 rounded-full bg-emerald-500 text-white text-[9px] font-bold">
+                                    {activeTeachers.length > 99 ? "99+" : activeTeachers.length}
+                                </span>
+                            </span>
+                        )}
+                    </button>
+                    <button
+                        onClick={() => { setSelectedRole("Student"); setSearchUser(""); }}
+                        className={`relative inline-flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                            !isTeacher ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                        }`}
+                    >
+                        <GraduationCap className="h-3.5 w-3.5" />
+                        Students
+                        {activeStudents.length > 0 && (
+                            <span className="relative flex h-4 w-4">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-60" />
+                                <span className="relative inline-flex items-center justify-center h-4 w-4 rounded-full bg-violet-500 text-white text-[9px] font-bold">
+                                    {activeStudents.length > 99 ? "99+" : activeStudents.length}
+                                </span>
+                            </span>
+                        )}
+                    </button>
+                </div>
+
+                {/* Right controls */}
+                <div className="flex items-center gap-2">
+                    {!isTeacher && <ExcelImportUserButton />}
+                    <SearchBar
+                        onChangeValue={setSearchUser}
+                        placeholder={
+                            isTeacher
+                                ? "Search by name or department"
+                                : "Search by name, ID, course, section, or year"
+                        }
+                    />
+                </div>
+            </div>
+
+            {/* Table sub-header */}
+            <div className="px-6 md:px-8 py-4 border-b border-slate-100 flex items-center justify-between">
                 <div>
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-50 border border-violet-100 text-violet-600 text-xs font-semibold mb-4">
-                        <Sparkles className="h-3.5 w-3.5" />
-                        <span>Registration module</span>
-                    </div>
-                    <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 mb-2">
-                        Registered Module
-                    </h1>
-                    <p className="text-slate-500 font-medium text-base max-w-xl leading-relaxed">
-                        Manage teacher and student registrations, edit profiles, and archive records.
-                    </p>
-                </div>
-
-                {/* Stat chips */}
-                <div className="flex items-center gap-3 flex-shrink-0">
-                    <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white border border-slate-200 shadow-sm text-sm font-medium text-slate-600">
-                        <div className="h-7 w-7 rounded-lg bg-emerald-50 flex items-center justify-center">
-                            <BookOpen className="h-3.5 w-3.5 text-emerald-600" />
-                        </div>
-                        <span>{teachers.filter((t) => t.userRole === "Teacher").length} teachers</span>
-                    </div>
-                    <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white border border-slate-200 shadow-sm text-sm font-medium text-slate-600">
-                        <div className="h-7 w-7 rounded-lg bg-violet-50 flex items-center justify-center">
-                            <GraduationCap className="h-3.5 w-3.5 text-violet-600" />
-                        </div>
-                        <span>{students.filter((s) => s.userRole === "Student").length} students</span>
-                    </div>
-                </div>
-            </div>
-
-            <div className="bg-white rounded-[2rem] border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
-
-                {/* Toolbar */}
-                <div className="px-6 md:px-8 py-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-
-                    {/* Segmented role tabs */}
-                    <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl w-fit">
-                        <button
-                            onClick={() => { setSelectedRole("Teacher"); setSearchUser(""); }}
-                            className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                                isTeacher ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
-                            }`}
-                        >
-                            <BookOpen className="h-3.5 w-3.5" />
-                            Teachers
-                        </button>
-                        <button
-                            onClick={() => { setSelectedRole("Student"); setSearchUser(""); }}
-                            className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                                !isTeacher ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
-                            }`}
-                        >
-                            <GraduationCap className="h-3.5 w-3.5" />
-                            Students
-                        </button>
-                    </div>
-
-                    {/* Right controls */}
-                    <div className="flex items-center gap-2">
-                        {!isTeacher && <ExcelImportUserButton />}
-                        <SearchBar
-                            onChangeValue={setSearchUser}
-                            placeholder={
-                                isTeacher
-                                    ? "Search by name or department"
-                                    : "Search by name, ID, course, section, or year"
-                            }
-                        />
-                    </div>
-                </div>
-
-                {/* Table sub-header */}
-                <div className="px-6 md:px-8 py-4 border-b border-slate-100 flex items-center justify-between">
-                    <div>
-                        <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                            {isTeacher
-                                ? <><BookOpen className="h-4 w-4 text-emerald-500" /> Teachers</>
-                                : <><GraduationCap className="h-4 w-4 text-violet-500" /> Students</>
-                            }
-                        </h2>
-                        <p className="text-xs text-slate-400 font-medium mt-0.5">
-                            {activeCount} {isTeacher ? "teacher" : "student"}{activeCount !== 1 ? "s" : ""}
-                        </p>
-                    </div>
-                </div>
-
-                {/* Table */}
-                <div className="overflow-x-auto">
-                    <div className="min-h-[50vh] max-h-[50vh] overflow-y-auto">
-
-                        {isTeacher && (
-                            isTeacherDataIsError ? <ErrorTable /> :
-                            activeTeachers.length === 0 ? (
-                                <EmptyState icon={BookOpen} label="teachers" hasSearch={!!searchUser} />
-                            ) : (
-                                <table className="w-full text-left text-sm whitespace-nowrap">
-                                    <thead>
-                                        <tr className="border-b border-slate-100">
-                                            {teacherHeaders.map((h) => (
-                                                <th key={h} className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">
-                                                    {h}
-                                                </th>
-                                            ))}
-                                            <th className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4" />
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-100">
-                                        {activeTeachers.map((teacher) => (
-                                            <tr
-                                                key={teacher.id}
-                                                onClick={() => handleViewTeacherCredentials(teacher.id)}
-                                                className="group transition-all duration-200 hover:bg-violet-50/30 cursor-pointer"
-                                            >
-                                                <TeacherTable
-                                                    id={teacher.id}
-                                                    firstName={teacher.firstName}
-                                                    lastName={teacher.lastName}
-                                                    middleName={teacher.middleName}
-                                                    username={teacher.username}
-                                                    email={teacher.email}
-                                                    userRole={teacher.userRole}
-                                                    department={teacher.department}
-                                                    status={teacher.status}
-                                                    onSetEditUserId={() => setEditTeacherId(teacher.id)}
-                                                    onSetIsEditUserOpen={() => setIsEditTeacherOpen(true)}
-                                                    onMutate={() => handleArchiveTeacher(teacher.id)}
-                                                />
-                                                <td className="px-6 py-4">
-                                                    <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-violet-500 transition-colors" />
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            )
-                        )}
-
-                        {!isTeacher && (
-                            isStudentStudentIsError ? <ErrorTable /> :
-                            activeStudents.length === 0 ? (
-                                <EmptyState icon={GraduationCap} label="students" hasSearch={!!searchUser} />
-                            ) : (
-                                <table className="w-full text-left text-sm whitespace-nowrap">
-                                    <thead>
-                                        <tr className="border-b border-slate-100">
-                                            {studentHeaders.map((h) => (
-                                                <th key={h} className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">
-                                                    {h}
-                                                </th>
-                                            ))}
-                                            <th className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4" />
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-100">
-                                        {activeStudents.map((student) => (
-                                            <tr
-                                                key={student.id}
-                                                onClick={() => handleViewStudentCredentials(student.id)}
-                                                className="group transition-all duration-200 hover:bg-violet-50/30 cursor-pointer"
-                                            >
-                                                <StudentTable
-                                                    id={student.id}
-                                                    phoneNumber={student.phoneNumber}
-                                                    userRole={student.userRole}
-                                                    firstName={student.firstName}
-                                                    middleName={student.middleName}
-                                                    lastName={student.lastName}
-                                                    studentIdNumber={student.studentIdNumber}
-                                                    course={student.course}
-                                                    section={student.section}
-                                                    year={student.year}
-                                                    onSetIsEditStudentOpen={() => setIsEditStudentOpen(true)}
-                                                    onSetEditUserId={() => setEditStudentId(student.id)}
-                                                    onMutate={() => handleRestoreStudent(student.id)}
-                                                />
-                                                <td className="px-6 py-4">
-                                                    <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-violet-500 transition-colors" />
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            )
-                        )}
-                    </div>
-                </div>
-
-                {/* Footer hint */}
-                <div className="px-8 py-4 border-t border-slate-100 bg-slate-50/50">
-                    <p className="text-xs text-slate-400 font-medium">
-                        <span className="font-semibold text-slate-500">Tip:</span> Click any row to view credentials. Use the role tabs and search to filter quickly.
+                    <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                        {isTeacher
+                            ? <><BookOpen className="h-4 w-4 text-emerald-500" /> Teachers</>
+                            : <><GraduationCap className="h-4 w-4 text-violet-500" /> Students</>
+                        }
+                    </h2>
+                    <p className="text-xs text-slate-400 font-medium mt-0.5">
+                        {activeCount} {isTeacher ? "teacher" : "student"}{activeCount !== 1 ? "s" : ""}
                     </p>
                 </div>
             </div>
 
+            {/* Table */}
+            <div className="overflow-x-auto">
+                <div className="min-h-[50vh] max-h-[50vh] overflow-y-auto">
+
+                    {isTeacher && (
+                        isTeacherDataIsError ? <ErrorTable /> :
+                        activeTeachers.length === 0 ? (
+                            <EmptyState icon={BookOpen} label="teachers" hasSearch={!!searchUser} />
+                        ) : (
+                            <table className="w-full text-left text-sm whitespace-nowrap">
+                                <thead>
+                                    <tr className="border-b border-slate-100">
+                                        {teacherHeaders.map((h) => (
+                                            <th key={h} className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">
+                                                {h}
+                                            </th>
+                                        ))}
+                                        <th className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4" />
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    {activeTeachers.map((teacher) => (
+                                        <tr
+                                            key={teacher.id}
+                                            onClick={() => handleViewTeacherCredentials(teacher.id)}
+                                            className="group transition-all duration-200 hover:bg-violet-50/30 cursor-pointer"
+                                        >
+                                            <TeacherTable
+                                                id={teacher.id}
+                                                firstName={teacher.firstName}
+                                                lastName={teacher.lastName}
+                                                middleName={teacher.middleName}
+                                                username={teacher.username}
+                                                email={teacher.email}
+                                                userRole={teacher.userRole}
+                                                department={teacher.department}
+                                                status={teacher.status}
+                                                onSetEditUserId={() => setEditTeacherId(teacher.id)}
+                                                onSetIsEditUserOpen={() => setIsEditTeacherOpen(true)}
+                                                onMutate={() => handleArchiveTeacher(teacher.id)}
+                                            />
+                                            <td className="px-6 py-4">
+                                                <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-violet-500 transition-colors" />
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )
+                    )}
+
+                    {!isTeacher && (
+                        isStudentStudentIsError ? <ErrorTable /> :
+                        activeStudents.length === 0 ? (
+                            <EmptyState icon={GraduationCap} label="students" hasSearch={!!searchUser} />
+                        ) : (
+                            <table className="w-full text-left text-sm whitespace-nowrap">
+                                <thead>
+                                    <tr className="border-b border-slate-100">
+                                        {studentHeaders.map((h) => (
+                                            <th key={h} className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">
+                                                {h}
+                                            </th>
+                                        ))}
+                                        <th className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4" />
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    {activeStudents.map((student) => (
+                                        <tr
+                                            key={student.id}
+                                            onClick={() => handleViewStudentCredentials(student.id)}
+                                            className="group transition-all duration-200 hover:bg-violet-50/30 cursor-pointer"
+                                        >
+                                            <StudentTable
+                                                id={student.id}
+                                                phoneNumber={student.phoneNumber}
+                                                userRole={student.userRole}
+                                                firstName={student.firstName}
+                                                middleName={student.middleName}
+                                                lastName={student.lastName}
+                                                studentIdNumber={student.studentIdNumber}
+                                                course={student.course}
+                                                section={student.section}
+                                                year={student.year}
+                                                onSetIsEditStudentOpen={() => setIsEditStudentOpen(true)}
+                                                onSetEditUserId={() => setEditStudentId(student.id)}
+                                                onMutate={() => handleRestoreStudent(student.id)}
+                                            />
+                                            <td className="px-6 py-4">
+                                                <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-violet-500 transition-colors" />
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )
+                    )}
+                </div>
+            </div>
+
+            {/* Footer hint */}
+            <div className="px-8 py-4 border-t border-slate-100 bg-slate-50/50">
+                <p className="text-xs text-slate-400 font-medium">
+                    <span className="font-semibold text-slate-500">Tip:</span> Click any row to view credentials. Use the role tabs and search to filter quickly.
+                </p>
+            </div>
+        </div>
+    );
+
+    const modals = (
+        <>
             {isArchiveStudentOpen && (
                 <PopUpModal
                     title="Archive Student" label="archive" noun="student" destination="archive"
@@ -383,6 +373,59 @@ export default function RegistrationModule() {
                     onClose={() => setIsEditStudentOpen(false)}
                 />
             )}
+        </>
+    );
+
+    // ── Embedded mode: render just the table card + modals (no page shell) ──
+    if (embedded) {
+        return (
+            <>
+                {ShowAlert && <SuccessAlert message={showMessage} />}
+                {tableSection}
+                {modals}
+            </>
+        );
+    }
+
+    // ── Standalone page mode ──
+    return (
+        <div className="min-h-screen bg-slate-50 p-6 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
+
+            {ShowAlert && <SuccessAlert message={showMessage} />}
+
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+                <div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-50 border border-violet-100 text-violet-600 text-xs font-semibold mb-4">
+                        <Sparkles className="h-3.5 w-3.5" />
+                        <span>Registration module</span>
+                    </div>
+                    <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 mb-2">
+                        Registered Module
+                    </h1>
+                    <p className="text-slate-500 font-medium text-base max-w-xl leading-relaxed">
+                        Manage teacher and student registrations, edit profiles, and archive records.
+                    </p>
+                </div>
+
+                {/* Stat chips */}
+                <div className="flex items-center gap-3 flex-shrink-0">
+                    <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white border border-slate-200 shadow-sm text-sm font-medium text-slate-600">
+                        <div className="h-7 w-7 rounded-lg bg-emerald-50 flex items-center justify-center">
+                            <BookOpen className="h-3.5 w-3.5 text-emerald-600" />
+                        </div>
+                        <span>{teachers.filter((t) => t.userRole === "Teacher").length} teachers</span>
+                    </div>
+                    <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white border border-slate-200 shadow-sm text-sm font-medium text-slate-600">
+                        <div className="h-7 w-7 rounded-lg bg-violet-50 flex items-center justify-center">
+                            <GraduationCap className="h-3.5 w-3.5 text-violet-600" />
+                        </div>
+                        <span>{students.filter((s) => s.userRole === "Student").length} students</span>
+                    </div>
+                </div>
+            </div>
+
+            {tableSection}
+            {modals}
         </div>
     );
 }

@@ -1,10 +1,8 @@
-import { useCallback, useMemo, useState } from "react";
-import SearchBar from "../components/SearchBar";
+import { useMemo, useState } from "react";
 import { DashboardSkeletonLoader } from "../loader/DashboardSkeletonLoader";
 import DashboardBadges from "../components/DashboardBadges";
 import ErrorTable from "../components/ErrorTables";
 import type { TRecentBorrowItemProps } from "../@types/types";
-import Pagination from "../components/Pagination";
 import { ViewRecentBorrowItems } from "../components/ViewRecentBorrowItems";
 import { useReturnItem } from "../hooks/itemHooks";
 import { SuccessAlert } from "../components/SuccessAlert";
@@ -99,9 +97,6 @@ export default function Dashboard() {
 
   const [onViewBorrowItemOpen, setOnViewBorrowItemOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
 
   const [showFloatingMenu, setShowFloatingMenu] = useState<boolean>(false);
   const [menuOpenedByClick, setMenuOpenedByClick] = useState<boolean>(false);
@@ -129,32 +124,20 @@ export default function Dashboard() {
     { name: "Total Borrowed", data: dataSummary.totalLentItems, link: "/home/history-list" },
   ];
 
-  const filteredData = useMemo(
+  const recentBorrows = useMemo(
     () =>
-      borrowedItemData.filter(
-        (item) =>
-          item.status === "Borrowed" &&
-          (item.item.itemName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.item.serialNumber?.toLowerCase().includes(searchTerm.toLowerCase())),
-      ),
-    [borrowedItemData, searchTerm],
-  );
-
-  const paginatedData = useMemo(
-    () => filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage),
-    [filteredData, currentPage],
+      borrowedItemData
+        .filter((item) => item.status === "Borrowed")
+        .slice(0, 5),
+    [borrowedItemData],
   );
 
   const table = useReactTable({
-    data: paginatedData,
+    data: recentBorrows,
     columns,
     getCoreRowModel: getCoreRowModel(),
     columnResizeMode: "onChange",
   });
-
-  const totalPages = useMemo(() => Math.ceil(filteredData.length / itemsPerPage), [filteredData]);
-
-  const handlePageChange = useCallback((page: number) => setCurrentPage(page), []);
 
   const handleViewBorrowItemOpen = (id: string) => {
     setSelectedId(id);
@@ -272,26 +255,14 @@ export default function Dashboard() {
               Recently Borrowed Items
             </h2>
             <p className="text-xs text-slate-400 font-medium mt-0.5">
-              {filteredData.length} active borrow{filteredData.length !== 1 ? "s" : ""}
+              Showing the 5 most recent active borrows
             </p>
-          </div>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            <Pagination
-              totalPages={totalPages || 1}
-              currentPage={currentPage}
-              handlePageChange={handlePageChange}
-            />
-            <SearchBar
-              onChangeValue={(value) => setSearchTerm(value)}
-              name="search"
-              placeholder="Search items..."
-            />
           </div>
         </div>
 
         {/* Table body */}
         <div className="overflow-x-auto">
-          <div className="min-h-[55vh] max-h-[55vh] overflow-y-auto">
+          <div className="overflow-y-auto">
             {isBorrowedItemError ? (
               <ErrorTable />
             ) : (
@@ -336,8 +307,8 @@ export default function Dashboard() {
                       <td colSpan={columns.length + 1} className="px-8 py-20 text-center">
                         <div className="flex flex-col items-center gap-3 text-slate-400">
                           <BookOpen className="h-10 w-10 text-slate-200" />
-                          <p className="font-semibold text-slate-500">No borrowed items found</p>
-                          <p className="text-xs">Try adjusting your search term.</p>
+                          <p className="font-semibold text-slate-500">No borrowed items</p>
+                          <p className="text-xs">There are no active borrows at the moment.</p>
                         </div>
                       </td>
                     </tr>

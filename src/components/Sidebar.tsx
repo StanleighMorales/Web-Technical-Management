@@ -7,7 +7,6 @@ import {
   MdHistory,
   MdInventory,
   MdDashboardCustomize,
-  MdAppRegistration,
 } from "react-icons/md";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 import { BiLogoSass, BiPackage, BiListCheck } from "react-icons/bi";
@@ -41,7 +40,6 @@ export default function Sidebar() {
 
   const sideBarListBottom = [
     { label: "Archives", link: "/home/archive-table", icon: MdInventory },
-    { label: "Registered Module", link: "/home/registration-module", icon: MdAppRegistration },
     { label: "Profile", link: "/home/settings", icon: BsPersonCircle },
   ];
 
