@@ -1,8 +1,8 @@
 import { MdEmail, MdPhone, MdPerson } from "react-icons/md";
 import { FiLock } from "react-icons/fi";
 import { IoIdCard } from "react-icons/io5";
+import { X } from "lucide-react";
 import type { TUsers } from "../@types/types";
-import { FaPlus } from "react-icons/fa6";
 import { useState } from "react";
 import ChangePasswordModal from "./ChangePasswordModal";
 import { FormattedPhoneNumber } from "./FormatedPhoneNumber";
@@ -33,8 +33,8 @@ const ViewUserCredentials = ({ user, isOpen, onClose }: ViewUserCredentialsProps
     };
 
     return (
-        <div className="flex fixed inset-0 z-50 justify-center items-center p-4 bg-black/40">
-            <div className="overflow-y-auto w-full max-w-4xl bg-white rounded-lg shadow-xl scrollbar-none max-h-[90vh]">
+        <div className="flex fixed inset-0 z-50 justify-center items-center p-4 bg-black/40 backdrop-blur-sm" onClick={onClose}>
+            <div className="overflow-y-auto w-full max-w-4xl bg-white rounded-lg shadow-xl scrollbar-none max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
                 {/* Header */}
                 <div className="flex justify-between items-center p-6 border-b border-gray-200">
                     <div className="flex items-center space-x-3">
@@ -48,9 +48,10 @@ const ViewUserCredentials = ({ user, isOpen, onClose }: ViewUserCredentialsProps
                     </div>
                     <button
                         onClick={onClose}
-                        className="text-gray-400 transition-colors hover:text-gray-600"
+                        data-testid="closebutton"
+                        className="h-10 w-10 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-red-500 transition-colors"
                     >
-                        <FaPlus data-testid="closebutton" className="justify-center items-center text-2xl text-gray-400 rounded-full transition-all duration-200 transform rotate-45 cursor-pointer hover:text-white hover:bg-red-500 hover:rotate-180 w-[32px] h-[32px]" />
+                        <X className="h-5 w-5" />
                     </button>
                 </div>
 

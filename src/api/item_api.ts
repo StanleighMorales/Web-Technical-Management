@@ -1,5 +1,6 @@
 import { api } from "./axios";
-import type { TBorrowItemData, TItemForm, TUpdateItem } from "../@types/types";
+import { getToken } from "../utils/token";
+import type { TBorrowItemData, TGuestBorrowFormData, TItemForm, TItemList, TUpdateItem } from "../@types/types";
 
 const item_end_point = "/items";
 const item_archive_end_point = "/archiveitems";
@@ -41,8 +42,31 @@ export const addItemApi = async (data: Omit<TItemForm, "preview">) => {
     body.append("Image", data.image);
   }
 
-  const response = await api.post(item_end_point, body);
-  return response.data.data;
+  // Use native fetch instead of axios for multipart/form-data to avoid
+  // axios interfering with the Content-Type boundary (same pattern as borrowGuestItem).
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const token = getToken();
+
+  const res = await fetch(`${BASE_URL}${item_end_point}`, {
+    method: "POST",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    credentials: "include",
+    body,
+  });
+
+  if (!res.ok) {
+    const json = await res.json().catch(() => null);
+    const message =
+      json?.message ||
+      json?.errors?.[0] ||
+      `Request failed with status code ${res.status}`;
+    throw new Error(message);
+  }
+
+  const json = await res.json();
+  return json.data;
 };
 
 export const updateItemApi = async ({ id, data }: TUpdateItemPayload) => {
@@ -98,4 +122,48 @@ export const returnItem = async (id: string) => {
 export const importItem = async (formData: FormData) => {
   const response = await api.post("/items/import", formData);
   return response.data;
+};
+
+export const getItemByRfid = async (rfidUid: string): Promise<TItemList> => {
+  const response = await api.get(`${item_end_point}/rfid/${encodeURIComponent(rfidUid)}`);
+  return response.data.data;
+};
+
+export const borrowGuestItem = async (data: TGuestBorrowFormData) => {
+  const body = new FormData();
+  body.append("TagUid", data.tagUid);
+  body.append("BorrowerFirstName", data.borrowerFirstName);
+  body.append("BorrowerLastName", data.borrowerLastName);
+  if (data.organization) body.append("Organization", data.organization);
+  if (data.contactNumber) body.append("ContactNumber", data.contactNumber);
+  if (data.purpose) body.append("Purpose", data.purpose);
+  if (data.supervisorName) body.append("SupervisorName", data.supervisorName);
+  body.append("Room", data.room);
+  body.append("SubjectTimeSchedule", data.subjectTimeSchedule);
+  if (data.remarks) body.append("Remarks", data.remarks);
+  if (data.reservedFor) body.append("ReservedFor", data.reservedFor);
+  body.append("Status", data.status);
+  if (data.guestImage) body.append("GuestImage", data.guestImage);
+
+  // Use native fetch instead of axios — axios can interfere with the
+  // multipart/form-data boundary when Content-Type headers are manipulated.
+  // fetch() automatically sets the correct Content-Type + boundary when given FormData.
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const token = getToken();
+
+  const res = await fetch(`${BASE_URL}${item_borrow_end_point}/guests`, {
+    method: "POST",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    credentials: "include",
+    body,
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || `Request failed with status code ${res.status}`);
+  }
+
+  return res.json();
 };

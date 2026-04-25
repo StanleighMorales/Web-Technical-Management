@@ -16,7 +16,8 @@ import { ProtectedRoute, PublicRoute } from "../utils/middleware/accessAuth";
 import ViewItem from "../components/ViewItem";
 import ActivityLogs from "./ActivityLogs";
 import ActivityLogDetail from "./ActivityLogDetail";
-import BorrowLogs from "./BorrowLogs";
+import BorrowLogs from "./BorrowLogs"
+import ActiveBorrowedItems from "./ActiveBorrowedItems";
 
 export const Route = createRootRoute({
     component: App,
@@ -120,6 +121,12 @@ const BorrowLogsRoute = createRoute({
     component: BorrowLogs
 })
 
+const ActiveBorrowedItemsRoute = createRoute({
+    getParentRoute: () => homeRoute,
+    path: "active-borrowed-items",
+    component: ActiveBorrowedItems
+})
+
 export const routeTree = Route.addChildren([
     indexRoute,
     homeRoute.addChildren([
@@ -135,6 +142,7 @@ export const routeTree = Route.addChildren([
         ViewItemRoute,
         ActivityLogsRoute,
         ActivityLogDetailRoute,
-        BorrowLogsRoute
+        BorrowLogsRoute,
+        ActiveBorrowedItemsRoute
     ]),
 ]);

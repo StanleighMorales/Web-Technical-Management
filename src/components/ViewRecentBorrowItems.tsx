@@ -73,6 +73,8 @@ export const ViewRecentBorrowItems = ({
   if (!itemData) return null;
 
   const item = itemData.item;
+  const isGuest = itemData.borrowerRole?.toLowerCase() === "guest";
+  const isStudent = itemData.borrowerRole?.toLowerCase() === "student";
 
   const itemFields = [
     { icon: <Hash className="h-3.5 w-3.5" />, label: "Serial Number", value: item.serialNumber, mono: true },
@@ -104,9 +106,9 @@ export const ViewRecentBorrowItems = ({
           </div>
           <button
             onClick={onClose}
-            className="h-8 w-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            className="h-10 w-10 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-red-500 transition-colors"
           >
-            <X className="h-4 w-4" />
+            <X className="h-5 w-5" />
           </button>
         </div>
 
@@ -147,6 +149,59 @@ export const ViewRecentBorrowItems = ({
               </Section>
             </div>
           </div>
+
+          {/* Guest image */}
+          {isGuest && itemData.guestImage && (
+            <Section title="Borrower Photo" icon={<User className="h-4 w-4 text-violet-500" />}>
+              <div className="flex justify-center p-3">
+                <div className="bg-slate-50 rounded-xl border border-slate-100 p-3 inline-block">
+                  <img
+                    src={itemData.guestImage}
+                    alt={`${itemData.borrowerFullName} - Guest Photo`}
+                    className="max-w-xs max-h-56 object-contain rounded-lg shadow-sm"
+                    onError={(e) => {
+                      const target = e.currentTarget as HTMLImageElement;
+                      target.style.display = "none";
+                      const placeholder = target.nextElementSibling as HTMLElement | null;
+                      if (placeholder) placeholder.style.display = "flex";
+                    }}
+                  />
+                  <div className="hidden flex-col items-center gap-2 text-slate-300 py-6 px-10">
+                    <ImageIcon className="h-10 w-10" />
+                    <span className="text-xs font-medium">Image unavailable</span>
+                  </div>
+                </div>
+              </div>
+            </Section>
+          )}
+
+          {/* Guest image placeholder — no image uploaded */}
+          {isGuest && !itemData.guestImage && (
+            <Section title="Borrower Photo" icon={<User className="h-4 w-4 text-violet-500" />}>
+              <div className="flex justify-center p-3">
+                <div className="bg-slate-50 rounded-xl border border-slate-100 p-6 flex flex-col items-center gap-2 text-slate-300 min-w-[160px]">
+                  <ImageIcon className="h-10 w-10" />
+                  <span className="text-xs font-medium text-slate-400">No photo provided</span>
+                </div>
+              </div>
+            </Section>
+          )}
+
+          {/* Student ID picture */}
+          {isStudent && itemData.frontStudentIdPicture && (
+            <Section title="Student ID Picture" icon={<User className="h-4 w-4 text-blue-500" />}>
+              <div className="flex justify-center p-3">
+                <div className="bg-slate-50 rounded-xl border border-slate-100 p-3 inline-block">
+                  <img
+                    src={itemData.frontStudentIdPicture}
+                    alt={`${itemData.borrowerFullName} - Student ID`}
+                    className="max-w-xs max-h-56 object-contain rounded-lg shadow-sm"
+                    onError={(e) => { e.currentTarget.style.display = "none"; }}
+                  />
+                </div>
+              </div>
+            </Section>
+          )}
 
           <Section title="Borrow Information" icon={<Calendar className="h-4 w-4 text-orange-500" />}>
             <Grid>

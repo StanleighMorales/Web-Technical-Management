@@ -12,8 +12,7 @@ import box from "../assets/box.webp";
 import { InventoryBadges } from "../components/InventoryBadges";
 import Pagination from "../components/Pagination";
 import ErrorTable from "../components/ErrorTables";
-import { SuccessAlert } from "../components/SuccessAlert";
-import { ErrorAlert } from "../components/ErrorAlert";
+import { showToast } from "../components/AppToast";
 import * as XLSX from "xlsx";
 import { useImportItem } from "../hooks/itemHooks";
 // import { jsPDF } from "jspdf";
@@ -22,7 +21,6 @@ import SelectItemFilters from "../components/SelectItemFilters";
 import { InventoryTable } from "../components/InventoryTable";
 import { useAllInventoryItems, useFilteredItems } from "../data/inventory-data";
 import { useInventoryListState } from "../states/inventory-list-state";
-import { useCommonState } from "../states/index-state";
 import {
   Package,
   Upload,
@@ -47,17 +45,6 @@ export default function InventoryList() {
     selectedStatus,
     setSelectedStatus,
   } = useFilteredItems();
-
-  const {
-    showSuccessAlert,
-    setShowSuccessAlert,
-    showErrorAlert,
-    setShowErrorAlert,
-    showSuccessMessage,
-    setShowSuccessMessage,
-    showErrorMessage,
-    setShowErrorMessage,
-  } = useCommonState();
 
   const {
     currentPage,
@@ -151,16 +138,14 @@ export default function InventoryList() {
       "application/vnd.ms-excel",
     ];
     if (!validTypes.includes(file.type)) {
-      setShowErrorAlert(true);
-      setTimeout(() => setShowErrorAlert(false), 3000);
+      showToast.error("Invalid File", "Please upload a valid Excel file (.xlsx or .xls).");
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
 
     const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
-      setShowErrorAlert(true);
-      setTimeout(() => setShowErrorAlert(false), 3000);
+      showToast.error("File Too Large", "File size must be under 5 MB.");
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
@@ -184,14 +169,12 @@ export default function InventoryList() {
     importItem(form, {
       onSuccess: () => {
         setIsImporting(false);
-        setShowSuccessAlert(true);
-        setTimeout(() => setShowSuccessAlert(false), 3500);
+        showToast.success("Import Successful", "Items have been imported successfully.");
       },
       onError: (error) => {
         setIsImporting(false);
         console.error(error.message);
-        setShowErrorAlert(true);
-        setTimeout(() => setShowErrorAlert(false), 3500);
+        showToast.error("Import Failed", "Please check your file format and try again.");
       },
     });
 
@@ -200,9 +183,7 @@ export default function InventoryList() {
 
   const handleExportItems = async () => {
     if (filteredItems.length === 0) {
-      setShowSuccessAlert(true);
-      setShowErrorMessage("No items to export. Please add items to your inventory first.");
-      setTimeout(() => { setShowSuccessAlert(false); setShowErrorMessage(""); }, 3000);
+      showToast.warning("Nothing to Export", "No items to export. Please add items to your inventory first.");
       return;
     }
 
@@ -236,14 +217,16 @@ export default function InventoryList() {
       const filename = `inventory_export_${date}.xlsx`;
       XLSX.writeFile(workbook, filename);
 
-      setShowSuccessAlert(true);
-      setShowSuccessMessage(`Successfully exported ${exportData.length} item${exportData.length !== 1 ? "s" : ""} to ${filename}`);
-      setTimeout(() => { setShowSuccessAlert(false); setShowSuccessMessage(""); }, 3500);
+      showToast.success(
+        "Export Successful",
+        `Exported ${exportData.length} item${exportData.length !== 1 ? "s" : ""} to ${filename}`,
+      );
     } catch (error) {
       console.error("Export error:", error);
-      setShowSuccessAlert(true);
-      setShowSuccessMessage(`Export failed: ${error instanceof Error ? error.message : "Unknown error"}`);
-      setTimeout(() => { setShowSuccessAlert(false); setShowSuccessMessage(""); }, 3500);
+      showToast.error(
+        "Export Failed",
+        error instanceof Error ? error.message : "Unknown error",
+      );
     } finally {
       setIsExporting(false);
     }
@@ -325,12 +308,6 @@ export default function InventoryList() {
 
   return (
     <div className="min-h-screen bg-slate-50 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
-
-      {/* Alerts */}
-      {showSuccessAlert && <SuccessAlert message={showSuccessMessage} />}
-      {showErrorAlert && showErrorMessage && (
-        <ErrorAlert message="Import failed. Please check your file format and try again." />
-      )}
 
       {/* Hidden file input */}
       <input
@@ -515,10 +492,6 @@ export default function InventoryList() {
               ) : (
                 <InventoryTable
                   item={paginatedData}
-                  ShowAlert={showSuccessAlert}
-                  ShowMessage={showSuccessMessage}
-                  ShowAlertSuccess={showSuccessAlert}
-                  ShowAlertFailed={showErrorAlert}
                 />
               )}
             </div>
@@ -549,9 +522,9 @@ export default function InventoryList() {
               </div>
               <button
                 onClick={() => { setShowPrintBarcodeModal(false); setPrintCurrentPage(1); }}
-                className="h-9 w-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                className="h-10 w-10 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-red-500 transition-colors"
               >
-                <X className="h-4.5 w-4.5" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 

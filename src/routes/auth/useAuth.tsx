@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
-import { getToken, removeToken } from "../../utils/token";
+import { getToken } from "../../utils/token";
 
 const getAccessTokenKey = () => import.meta.env.VITE_ACCESS_TOKEN_KEY;
 
@@ -40,17 +40,19 @@ export const useAuth = () => {
 
   useEffect(() => {
     const refresh = async () => {
+      // Token already present — nothing to do
       if (token) {
         setLoading(false);
         return;
       }
 
+      // No token in cookie — try a silent refresh using the HttpOnly refresh-token cookie
       const newToken = await getRefreshAccessToken();
 
       if (!newToken) {
+        // Refresh token is also gone or expired — user must log in again
         setIsAuthenticated(false);
         setLoading(false);
-        removeToken();
         return;
       }
 

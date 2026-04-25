@@ -1,13 +1,10 @@
-import { Activity, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { FaFileImport } from "react-icons/fa6";
 import * as XLSX from "xlsx";
 import { useImportItem } from "../hooks/itemHooks";
-import { SuccessAlert } from "./SuccessAlert";
-import { ErrorAlert } from "./ErrorAlert";
+import { showToast } from "./AppToast";
 
 export default function ExcelImportItemButton() {
-  const [showAlertSuccess, setShowAlertSuccess] = useState<boolean>(false);
-  const [showAlertFailed, setShowAlertFailed] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [fileData, setFileData] = useState<File | null>(null);
 
@@ -40,31 +37,17 @@ export default function ExcelImportItemButton() {
 
     importItem(form, {
       onSuccess: () => {
-        setShowAlertSuccess(true);
-        setTimeout(() => {
-          setShowAlertSuccess(false);
-        }, 3500);
+        showToast.success("Import Successful", "Excel items imported successfully!");
       },
       onError: (error) => {
         console.error(error.message);
-        setShowAlertFailed(true);
-        setTimeout(() => {
-          setShowAlertFailed(false);
-        }, 3500);
+        showToast.error("Import Failed", "Excel import failed. Please check your file.");
       },
     });
   };
 
   return (
     <div>
-      <Activity mode={showAlertSuccess ? "visible" : "hidden"}>
-        <SuccessAlert message="Excel imported successfully!" />
-      </Activity>
-
-      <Activity mode={showAlertFailed ? "visible" : "hidden"}>
-        <ErrorAlert message="Excel imported failed" />
-      </Activity>
-
       <input
         type="file"
         accept=".xlsx,.xls"

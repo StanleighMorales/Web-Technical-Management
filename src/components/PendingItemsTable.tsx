@@ -9,6 +9,7 @@ type PendingItemsTableProps = {
     items: THistoryBorrwedItems[];
     onApprove: (item: THistoryBorrwedItems) => void;
     onDeny: (item: THistoryBorrwedItems) => void;
+    onMarkBorrowed: (item: THistoryBorrwedItems) => void;
     onRowClick: (itemId: string) => void;
     searchValue: string;
     onSearchChange: (value: string) => void;
@@ -16,35 +17,34 @@ type PendingItemsTableProps = {
 
 const ITEMS_PER_PAGE = 10;
 
-export default function PendingItemsTable({ items, onApprove, onDeny, onRowClick, onSearchChange }: PendingItemsTableProps) {
+export default function PendingItemsTable({
+    items,
+    onApprove,
+    onDeny,
+    onMarkBorrowed,
+    onRowClick,
+    onSearchChange,
+}: PendingItemsTableProps) {
     const [currentPage, setCurrentPage] = useState(1);
 
-    // Calculate pagination
     const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
     const paginatedItems = useMemo(() => items.slice(startIndex, endIndex), [items, startIndex, endIndex]);
 
-    // Reset to page 1 when items change (e.g., after search)
     useMemo(() => {
-        if (currentPage > totalPages && totalPages > 0) {
-            setCurrentPage(1);
-        }
+        if (currentPage > totalPages && totalPages > 0) setCurrentPage(1);
     }, [items.length, currentPage, totalPages]);
-
-    const handlePageChange = (page: number) => {
-        setCurrentPage(page);
-    };
 
     return (
         <div>
-            {/* Search Bar and Pagination Container */}
+            {/* Search Bar and Pagination */}
             <div className="flex justify-end mb-4">
                 <div className="flex items-center gap-4">
                     <Pagination
                         totalPages={totalPages}
                         currentPage={currentPage}
-                        handlePageChange={handlePageChange}
+                        handlePageChange={setCurrentPage}
                     />
                     <SearchBar
                         onChangeValue={onSearchChange}
@@ -90,13 +90,27 @@ export default function PendingItemsTable({ items, onApprove, onDeny, onRowClick
                             </tr>
                         ) : (
                             paginatedItems.map((item) => {
-                                const isReservation = item.status === "Reserved";
+                                // "Approved" = reservation approved and awaiting pickup
+                                const isApprovedReservation = item.status === "Approved";
+
+                                // Highlight rows whose pickup time is approaching (within 1 hour)
+                                const isPickupSoon =
+                                    isApprovedReservation &&
+                                    item.reservedFor != null &&
+                                    (() => {
+                                        const diff = new Date(item.reservedFor!).getTime() - Date.now();
+                                        return diff > 0 && diff <= 60 * 60 * 1000;
+                                    })();
 
                                 return (
                                     <tr
                                         key={item.id}
                                         onClick={() => onRowClick(item.id)}
-                                        className="hover:bg-[#f1f5f9] transition-colors border-b border-gray-100 cursor-pointer"
+                                        className={`transition-colors border-b border-gray-100 cursor-pointer ${
+                                            isPickupSoon
+                                                ? "bg-amber-50 hover:bg-amber-100"
+                                                : "hover:bg-[#f1f5f9]"
+                                        }`}
                                     >
                                         <td className="py-3 px-6">{item.item.serialNumber}</td>
                                         <td className="py-4 px-6">
@@ -113,6 +127,8 @@ export default function PendingItemsTable({ items, onApprove, onDeny, onRowClick
                                         <td className="py-4 px-6">{item.room || "-"}</td>
                                         <td className="py-4 px-6">{item.remarks || "-"}</td>
                                         <td className="py-4 px-6">{FormattedDateTime(item.item.createdAt)}</td>
+
+                                        {/* Reserved For — with urgency indicator */}
                                         <td className="py-4 px-6">
                                             {item.reservedFor ? (
                                                 <div className="flex flex-col">
@@ -120,42 +136,64 @@ export default function PendingItemsTable({ items, onApprove, onDeny, onRowClick
                                                         {new Date(item.reservedFor).toLocaleDateString()}
                                                     </span>
                                                     <span className="text-xs text-gray-600">
-                                                        {new Date(item.reservedFor).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        {new Date(item.reservedFor).toLocaleTimeString([], {
+                                                            hour: "2-digit",
+                                                            minute: "2-digit",
+                                                        })}
                                                     </span>
+                                                    {isPickupSoon && (
+                                                        <span className="mt-0.5 text-[10px] font-bold text-amber-600 animate-pulse">
+                                                            ⏰ Pickup soon
+                                                        </span>
+                                                    )}
                                                 </div>
                                             ) : (
                                                 <span className="text-gray-400">-</span>
                                             )}
                                         </td>
+
                                         <td className="py-4 px-6">
-                                            <span className={`px-3 py-1 rounded-full text-sm ${SlugStatus((item.status))}`}>
+                                            <span className={`px-3 py-1 rounded-full text-sm ${SlugStatus(item.status)}`}>
                                                 {item.status}
                                             </span>
                                         </td>
+
+                                        {/* Action buttons */}
                                         <td className="py-4 px-6">
-                                            <div className="flex gap-2">
-                                                {isReservation ? (
+                                            <div className="flex flex-col gap-2">
+                                                {isApprovedReservation ? (
                                                     <>
-                                                        {/* Only Cancel button for reservations */}
+                                                        {/* Manual borrow fallback — for when RFID scan doesn't fire */}
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                onMarkBorrowed(item);
+                                                            }}
+                                                            className="w-full px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm whitespace-nowrap text-center"
+                                                            title="Mark as borrowed manually (use when RFID scan is unavailable)"
+                                                        >
+                                                            Mark Borrowed
+                                                        </button>
+                                                        {/* Cancel reservation */}
                                                         <button
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 onDeny(item);
                                                             }}
-                                                            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm"
+                                                            className="w-full px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm text-center"
                                                         >
                                                             Cancel
                                                         </button>
                                                     </>
                                                 ) : (
                                                     <>
-                                                        {/* Approve/Deny buttons for pending items */}
+                                                        {/* Approve / Deny for Pending items */}
                                                         <button
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 onApprove(item);
                                                             }}
-                                                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm"
+                                                            className="w-full px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm text-center"
                                                         >
                                                             Approve
                                                         </button>
@@ -164,7 +202,7 @@ export default function PendingItemsTable({ items, onApprove, onDeny, onRowClick
                                                                 e.stopPropagation();
                                                                 onDeny(item);
                                                             }}
-                                                            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm"
+                                                            className="w-full px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm text-center"
                                                         >
                                                             Deny
                                                         </button>
@@ -181,7 +219,8 @@ export default function PendingItemsTable({ items, onApprove, onDeny, onRowClick
             </div>
 
             <p className="mt-4 text-sm text-center text-[#64748b]">
-                <span className="font-semibold">Note:</span> Click on any row to view full details. Use 'Approve' for pending requests or 'Cancel' to cancel reservations.
+                <span className="font-semibold">Note:</span> Use <em>Approve / Deny</em> for pending requests.
+                In the Reservations tab, use <em>Mark Borrowed</em> if the RFID scan didn't trigger, or <em>Cancel</em> to cancel the reservation.
             </p>
         </div>
     );

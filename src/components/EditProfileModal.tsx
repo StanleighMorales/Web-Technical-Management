@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { FaUser, FaPhone } from "react-icons/fa6";
 import { MdOutlineEmail } from "react-icons/md";
-import { SuccessAlert } from "./SuccessAlert";
-import { ErrorAlert } from "./ErrorAlert";
 import { useUpdateUser } from "../hooks/userHooks";
+import { showToast } from "./AppToast";
 
 export type EditableUser = {
     id?: string | null;
@@ -27,8 +26,6 @@ export default function EditProfileModal({
     onClose,
     onSubmit,
 }: EditProfileModalProps) {
-    const [ShowAlert, setShowAlert] = useState<boolean>(false);
-    const [ShowErrorAlert, setShowErrorAlert] = useState<boolean>(false);
     const [successMessage, setSuccessMessage] = useState<string>("");
     const [errorMessage, setErrorMessage] = useState("");
     const [values, setValues] = useState<EditableUser>({});
@@ -82,21 +79,20 @@ export default function EditProfileModal({
                 {
                     onSuccess: () => {
                         onSubmit?.(values);
-                        setShowAlert(true);
+                        showToast.success("Profile Updated", "User profile updated successfully.");
                         setSuccessMessage("User Profile updated.");
                         setTimeout(() => {
-                            setShowAlert(false);
                             setIsSubmitting(false);
                             setSuccessMessage("");
                             onClose();
-                        }, 3500);
+                        }, 1500);
                         return;
                     },
                     onError: (err) => {
-                        setShowErrorAlert(true);
                         const message =
                             err instanceof Error ? err.message : "Failed to update profile.";
                         setErrorMessage(message);
+                        showToast.error("Update Failed", message);
                     },
                 },
             );
@@ -109,8 +105,6 @@ export default function EditProfileModal({
 
     return (
         <div className="flex fixed inset-0 justify-center items-center z-60">
-            {ShowAlert && <SuccessAlert message={successMessage} />}
-            {ShowErrorAlert && <ErrorAlert message={errorMessage} />}
             <div className="absolute inset-0 bg-black/50" onClick={onClose} />
             <div className="relative z-10 p-6 w-full max-w-2xl rounded-2xl border shadow-2xl border-white/60 bg-white/80 backdrop-blur">
                 <h3 className="mb-4 text-lg font-semibold text-slate-900">

@@ -344,6 +344,9 @@ export type TRecentBorrowItemProps = {
   barcode?: string | null;
   barcodeImage?: string | null;
   reservedFor?: string | null;
+  guestImage?: string | null;
+  frontStudentIdPicture?: string | null;
+  studentIdNumber?: string | null;
   item: {
     id: string;
     serialNumber: string;
@@ -409,3 +412,28 @@ export type TBorrowingLogs = {
   remarks: string;
   createdAt: string;
 }
+
+export type TGuestBorrowFormData = {
+  // Step 1 — Item
+  tagUid: string;
+
+  // Step 2 — Guest Info
+  borrowerFirstName: string;
+  borrowerLastName: string;
+  organization: string | null;
+  contactNumber: string | null;
+  purpose: string | null;
+  supervisorName: string | null;
+  room: string;
+  subjectTimeSchedule: string;
+  remarks: string | null;
+  reservedFor: string | null;
+  // Split date/time fields for the reservation schedule step
+  reservedForDate: string | null;
+  reservedForTime: string | null;
+  status: "Borrowed" | "Reserved" | "Pending";
+
+  // Step 3 — Photo
+  guestImage: File | null;
+  guestImagePreview: string | null; // data URL for display only, not sent to API
+};

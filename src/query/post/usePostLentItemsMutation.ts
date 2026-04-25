@@ -8,8 +8,7 @@ type LentItemsProps = {
 const LentItems = async ({ formData }: LentItemsProps) => {
   try {
     const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    const VERSION = "v1";
-    const END_POINT = `/api/${VERSION}/lentItems/guests`;
+    const END_POINT = `/lentItems/guests`;
 
     const lentItemForm = JSON.stringify(formData);
     const res = await fetch(`${BASE_URL}${END_POINT}`, {

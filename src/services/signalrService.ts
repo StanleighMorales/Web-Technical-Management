@@ -1,178 +1,142 @@
 import * as signalR from '@microsoft/signalr';
 
 /**
- * SignalR Service for real-time notifications
- * Manages connection to the backend NotificationHub
+ * SignalR Service — singleton managing the hub connection.
+ *
+ * Key guarantees:
+ * - connect() is idempotent: calling it while already connected is a no-op.
+ * - on() queues handlers registered before the connection is ready and
+ *   replays them once connected, so callers never miss events due to timing.
+ * - The singleton is never torn down on component unmount — it lives for the
+ *   full browser session and is shared across all components.
  */
 class SignalRService {
     private connection: signalR.HubConnection | null = null;
-    private listeners: Map<string, Set<(data: any) => void>> = new Map();
 
-    /**
-     * Initialize and start the SignalR connection
-     */
+    // Handlers registered before the connection was ready — replayed on connect
+    private pendingHandlers: Array<{ event: string; cb: (data: any) => void }> = [];
+
     async connect(token: string): Promise<void> {
         if (this.connection?.state === signalR.HubConnectionState.Connected) {
-            console.log('Already connected to SignalR hub');
+            console.log('[SignalR] Already connected');
             return;
         }
 
-        const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5278';
+        // Strip /api/v1 suffix — hub is at root
+        const apiUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5278')
+            .replace(/\/api\/v\d+\/?$/, '')
+            .replace(/\/$/, '');
+
+        console.log(`[SignalR] Connecting to ${apiUrl}/notificationHub`);
 
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl(`${apiUrl}/notificationHub`, {
                 accessTokenFactory: () => token,
                 transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.ServerSentEvents,
             })
-            .withAutomaticReconnect([0, 2000, 5000, 10000, 30000]) // Retry intervals
-            .configureLogging(signalR.LogLevel.Information)
+            .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
+            .configureLogging(signalR.LogLevel.Warning) // reduce noise; errors still show
             .build();
 
-        // Handle reconnection
         this.connection.onreconnecting((error) => {
-            console.warn('SignalR reconnecting...', error);
+            console.warn('[SignalR] Reconnecting...', error);
         });
 
         this.connection.onreconnected((connectionId) => {
-            console.log('SignalR reconnected:', connectionId);
+            console.log('[SignalR] Reconnected:', connectionId);
         });
 
         this.connection.onclose((error) => {
-            console.error('SignalR connection closed:', error);
+            if (error) console.error('[SignalR] Connection closed with error:', error);
+            else console.log('[SignalR] Connection closed cleanly');
         });
 
-        try {
-            await this.connection.start();
-            console.log('SignalR connected successfully');
-        } catch (error) {
-            console.error('Error connecting to SignalR:', error);
-            throw error;
+        await this.connection.start();
+        console.log('[SignalR] Connected successfully, connectionId:', this.connection.connectionId);
+
+        // Replay any handlers that were registered before the connection was ready
+        for (const { event, cb } of this.pendingHandlers) {
+            console.log(`[SignalR] Replaying pending handler for "${event}"`);
+            this.connection.on(event, cb);
         }
+        this.pendingHandlers = [];
     }
 
-    /**
-     * Join admin/staff group to receive pending request notifications
-     */
     async joinAdminStaffGroup(): Promise<void> {
-        if (!this.connection) {
-            throw new Error('SignalR connection not initialized');
-        }
-
-        try {
-            await this.connection.invoke('JoinAdminStaffGroup');
-            console.log('Joined admin_staff group');
-        } catch (error) {
-            console.error('Error joining admin_staff group:', error);
-        }
-    }
-
-    /**
-     * Leave admin/staff group
-     */
-    async leaveAdminStaffGroup(): Promise<void> {
-        if (!this.connection) return;
-
-        try {
-            await this.connection.invoke('LeaveAdminStaffGroup');
-            console.log('Left admin_staff group');
-        } catch (error) {
-            console.error('Error leaving admin_staff group:', error);
-        }
-    }
-
-    /**
-     * Join a user-specific group to receive targeted notifications
-     */
-    async joinUserGroup(userId: string): Promise<void> {
-        if (!this.connection) {
-            throw new Error('SignalR connection not initialized');
-        }
-
-        try {
-            await this.connection.invoke('JoinUserGroup', userId);
-            console.log(`Joined user group: user_${userId}`);
-        } catch (error) {
-            console.error('Error joining user group:', error);
-        }
-    }
-
-    /**
-     * Leave a user-specific group
-     */
-    async leaveUserGroup(userId: string): Promise<void> {
-        if (!this.connection) return;
-
-        try {
-            await this.connection.invoke('LeaveUserGroup', userId);
-            console.log(`Left user group: user_${userId}`);
-        } catch (error) {
-            console.error('Error leaving user group:', error);
-        }
-    }
-
-    /**
-     * Listen to a specific event
-     */
-    on(eventName: string, callback: (data: any) => void): void {
-        if (!this.connection) {
-            console.warn('SignalR connection not initialized yet');
+        if (!this.connection || this.connection.state !== signalR.HubConnectionState.Connected) {
+            console.warn('[SignalR] Cannot join admin_staff — not connected');
             return;
         }
-
-        // Store listener for cleanup
-        if (!this.listeners.has(eventName)) {
-            this.listeners.set(eventName, new Set());
-        }
-        this.listeners.get(eventName)!.add(callback);
-
-        // Register with SignalR
-        this.connection.on(eventName, callback);
+        await this.connection.invoke('JoinAdminStaffGroup');
+        console.log('[SignalR] Joined admin_staff group');
     }
 
-    /**
-     * Remove a specific event listener
-     */
+    async leaveAdminStaffGroup(): Promise<void> {
+        if (!this.connection) return;
+        try {
+            await this.connection.invoke('LeaveAdminStaffGroup');
+        } catch { /* ignore */ }
+    }
+
+    async joinUserGroup(userId: string): Promise<void> {
+        if (!this.connection || this.connection.state !== signalR.HubConnectionState.Connected) {
+            console.warn('[SignalR] Cannot join user group — not connected');
+            return;
+        }
+        await this.connection.invoke('JoinUserGroup', userId);
+        console.log(`[SignalR] Joined user group: user_${userId}`);
+    }
+
+    async leaveUserGroup(userId: string): Promise<void> {
+        if (!this.connection) return;
+        try {
+            await this.connection.invoke('LeaveUserGroup', userId);
+        } catch { /* ignore */ }
+    }
+
+    on(eventName: string, callback: (data: any) => void): void {
+        if (this.connection?.state === signalR.HubConnectionState.Connected) {
+            this.connection.on(eventName, callback);
+            console.log(`[SignalR] Registered handler for "${eventName}"`);
+        } else {
+            // Queue for replay once connected
+            this.pendingHandlers.push({ event: eventName, cb: callback });
+            console.log(`[SignalR] Queued handler for "${eventName}" (not yet connected)`);
+        }
+    }
+
     off(eventName: string, callback?: (data: any) => void): void {
         if (!this.connection) return;
-
         if (callback) {
             this.connection.off(eventName, callback);
-            this.listeners.get(eventName)?.delete(callback);
+            // Also remove from pending queue if it was never replayed
+            this.pendingHandlers = this.pendingHandlers.filter(
+                (h) => !(h.event === eventName && h.cb === callback)
+            );
         } else {
             this.connection.off(eventName);
-            this.listeners.delete(eventName);
+            this.pendingHandlers = this.pendingHandlers.filter((h) => h.event !== eventName);
         }
     }
 
-    /**
-     * Disconnect from the hub
-     */
     async disconnect(): Promise<void> {
         if (!this.connection) return;
-
         try {
             await this.connection.stop();
-            this.listeners.clear();
-            console.log('SignalR disconnected');
+            this.pendingHandlers = [];
+            console.log('[SignalR] Disconnected');
         } catch (error) {
-            console.error('Error disconnecting from SignalR:', error);
+            console.error('[SignalR] Error disconnecting:', error);
         }
     }
 
-    /**
-     * Get connection state
-     */
     getState(): signalR.HubConnectionState | null {
-        return this.connection?.state || null;
+        return this.connection?.state ?? null;
     }
 
-    /**
-     * Check if connected
-     */
     isConnected(): boolean {
         return this.connection?.state === signalR.HubConnectionState.Connected;
     }
 }
 
-// Export singleton instance
 export const signalRService = new SignalRService();

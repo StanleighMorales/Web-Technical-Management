@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { Activity, useState } from "react";
+import { useState } from "react";
 import { IoArchive } from "react-icons/io5";
 import { useArchiveItem } from "../hooks/itemHooks";
 import box from "../assets/box.webp";
@@ -15,16 +15,10 @@ import {
     getCoreRowModel,
     createColumnHelper,
 } from "@tanstack/react-table";
-
-import { SuccessAlert } from "../components/SuccessAlert";
-import { ErrorAlert } from "../components/ErrorAlert";
+import { showToast } from "./AppToast";
 
 type InventoryTableProps = {
     item: TItemList[];
-    ShowAlert: boolean;
-    ShowMessage: string;
-    ShowAlertSuccess: boolean;
-    ShowAlertFailed: boolean;
 };
 
 type ShowButtonIfUserAdminProps = {
@@ -51,20 +45,8 @@ const ShowButtonIfUserAdmin: FC<ShowButtonIfUserAdminProps> = ({
     );
 };
 
-export const InventoryTable = ({
-    item,
-    ShowAlert,
-    ShowMessage,
-    ShowAlertSuccess,
-    ShowAlertFailed,
-}: InventoryTableProps) => {
+export const InventoryTable = ({ item }: InventoryTableProps) => {
     const navigate = useNavigate();
-    const [showAlert] = useState<boolean>(ShowAlert);
-    const [showMessage, setShowMessage] = useState<string>(ShowMessage);
-    const [showAlertSuccess, setShowAlertSuccess] =
-        useState<boolean>(ShowAlertSuccess);
-    const [showAlertFailed, setShowAlertFailed] =
-        useState<boolean>(ShowAlertFailed);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
 
@@ -79,21 +61,13 @@ export const InventoryTable = ({
     };
 
     const handleConfirmArchive = () => {
-        setShowMessage("");
         if (selectedItemId) {
             mutate(selectedItemId, {
                 onSuccess: (data) => {
-                    setShowAlertSuccess(true);
-                    setShowMessage(data.message);
-
-                    setTimeout(() => {
-                        setShowAlertSuccess(false);
-                        setShowMessage("");
-                    }, 3500)
+                    showToast.success("Item Archived", data.message);
                 },
                 onError: (error) => {
-                    setShowAlertFailed(true);
-                    setShowMessage(error.message);
+                    showToast.error("Archive Failed", error.message);
                 },
             });
             setIsConfirmOpen(false);
@@ -171,20 +145,6 @@ export const InventoryTable = ({
 
     return (
         <>
-            <Activity mode={showAlert ? "visible" : "hidden"}>
-                <SuccessAlert message={showMessage} />
-            </Activity>
-
-            <Activity mode={showAlertSuccess ? "visible" : "hidden"}>
-                <SuccessAlert message={showMessage} />
-            </Activity>
-
-            <Activity mode={showAlertFailed ? "visible" : "hidden"}>
-                {showAlertFailed && (
-                    <ErrorAlert message={showMessage} />
-                )}
-            </Activity>
-
             <table className="w-full text-left border-collapse">
                 <thead>
                     {table.getHeaderGroups().map((headerGroup) => (
