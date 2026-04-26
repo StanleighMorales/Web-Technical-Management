@@ -21,24 +21,38 @@ type InventoryTableProps = {
     item: TItemList[];
 };
 
+const BLOCKED_STATUSES = ["Borrowed", "Reserved", "Pending"];
+
 type ShowButtonIfUserAdminProps = {
     userRole?: string;
+    itemStatus?: string;
     onHandleArchive: () => void;
 };
 
 const ShowButtonIfUserAdmin: FC<ShowButtonIfUserAdminProps> = ({
     userRole,
+    itemStatus,
     onHandleArchive,
 }) => {
-    if (userRole !== "Admin" && userRole !== "SuperAdmin") return null;
+    if (userRole !== "Admin" && userRole !== "SuperAdmin" && userRole !== "Staff") return null;
+
+    const isBlocked = BLOCKED_STATUSES.some(
+        (s) => s.toLowerCase() === itemStatus?.toLowerCase()
+    );
+
     return (
         <button
             onClick={(e) => {
                 e.stopPropagation();
-                onHandleArchive();
+                if (!isBlocked) onHandleArchive();
             }}
-            title="Archive item"
-            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isBlocked}
+            title={
+                isBlocked
+                    ? `Cannot archive — item is currently ${itemStatus}`
+                    : "Archive item"
+            }
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none"
         >
             <IoArchive /> Archive
         </button>
@@ -131,6 +145,7 @@ export const InventoryTable = ({ item }: InventoryTableProps) => {
             cell: ({ row }) => (
                 <ShowButtonIfUserAdmin
                     userRole={userRole}
+                    itemStatus={row.original.status}
                     onHandleArchive={() => handleArchive(row.original.id)}
                 />
             ),

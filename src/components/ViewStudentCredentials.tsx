@@ -16,6 +16,9 @@ import {
   Hash,
   Building,
   Navigation,
+  CreditCard,
+  ImageOff,
+  ZoomIn,
 } from "lucide-react";
 
 type ViewStudentCredentialsProps = {
@@ -30,6 +33,7 @@ const ViewStudentCredentials: FC<ViewStudentCredentialsProps> = ({
   onClose,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -109,6 +113,22 @@ const ViewStudentCredentials: FC<ViewStudentCredentialsProps> = ({
             </div>
           </Section>
 
+          {/* ID Images */}
+          <Section title="Student ID Images" icon={<CreditCard className="h-4 w-4 text-sky-500" />}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-1">
+              <IdImageCard
+                label="Front ID"
+                src={student.frontStudentIdPicture}
+                onZoom={setLightboxSrc}
+              />
+              <IdImageCard
+                label="Back ID"
+                src={student.backStudentIdPicture}
+                onZoom={setLightboxSrc}
+              />
+            </div>
+          </Section>
+
           {/* Account Information */}
           <Section title="Account Information" icon={<BadgeCheck className="h-4 w-4 text-violet-500" />}>
             <Grid>
@@ -171,6 +191,28 @@ const ViewStudentCredentials: FC<ViewStudentCredentialsProps> = ({
           </Section>
         </div>
       </div>
+
+      {/* Lightbox */}
+      {lightboxSrc && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+          onClick={() => setLightboxSrc(null)}
+        >
+          <div className="relative max-w-3xl w-full" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setLightboxSrc(null)}
+              className="absolute -top-4 -right-4 h-9 w-9 rounded-full bg-white flex items-center justify-center text-slate-600 hover:bg-red-500 hover:text-white transition-colors shadow-lg z-10"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <img
+              src={lightboxSrc}
+              alt="ID enlarged"
+              className="w-full rounded-2xl shadow-2xl object-contain max-h-[80vh]"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -228,6 +270,48 @@ function Field({
       <p className={`text-sm font-semibold text-slate-900 ${mono ? "font-mono" : ""}`}>
         {value || <span className="text-slate-300 font-normal italic text-xs">Not provided</span>}
       </p>
+    </div>
+  );
+}
+
+function IdImageCard({
+  label,
+  src,
+  onZoom,
+}: {
+  label: string;
+  src?: string | null;
+  onZoom: (src: string) => void;
+}) {
+  // Add cache busting to force browser to reload image
+  const cacheBustedSrc = src ? `${src}?t=${Date.now()}` : null;
+  
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="text-xs text-slate-400 font-medium flex items-center gap-1.5">
+        <CreditCard className="h-3.5 w-3.5" />
+        {label}
+      </span>
+      {cacheBustedSrc ? (
+        <div
+          className="relative group rounded-xl overflow-hidden border border-slate-200 bg-slate-50 cursor-pointer"
+          onClick={() => onZoom(cacheBustedSrc)}
+        >
+          <img
+            src={cacheBustedSrc}
+            alt={label}
+            className="w-full h-44 object-cover transition-transform duration-200 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+            <ZoomIn className="h-7 w-7 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" />
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center gap-2 h-44 rounded-xl border border-dashed border-slate-200 bg-slate-50 text-slate-300">
+          <ImageOff className="h-8 w-8" />
+          <span className="text-xs font-medium">No image provided</span>
+        </div>
+      )}
     </div>
   );
 }

@@ -23,7 +23,8 @@ export const useAllUsers = () => {
   return queryOptions({
     queryFn: allUsersApi,
     queryKey: ["users"],
-    staleTime: 5 * 60 * 1000
+    staleTime: 0, // Changed from 5 minutes to 0 - always fetch fresh data
+    gcTime: 5 * 60 * 1000 // Keep in cache for 5 minutes but mark as stale immediately
   });
 };
 
@@ -65,7 +66,8 @@ export const useGetArchiveUserInfo = (id: string) => {
   return queryOptions({
     queryFn: () => getArchiveUserInfo(id),
     queryKey: ["ArchiveUsers", id],
-    staleTime: 5 * 60 * 1000
+    staleTime: 0, // Changed from 5 minutes to 0 - always fetch fresh data
+    gcTime: 5 * 60 * 1000 // Keep in cache for 5 minutes but mark as stale immediately
   });
 };
 
