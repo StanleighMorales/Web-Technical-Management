@@ -163,20 +163,25 @@ export default function Archive() {
   const handleCancelUserDelete = () => { setIsUserDeleteConfirmOpen(false); setUserDeleteSelectedId(null); };
 
   const ShowButtonIfUserAdmin: FC<checkIfUserAdminProps> = ({ onHandleRestoreUser, onHandleDeleteUser }) => {
-    if (userData.userRole?.toLowerCase() !== "admin" && userData.userRole?.toLowerCase() !== "superadmin") return null;
+    const role = userData.userRole?.toLowerCase();
+    const isAdminOrSuper = role === "admin" || role === "superadmin";
+    const isStaff = role === "staff";
+    if (!isAdminOrSuper && !isStaff) return null;
     return (
       <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-        <button
-          onClick={onHandleDeleteUser}
-          title="Delete"
-          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors"
-        >
-          Delete
-        </button>
+        {isAdminOrSuper && (
+          <button
+            onClick={onHandleDeleteUser}
+            title="Delete"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-rose-500 hover:bg-rose-600 active:bg-rose-700 shadow-sm transition-colors"
+          >
+            Delete
+          </button>
+        )}
         <button
           onClick={onHandleRestoreUser}
           title="Restore"
-          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-amber-600 bg-amber-50 hover:bg-amber-100 border border-amber-100 transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-amber-500 hover:bg-amber-600 active:bg-amber-700 shadow-sm transition-colors"
         >
           Restore
         </button>

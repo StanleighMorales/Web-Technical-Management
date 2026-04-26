@@ -37,24 +37,29 @@ export const ArchiveItemTable: FC<TArchiveItemNewProps> = (props) => {
     const data = UserData()
 
     const ShowButtonIfUserAdmin: FC<checkIfUserAdminProps> = ({ userRole, onHandleRestoreItem, onHandleDeleteItem }) => {
-        if (userRole !== "Admin" && userRole !== "SuperAdmin") return null;
+        const role = userRole?.toLowerCase();
+        const isAdminOrSuper = role === "admin" || role === "superadmin";
+        const isStaff = role === "staff";
+        if (!isAdminOrSuper && !isStaff) return null;
         return (
             <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                <button
-                    onClick={onHandleDeleteItem}
-                    disabled={props.isDeleting}
-                    title="Delete item"
-                     className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    <RiDeleteBin6Line /> Delete
-                </button>
+                {isAdminOrSuper && (
+                    <button
+                        onClick={onHandleDeleteItem}
+                        disabled={props.isDeleting}
+                        title="Delete item"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-rose-500 hover:bg-rose-600 active:bg-rose-700 shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <RiDeleteBin6Line className="h-3.5 w-3.5" /> Delete
+                    </button>
+                )}
                 <button
                     onClick={onHandleRestoreItem}
                     disabled={props.isRestoring}
                     title="Restore item"
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-amber-600 bg-amber-50 hover:bg-amber-100 border border-amber-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-amber-500 hover:bg-amber-600 active:bg-amber-700 shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    <LuArchiveRestore /> Restore
+                    <LuArchiveRestore className="h-3.5 w-3.5" /> Restore
                 </button>
             </div>
         )
