@@ -103,7 +103,9 @@ export const borrowItem = async (data: TBorrowItemData) => {
 };
 
 export const returnItem = async (id: string) => {
-  const response = await api.post(`/lentItems/return/item/${id}`);
+  const response = await api.patch(`/lentItems/${id}`, {
+    Status: "Returned"
+  });
   return response.data;
 };
 

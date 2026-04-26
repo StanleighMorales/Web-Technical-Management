@@ -6,7 +6,7 @@ import { ViewRecentBorrowItems } from "../components/ViewRecentBorrowItems";
 import SearchBar from "../components/SearchBar";
 import Pagination from "../components/Pagination";
 import ErrorTable from "../components/ErrorTables";
-import { BookOpen, ChevronRight } from "lucide-react";
+import { BookOpen, ChevronRight, RotateCcw } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import type { TRecentBorrowItemProps } from "../@types/types";
 import {
@@ -14,6 +14,9 @@ import {
   useReactTable,
   getCoreRowModel,
 } from "@tanstack/react-table";
+import { useReturnItemMutation } from "../query/patch/useReturnItemMutation";
+import { showToast } from "../components/AppToast";
+import ReturnConfirmationModal from "../components/ReturnConfirmationModal";
 
 const columnHelper = createColumnHelper<TRecentBorrowItemProps>();
 
@@ -58,10 +61,12 @@ export default function ActiveBorrowedItems() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedBorrowId, setSelectedBorrowId] = useState<string | null>(null);
+  const [itemToReturn, setItemToReturn] = useState<TRecentBorrowItemProps | null>(null);
   const itemsPerPage = 10;
 
   const { data, isPending, isError } = useQuery(useRecentlyBorrowItems());
   const [allItems, setAllItems] = useState<TRecentBorrowItemProps[]>([]);
+  const returnItemMutation = useReturnItemMutation();
 
   useEffect(() => {
     if (data) setAllItems(Array.isArray(data) ? data : []);
@@ -87,6 +92,36 @@ export default function ActiveBorrowedItems() {
   );
 
   const handlePageChange = useCallback((page: number) => setCurrentPage(page), []);
+
+  const handleReturnClick = useCallback(
+    (e: React.MouseEvent, item: TRecentBorrowItemProps) => {
+      e.stopPropagation();
+      
+      if (!item.id) {
+        showToast.error("Error", "Lent item ID not found");
+        return;
+      }
+
+      setItemToReturn(item);
+    },
+    []
+  );
+
+  const handleConfirmReturn = useCallback(
+    async () => {
+      if (!itemToReturn?.id) return;
+
+      try {
+        await returnItemMutation.mutateAsync(itemToReturn.id);
+        showToast.success("Item Returned", `${itemToReturn.item.itemName} has been returned successfully`);
+        setItemToReturn(null);
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : "Failed to return item";
+        showToast.error("Return Failed", msg);
+      }
+    },
+    [itemToReturn, returnItemMutation]
+  );
 
   const table = useReactTable({
     data: paginatedData,
@@ -160,7 +195,9 @@ export default function ActiveBorrowedItems() {
                           {header.isPlaceholder ? null : String(header.column.columnDef.header ?? "")}
                         </th>
                       ))}
-                      <th className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4" />
+                      <th className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">
+                        Actions
+                      </th>
                     </tr>
                   ))}
                 </thead>
@@ -180,7 +217,17 @@ export default function ActiveBorrowedItems() {
                           </td>
                         ))}
                         <td className="px-6 py-4">
-                          <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-indigo-500 transition-colors" />
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={(e) => handleReturnClick(e, row.original)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-orange-50 text-orange-700 border border-orange-200 hover:bg-orange-100 hover:border-orange-300 transition-all duration-200"
+                              title="Manually return this item"
+                            >
+                              <RotateCcw className="h-3.5 w-3.5" />
+                              <span>Return</span>
+                            </button>
+                            <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-indigo-500 transition-colors" />
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -210,6 +257,15 @@ export default function ActiveBorrowedItems() {
           onClose={() => setSelectedBorrowId(null)}
         />
       )}
+
+      {/* Return Confirmation Modal */}
+      <ReturnConfirmationModal
+        isOpen={!!itemToReturn}
+        item={itemToReturn}
+        onConfirm={handleConfirmReturn}
+        onCancel={() => setItemToReturn(null)}
+        isLoading={returnItemMutation.isPending}
+      />
     </div>
   );
 }
