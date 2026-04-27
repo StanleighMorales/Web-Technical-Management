@@ -210,8 +210,12 @@ body {
   }
 }
 
-/* Custo
-m toast notification progress bar with orange gradient */
+/* Custom toast notification progress bar with orange gradient */
 .toast-progress-orange {
   background: linear-gradient(to right, #f97316, #fb923c) !important;
+}
+
+/* Reusable input base styles */
+.input-base {
+  @apply w-full h-11 px-3.5 text-sm text-slate-900 placeholder:text-slate-300 bg-slate-50 border border-slate-200 rounded-xl outline-none transition-all duration-200 hover:bg-white focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 disabled:opacity-50 disabled:cursor-not-allowed;
 }
