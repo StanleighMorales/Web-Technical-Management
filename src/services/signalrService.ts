@@ -18,7 +18,7 @@ class SignalRService {
 
     async connect(token: string): Promise<void> {
         if (this.connection?.state === signalR.HubConnectionState.Connected) {
-            console.log('[SignalR] Already connected');
+            console.log('[SignalR] Already connected, connectionId:', this.connection.connectionId);
             return;
         }
 
@@ -27,7 +27,7 @@ class SignalRService {
             .replace(/\/api\/v\d+\/?$/, '')
             .replace(/\/$/, '');
 
-        console.log(`[SignalR] Connecting to ${apiUrl}/notificationHub`);
+        console.log(`[SignalR] Connecting to ${apiUrl}/notificationHub with token:`, token ? 'present' : 'missing');
 
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl(`${apiUrl}/notificationHub`, {
@@ -35,7 +35,7 @@ class SignalRService {
                 transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.ServerSentEvents,
             })
             .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
-            .configureLogging(signalR.LogLevel.Warning) // reduce noise; errors still show
+            .configureLogging(signalR.LogLevel.Information) // Changed from Warning to Information for better debugging
             .build();
 
         this.connection.onreconnecting((error) => {
@@ -51,8 +51,13 @@ class SignalRService {
             else console.log('[SignalR] Connection closed cleanly');
         });
 
-        await this.connection.start();
-        console.log('[SignalR] Connected successfully, connectionId:', this.connection.connectionId);
+        try {
+            await this.connection.start();
+            console.log('[SignalR] Connected successfully, connectionId:', this.connection.connectionId);
+        } catch (error) {
+            console.error('[SignalR] Failed to connect:', error);
+            throw error;
+        }
 
         // Replay any handlers that were registered before the connection was ready
         for (const { event, cb } of this.pendingHandlers) {
