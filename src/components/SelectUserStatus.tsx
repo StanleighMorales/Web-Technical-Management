@@ -10,7 +10,6 @@ const defaultOptions = [
   { value: "all", label: "All" },
   { value: "online", label: "Online" },
   { value: "offline", label: "Offline" },
-  { value: "inactive", label: "Inactive" },
 ];
 
 export const SelectUserStatus = ({

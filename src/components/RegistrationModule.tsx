@@ -4,13 +4,14 @@ import { EditTeacher } from "./EditTeacher";
 import { EditStudent } from "./EditStudent";
 import SearchBar from "./SearchBar";
 import { useQuery } from "@tanstack/react-query";
-import { useArchiveUser } from "../hooks/userHooks";
+import { useArchiveUser, useBlockUser, useUnblockUser } from "../hooks/userHooks";
 import { useAllUsers } from "../hooks/userHooks";
 import { StudentTable } from "./StudentTable";
 import TeacherTable from "./TeacherTable";
 import ViewStudentCredentials from "./ViewStudentCredentials";
 import ViewTeacherCredentials from "./ViewTeacherCredentials";
 import PopUpModal from "./PopUpModal";
+import BlockUserModal from "./BlockUserModal";
 import ErrorTable from "./ErrorTables.tsx";
 import { showToast } from "./AppToast";
 import ExcelImportUserButton from "./ExcelImportUserButton.tsx";
@@ -18,7 +19,6 @@ import {
     BookOpen,
     GraduationCap,
     Sparkles,
-    ChevronRight,
     Search,
 } from "lucide-react";
 
@@ -26,15 +26,19 @@ interface RegistrationModuleProps {
     /** When true, strips the standalone page wrapper (bg, padding, page header).
      *  Use this when embedding inside another page like UserManagement. */
     embedded?: boolean;
+    /** Callback to pass teacher and student counts to parent */
+    onCountsChange?: (counts: { teachers: number; students: number }) => void;
 }
 
-export default function RegistrationModule({ embedded = false }: RegistrationModuleProps) {
+export default function RegistrationModule({ embedded = false, onCountsChange }: RegistrationModuleProps) {
     const [isEditTeacherOpen, setIsEditTeacherOpen] = useState<boolean>(false);
     const [isEditStudentOpen, setIsEditStudentOpen] = useState<boolean>(false);
     const [isViewStudentOpen, setIsViewStudentOpen] = useState<boolean>(false);
     const [isViewTeacherOpen, setIsViewTeacherOpen] = useState<boolean>(false);
     const [isArchiveStudentOpen, setIsArchiveStudentOpen] = useState<boolean>(false);
     const [isArchiveTeacherOpen, setIsArchiveTeacherOpen] = useState<boolean>(false);
+    const [isBlockModalOpen, setIsBlockModalOpen] = useState<boolean>(false);
+    const [blockUserId, setBlockUserId] = useState<string>("");
     const [archiveStudentId, setArchiveStudentId] = useState<string | null>(null);
     const [archiveTeacherId, setArchiveTeacherId] = useState<string | null>(null);
     const [searchUser, setSearchUser] = useState<string>("");
@@ -53,6 +57,8 @@ export default function RegistrationModule({ embedded = false }: RegistrationMod
     const { data: teachersData, isError: isTeacherDataIsError } = useQuery(useAllUsers());
     const { mutate: archiveStudent, isPending: isArchivingStudent } = useArchiveUser();
     const { mutate: archiveTeacher, isPending: isArchivingTeacher } = useArchiveUser();
+    const { mutate: blockUser, isPending: isBlocking } = useBlockUser();
+    const { mutate: unblockUser } = useUnblockUser();
 
     const selectedViewStudent = useMemo(() => students.find((s) => s.id === viewStudentId), [students, viewStudentId]);
     const selectedViewTeacher = useMemo(() => teachers.find((t) => t.id === viewTeacherId), [teachers, viewTeacherId]);
@@ -111,21 +117,74 @@ export default function RegistrationModule({ embedded = false }: RegistrationMod
     const handleArchiveTeacher = (id: string) => { setArchiveTeacherId(id); setIsArchiveTeacherOpen(true); };
     const handleCancelArchiveTeacher = () => { setIsArchiveTeacherOpen(false); setArchiveTeacherId(""); };
 
-    const isTeacher = selectedRole === "Teacher";
-    const activeStudents = filteredStudents.filter((s) => s.userRole === "Student" && s.status?.toLowerCase() !== "inactive");
-    const activeTeachers = filteredTeachers.filter((t) => t.userRole === "Teacher" && t.status?.toLowerCase() !== "inactive");
-    const activeCount = isTeacher ? activeTeachers.length : activeStudents.length;
+    const handleBlockUser = (id: string) => {
+        setBlockUserId(id);
+        setIsBlockModalOpen(true);
+    };
 
-    const teacherHeaders = ["Full Name", "Username", "Role", "Department", "Status", "Actions"];
-    const studentHeaders = ["Student ID", "Full Name", "Course", "Section", "Year", "Role", "Actions"];
+    const handleUnblockUser = (id: string) => {
+        unblockUser(id, {
+            onSuccess: () => {
+                showToast.success("User Unblocked", "User has been unblocked successfully.");
+            },
+            onError: (error: any) => {
+                showToast.error("Action Failed", error?.response?.data?.message || "Failed to unblock user.");
+            },
+        });
+    };
+
+    const confirmBlockUser = (data: { reason: string; isPermanent: boolean; blockedUntil?: string }) => {
+        blockUser(
+            { id: blockUserId, data },
+            {
+                onSuccess: () => {
+                    setIsBlockModalOpen(false);
+                    setBlockUserId("");
+                    showToast.success("User Blocked", "User has been blocked successfully.");
+                },
+                onError: (error: any) => {
+                    setIsBlockModalOpen(false);
+                    setBlockUserId("");
+                    showToast.error("Action Failed", error?.response?.data?.message || "Failed to block user.");
+                },
+            }
+        );
+    };
+
+    const cancelBlockUser = () => {
+        setIsBlockModalOpen(false);
+        setBlockUserId("");
+    };
+
+    const blockUserData = useMemo(
+        () => [...students, ...teachers].find((u) => u.id === blockUserId),
+        [students, teachers, blockUserId],
+    );
+
+    const isTeacher = selectedRole === "Teacher";
+    const activeStudents = filteredStudents.filter((s) => s.userRole === "Student" && s.status?.toLowerCase() !== "archived");
+    const activeTeachers = filteredTeachers.filter((t) => t.userRole === "Teacher" && t.status?.toLowerCase() !== "archived");
+
+    // Notify parent of count changes
+    useEffect(() => {
+        if (onCountsChange) {
+            onCountsChange({
+                teachers: activeTeachers.length,
+                students: activeStudents.length,
+            });
+        }
+    }, [activeTeachers.length, activeStudents.length, onCountsChange]);
+
+    const teacherHeaders = ["First Name", "Last Name", "Username", "Email", "Role", "Status"];
+    const studentHeaders = ["First Name", "Last Name", "Username", "Email", "Role", "Status"];
 
     const tableSection = (
-        <div className="bg-white rounded-[2rem] border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
+        <div className="bg-white rounded-4xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
 
             {/* Toolbar */}
             <div className="px-6 md:px-8 py-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
 
-                {/* Segmented role tabs */}
+                {/* Left side - Role tabs */}
                 <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl w-fit">
                     <button
                         onClick={() => { setSelectedRole("Teacher"); setSearchUser(""); }}
@@ -177,21 +236,6 @@ export default function RegistrationModule({ embedded = false }: RegistrationMod
                 </div>
             </div>
 
-            {/* Table sub-header */}
-            <div className="px-6 md:px-8 py-4 border-b border-slate-100 flex items-center justify-between">
-                <div>
-                    <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                        {isTeacher
-                            ? <><BookOpen className="h-4 w-4 text-emerald-500" /> Teachers</>
-                            : <><GraduationCap className="h-4 w-4 text-violet-500" /> Students</>
-                        }
-                    </h2>
-                    <p className="text-xs text-slate-400 font-medium mt-0.5">
-                        {activeCount} {isTeacher ? "teacher" : "student"}{activeCount !== 1 ? "s" : ""}
-                    </p>
-                </div>
-            </div>
-
             {/* Table */}
             <div className="overflow-x-auto">
                 <div className="min-h-[50vh] max-h-[50vh] overflow-y-auto">
@@ -209,7 +253,7 @@ export default function RegistrationModule({ embedded = false }: RegistrationMod
                                                 {h}
                                             </th>
                                         ))}
-                                        <th className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4" />
+                                        <th className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4 w-12" />
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
@@ -229,13 +273,13 @@ export default function RegistrationModule({ embedded = false }: RegistrationMod
                                                 userRole={teacher.userRole}
                                                 department={teacher.department}
                                                 status={teacher.status}
+                                                isBlocked={teacher.isBlocked}
                                                 onSetEditUserId={() => setEditTeacherId(teacher.id)}
                                                 onSetIsEditUserOpen={() => setIsEditTeacherOpen(true)}
                                                 onMutate={() => handleArchiveTeacher(teacher.id)}
+                                                onBlockUser={handleBlockUser}
+                                                onUnblockUser={handleUnblockUser}
                                             />
-                                            <td className="px-6 py-4">
-                                                <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-violet-500 transition-colors" />
-                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -256,7 +300,7 @@ export default function RegistrationModule({ embedded = false }: RegistrationMod
                                                 {h}
                                             </th>
                                         ))}
-                                        <th className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4" />
+                                        <th className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4 w-12" />
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
@@ -271,6 +315,7 @@ export default function RegistrationModule({ embedded = false }: RegistrationMod
                                                 phoneNumber={student.phoneNumber}
                                                 userRole={student.userRole}
                                                 status={student.status}
+                                                isBlocked={student.isBlocked}
                                                 firstName={student.firstName}
                                                 middleName={student.middleName}
                                                 lastName={student.lastName}
@@ -278,13 +323,14 @@ export default function RegistrationModule({ embedded = false }: RegistrationMod
                                                 course={student.course}
                                                 section={student.section}
                                                 year={student.year}
+                                                username={student.username}
+                                                email={student.email}
                                                 onSetIsEditStudentOpen={() => setIsEditStudentOpen(true)}
                                                 onSetEditUserId={() => setEditStudentId(student.id)}
                                                 onMutate={() => handleRestoreStudent(student.id)}
+                                                onBlockUser={handleBlockUser}
+                                                onUnblockUser={handleUnblockUser}
                                             />
-                                            <td className="px-6 py-4">
-                                                <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-violet-500 transition-colors" />
-                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -319,6 +365,15 @@ export default function RegistrationModule({ embedded = false }: RegistrationMod
                     onHandleCancelAction={handleCancelArchiveTeacher}
                     onHandleConfirmAction={handleConfirmArchiveTeacher}
                     isLoading={isArchivingTeacher}
+                />
+            )}
+            {blockUserData && (
+                <BlockUserModal
+                    isOpen={isBlockModalOpen}
+                    onClose={cancelBlockUser}
+                    onConfirm={confirmBlockUser}
+                    userName={`${blockUserData.firstName} ${blockUserData.lastName}`}
+                    isLoading={isBlocking}
                 />
             )}
             {isViewStudentOpen && selectedViewStudent && (
@@ -402,18 +457,18 @@ export default function RegistrationModule({ embedded = false }: RegistrationMod
                 </div>
 
                 {/* Stat chips */}
-                <div className="flex items-center gap-3 flex-shrink-0">
+                <div className="flex items-center gap-3 shrink-0">
                     <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white border border-slate-200 shadow-sm text-sm font-medium text-slate-600">
                         <div className="h-7 w-7 rounded-lg bg-emerald-50 flex items-center justify-center">
                             <BookOpen className="h-3.5 w-3.5 text-emerald-600" />
                         </div>
-                        <span>{teachers.filter((t) => t.userRole === "Teacher" && t.status?.toLowerCase() !== "inactive").length} teachers</span>
+                        <span>{teachers.filter((t) => t.userRole === "Teacher" && t.status?.toLowerCase() !== "archived").length} teachers</span>
                     </div>
                     <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white border border-slate-200 shadow-sm text-sm font-medium text-slate-600">
                         <div className="h-7 w-7 rounded-lg bg-violet-50 flex items-center justify-center">
                             <GraduationCap className="h-3.5 w-3.5 text-violet-600" />
                         </div>
-                        <span>{students.filter((s) => s.userRole === "Student" && s.status?.toLowerCase() !== "inactive").length} students</span>
+                        <span>{students.filter((s) => s.userRole === "Student" && s.status?.toLowerCase() !== "archived").length} students</span>
                     </div>
                 </div>
             </div>

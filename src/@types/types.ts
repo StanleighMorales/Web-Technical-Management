@@ -270,6 +270,10 @@ export type TUsers = {
   createdAt?: string;
   updatedAt?: string;
   position: string;
+  isBlocked?: boolean;
+  blockReason?: string | null;
+  blockedAt?: string | null;
+  blockedUntil?: string | null;
 };
 
 export type TUpdatedTeacher = {
@@ -440,4 +444,20 @@ export type TGuestBorrowFormData = {
   // Step 3 — Photo
   guestImage: File | null;
   guestImagePreview: string | null; // data URL for display only, not sent to API
+};
+
+export type TBlockUserData = {
+  reason: string;
+  isPermanent: boolean;
+  blockedUntil?: string;
+};
+
+export type TBlockStatus = {
+  isBlocked: boolean;
+  blockReason: string | null;
+  blockedAt: string | null;
+  blockedUntil: string | null;
+  isPermanent: boolean;
+  blockedById: string | null;
+  blockedByUsername: string | null;
 };

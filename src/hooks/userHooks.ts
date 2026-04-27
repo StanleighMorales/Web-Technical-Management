@@ -17,6 +17,8 @@ import {
   updateTeacherApi,
   updateUserApi,
   importUser,
+  blockUserApi,
+  unblockUserApi,
 } from "../api/user_api";
 
 export const useAllUsers = () => {
@@ -156,6 +158,33 @@ export const useImportUser = () => {
     mutationKey: ["students"],
     onSuccess: () => {
       querClient.invalidateQueries({ queryKey: ["students"] });
+    },
+  });
+};
+
+export const useBlockUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: { reason: string; isPermanent: boolean; blockedUntil?: string } }) =>
+      blockUserApi(id, data),
+    mutationKey: ["block-user"],
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["students"] });
+      queryClient.invalidateQueries({ queryKey: ["teachers"] });
+    },
+  });
+};
+
+export const useUnblockUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: unblockUserApi,
+    mutationKey: ["unblock-user"],
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["students"] });
+      queryClient.invalidateQueries({ queryKey: ["teachers"] });
     },
   });
 };
