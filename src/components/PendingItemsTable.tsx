@@ -4,6 +4,10 @@ import { FormattedDateTime } from "./FormattedDateTime";
 import { SlugStatus } from "./SlugStatus";
 import SearchBar from "./SearchBar";
 import Pagination from "./Pagination";
+import { FiEdit } from "react-icons/fi";
+import { MdOutlineCancel } from "react-icons/md";
+import { FiCheckCircle } from "react-icons/fi";
+import { MdOutlineClose } from "react-icons/md";
 
 type PendingItemsTableProps = {
     items: THistoryBorrwedItems[];
@@ -160,36 +164,39 @@ export default function PendingItemsTable({
 
                                         {/* Action buttons */}
                                         <td className="py-4 px-6">
-                                            <div className="flex flex-row gap-2" onClick={(e) => e.stopPropagation()}>
+                                            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                                                 {isApprovedReservation ? (
                                                     <>
                                                         <button
-                                                            onClick={(e) => { e.stopPropagation(); onMarkBorrowed(item); }}
-                                                            className="inline-flex items-center justify-center px-2.5 py-1.5 rounded-lg text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100 transition-colors whitespace-nowrap"
+                                                            onClick={() => onMarkBorrowed(item)}
                                                             title="Mark as borrowed manually (use when RFID scan is unavailable)"
+                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-blue-500 hover:bg-blue-600 active:bg-blue-700 shadow-sm transition-colors"
                                                         >
-                                                            Mark Borrowed
+                                                            <FiEdit className="h-3.5 w-3.5" /> Edit
                                                         </button>
                                                         <button
-                                                            onClick={(e) => { e.stopPropagation(); onDeny(item); }}
-                                                            className="inline-flex items-center justify-center px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors"
+                                                            onClick={() => onDeny(item)}
+                                                            title="Cancel reservation"
+                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-rose-500 hover:bg-rose-600 active:bg-rose-700 shadow-sm transition-colors"
                                                         >
-                                                            Cancel
+                                                            <MdOutlineCancel className="h-3.5 w-3.5" /> Deny
                                                         </button>
                                                     </>
                                                 ) : (
                                                     <>
                                                         <button
-                                                            onClick={(e) => { e.stopPropagation(); onApprove(item); }}
-                                                            className="inline-flex items-center justify-center px-2.5 py-1.5 rounded-lg text-xs font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 transition-colors"
+                                                            onClick={() => onApprove(item)}
+                                                            title="Approve reservation"
+                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 shadow-sm transition-colors"
                                                         >
-                                                            Approve
+                                                            <FiCheckCircle className="h-3.5 w-3.5" /> Approve
                                                         </button>
                                                         <button
-                                                            onClick={(e) => { e.stopPropagation(); onDeny(item); }}
-                                                            className="inline-flex items-center justify-center px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors"
+                                                            onClick={() => onDeny(item)}
+                                                            title="Deny reservation"
+                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-rose-500 hover:bg-rose-600 active:bg-rose-700 shadow-sm transition-colors"
                                                         >
-                                                            Deny
+                                                            <MdOutlineClose className="h-3.5 w-3.5" /> Deny
                                                         </button>
                                                     </>
                                                 )}

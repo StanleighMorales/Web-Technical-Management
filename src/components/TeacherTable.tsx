@@ -50,20 +50,30 @@ export default function TeacherTable({
     }
 
     type showButtonIfUserAdminProps = {
-        userRole?: string;
+        viewerRole?: string;
+        targetStatus?: string;
         onHandleArchiveUser: () => void
     }
 
     const ShowButtonIfUserAdmin: FC<showButtonIfUserAdminProps> = ({
-        userRole,
+        viewerRole,
+        targetStatus,
         onHandleArchiveUser,
     }) => {
-        if (userRole !== "Admin" && userRole !== "SuperAdmin" && userRole !== "Staff") return null;
+        const viewer = viewerRole?.toLowerCase();
+        const isAdminOrSuper = viewer === "admin" || viewer === "superadmin";
+        const isStaff = viewer === "staff";
+        const isOnline = targetStatus?.toLowerCase() === "online";
+
+        // Teachers are not elevated — staff can archive them
+        if (!isAdminOrSuper && !isStaff) return null;
+
         return (
             <button
-                onClick={(e) => { e.stopPropagation(); onHandleArchiveUser(); }}
-                title="Archive item"
-                className="inline-flex items-center px-2.5 py-1.5 gap-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={(e) => { e.stopPropagation(); if (!isOnline) onHandleArchiveUser(); }}
+                disabled={isOnline}
+                title={isOnline ? "Cannot archive — user is currently Online" : "Archive teacher"}
+                className="inline-flex items-center px-2.5 py-1.5 gap-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none"
             >
                 <IoArchive /> Archive
             </button>
@@ -96,7 +106,7 @@ export default function TeacherTable({
                 >
                     <CiEdit /> Edit
                 </button>
-                <ShowButtonIfUserAdmin userRole={data.userRole} onHandleArchiveUser={handleArchiveUser} />
+                <ShowButtonIfUserAdmin viewerRole={data.userRole} targetStatus={status} onHandleArchiveUser={handleArchiveUser} />
             </td>
         </>
     )

@@ -48,20 +48,38 @@ export default function UserTable({
 
 
     type showButtonIfUserAdminProps = {
-        userRole?: string;
+        viewerRole?: string;
+        targetRole?: string;
+        targetStatus?: string;
         onHandleArchiveUser: () => void
     }
 
+    // Role hierarchy: SuperAdmin > Admin > Staff > Teacher/Student
+    const ELEVATED_ROLES = ["staff", "admin", "superadmin"];
+
     const ShowButtonIfUserAdmin: FC<showButtonIfUserAdminProps> = ({
-        userRole,
+        viewerRole,
+        targetRole,
+        targetStatus,
         onHandleArchiveUser,
     }) => {
-        if (userRole !== "Admin" && userRole !== "SuperAdmin" && userRole !== "Staff") return null;
+        const viewer = viewerRole?.toLowerCase();
+        const target = targetRole?.toLowerCase();
+        const isOnline = targetStatus?.toLowerCase() === "online";
+
+        const isAdminOrSuper = viewer === "admin" || viewer === "superadmin";
+        const isStaff = viewer === "staff";
+
+        // Staff can only archive teachers and students, not staff/admin/superadmin
+        if (isStaff && ELEVATED_ROLES.includes(target ?? "")) return null;
+        if (!isAdminOrSuper && !isStaff) return null;
+
         return (
             <button
-                onClick={(e) => { e.stopPropagation(); onHandleArchiveUser(); }}
-                title="Archive item"
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={(e) => { e.stopPropagation(); if (!isOnline) onHandleArchiveUser(); }}
+                disabled={isOnline}
+                title={isOnline ? "Cannot archive — user is currently Online" : "Archive user"}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none"
             >
                 <IoArchive /> Archive
             </button>
@@ -89,7 +107,7 @@ export default function UserTable({
                 >
                     <CiEdit /> Edit
                 </button>
-                <ShowButtonIfUserAdmin userRole={data.userRole} onHandleArchiveUser={handleArchiveUser} />
+                <ShowButtonIfUserAdmin viewerRole={data.userRole} targetRole={userRole} targetStatus={status} onHandleArchiveUser={handleArchiveUser} />
             </td >
         </>
     );

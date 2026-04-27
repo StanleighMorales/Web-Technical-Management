@@ -16,10 +16,16 @@ export const api = axios.create({
 // ── Request interceptor — attach the current access token ─────────────────
 api.interceptors.request.use((config) => {
   const token = getToken();
+  console.log("🔐 Axios Interceptor - Token exists:", !!token);
+  console.log("🔐 Request URL:", config.url);
+  console.log("🔐 Request Method:", config.method?.toUpperCase());
+  
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+    console.log("✅ Authorization header set");
   } else {
     delete config.headers.Authorization;
+    console.warn("⚠️ NO TOKEN - Authorization header NOT set");
   }
   return config;
 });

@@ -42,31 +42,19 @@ export const addItemApi = async (data: Omit<TItemForm, "preview">) => {
     body.append("Image", data.image);
   }
 
-  // Use native fetch instead of axios for multipart/form-data to avoid
-  // axios interfering with the Content-Type boundary (same pattern as borrowGuestItem).
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  // Debug: Check if token exists
   const token = getToken();
+  console.log("🔑 Token exists:", !!token);
+  console.log("🔑 Token value:", token ? `${token.substring(0, 20)}...` : "NO TOKEN");
 
-  const res = await fetch(`${BASE_URL}${item_end_point}`, {
-    method: "POST",
+  // Use axios instead of fetch to leverage the token refresh interceptor
+  const response = await api.post(item_end_point, body, {
     headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      "Content-Type": "multipart/form-data",
     },
-    credentials: "include",
-    body,
   });
 
-  if (!res.ok) {
-    const json = await res.json().catch(() => null);
-    const message =
-      json?.message ||
-      json?.errors?.[0] ||
-      `Request failed with status code ${res.status}`;
-    throw new Error(message);
-  }
-
-  const json = await res.json();
-  return json.data;
+  return response.data.data;
 };
 
 export const updateItemApi = async ({ id, data }: TUpdateItemPayload) => {
@@ -115,7 +103,9 @@ export const borrowItem = async (data: TBorrowItemData) => {
 };
 
 export const returnItem = async (id: string) => {
-  const response = await api.post(`/lentItems/return/item/${id}`);
+  const response = await api.patch(`/lentItems/${id}`, {
+    Status: "Returned"
+  });
   return response.data;
 };
 
@@ -145,25 +135,12 @@ export const borrowGuestItem = async (data: TGuestBorrowFormData) => {
   body.append("Status", data.status);
   if (data.guestImage) body.append("GuestImage", data.guestImage);
 
-  // Use native fetch instead of axios — axios can interfere with the
-  // multipart/form-data boundary when Content-Type headers are manipulated.
-  // fetch() automatically sets the correct Content-Type + boundary when given FormData.
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const token = getToken();
-
-  const res = await fetch(`${BASE_URL}${item_borrow_end_point}/guests`, {
-    method: "POST",
+  // Use axios to leverage the token refresh interceptor
+  const response = await api.post(`${item_borrow_end_point}/guests`, body, {
     headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      "Content-Type": "multipart/form-data",
     },
-    credentials: "include",
-    body,
   });
 
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || `Request failed with status code ${res.status}`);
-  }
-
-  return res.json();
+  return response.data;
 };

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import type { TBorrowingLogs } from "../@types/types";
 import BorrowLogsSkeletonLoader from "../loader/BorrowLogsSkeletonLoader";
+import BorrowLogsDetailModal from "../components/BorrowLogsDetailModal";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -122,6 +123,10 @@ export default function BorrowLogs() {
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("All");
     const [currentPage, setCurrentPage] = useState(1);
+    
+    // Modal state
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+    const [selectedLog, setSelectedLog] = useState<TBorrowingLogs | null>(null);
 
     const logs: TBorrowingLogs[] = logsData?.data ?? logsData ?? [];
 
@@ -163,6 +168,16 @@ export default function BorrowLogs() {
     const handleStatusFilter = (s: string) => {
         setStatusFilter(s);
         setCurrentPage(1);
+    };
+
+    const handleRowClick = (log: TBorrowingLogs) => {
+        setSelectedLog(log);
+        setIsDetailModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsDetailModalOpen(false);
+        setSelectedLog(null);
     };
 
     if (isLoading) {
@@ -274,7 +289,8 @@ export default function BorrowLogs() {
                                 paginated.map((log: TBorrowingLogs) => (
                                     <tr
                                         key={log.id}
-                                        className="group transition-all duration-200 hover:bg-blue-50/30"
+                                        onClick={() => handleRowClick(log)}
+                                        className="group transition-all duration-200 hover:bg-blue-50/30 cursor-pointer"
                                     >
                                         {/* Borrower */}
                                         <td className="px-6 py-4">
@@ -469,6 +485,15 @@ export default function BorrowLogs() {
                     </div>
                 </div>
             </div>
+
+            {/* Detail Modal */}
+            {selectedLog && (
+                <BorrowLogsDetailModal
+                    log={selectedLog}
+                    isOpen={isDetailModalOpen}
+                    onClose={handleCloseModal}
+                />
+            )}
         </div>
     );
 }

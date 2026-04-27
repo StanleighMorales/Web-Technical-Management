@@ -20,8 +20,12 @@ import {
   ArrowRight,
   Loader2,
   Image as ImageIcon,
+  RotateCcw,
 } from "lucide-react";
 import { SlugStatus } from "./SlugStatus";
+import { useReturnItemMutation } from "../query/patch/useReturnItemMutation";
+import { showToast } from "./AppToast";
+import ReturnConfirmationModal from "./ReturnConfirmationModal";
 
 type TViewRecentBorrowItemsProps = {
   itemId: string;
@@ -35,11 +39,35 @@ export const ViewRecentBorrowItems = ({
   onClose,
 }: TViewRecentBorrowItemsProps) => {
   const [itemData, setItemData] = useState<TRecentBorrowItemProps | null>(null);
+  const [showReturnModal, setShowReturnModal] = useState(false);
   const { data, isPending, isError } = useQuery(useRecentlyBorrowItems(itemId));
+  const returnItemMutation = useReturnItemMutation();
 
   useEffect(() => {
     if (data?.data) setItemData(data.data);
   }, [data]);
+
+  const handleReturnClick = () => {
+    if (!itemData?.id) {
+      showToast.error("Error", "Lent item ID not found");
+      return;
+    }
+    setShowReturnModal(true);
+  };
+
+  const handleConfirmReturn = async () => {
+    if (!itemData?.id) return;
+
+    try {
+      await returnItemMutation.mutateAsync(itemData.id);
+      showToast.success("Item Returned", `${itemData.item.itemName} has been returned successfully`);
+      setShowReturnModal(false);
+      onClose();
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : "Failed to return item";
+      showToast.error("Return Failed", msg);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -104,12 +132,24 @@ export const ViewRecentBorrowItems = ({
               <p className="text-xs text-slate-400 font-medium mt-0.5">Borrow Item Details</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="h-10 w-10 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-red-500 transition-colors"
-          >
-            <X className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {itemData.status === "Borrowed" && !itemData.returnedAt && (
+              <button
+                onClick={handleReturnClick}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-orange-500 text-white hover:bg-orange-600 transition-all duration-200 shadow-sm hover:shadow-md"
+                title="Manually return this item"
+              >
+                <RotateCcw className="h-4 w-4" />
+                <span>Return Item</span>
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="h-10 w-10 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-red-500 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         <div className="overflow-y-auto flex-1 p-6 space-y-5">
@@ -250,6 +290,15 @@ export const ViewRecentBorrowItems = ({
           </Section>
         </div>
       </div>
+
+      {/* Return Confirmation Modal */}
+      <ReturnConfirmationModal
+        isOpen={showReturnModal}
+        item={itemData}
+        onConfirm={handleConfirmReturn}
+        onCancel={() => setShowReturnModal(false)}
+        isLoading={returnItemMutation.isPending}
+      />
     </div>
   );
 };

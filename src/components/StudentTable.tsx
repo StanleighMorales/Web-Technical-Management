@@ -29,7 +29,7 @@ type StudentTableProps = {
     onMutate: (value: string) => void;
 };
 
-type TStudentNewTypes = Pick<StudentTableProps, "id" | "studentIdNumber" | "userRole" | "lastName" | "phoneNumber" | "middleName" | "firstName" | "course" | "section" | "year" | "onSetIsEditStudentOpen" | "onSetEditUserId" | "onMutate">
+type TStudentNewTypes = Pick<StudentTableProps, "id" | "studentIdNumber" | "userRole" | "status" | "lastName" | "phoneNumber" | "middleName" | "firstName" | "course" | "section" | "year" | "onSetIsEditStudentOpen" | "onSetEditUserId" | "onMutate">
 
 export const StudentTable: FC<TStudentNewTypes> = (props) => {
 
@@ -45,20 +45,30 @@ export const StudentTable: FC<TStudentNewTypes> = (props) => {
     }
 
     type ShowButtonIfUserAdminProps = {
-        userRole?: string;
+        viewerRole?: string;
+        targetStatus?: string;
         onHandleArchiveStudent: () => void;
     };
 
     const ShowButtonIfUserAdmin: FC<ShowButtonIfUserAdminProps> = ({
-        userRole,
+        viewerRole,
+        targetStatus,
         onHandleArchiveStudent,
     }) => {
-        if (userRole !== "Admin" && userRole !== "SuperAdmin" && userRole !== "Staff") return null;
+        const viewer = viewerRole?.toLowerCase();
+        const isAdminOrSuper = viewer === "admin" || viewer === "superadmin";
+        const isStaff = viewer === "staff";
+        const isOnline = targetStatus?.toLowerCase() === "online";
+
+        // Students are not elevated — staff can archive them
+        if (!isAdminOrSuper && !isStaff) return null;
+
         return (
             <button
-                onClick={(e) => { e.stopPropagation(); onHandleArchiveStudent() }}
-                title="Archive student"
-                className="inline-flex items-center px-2.5 gap-1.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={(e) => { e.stopPropagation(); if (!isOnline) onHandleArchiveStudent(); }}
+                disabled={isOnline}
+                title={isOnline ? "Cannot archive — user is currently Online" : "Archive student"}
+                className="inline-flex items-center px-2.5 gap-1.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none"
             >
                 <IoArchive /> Archive
             </button>
@@ -87,7 +97,8 @@ export const StudentTable: FC<TStudentNewTypes> = (props) => {
                     <CiEdit /> Edit
                 </button>
                 <ShowButtonIfUserAdmin
-                    userRole={data.userRole}
+                    viewerRole={data.userRole}
+                    targetStatus={props.status}
                     onHandleArchiveStudent={handleArchiveStudent}
                 />
             </td>

@@ -270,6 +270,7 @@ export default function RegistrationModule({ embedded = false }: RegistrationMod
                                                 id={student.id}
                                                 phoneNumber={student.phoneNumber}
                                                 userRole={student.userRole}
+                                                status={student.status}
                                                 firstName={student.firstName}
                                                 middleName={student.middleName}
                                                 lastName={student.lastName}
