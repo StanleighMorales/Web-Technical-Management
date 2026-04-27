@@ -73,7 +73,7 @@ export default function TeacherTable({
                 onClick={(e) => { e.stopPropagation(); if (!isOnline) onHandleArchiveUser(); }}
                 disabled={isOnline}
                 title={isOnline ? "Cannot archive — user is currently Online" : "Archive teacher"}
-                className="inline-flex items-center px-2.5 py-1.5 gap-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-rose-500 hover:bg-rose-600 active:bg-rose-700 shadow-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none"
             >
                 <IoArchive /> Archive
             </button>
@@ -100,7 +100,7 @@ export default function TeacherTable({
             </td>
             <td className="py-3 px-6 flex flex-row gap-2">
                 <button
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-blue-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-semibold text-white bg-blue-500 hover:bg-blue-600 active:bg-blue-700 shadow-sm transition-colors"
                     onClick={(e) => { e.stopPropagation(); handleEditTeacher(id) }}
                     title="Edit user"
                 >
