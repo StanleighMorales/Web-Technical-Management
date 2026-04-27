@@ -58,7 +58,7 @@ const SignalRStatus = () => {
     };
 
     return (
-        <div className="fixed bottom-4 right-4 z-[10000] bg-white border border-gray-300 rounded-lg shadow-lg p-3 text-sm">
+        <div className="fixed bottom-4 right-4 z-80 bg-white border border-gray-300 rounded-lg shadow-lg p-3 text-sm">
             <div className="flex items-center gap-2">
                 <div className={`w-3 h-3 rounded-full ${getStatusColor()} animate-pulse`} />
                 <div>
