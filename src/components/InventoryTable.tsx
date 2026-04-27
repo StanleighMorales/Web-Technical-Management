@@ -79,8 +79,10 @@ export const InventoryTable = ({ item }: InventoryTableProps) => {
         setSelectedItemId(null);
     };
 
+    const isAdmin = userRole === "Admin" || userRole === "SuperAdmin";
+
     const columnHelper = createColumnHelper<TItemList>();
-    const columns = [
+    const baseColumns = [
         columnHelper.accessor("serialNumber", { header: "Serial Number" }),
         columnHelper.accessor("image", {
             header: "Image",
@@ -125,17 +127,20 @@ export const InventoryTable = ({ item }: InventoryTableProps) => {
                 );
             },
         }),
-        columnHelper.display({
-            id: "action",
-            header: "Action",
-            cell: ({ row }) => (
-                <ShowButtonIfUserAdmin
-                    userRole={userRole}
-                    onHandleArchive={() => handleArchive(row.original.id)}
-                />
-            ),
-        }),
     ];
+
+    const actionColumn = columnHelper.display({
+        id: "action",
+        header: "Action",
+        cell: ({ row }) => (
+            <ShowButtonIfUserAdmin
+                userRole={userRole}
+                onHandleArchive={() => handleArchive(row.original.id)}
+            />
+        ),
+    });
+
+    const columns = isAdmin ? [...baseColumns, actionColumn] : baseColumns;
 
     const table = useReactTable({
         data: item,
