@@ -37,17 +37,22 @@ export const ArchiveItemTable: FC<TArchiveItemNewProps> = (props) => {
     const data = UserData()
 
     const ShowButtonIfUserAdmin: FC<checkIfUserAdminProps> = ({ userRole, onHandleRestoreItem, onHandleDeleteItem }) => {
-        if (userRole !== "Admin" && userRole !== "SuperAdmin") return null;
+        const role = userRole?.toLowerCase();
+        const isAdmin = role === "admin" || role === "superadmin";
+        const isStaff = role === "staff";
+        if (!isAdmin && !isStaff) return null;
         return (
             <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                <button
-                    onClick={onHandleDeleteItem}
-                    disabled={props.isDeleting}
-                    title="Delete item"
-                     className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    <RiDeleteBin6Line /> Delete
-                </button>
+                {isAdmin && (
+                    <button
+                        onClick={onHandleDeleteItem}
+                        disabled={props.isDeleting}
+                        title="Delete item"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <RiDeleteBin6Line /> Delete
+                    </button>
+                )}
                 <button
                     onClick={onHandleRestoreItem}
                     disabled={props.isRestoring}
