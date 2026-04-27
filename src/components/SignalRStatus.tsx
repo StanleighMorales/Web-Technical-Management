@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { signalRService } from '../services/signalrService';
 import * as signalR from '@microsoft/signalr';
-import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 
 /**
  * Debug component to show SignalR connection status.
@@ -10,7 +9,6 @@ import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 const SignalRStatus = () => {
     const [state, setState] = useState<signalR.HubConnectionState | null>(null);
     const [connectionId, setConnectionId] = useState<string | null>(null);
-    const [isExpanded, setIsExpanded] = useState(false);
 
     useEffect(() => {
         const interval = setInterval(() => {
