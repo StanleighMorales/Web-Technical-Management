@@ -26,8 +26,6 @@ export default function EditProfileModal({
     onClose,
     onSubmit,
 }: EditProfileModalProps) {
-    const [successMessage, setSuccessMessage] = useState<string>("");
-    const [errorMessage, setErrorMessage] = useState("");
     const [values, setValues] = useState<EditableUser>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { mutate } = useUpdateUser();
@@ -60,7 +58,6 @@ export default function EditProfileModal({
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-        setSuccessMessage("");
         setIsSubmitting(true);
         if (!isValid) return;
 
@@ -80,10 +77,8 @@ export default function EditProfileModal({
                     onSuccess: () => {
                         onSubmit?.(values);
                         showToast.success("Profile Updated", "User profile updated successfully.");
-                        setSuccessMessage("User Profile updated.");
                         setTimeout(() => {
                             setIsSubmitting(false);
-                            setSuccessMessage("");
                             onClose();
                         }, 1500);
                         return;
@@ -91,7 +86,6 @@ export default function EditProfileModal({
                     onError: (err) => {
                         const message =
                             err instanceof Error ? err.message : "Failed to update profile.";
-                        setErrorMessage(message);
                         showToast.error("Update Failed", message);
                     },
                 },

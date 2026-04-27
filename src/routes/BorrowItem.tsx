@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { showToast } from "../components/AppToast";
 import { useReturnItem } from "../hooks/itemHooks.ts";
 import { IoMdClose } from "react-icons/io";

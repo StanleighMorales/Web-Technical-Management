@@ -18,7 +18,6 @@ import {
   MdCategory,
   MdBuild,
   MdDescription,
-  MdCode,
   MdImage,
   MdArchive,
 } from "react-icons/md";

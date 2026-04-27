@@ -25,8 +25,6 @@ export const BorrowItemForm = ({
   prefilledItemName?: string;
   onLentItemScanned?: (lentItem: any) => void;
 }) => {
-  const [showAlert, setShowAlert] = useState<boolean>(false);
-  const [successMessage, setSuccessMessage] = useState<string>("");
   const [showReservationModal, setShowReservationModal] = useState<boolean>(false);
   const [reservationDate, setReservationDate] = useState<string>("");
   const [reservationTime, setReservationTime] = useState<string>("07:30");
@@ -103,8 +101,6 @@ export const BorrowItemForm = ({
       });
 
       showToast.success("Reservation Submitted", "Reservation submitted successfully!");
-      setShowAlert(true);
-      setTimeout(() => { setShowAlert(false); setSuccessMessage(""); }, 3000);
       resetForm();
     } catch (error: any) {
       showToast.error("Reservation Failed", error.message || "Failed to submit reservation");
@@ -126,8 +122,6 @@ export const BorrowItemForm = ({
     try {
       await borrowItemMutation.mutateAsync({ ...formData, status: "Borrowed" });
       showToast.success("Borrow Request Submitted", "Borrow request submitted successfully!");
-      setShowAlert(true);
-      setTimeout(() => { setShowAlert(false); setSuccessMessage(""); }, 3000);
       resetForm();
     } catch (error: any) {
       showToast.error("Borrow Failed", error.message || "Failed to submit request");
