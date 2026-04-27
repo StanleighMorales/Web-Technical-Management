@@ -40,6 +40,7 @@ export default function Sidebar() {
   // Operational links (with divider after)
   const operationalLinks = [
     { label: "Borrowing", link: "/home/borrow-item", icon: TbPackages },
+    { label: "Active Borrows", link: "/home/active-borrowed-items", icon: BsClipboardCheck },
   ];
 
   // Administrative links
