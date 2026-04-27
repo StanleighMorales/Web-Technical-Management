@@ -1,5 +1,7 @@
+import { LuArchiveRestore } from "react-icons/lu";
 import { UserData } from "../utils/usersData/userData";
 import type { FC } from "react";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 type ArchiveItemTableProps = {
     id: string;
@@ -43,7 +45,7 @@ export const ArchiveStudentTable: FC<Required<ArchiveItemTableProps>> = (props) 
                         title="Delete student"
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-rose-500 hover:bg-rose-600 active:bg-rose-700 shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        Delete
+                        <RiDeleteBin6Line className="h-3.5 w-3.5" /> Delete
                     </button>
                 )}
                 <button
@@ -52,7 +54,7 @@ export const ArchiveStudentTable: FC<Required<ArchiveItemTableProps>> = (props) 
                     title="Restore student"
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-amber-500 hover:bg-amber-600 active:bg-amber-700 shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    Restore
+                    <LuArchiveRestore className="h-3.5 w-3.5" /> Restore 
                 </button>
             </div>
         );
