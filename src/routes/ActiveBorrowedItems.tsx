@@ -220,7 +220,7 @@ export default function ActiveBorrowedItems() {
                           <div className="flex items-center gap-2">
                             <button
                               onClick={(e) => handleReturnClick(e, row.original)}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-orange-50 text-orange-700 border border-orange-200 hover:bg-orange-100 hover:border-orange-300 transition-all duration-200"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-amber-500 hover:bg-amber-500/80 active:bg-amber-700 shadow-sm transition-colors"
                               title="Manually return this item"
                             >
                               <RotateCcw className="h-3.5 w-3.5" />
