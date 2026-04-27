@@ -51,8 +51,8 @@ export default function RegistrationModule({ embedded = false }: RegistrationMod
 
     const { data: studentsData, isError: isStudentStudentIsError } = useQuery(useAllUsers());
     const { data: teachersData, isError: isTeacherDataIsError } = useQuery(useAllUsers());
-    const { mutate: archiveStudent } = useArchiveUser();
-    const { mutate: archiveTeacher } = useArchiveUser();
+    const { mutate: archiveStudent, isPending: isArchivingStudent } = useArchiveUser();
+    const { mutate: archiveTeacher, isPending: isArchivingTeacher } = useArchiveUser();
 
     const selectedViewStudent = useMemo(() => students.find((s) => s.id === viewStudentId), [students, viewStudentId]);
     const selectedViewTeacher = useMemo(() => teachers.find((t) => t.id === viewTeacherId), [teachers, viewTeacherId]);
@@ -112,8 +112,8 @@ export default function RegistrationModule({ embedded = false }: RegistrationMod
     const handleCancelArchiveTeacher = () => { setIsArchiveTeacherOpen(false); setArchiveTeacherId(""); };
 
     const isTeacher = selectedRole === "Teacher";
-    const activeStudents = filteredStudents.filter((s) => s.userRole === "Student");
-    const activeTeachers = filteredTeachers.filter((t) => t.userRole === "Teacher");
+    const activeStudents = filteredStudents.filter((s) => s.userRole === "Student" && s.status?.toLowerCase() !== "inactive");
+    const activeTeachers = filteredTeachers.filter((t) => t.userRole === "Teacher" && t.status?.toLowerCase() !== "inactive");
     const activeCount = isTeacher ? activeTeachers.length : activeStudents.length;
 
     const teacherHeaders = ["Full Name", "Username", "Role", "Department", "Status", "Actions"];
@@ -310,6 +310,7 @@ export default function RegistrationModule({ embedded = false }: RegistrationMod
                     title="Archive Student" label="archive" noun="student" destination="archive"
                     onHandleCancelAction={handleCancelArchiveStudent}
                     onHandleConfirmAction={handleConfirmArchiveStudent}
+                    isLoading={isArchivingStudent}
                 />
             )}
             {isArchiveTeacherOpen && (
@@ -317,6 +318,7 @@ export default function RegistrationModule({ embedded = false }: RegistrationMod
                     title="Archive Teacher" label="archive" noun="teacher" destination="archive"
                     onHandleCancelAction={handleCancelArchiveTeacher}
                     onHandleConfirmAction={handleConfirmArchiveTeacher}
+                    isLoading={isArchivingTeacher}
                 />
             )}
             {isViewStudentOpen && selectedViewStudent && (
@@ -405,13 +407,13 @@ export default function RegistrationModule({ embedded = false }: RegistrationMod
                         <div className="h-7 w-7 rounded-lg bg-emerald-50 flex items-center justify-center">
                             <BookOpen className="h-3.5 w-3.5 text-emerald-600" />
                         </div>
-                        <span>{teachers.filter((t) => t.userRole === "Teacher").length} teachers</span>
+                        <span>{teachers.filter((t) => t.userRole === "Teacher" && t.status?.toLowerCase() !== "inactive").length} teachers</span>
                     </div>
                     <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white border border-slate-200 shadow-sm text-sm font-medium text-slate-600">
                         <div className="h-7 w-7 rounded-lg bg-violet-50 flex items-center justify-center">
                             <GraduationCap className="h-3.5 w-3.5 text-violet-600" />
                         </div>
-                        <span>{students.filter((s) => s.userRole === "Student").length} students</span>
+                        <span>{students.filter((s) => s.userRole === "Student" && s.status?.toLowerCase() !== "inactive").length} students</span>
                     </div>
                 </div>
             </div>
