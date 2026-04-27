@@ -14,7 +14,6 @@ type StatusTab =
   | "borrowed"
   | "returned"
   | "denied"
-  | "canceled";
 
 export default function HistoryList({
   title = "Borrowing History",
@@ -50,10 +49,7 @@ export default function HistoryList({
       ).length,
       denied: borrowedItem.filter(
         (item) => item.status.toLowerCase() === "denied",
-      ).length,
-      canceled: borrowedItem.filter(
-        (item) => item.status.toLowerCase() === "canceled",
-      ).length,
+      ).length
     };
   }, [borrowedItem]);
 
@@ -191,20 +187,6 @@ export default function HistoryList({
             {statusCounts.denied > 0 && (
               <span className="ml-2 px-2 py-1 text-xs bg-red-100 text-red-600 rounded-full">
                 {statusCounts.denied}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab("canceled")}
-            className={`px-4 py-3 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap ${activeTab === "canceled"
-                ? "border-gray-600 text-gray-600"
-                : "border-transparent text-gray-500 hover:text-gray-700"
-              }`}
-          >
-            Canceled
-            {statusCounts.canceled > 0 && (
-              <span className="ml-2 px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full">
-                {statusCounts.canceled}
               </span>
             )}
           </button>
