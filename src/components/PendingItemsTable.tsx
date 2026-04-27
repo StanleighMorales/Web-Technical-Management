@@ -167,7 +167,6 @@ export default function PendingItemsTable({
                                             <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                                                 {isApprovedReservation ? (
                                                     <>
-                                                        {/* Manual borrow fallback — for when RFID scan doesn't fire */}
                                                         <button
                                                             onClick={() => onMarkBorrowed(item)}
                                                             title="Mark as borrowed manually (use when RFID scan is unavailable)"
@@ -175,7 +174,6 @@ export default function PendingItemsTable({
                                                         >
                                                             <FiEdit className="h-3.5 w-3.5" /> Edit
                                                         </button>
-                                                        {/* Cancel reservation */}
                                                         <button
                                                             onClick={() => onDeny(item)}
                                                             title="Cancel reservation"
@@ -186,7 +184,6 @@ export default function PendingItemsTable({
                                                     </>
                                                 ) : (
                                                     <>
-                                                        {/* Approve / Deny for Pending items */}
                                                         <button
                                                             onClick={() => onApprove(item)}
                                                             title="Approve reservation"

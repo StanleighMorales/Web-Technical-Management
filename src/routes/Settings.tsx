@@ -61,7 +61,7 @@ export default function Settings() {
 
         {/* Page title */}
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Settings</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Profile</h1>
           <p className="text-slate-500 text-sm font-medium mt-1">
             Manage your account information and security.
           </p>
