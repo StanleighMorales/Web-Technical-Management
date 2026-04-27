@@ -160,49 +160,34 @@ export default function PendingItemsTable({
 
                                         {/* Action buttons */}
                                         <td className="py-4 px-6">
-                                            <div className="flex flex-col gap-2">
+                                            <div className="flex flex-row gap-2" onClick={(e) => e.stopPropagation()}>
                                                 {isApprovedReservation ? (
                                                     <>
-                                                        {/* Manual borrow fallback — for when RFID scan doesn't fire */}
                                                         <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                onMarkBorrowed(item);
-                                                            }}
-                                                            className="w-full px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm whitespace-nowrap text-center"
+                                                            onClick={(e) => { e.stopPropagation(); onMarkBorrowed(item); }}
+                                                            className="inline-flex items-center justify-center px-2.5 py-1.5 rounded-lg text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100 transition-colors whitespace-nowrap"
                                                             title="Mark as borrowed manually (use when RFID scan is unavailable)"
                                                         >
                                                             Mark Borrowed
                                                         </button>
-                                                        {/* Cancel reservation */}
                                                         <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                onDeny(item);
-                                                            }}
-                                                            className="w-full px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm text-center"
+                                                            onClick={(e) => { e.stopPropagation(); onDeny(item); }}
+                                                            className="inline-flex items-center justify-center px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors"
                                                         >
                                                             Cancel
                                                         </button>
                                                     </>
                                                 ) : (
                                                     <>
-                                                        {/* Approve / Deny for Pending items */}
                                                         <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                onApprove(item);
-                                                            }}
-                                                            className="w-full px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm text-center"
+                                                            onClick={(e) => { e.stopPropagation(); onApprove(item); }}
+                                                            className="inline-flex items-center justify-center px-2.5 py-1.5 rounded-lg text-xs font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 transition-colors"
                                                         >
                                                             Approve
                                                         </button>
                                                         <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                onDeny(item);
-                                                            }}
-                                                            className="w-full px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm text-center"
+                                                            onClick={(e) => { e.stopPropagation(); onDeny(item); }}
+                                                            className="inline-flex items-center justify-center px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors"
                                                         >
                                                             Deny
                                                         </button>
