@@ -7,9 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
+    "preview": "npm run build && wrangler dev",
     "test": "vitest",
-    "generate:routes": "tanstack-router generate"
+    "generate:routes": "tanstack-router generate",
+    "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
     "@microsoft/signalr": "^9.0.6",
@@ -57,6 +58,7 @@
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.57.2",
     "vite": "^7.3.1",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "wrangler": "^4.85.0"
   }
 }

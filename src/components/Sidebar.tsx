@@ -369,7 +369,7 @@ export default function Sidebar() {
 
       {/* Logout overlay */}
       {isLoggingOut && (
-        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-900/90 backdrop-blur-md animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-slate-900/90 backdrop-blur-md animate-in fade-in duration-300">
           <div className="flex flex-col items-center gap-6 text-center px-8">
             <div className="relative flex h-20 w-20 items-center justify-center">
               <div className="absolute inset-0 rounded-full bg-blue-500/20 animate-ping" />

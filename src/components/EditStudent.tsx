@@ -3,7 +3,7 @@ import type { TStudent } from "../@types/types";
 import { useUpdateStudent } from "../hooks/userHooks";
 import type { TUpdateStudent } from "../@types/types";
 import { showToast } from "./AppToast";
-import { X, Pencil, GraduationCap, Phone, MapPin } from "lucide-react";
+import { X, Pencil, GraduationCap, Phone, MapPin, Loader2 } from "lucide-react";
 
 const inputClass = (hasError: boolean) =>
   `w-full px-4 py-2.5 rounded-xl border text-sm bg-slate-50 hover:bg-white focus:bg-white outline-none transition-all focus:ring-4 ${
@@ -35,7 +35,7 @@ export const EditStudent = ({
   onClose,
 }: TUpdateStudent) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const { mutate } = useUpdateStudent();
+  const { mutate, isPending } = useUpdateStudent();
 
   const [formData, setFormData] = useState<TStudent>({
     frontStudentIdPicture: null,
@@ -133,7 +133,7 @@ export const EditStudent = ({
         </div>
 
         <div className="overflow-y-auto flex-1 p-6">
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5" method="post">
 
             <FormSection title="Personal Information" icon={<GraduationCap className="h-4 w-4 text-emerald-500" />}>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -262,7 +262,7 @@ export const EditStudent = ({
                     name="phoneNumber"
                     placeholder="9XXXXXXXXX"
                     value={formData.phoneNumber}
-                    maxLength={10}
+                    maxLength={11}
                     onChange={handleInputChange}
                     className={inputClass(!!errors.phoneNumber)}
                   />
@@ -378,10 +378,15 @@ export const EditStudent = ({
               </button>
               <button
                 type="submit"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-all shadow-sm shadow-blue-200"
+                disabled={isPending}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-all shadow-sm shadow-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Pencil className="h-3.5 w-3.5" />
-                Save Changes
+                {isPending ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Pencil className="h-3.5 w-3.5" />
+                )}
+                {isPending ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </form>
