@@ -63,7 +63,8 @@ interface ReservationDueSoonSignalRNotification {
 // ── Audio alert — three ascending beeps via Web Audio API ────────────────────
 function playAlertSound() {
     try {
-        const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        const ctx = new AudioContextClass();
         const beep = (t: number, freq: number, dur: number) => {
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
@@ -107,17 +108,27 @@ const AdminNotificationListener = () => {
     };
 
     useEffect(() => {
+        console.log('[AdminNotificationListener] Initializing...');
+        
         // Step 1: Register all handlers BEFORE connecting so none are missed
         const unsubNewRequest = subscribe('ReceiveNewPendingRequest',
             (n: NewPendingRequestNotification) => {
+                console.log('[AdminNotificationListener] ReceiveNewPendingRequest:', n);
+                
+                // Play alert sound for new pending requests
+                playAlertSound();
+                
                 showToast.info(
-                    'New Pending Request',
+                    '🔔 New Pending Request',
                     n.reservedFor
                         ? `${n.message} — Pickup: ${new Date(n.reservedFor).toLocaleString()}`
                         : n.message,
                     {
-                        autoClose: 8000,
+                        autoClose: 10000,
                         onClick: () => { window.location.href = '/home/pending-reservations'; },
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
                     },
                 );
                 queryClient.invalidateQueries({ queryKey: ['lentItems'] });
@@ -175,8 +186,17 @@ const AdminNotificationListener = () => {
 
         // Step 2: Connect → Step 3: Join group
         connect()
-            .then(() => joinAdminStaffGroup())
-            .catch((err) => console.error('[SignalR] Setup failed:', err));
+            .then(() => {
+                console.log('[AdminNotificationListener] Connected successfully');
+                return joinAdminStaffGroup();
+            })
+            .then(() => {
+                console.log('[AdminNotificationListener] Joined admin_staff group successfully');
+            })
+            .catch((err) => {
+                console.error('[AdminNotificationListener] Setup failed:', err);
+                showToast.error('SignalR Connection Failed', 'Real-time notifications are not available. Please refresh the page.');
+            });
 
         return () => {
             unsubNewRequest();
