@@ -78,11 +78,11 @@ export default function UserManagement() {
   };
 
   const tableUsers = filteredUser.filter(
-    (user) => user.userRole === "Admin" || user.userRole === "Staff",
+    (user) => (user.userRole === "Admin" || user.userRole === "Staff") && user.status?.toLowerCase() !== "inactive",
   );
 
   const onlineCount = users.filter(
-    (u) => u.status.toLowerCase() === "online",
+    (u) => u.status.toLowerCase() === "online" && (u.userRole === "Admin" || u.userRole === "Staff"),
   ).length;
 
   if (isPending) return <UserSkeletonLoader />;
