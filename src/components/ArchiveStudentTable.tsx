@@ -30,17 +30,22 @@ export const ArchiveStudentTable: FC<Required<ArchiveItemTableProps>> = (props) 
         onHandleRestoreStudent,
         onHandleDeleteStudent,
     }: checkIfUserAdminProps) => {
-        if (userRole !== "Admin" && userRole !== "SuperAdmin") return null;
+        const role = userRole?.toLowerCase();
+        const isAdmin = role === "admin" || role === "superadmin";
+        const isStaff = role === "staff";
+        if (!isAdmin && !isStaff) return null;
         return (
             <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                <button
-                    onClick={onHandleDeleteStudent}
-                    disabled={props.isDeleting}
-                    title="Delete student"
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    Delete
-                </button>
+                {isAdmin && (
+                    <button
+                        onClick={onHandleDeleteStudent}
+                        disabled={props.isDeleting}
+                        title="Delete student"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Delete
+                    </button>
+                )}
                 <button
                     onClick={onHandleRestoreStudent}
                     disabled={props.isRestoring}
