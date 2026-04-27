@@ -401,6 +401,10 @@ export type TBorrowingLogs = {
   borrowerName: string | null;
   borrowerRole: string;
   studentIdNumber: string | null;
+  frontStudentIdPictureUrl: string | null;
+  frontStudentIdPicture?: string | null; // Alternative field name
+  guestImageUrl: string | null;
+  guestImage?: string | null; // Alternative field name
   itemId: string;
   itemName: string;
   itemSerialNumber: string;

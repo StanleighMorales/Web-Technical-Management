@@ -21,7 +21,7 @@ type InventoryTableProps = {
     item: TItemList[];
 };
 
-const BLOCKED_STATUSES = ["Borrowed", "Reserved", "Pending"];
+const BLOCKED_STATUSES = ["Borrowed", "Reserved", "Pending", "Archived"];
 
 type ShowButtonIfUserAdminProps = {
     userRole?: string;
@@ -40,6 +40,8 @@ const ShowButtonIfUserAdmin: FC<ShowButtonIfUserAdminProps> = ({
         (s) => s.toLowerCase() === itemStatus?.toLowerCase()
     );
 
+    const isAlreadyArchived = itemStatus?.toLowerCase() === "archived";
+
     return (
         <button
             onClick={(e) => {
@@ -48,7 +50,9 @@ const ShowButtonIfUserAdmin: FC<ShowButtonIfUserAdminProps> = ({
             }}
             disabled={isBlocked}
             title={
-                isBlocked
+                isAlreadyArchived
+                    ? "Item is already archived"
+                    : isBlocked
                     ? `Cannot archive — item is currently ${itemStatus}`
                     : "Archive item"
             }

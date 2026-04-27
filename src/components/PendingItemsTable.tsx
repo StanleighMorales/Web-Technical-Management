@@ -4,6 +4,10 @@ import { FormattedDateTime } from "./FormattedDateTime";
 import { SlugStatus } from "./SlugStatus";
 import SearchBar from "./SearchBar";
 import Pagination from "./Pagination";
+import { FiEdit } from "react-icons/fi";
+import { MdOutlineCancel } from "react-icons/md";
+import { FiCheckCircle } from "react-icons/fi";
+import { MdOutlineClose } from "react-icons/md";
 
 type PendingItemsTableProps = {
     items: THistoryBorrwedItems[];
@@ -160,51 +164,42 @@ export default function PendingItemsTable({
 
                                         {/* Action buttons */}
                                         <td className="py-4 px-6">
-                                            <div className="flex flex-col gap-2">
+                                            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                                                 {isApprovedReservation ? (
                                                     <>
                                                         {/* Manual borrow fallback — for when RFID scan doesn't fire */}
                                                         <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                onMarkBorrowed(item);
-                                                            }}
-                                                            className="w-full px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm whitespace-nowrap text-center"
+                                                            onClick={() => onMarkBorrowed(item)}
                                                             title="Mark as borrowed manually (use when RFID scan is unavailable)"
+                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-blue-500 hover:bg-blue-600 active:bg-blue-700 shadow-sm transition-colors"
                                                         >
-                                                            Mark Borrowed
+                                                            <FiEdit className="h-3.5 w-3.5" /> Edit
                                                         </button>
                                                         {/* Cancel reservation */}
                                                         <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                onDeny(item);
-                                                            }}
-                                                            className="w-full px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm text-center"
+                                                            onClick={() => onDeny(item)}
+                                                            title="Cancel reservation"
+                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-rose-500 hover:bg-rose-600 active:bg-rose-700 shadow-sm transition-colors"
                                                         >
-                                                            Cancel
+                                                            <MdOutlineCancel className="h-3.5 w-3.5" /> Deny
                                                         </button>
                                                     </>
                                                 ) : (
                                                     <>
                                                         {/* Approve / Deny for Pending items */}
                                                         <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                onApprove(item);
-                                                            }}
-                                                            className="w-full px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm text-center"
+                                                            onClick={() => onApprove(item)}
+                                                            title="Approve reservation"
+                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 shadow-sm transition-colors"
                                                         >
-                                                            Approve
+                                                            <FiCheckCircle className="h-3.5 w-3.5" /> Approve
                                                         </button>
                                                         <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                onDeny(item);
-                                                            }}
-                                                            className="w-full px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm text-center"
+                                                            onClick={() => onDeny(item)}
+                                                            title="Deny reservation"
+                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-rose-500 hover:bg-rose-600 active:bg-rose-700 shadow-sm transition-colors"
                                                         >
-                                                            Deny
+                                                            <MdOutlineClose className="h-3.5 w-3.5" /> Deny
                                                         </button>
                                                     </>
                                                 )}
