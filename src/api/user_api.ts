@@ -54,10 +54,37 @@ export const updateStudentApi = async ({
   id,
   data,
 }: TUpdateStudentApiPayload) => {
-  const response = await api.patch(
-    `/users/students/profile/${id}`,
-    data,
-  );
+  const form = new FormData();
+
+  form.append("FirstName", data.firstName);
+  form.append("MiddleName", data.middleName);
+  form.append("LastName", data.lastName);
+  form.append("StudentIdNumber", data.studentIdNumber);
+  form.append("PhoneNumber", data.phoneNumber);
+  form.append("Course", data.course);
+  form.append("Section", data.section);
+  form.append("Year", data.year);
+  form.append("Street", data.street);
+  form.append("CityMunicipality", data.cityMunicipality);
+  form.append("Province", data.province);
+  form.append("PostalCode", data.postalCode);
+  form.append("Username", data.username);
+  form.append("Email", data.email);
+
+  if (data.frontStudentIdPicture instanceof File) {
+    form.append("FrontStudentIdPicture", data.frontStudentIdPicture);
+  }
+  if (data.backStudentIdPicture instanceof File) {
+    form.append("BackStudentIdPicture", data.backStudentIdPicture);
+  }
+  if (data.profilePicture instanceof File) {
+    form.append("ProfilePicture", data.profilePicture);
+  }
+
+  const response = await api.patch(`/users/students/profile/${id}`, form, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
   return response.data;
 };
 
