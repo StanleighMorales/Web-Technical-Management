@@ -63,7 +63,8 @@ interface ReservationDueSoonSignalRNotification {
 // ── Audio alert — three ascending beeps via Web Audio API ────────────────────
 function playAlertSound() {
     try {
-        const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        const ctx = new AudioContextClass();
         const beep = (t: number, freq: number, dur: number) => {
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
@@ -110,14 +111,20 @@ const AdminNotificationListener = () => {
         // Step 1: Register all handlers BEFORE connecting so none are missed
         const unsubNewRequest = subscribe('ReceiveNewPendingRequest',
             (n: NewPendingRequestNotification) => {
+                // Play alert sound for new pending requests
+                playAlertSound();
+                
                 showToast.info(
-                    'New Pending Request',
+                    '🔔 New Pending Request',
                     n.reservedFor
                         ? `${n.message} — Pickup: ${new Date(n.reservedFor).toLocaleString()}`
                         : n.message,
                     {
-                        autoClose: 8000,
+                        autoClose: 10000,
                         onClick: () => { window.location.href = '/home/pending-reservations'; },
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
                     },
                 );
                 queryClient.invalidateQueries({ queryKey: ['lentItems'] });

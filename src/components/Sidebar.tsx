@@ -116,7 +116,7 @@ export default function Sidebar() {
                   <span className={iconWrap + " relative"}>
                     <item.icon className="text-xl text-slate-500 group-hover:text-blue-600 [.active_&]:!text-white" />
                     {item.badge && item.badge > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-orange-500 rounded-full ring-2 ring-slate-50 animate-pulse lg:group-hover:hidden transition-opacity">
+                      <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-orange-500 rounded-full ring-2 ring-slate-50 animate-bounce lg:group-hover:hidden transition-opacity shadow-lg shadow-orange-500/50">
                         {item.badge > 99 ? "99+" : item.badge}
                       </span>
                     )}
@@ -125,7 +125,7 @@ export default function Sidebar() {
                     {item.label}
                   </span>
                   {item.badge && item.badge > 0 && (
-                    <span className="ml-auto px-2 py-0.5 text-xs font-bold text-white bg-orange-500 rounded-full hidden lg:group-hover:inline-flex transition-opacity">
+                    <span className="ml-auto px-2 py-0.5 text-xs font-bold text-white bg-orange-500 rounded-full hidden lg:group-hover:inline-flex transition-opacity shadow-md shadow-orange-500/30 animate-pulse">
                       {item.badge > 99 ? "99+" : item.badge}
                     </span>
                   )}
@@ -273,14 +273,14 @@ export default function Sidebar() {
                     <span className={iconWrap + " relative"}>
                       <item.icon className="text-xl text-slate-500 [.active_&]:!text-white" />
                       {item.badge && item.badge > 0 && (
-                        <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-orange-500 rounded-full">
+                        <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-orange-500 rounded-full shadow-lg shadow-orange-500/50 animate-bounce">
                           {item.badge > 99 ? "99+" : item.badge}
                         </span>
                       )}
                     </span>
                     <span className="flex-1">{item.label}</span>
                     {item.badge && item.badge > 0 && (
-                      <span className="ml-auto px-2 py-0.5 text-xs font-bold text-white bg-orange-500 rounded-full">
+                      <span className="ml-auto px-2 py-0.5 text-xs font-bold text-white bg-orange-500 rounded-full shadow-md shadow-orange-500/30 animate-pulse">
                         {item.badge > 99 ? "99+" : item.badge}
                       </span>
                     )}

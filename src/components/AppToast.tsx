@@ -31,6 +31,7 @@ const THEMES = {
     iconColor: "#16a34a",
     progressColor: "#16a34a",
     Icon: CheckSquare,
+    animation: "none",
   },
   error: {
     bg: "#fef2f2",
@@ -40,6 +41,7 @@ const THEMES = {
     iconColor: "#dc2626",
     progressColor: "#dc2626",
     Icon: XCircle,
+    animation: "none",
   },
   warning: {
     bg: "#fffbeb",
@@ -49,6 +51,7 @@ const THEMES = {
     iconColor: "#d97706",
     progressColor: "#d97706",
     Icon: AlertTriangle,
+    animation: "none",
   },
   info: {
     bg: "#eff6ff",
@@ -58,6 +61,7 @@ const THEMES = {
     iconColor: "#2563eb",
     progressColor: "#2563eb",
     Icon: Bell,
+    animation: "pulse",
   },
 } as const;
 
@@ -77,7 +81,7 @@ function ToastBody({ title, detail, variant }: ToastBodyProps) {
 
   return (
     <div style={{ display: "flex", alignItems: "flex-start", gap: "10px", padding: "2px 0" }}>
-      {/* Circle icon */}
+      {/* Circle icon with animation for info variant */}
       <div
         style={{
           flexShrink: 0,
@@ -89,6 +93,7 @@ function ToastBody({ title, detail, variant }: ToastBodyProps) {
           alignItems: "center",
           justifyContent: "center",
           marginTop: 1,
+          animation: theme.animation === "pulse" ? "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite" : "none",
         }}
       >
         <Icon size={17} color={theme.iconColor} strokeWidth={2.5} />
