@@ -40,6 +40,7 @@ export default function Sidebar() {
   // Operational links (with divider after)
   const operationalLinks = [
     { label: "Borrowing", link: "/home/borrow-item", icon: TbPackages },
+    { label: "Active Borrows", link: "/home/active-borrowed-items", icon: BsClipboardCheck },
   ];
 
   // Administrative links
@@ -83,7 +84,7 @@ export default function Sidebar() {
     <>
       {/* Desktop Sidebar */}
       <aside
-        className="hidden fixed top-0 left-0 z-50 flex-col justify-between h-screen bg-slate-50/95 border-r border-slate-200/80 shadow-lg transition-all duration-300 lg:flex group animate-fadeIn w-[80px] hover:w-[280px] scrollbar-thin backdrop-blur-sm"
+        className="hidden fixed top-0 left-0 z-50 flex-col justify-between h-screen bg-slate-50/95 border-r border-slate-200/80 shadow-lg transition-all duration-300 lg:flex group animate-fadeIn w-[80px] hover:w-[280px] backdrop-blur-sm"
         onMouseEnter={() => setIsSidebarExpanded(true)}
         onMouseLeave={() => setIsSidebarExpanded(false)}
       >
@@ -102,7 +103,7 @@ export default function Sidebar() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto scrollbar-thin px-2">
+        <nav className="flex-1 overflow-y-auto px-2 group-hover:scrollbar-thin scrollbar-none">
           <ul className="flex flex-col gap-1">
             {/* Primary Links */}
             {primaryLinks.map((item) => (
@@ -115,16 +116,16 @@ export default function Sidebar() {
                   <span className={iconWrap + " relative"}>
                     <item.icon className="text-xl text-slate-500 group-hover:text-blue-600 [.active_&]:!text-white" />
                     {item.badge && item.badge > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-orange-500 rounded-full ring-2 ring-slate-50 animate-pulse">
+                      <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-orange-500 rounded-full ring-2 ring-slate-50 animate-pulse lg:group-hover:hidden transition-opacity">
                         {item.badge > 99 ? "99+" : item.badge}
                       </span>
                     )}
                   </span>
-                  <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex-1">
+                  <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 lg:group-hover:opacity-100 flex-1">
                     {item.label}
                   </span>
                   {item.badge && item.badge > 0 && (
-                    <span className="ml-auto px-2 py-0.5 text-xs font-bold text-white bg-orange-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="ml-auto px-2 py-0.5 text-xs font-bold text-white bg-orange-500 rounded-full hidden lg:group-hover:inline-flex transition-opacity">
                       {item.badge > 99 ? "99+" : item.badge}
                     </span>
                   )}

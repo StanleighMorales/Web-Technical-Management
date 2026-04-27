@@ -144,7 +144,7 @@ function buildOptions(
       boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
       padding: "12px 14px",
     },
-    progressStyle: { background: theme.progressColor },
+    progressClassName: "!bg-[" + theme.progressColor + "]",
     ...overrides,
   };
 }
