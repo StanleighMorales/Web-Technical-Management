@@ -5,7 +5,6 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AdminNotificationListener from "../components/AdminNotificationListener";
 import SignalRStatus from "../components/SignalRStatus";
-import SignalRTestButton from "../components/SignalRTestButton";
 import { UserData } from "../utils/usersData/userData";
 
 function HomeContent() {
@@ -38,9 +37,6 @@ function HomeContent() {
 
       {/* Debug: SignalR connection status indicator */}
       {isAdminOrStaff && <SignalRStatus />}
-
-      {/* Debug: Test notification button */}
-      {isAdminOrStaff && <SignalRTestButton />}
 
       {/* Sidebar component for navigation */}
       <Sidebar />

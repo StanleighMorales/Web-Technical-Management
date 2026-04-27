@@ -17,15 +17,22 @@ class SignalRService {
     private pendingHandlers: Array<{ event: string; cb: (data: any) => void }> = [];
 
     async connect(token: string): Promise<void> {
+        // Only connect in offline/development mode (localhost)
+        const apiUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5278')
+            .replace(/\/api\/v\d+\/?$/, '')
+            .replace(/\/$/, '');
+        
+        const isOfflineMode = apiUrl.includes('localhost') || apiUrl.includes('127.0.0.1');
+        
+        if (!isOfflineMode) {
+            console.log('[SignalR] Skipping connection - not in offline mode');
+            return;
+        }
+
         if (this.connection?.state === signalR.HubConnectionState.Connected) {
             console.log('[SignalR] Already connected, connectionId:', this.connection.connectionId);
             return;
         }
-
-        // Strip /api/v1 suffix — hub is at root
-        const apiUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5278')
-            .replace(/\/api\/v\d+\/?$/, '')
-            .replace(/\/$/, '');
 
         console.log(`[SignalR] Connecting to ${apiUrl}/notificationHub with token:`, token ? 'present' : 'missing');
 

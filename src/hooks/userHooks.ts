@@ -120,6 +120,7 @@ export const useUpdateStudent = () => {
     mutationKey: ["profile"],
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["students"] });
+      queryClient.invalidateQueries({ queryKey: ["users"] }); // Also invalidate users query
     },
   });
 };
@@ -132,6 +133,7 @@ export const useUpdateTeacher = () => {
     mutationKey: ["profile"],
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["teachers"] });
+      queryClient.invalidateQueries({ queryKey: ["users"] }); // Also invalidate users query
     },
   });
 };

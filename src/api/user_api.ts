@@ -54,9 +54,51 @@ export const updateStudentApi = async ({
   id,
   data,
 }: TUpdateStudentApiPayload) => {
+  // Convert data to FormData for multipart/form-data submission
+  const formData = new FormData();
+  
+  // Only include fields that the backend UpdateStudentProfileDto expects
+  const allowedFields = [
+    'lastName',
+    'middleName',
+    'firstName',
+    'email',
+    'studentIdNumber',
+    'course',
+    'section',
+    'year',
+    'street',
+    'cityMunicipality',
+    'province',
+    'postalCode',
+    'phoneNumber',
+    'profilePicture',
+    'frontStudentIdPicture',
+    'backStudentIdPicture'
+  ];
+  
+  // Append only allowed fields to FormData (skip null/undefined values)
+  Object.entries(data).forEach(([key, value]) => {
+    if (allowedFields.includes(key) && value !== null && value !== undefined) {
+      // Handle file uploads - use type assertion for File check
+      const isFile = value && typeof value === 'object' && 'name' in value && 'size' in value && 'type' in value;
+      if (isFile) {
+        formData.append(key, value as File);
+      } else {
+        // Convert other values to string
+        formData.append(key, String(value));
+      }
+    }
+  });
+
   const response = await api.patch(
     `/users/students/profile/${id}`,
-    data,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }
   );
   return response.data;
 };
