@@ -29,4 +29,4 @@ push:
 
 # deploy the app to cloudflare pages
 deploy:
-	npx wrangler pages deploy ./dist
+	npx wrangler pages deploy dist
