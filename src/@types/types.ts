@@ -132,26 +132,26 @@ export type TUpdateItem = {
 };
 
 export type TUpdateStudent = {
-  frontStudentIdPicture: null;
-  backStudentIdPicture: null;
+  id: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
   studentIdNumber: string;
   phoneNumber: string;
   course: string;
   section: string;
   year: string;
-  profilePicture: null;
   street: string;
   cityMunicipality: string;
   province: string;
   postalCode: string;
-  id: string;
   username: string;
   email: string;
   userRole: string;
   status: string;
-  lastName: string;
-  middleName: string;
-  firstName: string;
+  frontStudentIdPicture: File | string | null;
+  backStudentIdPicture: File | string | null;
+  profilePicture: File | string | null;
   onClose: () => void;
 };
 
