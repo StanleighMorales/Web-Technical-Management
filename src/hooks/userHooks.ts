@@ -119,7 +119,7 @@ export const useUpdateStudent = () => {
     mutationFn: updateStudentApi,
     mutationKey: ["profile"],
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["students"] });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
 };
@@ -131,7 +131,7 @@ export const useUpdateTeacher = () => {
     mutationFn: updateTeacherApi,
     mutationKey: ["profile"],
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["teachers"] });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
 };
