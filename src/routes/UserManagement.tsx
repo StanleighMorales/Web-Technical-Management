@@ -134,7 +134,6 @@ export default function UserManagement() {
   const adminUsers = users.filter((u) => u.userRole === "Admin" && u.status?.toLowerCase() !== "archived");
   const staffOnlineCount = staffUsers.filter((u) => u.status.toLowerCase() === "online").length;
   const adminOnlineCount = adminUsers.filter((u) => u.status.toLowerCase() === "online").length;
-  const totalOnlineCount = staffOnlineCount + adminOnlineCount;
 
   if (isPending) return <UserSkeletonLoader />;
 

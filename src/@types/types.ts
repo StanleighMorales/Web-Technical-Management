@@ -237,6 +237,10 @@ export type TStudent = {
   middleName: string;
   firstName: string;
   generatedPassword?: string;
+  isBlocked?: boolean;
+  blockReason?: string | null;
+  blockedAt?: string | null;
+  blockedUntil?: string | null;
 };
 
 export type TTeacher = {
@@ -253,6 +257,10 @@ export type TTeacher = {
   status: string;
   createdAt?: string;
   updatedAt?: string;
+  isBlocked?: boolean;
+  blockReason?: string | null;
+  blockedAt?: string | null;
+  blockedUntil?: string | null;
 };
 export type TUsers = {
   id: string;
