@@ -30,7 +30,7 @@ export default function UserManagement() {
 
   const { mutate } = useArchiveUser();
   const { users, isPending, isError } = useAllUsersManagement();
-  const { filteredUser, setSearchUser, selectedStatus, setSelectedStatus, selectedRole, setSelectedRole } = useFilteredUser();
+  const { filteredUser, setSearchUser, setSelectedStatus, selectedRole, setSelectedRole } = useFilteredUser();
 
   const {
     isAddUserOpen,

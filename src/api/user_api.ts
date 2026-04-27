@@ -80,9 +80,10 @@ export const updateStudentApi = async ({
   // Append only allowed fields to FormData (skip null/undefined values)
   Object.entries(data).forEach(([key, value]) => {
     if (allowedFields.includes(key) && value !== null && value !== undefined) {
-      // Handle file uploads
-      if (value instanceof File) {
-        formData.append(key, value);
+      // Handle file uploads - use type assertion for File check
+      const isFile = value && typeof value === 'object' && 'name' in value && 'size' in value && 'type' in value;
+      if (isFile) {
+        formData.append(key, value as File);
       } else {
         // Convert other values to string
         formData.append(key, String(value));
