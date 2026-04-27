@@ -1,89 +1,116 @@
+const Bone = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
+    <div className={`animate-pulse rounded-lg bg-slate-200 ${className ?? ""}`} style={style} />
+);
+
 const InventoryListSkeletonLoader = () => {
     return (
-        <div className="animate-fadeIn inventory-list-container min-h-screen w-full bg-gradient-to-br from-[#f8fafc] via-[#e0e7ef] to-[#c7d2fe] flex flex-col">
-            {/* Header Skeleton */}
-            <header className="inventory-header pt-8 px-8 pb-8 bg-white/80 shadow-lg rounded-b-3xl flex flex-col items-center">
-                <div className="h-12 w-80 bg-gray-200 rounded-lg animate-pulse mb-2"></div>
-                <div className="h-6 w-96 bg-gray-200 rounded-lg animate-pulse"></div>
-            </header>
+        <div className="min-h-screen bg-slate-50">
+            <div className="p-6 md:p-8 space-y-6 max-w-[100rem] mx-auto">
 
-            {/* Stats Grid Skeleton */}
-            <section className="inventory-stats-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-8 pt-6 pb-8">
-                {[...Array(4)].map((_, index) => (
-                    <div key={index} className="bg-white/90 shadow-xl rounded-2xl p-8 flex flex-col items-center justify-center border border-[#e0e7ef]">
-                        <div className="h-6 w-24 bg-gray-200 rounded-lg animate-pulse mb-2"></div>
-                        <div className="h-10 w-16 bg-gray-200 rounded-lg animate-pulse"></div>
+                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+                    <div className="space-y-3">
+                        {/* "Asset management" pill */}
+                        <Bone className="h-6 w-36 rounded-full" />
+                        {/* Title */}
+                        <Bone className="h-10 w-56" />
+                        {/* Subtitle */}
+                        <Bone className="h-4 w-96 max-w-full" />
                     </div>
-                ))}
-            </section>
 
-            {/* Table Container Skeleton */}
-            <section className="px-8">
-                <div className="bg-white/90 h-[55vh] py-4 px-4 rounded-3xl shadow-2xl border border-[#e0e7ef] overflow-x-auto">
-                    <section className="mb-4 flex justify-between">
-                        <div className="h-12 w-32 bg-gray-200 rounded-lg animate-pulse"></div>
-                        <div className="flex flex-row gap-2">
-                            {/* Paginated Component */}
-                            <div className="h-12 w-48 bg-gray-200 rounded-lg animate-pulse"></div>
-                            {/* Search Bar Component */}
-                            <div className="h-12 w-48 bg-gray-200 rounded-lg animate-pulse"></div>
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-3 shrink-0">
+                        <Bone className="h-10 w-28 rounded-xl" />
+                        <Bone className="h-10 w-10 rounded-xl" />
+                    </div>
+                </div>
+
+                <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+                    {/* Category badges */}
+                    <div className="flex-1 flex gap-2.5 overflow-hidden">
+                        {[80, 96, 72, 88, 76].map((w, i) => (
+                            <Bone key={i} className={`h-8 w-${w} rounded-full shrink-0`} style={{ width: w }} />
+                        ))}
+                    </div>
+                    {/* Filter dropdowns */}
+                    <Bone className="h-9 w-48 rounded-xl shrink-0" />
+                </div>
+
+                <div className="bg-white rounded-[2rem] border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
+
+                    {/* Toolbar */}
+                    <div className="px-6 md:px-8 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="space-y-1.5">
+                            <Bone className="h-4 w-16" />
+                            <Bone className="h-3 w-24" />
                         </div>
-                    </section>
+                        <div className="flex items-center gap-2">
+                            <Bone className="h-9 w-40 rounded-xl" />
+                            <Bone className="h-9 w-44 rounded-xl" />
+                        </div>
+                    </div>
 
-                    {/* Table Skeleton */}
-                    <div className="w-full">
-                        {/* Table Header Skeleton */}
-                        <div className="w-full border-collapse">
-                            <div className="sticky -top-4 bg-[#f8fafc]">
-                                <div className="flex">
-                                    {[...Array(7)].map((_, index) => (
-                                        <div key={index} className="flex-1 py-4 px-4 border-b border-[#e6e6e6]">
-                                            <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
-                                        </div>
+                    {/* Table */}
+                    <div className="overflow-x-auto">
+                        <div className="min-h-[55vh] max-h-[55vh] overflow-y-auto">
+                            <table className="w-full">
+                                {/* Table head */}
+                                <thead className="sticky top-0 bg-slate-50/90 backdrop-blur-sm border-b border-slate-100">
+                                    <tr>
+                                        {[120, 56, 160, 100, 100, 90, 80, 80].map((w, i) => (
+                                            <th key={i} className="px-4 py-3 text-left">
+                                                <Bone className="h-3 rounded" style={{ width: w }} />
+                                            </th>
+                                        ))}
+                                    </tr>
+                                </thead>
+
+                                {/* Table rows */}
+                                <tbody>
+                                    {[...Array(8)].map((_, rowIdx) => (
+                                        <tr key={rowIdx} className="border-b border-slate-50">
+                                            {/* Serial number */}
+                                            <td className="px-4 py-3.5">
+                                                <Bone className="h-3.5 w-28" />
+                                            </td>
+                                            {/* Image */}
+                                            <td className="px-4 py-3.5">
+                                                <Bone className="h-10 w-10 rounded-xl" />
+                                            </td>
+                                            {/* Item name */}
+                                            <td className="px-4 py-3.5">
+                                                <Bone className="h-3.5 w-36" />
+                                            </td>
+                                            {/* Type */}
+                                            <td className="px-4 py-3.5">
+                                                <Bone className="h-3.5 w-20" />
+                                            </td>
+                                            {/* Category */}
+                                            <td className="px-4 py-3.5">
+                                                <Bone className="h-3.5 w-24" />
+                                            </td>
+                                            {/* Condition badge */}
+                                            <td className="px-4 py-3.5">
+                                                <Bone className="h-5 w-16 rounded-full" />
+                                            </td>
+                                            {/* Status badge */}
+                                            <td className="px-4 py-3.5">
+                                                <Bone className="h-5 w-20 rounded-full" />
+                                            </td>
+                                            {/* Actions */}
+                                            <td className="px-4 py-3.5">
+                                                <div className="flex items-center gap-2">
+                                                    <Bone className="h-8 w-16 rounded-xl" />
+                                                    <Bone className="h-8 w-8 rounded-xl" />
+                                                </div>
+                                            </td>
+                                        </tr>
                                     ))}
-                                </div>
-                            </div>
-
-                            {/* Table Rows Skeleton */}
-                            <div className="mt-4">
-                                {[...Array(5)].map((_, rowIndex) => (
-                                    <div key={rowIndex} className="flex py-3 px-4 border-b border-gray-100">
-                                        {/* Serial Number */}
-                                        <div className="flex-1">
-                                            <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
-                                        </div>
-                                        {/* Image */}
-                                        <div className="flex-1">
-                                            <div className="w-10 h-10 bg-gray-200 rounded-xl animate-pulse"></div>
-                                        </div>
-                                        {/* Name */}
-                                        <div className="flex-1">
-                                            <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
-                                        </div>
-                                        {/* Type */}
-                                        <div className="flex-1">
-                                            <div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div>
-                                        </div>
-                                        {/* Category */}
-                                        <div className="flex-1">
-                                            <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
-                                        </div>
-                                        {/* Condition */}
-                                        <div className="flex-1">
-                                            <div className="h-6 w-16 bg-gray-200 rounded-full animate-pulse"></div>
-                                        </div>
-                                        {/* Actions */}
-                                        <div className="flex-1 flex gap-2">
-                                            <div className="h-8 w-16 bg-gray-200 rounded-xl animate-pulse"></div>
-                                            <div className="h-8 w-8 bg-gray-200 rounded-xl animate-pulse"></div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
-            </section>
+            </div>
         </div>
     );
 };
