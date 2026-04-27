@@ -1,4 +1,4 @@
 {
   "name": "aclc-mandaue-technical-system",
-  "pages_build_output_dir": "./dist"
+  "pages_build_output_dir": "dist"
 }

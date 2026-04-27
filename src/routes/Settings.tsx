@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useLoggedInUser } from "../hooks/userHooks";
 import { FormattedPhoneNumber } from "../components/FormatedPhoneNumber";
 import SettingsSkeletonLoader from "../loader/SettingsSkeletonLoader";
-import ChangePasswordModal from "../components/ChangePasswordModal";
+// import ChangePasswordModal from "../components/ChangePasswordModal";
 import EditProfileModal from "../components/EditProfileModal";
 import type { TUsers } from "../@types/types";
 import ErrorTable from "../components/ErrorTables";
@@ -11,9 +11,7 @@ import {
   User,
   Mail,
   Phone,
-  Shield,
   Pencil,
-  Lock,
   BadgeCheck,
   Briefcase,
   AtSign,
@@ -21,7 +19,7 @@ import {
 } from "lucide-react";
 
 export default function Settings() {
-  const [showChangePassword, setShowChangePassword] = useState(false);
+  // const [showChangePassword, setShowChangePassword] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [user, setUser] = useState<TUsers | null>(null);
   const { data, isLoading, isError } = useQuery(useLoggedInUser());
@@ -112,7 +110,7 @@ export default function Settings() {
               </div>
 
               {/* Security card */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3">
+              {/* <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3">
                 <div className="flex items-center gap-2">
                   <div className="h-8 w-8 rounded-lg bg-slate-100 flex items-center justify-center">
                     <Shield className="h-4 w-4 text-slate-500" />
@@ -130,7 +128,7 @@ export default function Settings() {
                   <Lock className="h-3.5 w-3.5" />
                   Change Password
                 </button>
-              </div>
+              </div> */}
             </div>
 
             {/* ── Right panel — detail sections ─────────────────────── */}
@@ -177,11 +175,10 @@ export default function Settings() {
           </div>
         )}
       </div>
-
-      {/* ── Modals ──────────────────────────────────────────────────────── */}
+{/* 
       {showChangePassword && (
         <ChangePasswordModal id={user?.id} onClose={() => setShowChangePassword(false)} />
-      )}
+      )} */}
       {showEditProfile && (
         <EditProfileModal
           initialValues={{

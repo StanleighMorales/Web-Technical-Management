@@ -58,7 +58,26 @@ export const addItemApi = async (data: Omit<TItemForm, "preview">) => {
 };
 
 export const updateItemApi = async ({ id, data }: TUpdateItemPayload) => {
-  const response = await api.patch(`${item_end_point}/${id}`, data);
+  const body = new FormData();
+
+  body.append("SerialNumber", data.serialNumber);
+  body.append("ItemName", data.itemName);
+  body.append("ItemType", data.itemType);
+  body.append("ItemModel", data.itemModel);
+  body.append("ItemMake", data.itemMake);
+  body.append("Description", data.description);
+  body.append("Category", data.category);
+  body.append("Condition", data.condition);
+
+  if (data.image) {
+    body.append("Image", data.image);
+  }
+
+  const response = await api.patch(`${item_end_point}/${id}`, body, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
   return response.data.data;
 };
 

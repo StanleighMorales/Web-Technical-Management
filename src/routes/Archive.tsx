@@ -35,6 +35,8 @@ import {
   Sparkles,
   ChevronRight,
 } from "lucide-react";
+import { RiDeleteBin6Line } from "react-icons/ri";
+import { LuArchiveRestore } from "react-icons/lu";
 
 type TStudentTypes = TUsers;
 type TNewUserTypes = Omit<TUsers, "course" | "section" | "year">;
@@ -175,7 +177,7 @@ export default function Archive() {
             title="Delete"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-rose-500 hover:bg-rose-600 active:bg-rose-700 shadow-sm transition-colors"
           >
-            Delete
+            <RiDeleteBin6Line className="h-3.5 w-3.5" /> Delete
           </button>
         )}
         <button
@@ -183,7 +185,7 @@ export default function Archive() {
           title="Restore"
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-amber-500 hover:bg-amber-600 active:bg-amber-700 shadow-sm transition-colors"
         >
-          Restore
+          <LuArchiveRestore className="h-3.5 w-3.5" /> Restore
         </button>
       </div>
     );
