@@ -74,7 +74,7 @@ const SignalRTestButton = () => {
         <button
             onClick={testNotification}
             disabled={loading}
-            className="fixed bottom-20 right-4 z-[10000] bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="fixed bottom-20 right-4 z-80 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
             {loading ? 'Testing...' : '🔔 Test Notification'}
         </button>
