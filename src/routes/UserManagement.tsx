@@ -28,7 +28,7 @@ type TPageTab = "staff" | "registered";
 export default function UserManagement() {
   const [activeTab, setActiveTab] = useState<TPageTab>("staff");
 
-  const { mutate } = useArchiveUser();
+  const { mutate, isPending: isArchiving } = useArchiveUser();
   const { users, isPending, isError } = useAllUsersManagement();
   const { filteredUser, setSearchUser, setSelectedStatus, selectedRole, setSelectedRole } = useFilteredUser();
 
@@ -296,6 +296,7 @@ export default function UserManagement() {
           destination="archive"
           onHandleCancelAction={cancelArchiveUser}
           onHandleConfirmAction={confirmArchiveUser}
+          isLoading={isArchiving}
         />
       )}
 

@@ -71,7 +71,7 @@ export const InventoryTable = ({ item }: InventoryTableProps) => {
     const data = UserData();
     const userRole = data.userRole;
 
-    const { mutate } = useArchiveItem();
+    const { mutate, isPending: isArchiving } = useArchiveItem();
 
     const handleArchive = (id: string) => {
         setSelectedItemId(id);
@@ -213,6 +213,7 @@ export const InventoryTable = ({ item }: InventoryTableProps) => {
                     destination="archive"
                     onHandleCancelAction={handleCancelArchive}
                     onHandleConfirmAction={handleConfirmArchive}
+                    isLoading={isArchiving}
                 />
             )}
         </>

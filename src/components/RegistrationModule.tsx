@@ -51,8 +51,8 @@ export default function RegistrationModule({ embedded = false }: RegistrationMod
 
     const { data: studentsData, isError: isStudentStudentIsError } = useQuery(useAllUsers());
     const { data: teachersData, isError: isTeacherDataIsError } = useQuery(useAllUsers());
-    const { mutate: archiveStudent } = useArchiveUser();
-    const { mutate: archiveTeacher } = useArchiveUser();
+    const { mutate: archiveStudent, isPending: isArchivingStudent } = useArchiveUser();
+    const { mutate: archiveTeacher, isPending: isArchivingTeacher } = useArchiveUser();
 
     const selectedViewStudent = useMemo(() => students.find((s) => s.id === viewStudentId), [students, viewStudentId]);
     const selectedViewTeacher = useMemo(() => teachers.find((t) => t.id === viewTeacherId), [teachers, viewTeacherId]);
@@ -310,6 +310,7 @@ export default function RegistrationModule({ embedded = false }: RegistrationMod
                     title="Archive Student" label="archive" noun="student" destination="archive"
                     onHandleCancelAction={handleCancelArchiveStudent}
                     onHandleConfirmAction={handleConfirmArchiveStudent}
+                    isLoading={isArchivingStudent}
                 />
             )}
             {isArchiveTeacherOpen && (
@@ -317,6 +318,7 @@ export default function RegistrationModule({ embedded = false }: RegistrationMod
                     title="Archive Teacher" label="archive" noun="teacher" destination="archive"
                     onHandleCancelAction={handleCancelArchiveTeacher}
                     onHandleConfirmAction={handleConfirmArchiveTeacher}
+                    isLoading={isArchivingTeacher}
                 />
             )}
             {isViewStudentOpen && selectedViewStudent && (
