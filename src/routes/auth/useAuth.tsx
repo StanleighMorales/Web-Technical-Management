@@ -7,7 +7,7 @@ const getAccessTokenKey = () => import.meta.env.VITE_ACCESS_TOKEN_KEY;
 const getRefreshAccessToken = async (): Promise<string | null> => {
   try {
     const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    const END_POINT = "/api/v1/auth/refresh-token";
+    const END_POINT = "/auth/refresh-token";
 
     if (!BASE_URL) {
       console.error("Refresh token URL not found");
