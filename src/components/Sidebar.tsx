@@ -21,6 +21,7 @@ export default function Sidebar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [isSidebarLoading, setIsSidebarLoading] = useState<boolean>(true);
 
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { mutate, isPending } = useLogoutUser();
   const { setIsSidebarExpanded } = useSidebar();
   const { total: pendingCount } = usePendingCount();
@@ -66,10 +67,16 @@ export default function Sidebar() {
   }, []);
 
   const logoutUser = () => {
-    mutate(undefined, {
-      onSuccess: () => navigate({ to: "/" }),
-      onError: (err) => console.error(err.message),
-    });
+    setIsLoggingOut(true);
+    setTimeout(() => {
+      mutate(undefined, {
+        onSuccess: () => navigate({ to: "/" }),
+        onError: (err) => {
+          console.error(err.message);
+          setIsLoggingOut(false);
+        },
+      });
+    }, 2200);
   };
 
   if (isSidebarLoading) return <SidebarSkeletonLoader />;
@@ -253,8 +260,7 @@ export default function Sidebar() {
       )}
 
       {/* Mobile Sidebar Drawer */}
-      {isMobileMenuOpen && (
-        <div className="flex fixed inset-y-0 left-0 z-50 flex-col w-72 max-w-[85vw] bg-slate-50 border-r border-slate-200 shadow-2xl lg:hidden animate-slideIn overflow-hidden">
+      {isMobileMenuOpen && (        <div className="flex fixed inset-y-0 left-0 z-50 flex-col w-72 max-w-[85vw] bg-slate-50 border-r border-slate-200 shadow-2xl lg:hidden animate-slideIn overflow-hidden">
           <div className="flex items-center gap-3 px-5 py-5 border-b border-slate-200 bg-white/80">
             <img src={logo} alt="Logo" className="w-12 h-12 rounded-xl shadow-sm" />
             <span className="text-xl font-bold tracking-wide text-blue-600">ACLC</span>
@@ -358,6 +364,37 @@ export default function Sidebar() {
               Logout
             </button>
           </footer>
+        </div>
+      )}
+
+      {/* Logout overlay */}
+      {isLoggingOut && (
+        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-900/90 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="flex flex-col items-center gap-6 text-center px-8">
+            <div className="relative flex h-20 w-20 items-center justify-center">
+              <div className="absolute inset-0 rounded-full bg-blue-500/20 animate-ping" />
+              <div className="relative h-16 w-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-xl shadow-blue-500/30">
+                <img src={logo} alt="Logo" className="w-10 h-10 rounded-full" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-extrabold text-white tracking-tight">
+                Thank you!
+              </h2>
+              <p className="text-slate-400 font-medium text-base">
+                You've been logged out successfully.
+              </p>
+            </div>
+            <div className="flex gap-1.5 mt-2">
+              {[0, 1, 2].map((i) => (
+                <span
+                  key={i}
+                  className="h-2 w-2 rounded-full bg-blue-500 animate-bounce"
+                  style={{ animationDelay: `${i * 0.15}s` }}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       )}
     </>
