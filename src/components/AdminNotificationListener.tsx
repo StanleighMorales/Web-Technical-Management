@@ -133,13 +133,10 @@ const AdminNotificationListener = () => {
 
         const unsubStatusChange = subscribe('ReceiveStatusChangeNotification',
             (n: StatusChangeNotification) => {
-                if (n.newStatus === 'Returned' || n.newStatus === 'Borrowed') {
-                    const title = `Item ${n.newStatus}`;
-                    if (n.newStatus === 'Returned') {
-                        showToast.info(title, n.message, { autoClose: 6000 });
-                    } else {
-                        showToast.info(title, n.message, { autoClose: 6000 });
-                    }
+                // Only show notification for "Borrowed" status changes
+                // "Returned" notifications are redundant since the user action already shows a success toast
+                if (n.newStatus === 'Borrowed') {
+                    showToast.info(`Item ${n.newStatus}`, n.message, { autoClose: 6000 });
                 }
                 queryClient.invalidateQueries({ queryKey: ['lentItems'] });
                 queryClient.invalidateQueries({ queryKey: ['items'] });
