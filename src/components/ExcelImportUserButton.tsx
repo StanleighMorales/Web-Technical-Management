@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { FaFileImport } from "react-icons/fa6";
+import { Upload } from "lucide-react";
 import * as XLSX from "xlsx";
 // import { usePostImportExcelUserMutation } from "../query/post/usePostImportUserMutation";
 import { useImportUser } from "../hooks/userHooks";
@@ -61,9 +61,9 @@ export default function ExcelImportUserButton() {
 
       <button
         onClick={() => fileInputRef.current?.click()}
-        className="flex items-center gap-2 px-5 py-0.5 cursor-pointer bg-green-500 text-white font-semibold rounded-md shadow-md hover:scale-100 hover:shadow-sm transition-all duration-150"
+        className="flex items-center gap-2 px-5 py-2.5 cursor-pointer bg-green-500 text-white font-semibold rounded-xl shadow-md hover:bg-green-600 hover:shadow-sm transition-all duration-150"
       >
-        <FaFileImport size={25} className="font-bold mr-1" /> Import Students
+        <Upload className="h-5 w-5" /> Import Students
       </button>
     </div>
   );

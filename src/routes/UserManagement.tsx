@@ -151,34 +151,46 @@ export default function UserManagement() {
         <div className="bg-white rounded-[2rem] border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
 
           {/* Toolbar */}
-          <div className="px-6 md:px-8 py-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <Button onClick={() => setIsAddUserOpen(true)} name="New User" />
-
-            <div className="flex flex-wrap lg:justify-end items-center gap-2">
-              {/* Role filter pills */}
-              <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl">
-                {["all", "admin", "staff"].map((role) => (
-                  <button
-                    key={role}
-                    onClick={() => setSelectedRole(role)}
-                    className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                      selectedRole === role
-                        ? "bg-white text-slate-900 shadow-sm"
-                        : "text-slate-500 hover:text-slate-700"
-                    }`}
-                  >
-                    {role.charAt(0).toUpperCase() + role.slice(1)}
-                  </button>
-                ))}
+          <div className="px-6 md:px-8 py-5 border-b border-slate-100">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              {/* Left side - New User button */}
+              <div className="flex-shrink-0">
+                <Button onClick={() => setIsAddUserOpen(true)} name="New User" />
               </div>
 
-              <SelectUserStatus onChangeStatus={setSelectedStatus} />
+              {/* Right side - Filters and Search */}
+              <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 lg:justify-end">
+                {/* Role filter pills */}
+                <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl flex-shrink-0">
+                  {["all", "admin", "staff"].map((role) => (
+                    <button
+                      key={role}
+                      onClick={() => setSelectedRole(role)}
+                      className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                        selectedRole === role
+                          ? "bg-white text-slate-900 shadow-sm"
+                          : "text-slate-500 hover:text-slate-700"
+                      }`}
+                    >
+                      {role.charAt(0).toUpperCase() + role.slice(1)}
+                    </button>
+                  ))}
+                </div>
 
-              <SearchBar
-                onChangeValue={(value) => setSearchUser(value)}
-                name="Search Users"
-                placeholder="Search by name, role, or status"
-              />
+                {/* Status filter dropdown */}
+                <div className="flex-shrink-0">
+                  <SelectUserStatus onChangeStatus={setSelectedStatus} />
+                </div>
+
+                {/* Search bar */}
+                <div className="flex-grow sm:flex-grow-0 sm:w-auto">
+                  <SearchBar
+                    onChangeValue={(value) => setSearchUser(value)}
+                    name="Search Users"
+                    placeholder="Search by name, role, or status"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 

@@ -68,9 +68,9 @@ export const StudentTable: FC<TStudentNewTypes> = (props) => {
                 onClick={(e) => { e.stopPropagation(); if (!isOnline) onHandleArchiveStudent(); }}
                 disabled={isOnline}
                 title={isOnline ? "Cannot archive — user is currently Online" : "Archive student"}
-                className="inline-flex items-center px-2.5 gap-1.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-orange-500 hover:bg-orange-600 active:bg-orange-700 shadow-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none"
             >
-                <IoArchive /> Archive
+                <IoArchive className="h-3.5 w-3.5" /> Archive
             </button>
         );
     };
@@ -90,11 +90,11 @@ export const StudentTable: FC<TStudentNewTypes> = (props) => {
             <td className="py-3 px-6">{props.userRole}</td>
             <td className="flex flex-row py-3 px-6 gap-2">
                 <button
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-blue-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-blue-500 hover:bg-blue-600 active:bg-blue-700 shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={(e) => { e.stopPropagation(); handleEditStudent(props.id) }}
                     title="Edit user"
                 >
-                    <CiEdit /> Edit
+                    <CiEdit className="h-3.5 w-3.5" /> Edit
                 </button>
                 <ShowButtonIfUserAdmin
                     viewerRole={data.userRole}
