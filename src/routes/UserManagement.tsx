@@ -62,7 +62,7 @@ export default function UserManagement() {
       onError: () => {
         setIsArchiveModalOpen(false);
         setArchiveUserId("");
-        showToast.error("Action Failed", "You cannot delete the logged-in user!");
+        showToast.error("Action Failed", "You cannot archive the logged-in user!");
       },
     });
   }, [archiveUserId, mutate]);
