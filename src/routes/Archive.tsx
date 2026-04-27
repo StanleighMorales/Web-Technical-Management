@@ -163,16 +163,21 @@ export default function Archive() {
   const handleCancelUserDelete = () => { setIsUserDeleteConfirmOpen(false); setUserDeleteSelectedId(null); };
 
   const ShowButtonIfUserAdmin: FC<checkIfUserAdminProps> = ({ onHandleRestoreUser, onHandleDeleteUser }) => {
-    if (userData.userRole?.toLowerCase() !== "admin" && userData.userRole?.toLowerCase() !== "superadmin") return null;
+    const role = userData.userRole?.toLowerCase();
+    const isAdmin = role === "admin" || role === "superadmin";
+    const isStaff = role === "staff";
+    if (!isAdmin && !isStaff) return null;
     return (
       <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-        <button
-          onClick={onHandleDeleteUser}
-          title="Delete"
-          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors"
-        >
-          Delete
-        </button>
+        {isAdmin && (
+          <button
+            onClick={onHandleDeleteUser}
+            title="Delete"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition-colors"
+          >
+            Delete
+          </button>
+        )}
         <button
           onClick={onHandleRestoreUser}
           title="Restore"
