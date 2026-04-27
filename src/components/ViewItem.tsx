@@ -82,7 +82,7 @@ export default function ViewItem() {
           <button
             type="button"
             onClick={() => setIsEditItemFormOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm font-semibold hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-semibold text-white bg-blue-500 hover:bg-blue-600 active:bg-blue-700 shadow-sm transition-colors"
           >
             <Pencil className="h-3.5 w-3.5" />
             Edit Item
