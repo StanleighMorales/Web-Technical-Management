@@ -58,7 +58,7 @@ export default function RfidControllerModule() {
           <FaWifi className="text-2xl text-blue-600" />
         </span>
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">RFID Controller</h1>
+          <h1 className="text-2xl font-bold text-slate-800">Scan Controller</h1>
           <p className="text-sm text-slate-500">Select a mode to begin scanning</p>
         </div>
       </div>
