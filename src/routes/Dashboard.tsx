@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import box from "../assets/box.webp";
 import { DashboardSkeletonLoader } from "../loader/DashboardSkeletonLoader";
 import DashboardBadges from "../components/DashboardBadges";
 import ErrorTable from "../components/ErrorTables";
@@ -39,7 +40,7 @@ const columns = [
         src={
           typeof row.original.item.image === "string"
             ? row.original.item.image
-            : undefined
+            : box
         }
         alt={row.original.item.itemName}
         className="w-10 h-10 object-cover rounded-xl border border-slate-100"
