@@ -469,3 +469,13 @@ export type TBlockStatus = {
   blockedById: string | null;
   blockedByUsername: string | null;
 };
+
+export type TRfidSession = {
+  id: string;
+  itemId: string;
+  itemName: string;
+  serialNumber: string;
+  status: "Pending" | "Completed" | "Expired";
+  expiresAt: string;
+  createdAt: string;
+};

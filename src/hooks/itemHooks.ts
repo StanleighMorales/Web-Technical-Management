@@ -6,9 +6,12 @@ import {
   allItemsArchiveApi,
   archiveItemApi,
   borrowItem,
+  cancelRfidSessionApi,
+  createRfidSessionApi,
   deleteItemApi,
   getArchiveItemInfo,
   getItemApi,
+  getRfidSessionApi,
   importItem,
   recentlyBorrowItems,
   restoreItemApi,
@@ -155,5 +158,29 @@ export const useSummaryData = () => {
     queryFn: summaryData,
     queryKey: ["summary"],
     staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useCreateRfidSession = () => {
+  return useMutation({
+    mutationFn: createRfidSessionApi,
+    mutationKey: ["rfidSession"],
+  });
+};
+
+export const useGetRfidSession = (sessionId: string) => {
+  return queryOptions({
+    queryFn: () => getRfidSessionApi(sessionId),
+    queryKey: ["rfidSession", sessionId],
+    enabled: !!sessionId,
+    staleTime: 0,
+    refetchInterval: 2000, // poll every 2s like the ESP32 spec
+  });
+};
+
+export const useCancelRfidSession = () => {
+  return useMutation({
+    mutationFn: cancelRfidSessionApi,
+    mutationKey: ["rfidSession"],
   });
 };
