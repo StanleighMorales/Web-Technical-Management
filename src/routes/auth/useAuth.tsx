@@ -21,7 +21,7 @@ const getRefreshAccessToken = async (): Promise<string | null> => {
 
     const data = await res.json();
     if (!res.ok) {
-      console.error(data.message || "Failed to refresh token");
+      console.error(data?.message || "Failed to refresh token");
       return null;
     }
 

@@ -6,7 +6,7 @@ import {
     Mail,
     Phone,
     AtSign,
-    Briefcase,
+    // Briefcase,
     CircleUserRound,
     BadgeCheck,
     X,
@@ -30,7 +30,7 @@ type EditProfileModalProps = {
     onSubmit?: (values: EditableUser) => Promise<void> | void;
 };
 
-const POSITIONS = ["Intern", "Full-Time", "Part-Time", "Head-Staff"];
+// const POSITIONS = ["Intern", "Full-Time", "Part-Time", "Head-Staff"];
 
 export default function EditProfileModal({
     initialValues,
@@ -246,7 +246,7 @@ export default function EditProfileModal({
                                     />
                                 </Field>
 
-                                <Field
+                                {/* <Field
                                     label="Position"
                                     icon={<Briefcase className="h-3.5 w-3.5" />}
                                 >
@@ -261,7 +261,7 @@ export default function EditProfileModal({
                                             </option>
                                         ))}
                                     </select>
-                                </Field>
+                                </Field> */}
                             </div>
                         </div>
                     </div>

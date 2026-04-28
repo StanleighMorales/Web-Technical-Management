@@ -17,6 +17,7 @@ import {
 import { useReturnItemMutation } from "../query/patch/useReturnItemMutation";
 import { showToast } from "../components/AppToast";
 import ReturnConfirmationModal from "../components/ReturnConfirmationModal";
+import ActiveBorrowedItemsSkeletonLoader from "../loader/ActiveBorrowedItemsSkeletonLoader";
 
 const columnHelper = createColumnHelper<TRecentBorrowItemProps>();
 
@@ -130,12 +131,7 @@ export default function ActiveBorrowedItems() {
   });
 
   if (isPending) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center gap-3">
-        <div className="w-8 h-8 rounded-full border-b-2 border-blue-600 animate-spin" />
-        <span className="text-sm font-medium text-slate-500">Loading active borrows...</span>
-      </div>
-    );
+    return <ActiveBorrowedItemsSkeletonLoader />;
   }
 
   return (
