@@ -5,10 +5,11 @@ import EditUser from "../components/EditUser";
 import SearchBar from "../components/SearchBar";
 import { SelectUserStatus } from "../components/SelectUserStatus";
 import { UserSkeletonLoader } from "../loader/UserSkeletonLoader";
-import { useArchiveUser } from "../hooks/userHooks";
+import { useArchiveUser, useBlockUser, useUnblockUser } from "../hooks/userHooks";
 import UserTable from "../components/UserTable";
 import ErrorTable from "../components/ErrorTables";
 import PopUpModal from "../components/PopUpModal";
+import BlockUserModal from "../components/BlockUserModal";
 import ViewUserCredentials from "../components/ViewUserCredentials";
 import { showToast } from "../components/AppToast";
 import { useAllUsersManagement, useFilteredUser } from "../data/user-management-data";
@@ -17,7 +18,6 @@ import RegistrationModule from "../components/RegistrationModule";
 import {
   Users,
   Sparkles,
-  ChevronRight,
   Search,
   ShieldCheck,
   GraduationCap,
@@ -27,8 +27,12 @@ type TPageTab = "staff" | "registered";
 
 export default function UserManagement() {
   const [activeTab, setActiveTab] = useState<TPageTab>("staff");
+  const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
+  const [blockUserId, setBlockUserId] = useState("");
 
-  const { mutate } = useArchiveUser();
+  const { mutate, isPending: isArchiving } = useArchiveUser();
+  const { mutate: blockUser, isPending: isBlocking } = useBlockUser();
+  const { mutate: unblockUser } = useUnblockUser();
   const { users, isPending, isError } = useAllUsersManagement();
   const { filteredUser, setSearchUser, setSelectedStatus, selectedRole, setSelectedRole } = useFilteredUser();
 
@@ -77,13 +81,59 @@ export default function UserManagement() {
     setIsViewCredentialsOpen(true);
   };
 
-  const tableUsers = filteredUser.filter(
-    (user) => user.userRole === "Admin" || user.userRole === "Staff",
+  const handleBlockUser = (id: string) => {
+    setBlockUserId(id);
+    setIsBlockModalOpen(true);
+  };
+
+  const handleUnblockUser = (id: string) => {
+    unblockUser(id, {
+      onSuccess: () => {
+        showToast.success("User Unblocked", "User has been unblocked successfully.");
+      },
+      onError: (error: any) => {
+        showToast.error("Action Failed", error?.response?.data?.message || "Failed to unblock user.");
+      },
+    });
+  };
+
+  const confirmBlockUser = (data: { reason: string; isPermanent: boolean; blockedUntil?: string }) => {
+    blockUser(
+      { id: blockUserId, data },
+      {
+        onSuccess: () => {
+          setIsBlockModalOpen(false);
+          setBlockUserId("");
+          showToast.success("User Blocked", "User has been blocked successfully.");
+        },
+        onError: (error: any) => {
+          setIsBlockModalOpen(false);
+          setBlockUserId("");
+          showToast.error("Action Failed", error?.response?.data?.message || "Failed to block user.");
+        },
+      }
+    );
+  };
+
+  const cancelBlockUser = () => {
+    setIsBlockModalOpen(false);
+    setBlockUserId("");
+  };
+
+  const blockUserData = useMemo(
+    () => users.find((u) => u.id === blockUserId),
+    [users, blockUserId],
   );
 
-  const onlineCount = users.filter(
-    (u) => u.status.toLowerCase() === "online",
-  ).length;
+  const tableUsers = filteredUser.filter(
+    (user) => (user.userRole === "Admin" || user.userRole === "Staff") && user.status?.toLowerCase() !== "archived",
+  );
+
+  // Calculate detailed stats for Staff & Admins
+  const staffUsers = users.filter((u) => u.userRole === "Staff" && u.status?.toLowerCase() !== "archived");
+  const adminUsers = users.filter((u) => u.userRole === "Admin" && u.status?.toLowerCase() !== "archived");
+  const staffOnlineCount = staffUsers.filter((u) => u.status.toLowerCase() === "online").length;
+  const adminOnlineCount = adminUsers.filter((u) => u.status.toLowerCase() === "online").length;
 
   if (isPending) return <UserSkeletonLoader />;
 
@@ -104,81 +154,108 @@ export default function UserManagement() {
             Manage all system users — staff accounts, teachers, and students — from one place.
           </p>
         </div>
-
-        {/* Live stats (staff tab only) */}
-        {activeTab === "staff" && (
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white border border-slate-200 shadow-sm text-sm font-medium text-slate-600">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-emerald-200 animate-pulse" />
-              <span>{onlineCount} online</span>
-            </div>
-            <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white border border-slate-200 shadow-sm text-sm font-medium text-slate-600">
-              <Users className="h-4 w-4 text-slate-400" />
-              <span>{tableUsers.length} shown</span>
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* Top-level tab switcher */}
-      <div className="flex items-center gap-1 p-1 bg-white border border-slate-200 rounded-2xl w-fit shadow-sm">
-        <button
-          onClick={() => setActiveTab("staff")}
-          className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
-            activeTab === "staff"
-              ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/25"
-              : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
-          }`}
-        >
-          <ShieldCheck className="h-4 w-4" />
-          Staff & Admins
-        </button>
-        <button
-          onClick={() => setActiveTab("registered")}
-          className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
-            activeTab === "registered"
-              ? "bg-violet-600 text-white shadow-md shadow-violet-600/25"
-              : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
-          }`}
-        >
-          <GraduationCap className="h-4 w-4" />
-          Registered Users
-        </button>
+      {/* Top-level tab switcher with stats and New User button */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-1 p-1 bg-white border border-slate-200 rounded-2xl w-fit shadow-sm">
+          <button
+            onClick={() => setActiveTab("staff")}
+            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+              activeTab === "staff"
+                ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/25"
+                : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            <ShieldCheck className="h-4 w-4" />
+            Staff & Admins
+          </button>
+          <button
+            onClick={() => setActiveTab("registered")}
+            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+              activeTab === "registered"
+                ? "bg-violet-600 text-white shadow-md shadow-violet-600/25"
+                : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            <GraduationCap className="h-4 w-4" />
+            Teachers & Students
+          </button>
+        </div>
+        
+        {/* Stats and New User button */}
+        <div className="flex items-center gap-3">
+          {/* New User button - visible on all tabs */}
+          <Button onClick={() => setIsAddUserOpen(true)} name="New User" />
+        </div>
       </div>
 
       {/* ── Staff & Admins tab ── */}
       {activeTab === "staff" && (
-        <div className="bg-white rounded-[2rem] border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
+        <div className="bg-white rounded-4xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
 
           {/* Toolbar */}
-          <div className="px-6 md:px-8 py-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <Button onClick={() => setIsAddUserOpen(true)} name="New User" />
+          <div className="px-6 md:px-8 py-4 border-b border-slate-100">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              {/* Left side - Minimal Stats */}
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Total */}
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200">
+                  <Users className="h-3.5 w-3.5 text-slate-500" />
+                  <span className="text-sm font-semibold text-slate-700">{tableUsers.length}</span>
+                  <span className="text-xs text-slate-500">total</span>
+                </div>
 
-            <div className="flex flex-wrap lg:justify-end items-center gap-2">
-              {/* Role filter pills */}
-              <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl">
-                {["all", "admin", "staff"].map((role) => (
-                  <button
-                    key={role}
-                    onClick={() => setSelectedRole(role)}
-                    className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                      selectedRole === role
-                        ? "bg-white text-slate-900 shadow-sm"
-                        : "text-slate-500 hover:text-slate-700"
-                    }`}
-                  >
-                    {role.charAt(0).toUpperCase() + role.slice(1)}
-                  </button>
-                ))}
+                {/* Staff */}
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-violet-50 border border-violet-200">
+                  <ShieldCheck className="h-3.5 w-3.5 text-violet-600" />
+                  <span className="text-sm font-semibold text-violet-700">{staffUsers.length}</span>
+                  <span className="text-xs text-violet-600">staff</span>
+                  <span className="text-xs text-violet-500">({staffOnlineCount} online)</span>
+                </div>
+
+                {/* Admins */}
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-200">
+                  <ShieldCheck className="h-3.5 w-3.5 text-amber-600" />
+                  <span className="text-sm font-semibold text-amber-700">{adminUsers.length}</span>
+                  <span className="text-xs text-amber-600">admins</span>
+                  <span className="text-xs text-amber-500">({adminOnlineCount} online)</span>
+                </div>
               </div>
 
-              <SelectUserStatus onChangeStatus={setSelectedStatus} />
+              {/* Right side - Filters and Search */}
+              <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 lg:justify-end">
+                {/* Role filter pills */}
+                <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl shrink-0">
+                  {["all", "admin", "staff"].map((role) => (
+                    <button
+                      key={role}
+                      onClick={() => setSelectedRole(role)}
+                      className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                        selectedRole === role
+                          ? "bg-white text-slate-900 shadow-sm"
+                          : "text-slate-500 hover:text-slate-700"
+                      }`}
+                    >
+                      {role.charAt(0).toUpperCase() + role.slice(1)}
+                    </button>
+                  ))}
+                </div>
 
-              <SearchBar
-                onChangeValue={(value) => setSearchUser(value)}
-                name="Search Users"
-                placeholder="Search by name, role, or status"
-              />
+                {/* Status filter dropdown */}
+                <div className="shrink-0">
+                  <SelectUserStatus onChangeStatus={setSelectedStatus} />
+                </div>
+
+                {/* Search bar */}
+                <div className="grow sm:grow-0 sm:w-auto">
+                  <SearchBar
+                    onChangeValue={(value) => setSearchUser(value)}
+                    name="Search Users"
+                    placeholder="Search by name, role, or status"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
@@ -201,7 +278,7 @@ export default function UserManagement() {
                 <table className="w-full text-left text-sm whitespace-nowrap">
                   <thead>
                     <tr className="border-b border-slate-100">
-                      {["First Name", "Last Name", "Username", "Email", "Role", "Status", "Action"].map(
+                      {["First Name", "Last Name", "Username", "Email", "Role", "Status"].map(
                         (col) => (
                           <th
                             key={col}
@@ -211,7 +288,7 @@ export default function UserManagement() {
                           </th>
                         ),
                       )}
-                      <th className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4" />
+                      <th className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4 w-12" />
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -229,6 +306,7 @@ export default function UserManagement() {
                           email={user.email}
                           userRole={user.userRole}
                           status={user.status}
+                          isBlocked={user.isBlocked}
                           onSetEditUserId={(userId) => {
                             setSelectedUserId(userId);
                             setIsEditUserOpen(true);
@@ -238,10 +316,9 @@ export default function UserManagement() {
                             setArchiveUserId(userId);
                             setIsArchiveModalOpen(true);
                           }}
+                          onBlockUser={handleBlockUser}
+                          onUnblockUser={handleUnblockUser}
                         />
-                        <td className="px-6 py-4">
-                          <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-indigo-500 transition-colors" />
-                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -284,6 +361,17 @@ export default function UserManagement() {
           destination="archive"
           onHandleCancelAction={cancelArchiveUser}
           onHandleConfirmAction={confirmArchiveUser}
+          isLoading={isArchiving}
+        />
+      )}
+
+      {blockUserData && (
+        <BlockUserModal
+          isOpen={isBlockModalOpen}
+          onClose={cancelBlockUser}
+          onConfirm={confirmBlockUser}
+          userName={`${blockUserData.firstName} ${blockUserData.lastName}`}
+          isLoading={isBlocking}
         />
       )}
 

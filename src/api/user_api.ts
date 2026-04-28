@@ -136,3 +136,22 @@ export const importUser = async (formData: FormData) => {
   const response = await api.post("/users/students/import", formData);
   return response.data;
 };
+
+export const blockUserApi = async (id: string, data: {
+  reason: string;
+  isPermanent: boolean;
+  blockedUntil?: string;
+}) => {
+  const response = await api.post(`/users/${id}/block`, data);
+  return response.data;
+};
+
+export const unblockUserApi = async (id: string) => {
+  const response = await api.post(`/users/${id}/unblock`);
+  return response.data;
+};
+
+export const getBlockStatusApi = async (id: string) => {
+  const response = await api.get(`/users/${id}/block-status`);
+  return response.data.data;
+};

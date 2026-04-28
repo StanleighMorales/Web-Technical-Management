@@ -1,4 +1,4 @@
-import { ArchiveRestore, X } from "lucide-react";
+import { ArchiveRestore, X, Loader2 } from "lucide-react";
 
 type PopUpModalProps = {
   title: string;
@@ -7,6 +7,7 @@ type PopUpModalProps = {
   destination?: string;
   onHandleCancelAction: () => void;
   onHandleConfirmAction: () => void;
+  isLoading?: boolean;
 };
 
 export default function PopUpModal({
@@ -16,6 +17,7 @@ export default function PopUpModal({
   destination,
   onHandleCancelAction,
   onHandleConfirmAction,
+  isLoading = false,
 }: PopUpModalProps) {
   return (
     <div
@@ -67,17 +69,28 @@ export default function PopUpModal({
             <button
               type="button"
               onClick={onHandleCancelAction}
-              className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-colors"
+              disabled={isLoading}
+              className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               No, cancel
             </button>
             <button
               type="button"
               onClick={onHandleConfirmAction}
-              className="flex-1 px-4 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold transition-colors shadow-sm shadow-amber-200 flex items-center justify-center gap-2"
+              disabled={isLoading}
+              className="flex-1 px-4 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold transition-colors shadow-sm shadow-amber-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <ArchiveRestore className="h-4 w-4" />
-              Yes, {label}
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <ArchiveRestore className="h-4 w-4" />
+                  Yes, {label}
+                </>
+              )}
             </button>
           </div>
         </div>

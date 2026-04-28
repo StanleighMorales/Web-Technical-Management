@@ -494,7 +494,8 @@ export default function Archive() {
       {/* ── Modals ──────────────────────────────────────────────────────── */}
       {isRestoreConfirmOpen && (
         <PopUpModal title="Restore Item" label="restore" noun="item" destination="inventory list"
-          onHandleCancelAction={handleCancelRestore} onHandleConfirmAction={handleConfirmRestoreItem} />
+          onHandleCancelAction={handleCancelRestore} onHandleConfirmAction={handleConfirmRestoreItem} 
+          isLoading={restoreItemMutation.isPending} />
       )}
       {isDeleteConfirmOpen && (
         <PopUpModalDelete title="Delete Item" label="delete"
@@ -502,7 +503,8 @@ export default function Archive() {
       )}
       {isUserRestoreConfirmOpen && (
         <PopUpModal title="Restore User" label="restore" noun="user" destination="Registration Module"
-          onHandleCancelAction={handleCancelUserRestore} onHandleConfirmAction={handleConfirmRestoreUser} />
+          onHandleCancelAction={handleCancelUserRestore} onHandleConfirmAction={handleConfirmRestoreUser} 
+          isLoading={restoreUserMutation.isPending} />
       )}
       {isUserDeleteConfirmOpen && (
         <PopUpModalDelete title="Delete User" label="delete"

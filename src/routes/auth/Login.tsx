@@ -8,6 +8,7 @@ import { useLogin } from "../../hooks/authHooks";
 export default function Login() {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [isBlockedError, setIsBlockedError] = useState<boolean>(false);
   const [isShowPassword, setIsShowPassword] = useState<boolean>(false);
   const [usernameError, setUsernameError] = useState<string>("");
   const [passwordError, setPasswordError] = useState<string>("");
@@ -21,8 +22,8 @@ export default function Login() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setSubmitForm((prev) => ({ ...prev, [name]: value }));
-    if (name === "identifier") { setUsernameError(""); setErrorMessage(""); }
-    if (name === "password") { setPasswordError(""); setErrorMessage(""); }
+    if (name === "identifier") { setUsernameError(""); setErrorMessage(""); setIsBlockedError(false); }
+    if (name === "password") { setPasswordError(""); setErrorMessage(""); setIsBlockedError(false); }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,7 +35,19 @@ export default function Login() {
 
     mutate(submitForm, {
       onSuccess: () => navigate({ to: "/home/dashboard" }),
-      onError: () => setErrorMessage("Invalid username or password."),
+      onError: (error: any) => {
+        // Check if it's a blocked user error (403 Forbidden)
+        if (error?.response?.status === 403) {
+          // Extract the block message from the API response
+          const blockMessage = error?.response?.data?.message || "Your account has been blocked.";
+          setErrorMessage(blockMessage);
+          setIsBlockedError(true);
+        } else {
+          // For all other errors (401, 500, etc.), show generic message
+          setErrorMessage("Invalid username or password.");
+          setIsBlockedError(false);
+        }
+      },
     });
   };
 
@@ -118,10 +131,16 @@ export default function Login() {
           {errorMessage && (
             <div
               role="alert"
-              className="flex items-center gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600 animate-in fade-in slide-in-from-top-2 duration-200"
+              className={`flex items-start gap-3 rounded-2xl border px-4 py-3 text-sm font-medium animate-in fade-in slide-in-from-top-2 duration-200 ${
+                isBlockedError
+                  ? "border-amber-200 bg-amber-50 text-amber-800"
+                  : "border-rose-200 bg-rose-50 text-rose-600"
+              }`}
             >
-              <span className="h-2 w-2 flex-shrink-0 rounded-full bg-rose-500" />
-              {errorMessage}
+              <span className={`h-2 w-2 flex-shrink-0 rounded-full mt-1.5 ${
+                isBlockedError ? "bg-amber-500" : "bg-rose-500"
+              }`} />
+              <span className="flex-1">{errorMessage}</span>
             </div>
           )}
 

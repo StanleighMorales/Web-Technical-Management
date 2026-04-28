@@ -4,7 +4,7 @@ import * as signalR from '@microsoft/signalr';
 
 /**
  * Debug component to show SignalR connection status.
- * Remove this in production or hide it behind a debug flag.
+ * Toggleable to avoid blocking UI elements.
  */
 const SignalRStatus = () => {
     const [state, setState] = useState<signalR.HubConnectionState | null>(null);
@@ -64,7 +64,9 @@ const SignalRStatus = () => {
                 <div>
                     <div className="font-semibold">SignalR: {getStatusText()}</div>
                     {connectionId && (
-                        <div className="text-xs text-gray-500">ID: {connectionId.substring(0, 8)}...</div>
+                        <div className="px-3 pb-3 text-xs text-gray-500 border-t border-gray-100 pt-2">
+                            ID: {connectionId.substring(0, 8)}...
+                        </div>
                     )}
                 </div>
             </div>

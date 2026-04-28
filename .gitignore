@@ -24,6 +24,8 @@ dist-ssr
 *.sw?
 .env
 
+.kiro
+
 # wrangler files
 .wrangler
 .dev.vars*

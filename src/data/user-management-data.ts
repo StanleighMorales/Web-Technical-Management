@@ -61,5 +61,5 @@ export const useFilteredUser = () => {
         [searchUser, selectedStatus, selectedRole, users],
     )
 
-    return { filteredUser, setSearchUser, setSelectedStatus, selectedRole, setSelectedRole }
+    return { filteredUser, setSearchUser, selectedStatus, setSelectedStatus, selectedRole, setSelectedRole }
 }

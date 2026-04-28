@@ -183,8 +183,14 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
 
   return (
     <>
-      <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center min-h-screen p-4 sm:p-6">
-        <div className="w-full max-w-3xl relative animate-fadeInUp my-8">
+      <div 
+        className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center min-h-screen p-4 sm:p-6"
+        onClick={onClose}
+      >
+        <div 
+          className="w-full max-w-3xl relative animate-fadeInUp my-8"
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="bg-white rounded-2xl shadow-xl border border-slate-200/80 overflow-hidden">
             {/* Header + Step indicator */}
             <div className="border-b border-slate-100 bg-slate-50/80 px-6 py-4">
@@ -192,14 +198,7 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
                 <h2 className="text-xl font-semibold text-slate-800 tracking-tight">
                   New Item
                 </h2>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  aria-label="Close"
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 transition-colors"
-                >
-                  <CloseButton onClick={onClose} />
-                </button>
+                <CloseButton onClick={onClose} />
               </div>
               {/* Step indicator */}
               <div className="flex items-center gap-2" aria-label={`Step ${step} of ${TOTAL_STEPS}`}>
