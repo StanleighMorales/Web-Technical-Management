@@ -18,6 +18,7 @@ import ActivityLogs from "./ActivityLogs";
 import ActivityLogDetail from "./ActivityLogDetail";
 import BorrowLogs from "./BorrowLogs"
 import ActiveBorrowedItems from "./ActiveBorrowedItems";
+import RfidController from "./RfidController";
 
 export const Route = createRootRoute({
     component: App,
@@ -127,6 +128,12 @@ const ActiveBorrowedItemsRoute = createRoute({
     component: ActiveBorrowedItems
 })
 
+const RfidControllerRoute = createRoute({
+    getParentRoute: () => homeRoute,
+    path: "rfid-controller",
+    component: RfidController
+})
+
 export const routeTree = Route.addChildren([
     indexRoute,
     homeRoute.addChildren([
@@ -143,6 +150,7 @@ export const routeTree = Route.addChildren([
         ActivityLogsRoute,
         ActivityLogDetailRoute,
         BorrowLogsRoute,
-        ActiveBorrowedItemsRoute
+        ActiveBorrowedItemsRoute,
+        RfidControllerRoute
     ]),
 ]);

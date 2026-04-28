@@ -10,6 +10,7 @@ import {
 import { BiLogoSass } from "react-icons/bi";
 import { BsPersonCircle, BsClipboardCheck } from "react-icons/bs";
 import { TbPackages } from "react-icons/tb";
+import { FaWifi } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import SidebarSkeletonLoader from "../loader/SidebarSkeletonLoader";
 import { useSidebar } from "../context/SidebarContext";
@@ -42,6 +43,7 @@ export default function Sidebar() {
   const operationalLinks = [
     { label: "Borrowing", link: "/home/borrow-item", icon: TbPackages },
     { label: "Active Borrows", link: "/home/active-borrowed-items", icon: BsClipboardCheck },
+    { label: "RFID Controller", link: "/home/rfid-controller", icon: FaWifi },
   ];
 
   // Administrative links

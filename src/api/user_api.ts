@@ -155,3 +155,26 @@ export const getBlockStatusApi = async (id: string) => {
   const response = await api.get(`/users/${id}/block-status`);
   return response.data.data;
 };
+
+// ── Student RFID Session API ──────────────────────────────────────────────────
+
+const student_rfid_session_end_point = "/rfid-sessions/student";
+
+export const createStudentRfidSessionApi = async (studentId: string) => {
+  const response = await api.post(
+    student_rfid_session_end_point,
+    { studentId },
+    { headers: { "Content-Type": "application/json" } },
+  );
+  return response.data.data;
+};
+
+export const getStudentRfidSessionApi = async (sessionId: string) => {
+  const response = await api.get(`${student_rfid_session_end_point}/${sessionId}`);
+  return response.data.data;
+};
+
+export const cancelStudentRfidSessionApi = async (sessionId: string) => {
+  const response = await api.delete(`${student_rfid_session_end_point}/${sessionId}`);
+  return response.data;
+};

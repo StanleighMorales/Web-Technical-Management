@@ -4,16 +4,21 @@ import {
   useState,
   type ChangeEvent,
 } from "react";
-import type { TItemForm, TItemList } from "../@types/types";
+import type { TItemForm, TItemList, TRfidSession } from "../@types/types";
 import { useQuery } from "@tanstack/react-query";
-import { useGetItemInfo, useUpdateItem } from "../hooks/itemHooks";
+import { useGetItemInfo, useUpdateItem, useCreateRfidSession, useCancelRfidSession } from "../hooks/itemHooks";
 import { showToast } from "./AppToast";
+import { getRfidSessionApi } from "../api/item_api";
 import {
   X,
   Pencil,
   Upload,
   Loader2,
   ImageIcon,
+  Wifi,
+  CheckCircle2,
+  XCircle,
+  Tag,
 } from "lucide-react";
 
 type EditItemFormProps = {
@@ -34,8 +39,77 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
   const { data, isLoading, error } = useQuery(useGetItemInfo(id));
   const [originalData, setOriginalData] = useState<TItemForm | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [existingRfidUid, setExistingRfidUid] = useState<string | null>(null);
+
+  // RFID session state
+  const [rfidSession, setRfidSession] = useState<TRfidSession | null>(null);
+  const [rfidStatus, setRfidStatus] = useState<"idle" | "starting" | "waiting" | "completed" | "expired" | "error">("idle");
+  const [pollIntervalId, setPollIntervalId] = useState<ReturnType<typeof setInterval> | null>(null);
 
   const { mutate } = useUpdateItem();
+  const { mutate: createSession } = useCreateRfidSession();
+  const { mutate: cancelSession } = useCancelRfidSession();
+
+  // Clean up polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollIntervalId) clearInterval(pollIntervalId);
+    };
+  }, [pollIntervalId]);
+
+  const stopPolling = () => {
+    if (pollIntervalId) {
+      clearInterval(pollIntervalId);
+      setPollIntervalId(null);
+    }
+  };
+
+  const startPolling = (sessionId: string) => {
+    const intervalId = setInterval(async () => {
+      try {
+        const session: TRfidSession = await getRfidSessionApi(sessionId);
+        setRfidSession(session);
+        if (session.status === "Completed") {
+          clearInterval(intervalId);
+          setPollIntervalId(null);
+          setRfidStatus("completed");
+          showToast.success("RFID Registered", `RFID tag assigned to "${session.itemName}" successfully!`);
+        } else if (session.status === "Expired") {
+          clearInterval(intervalId);
+          setPollIntervalId(null);
+          setRfidStatus("expired");
+        }
+      } catch {
+        clearInterval(intervalId);
+        setPollIntervalId(null);
+        setRfidStatus("error");
+      }
+    }, 2000);
+    setPollIntervalId(intervalId);
+  };
+
+  const handleStartRfidSession = () => {
+    setRfidStatus("starting");
+    createSession(id, {
+      onSuccess: (session: TRfidSession) => {
+        setRfidSession(session);
+        setRfidStatus("waiting");
+        startPolling(session.id);
+      },
+      onError: () => {
+        setRfidStatus("error");
+      },
+    });
+  };
+
+  const handleCancelRfidSession = () => {
+    stopPolling();
+    if (rfidSession?.id) {
+      cancelSession(rfidSession.id);
+    }
+    setRfidStatus("idle");
+    setRfidSession(null);
+  };
 
   const [formData, setFormData] = useState<TItemForm>({
     serialNumber: "",
@@ -67,6 +141,7 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
       };
       setFormData(itemData);
       setOriginalData(itemData);
+      setExistingRfidUid(item.rfidUid || null);
     }
   }, [data]);
 
@@ -90,7 +165,7 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
 
   const hasChanges = useMemo(() => {
     if (!originalData) return false;
-    return (
+    const formChanged =
       formData.serialNumber !== originalData.serialNumber ||
       formData.itemName !== originalData.itemName ||
       formData.itemType !== originalData.itemType ||
@@ -99,9 +174,10 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
       formData.description !== originalData.description ||
       formData.category !== originalData.category ||
       formData.condition !== originalData.condition ||
-      formData.image !== originalData.image
-    );
-  }, [formData, originalData]);
+      formData.image !== originalData.image;
+    // RFID was just registered — treat as a change even if no form fields changed
+    return formChanged || rfidStatus === "completed";
+  }, [formData, originalData, rfidStatus]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -394,6 +470,122 @@ export const EditItemForm = ({ onClose, id }: EditItemFormProps) => {
                     <ImageIcon className="h-4 w-4 text-slate-300 ml-auto flex-shrink-0" />
                   </div>
                 )}
+              </div>
+
+              {/* RFID Registration Section */}
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Tag className="h-4 w-4 text-slate-500" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500">RFID Registration</span>
+                </div>
+
+                {/* Current RFID status */}
+                {existingRfidUid && rfidStatus !== "completed" ? (
+                  <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-lg bg-green-50 border border-green-200">
+                    <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-green-700">RFID Assigned</p>
+                      <p className="text-xs text-green-600 font-mono truncate">{existingRfidUid}</p>
+                    </div>
+                  </div>
+                ) : rfidStatus !== "completed" ? (
+                  <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-lg bg-amber-50 border border-amber-200">
+                    <Tag className="h-4 w-4 text-amber-500 flex-shrink-0" />
+                    <p className="text-xs font-semibold text-amber-700">No RFID tag assigned yet</p>
+                  </div>
+                ) : null}
+
+                {/* Session status area */}
+                <div className="flex flex-col items-center gap-3 py-2">
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-full ${
+                    rfidStatus === "completed" ? "bg-green-100" :
+                    rfidStatus === "expired" || rfidStatus === "error" ? "bg-rose-100" :
+                    rfidStatus === "waiting" || rfidStatus === "starting" ? "bg-blue-100" :
+                    "bg-slate-100"
+                  }`}>
+                    {rfidStatus === "completed" ? (
+                      <CheckCircle2 className="h-6 w-6 text-green-600" />
+                    ) : rfidStatus === "expired" || rfidStatus === "error" ? (
+                      <XCircle className="h-6 w-6 text-rose-500" />
+                    ) : rfidStatus === "waiting" || rfidStatus === "starting" ? (
+                      <Wifi className="h-6 w-6 text-blue-600 animate-pulse" />
+                    ) : (
+                      <Wifi className="h-6 w-6 text-slate-400" />
+                    )}
+                  </div>
+
+                  <div className="text-center">
+                    {rfidStatus === "idle" && (
+                      <p className="text-xs text-slate-500">
+                        {existingRfidUid
+                          ? "Start a new session to replace the current RFID tag."
+                          : "Start a session to assign an RFID tag to this item."}
+                      </p>
+                    )}
+                    {rfidStatus === "starting" && (
+                      <p className="text-xs font-semibold text-slate-700 flex items-center gap-1.5 justify-center">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" /> Starting session…
+                      </p>
+                    )}
+                    {rfidStatus === "waiting" && rfidSession && (
+                      <>
+                        <p className="text-xs font-semibold text-slate-700">Waiting for RFID scan…</p>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          Place the tag on the reader. Expires at{" "}
+                          <span className="font-medium text-slate-700">
+                            {new Date(rfidSession.expiresAt).toLocaleTimeString()}
+                          </span>.
+                        </p>
+                        <div className="flex items-center gap-1.5 mt-1.5 justify-center">
+                          <Loader2 className="h-3 w-3 animate-spin text-blue-500" />
+                          <span className="text-xs text-blue-600">Polling for scan…</span>
+                        </div>
+                      </>
+                    )}
+                    {rfidStatus === "completed" && (
+                      <>
+                        <p className="text-xs font-semibold text-green-700">RFID registered!</p>
+                        <p className="text-xs text-slate-500 mt-0.5">The tag has been assigned to this item.</p>
+                      </>
+                    )}
+                    {rfidStatus === "expired" && (
+                      <>
+                        <p className="text-xs font-semibold text-rose-600">Session expired</p>
+                        <p className="text-xs text-slate-500 mt-0.5">The 5-minute window passed. Start a new session.</p>
+                      </>
+                    )}
+                    {rfidStatus === "error" && (
+                      <>
+                        <p className="text-xs font-semibold text-rose-600">Something went wrong</p>
+                        <p className="text-xs text-slate-500 mt-0.5">Could not start the RFID session. Try again.</p>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Action buttons */}
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    {(rfidStatus === "idle" || rfidStatus === "expired" || rfidStatus === "error") && (
+                      <button
+                        type="button"
+                        onClick={handleStartRfidSession}
+                        className="px-4 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg shadow-sm hover:bg-blue-700 transition-colors"
+                      >
+                        {rfidStatus === "idle"
+                          ? existingRfidUid ? "Replace RFID Tag" : "Start RFID Session"
+                          : "Retry"}
+                      </button>
+                    )}
+                    {rfidStatus === "waiting" && (
+                      <button
+                        type="button"
+                        onClick={handleCancelRfidSession}
+                        className="px-4 py-2 bg-rose-50 text-rose-600 border border-rose-200 text-xs font-semibold rounded-lg hover:bg-rose-100 transition-colors"
+                      >
+                        Cancel Session
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="flex justify-end gap-3 pt-2">

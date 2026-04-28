@@ -100,6 +100,7 @@ const ViewStudentCredentials: FC<ViewStudentCredentialsProps> = ({
               <Field label="Course" value={student.course} icon={<BookOpen className="h-3.5 w-3.5" />} />
               <Field label="Section" value={student.section} icon={<BadgeCheck className="h-3.5 w-3.5" />} />
               <Field label="Year Level" value={student.year} icon={<GraduationCap className="h-3.5 w-3.5" />} />
+              <Field label="RFID Card" value={student.rfidUid} icon={<CreditCard className="h-3.5 w-3.5" />} mono />
             </Grid>
           </Section>
 
