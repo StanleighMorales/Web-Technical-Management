@@ -4,7 +4,6 @@ import { SidebarProvider, useSidebar } from "../context/SidebarContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AdminNotificationListener from "../components/AdminNotificationListener";
-import SignalRStatus from "../components/SignalRStatus";
 import { UserData } from "../utils/usersData/userData";
 
 function HomeContent() {
@@ -34,9 +33,6 @@ function HomeContent() {
 
       {/* Mount notification listener for Admin/Staff only */}
       {isAdminOrStaff && <AdminNotificationListener />}
-
-      {/* Debug: SignalR connection status indicator */}
-      {isAdminOrStaff && <SignalRStatus />}
 
       {/* Sidebar component for navigation */}
       <Sidebar />

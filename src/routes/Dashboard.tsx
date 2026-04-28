@@ -26,6 +26,7 @@ import {
   X,
   Clock,
   ChevronRight,
+  Wifi,
 } from "lucide-react";
 
 const columnHelper = createColumnHelper<TRecentBorrowItemProps>();
@@ -213,9 +214,21 @@ export default function Dashboard() {
             Monitor inventory, users, and borrowing activity at a glance.
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-slate-400 font-medium bg-white border border-slate-200 rounded-xl px-4 py-2.5 shadow-sm">
-          <Clock className="h-3.5 w-3.5 text-slate-400" />
-          {new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" }).format(new Date())}
+        <div className="flex items-center gap-3">
+          {/* Date Display */}
+          <div className="flex items-center gap-2 text-xs text-slate-400 font-medium bg-white border border-slate-200 rounded-xl px-4 py-2.5 shadow-sm">
+            <Clock className="h-3.5 w-3.5 text-slate-400" />
+            {new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" }).format(new Date())}
+          </div>
+          {/* Notification System Status */}
+          <div className="flex items-center gap-2 text-xs font-medium bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl px-4 py-2.5 shadow-sm">
+            <Wifi className="h-3.5 w-3.5 text-emerald-600" />
+            <span className="text-slate-700">Notifications</span>
+            <div className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-emerald-700 font-semibold">Online</span>
+            </div>
+          </div>
         </div>
       </div>
 
