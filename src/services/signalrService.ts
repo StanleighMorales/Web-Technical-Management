@@ -17,24 +17,14 @@ class SignalRService {
     private pendingHandlers: Array<{ event: string; cb: (data: any) => void }> = [];
 
     async connect(token: string): Promise<void> {
-        // Only connect in offline/development mode (localhost)
+        // Extract base URL from API URL (remove /api/v1 suffix)
         const apiUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5278')
             .replace(/\/api\/v\d+\/?$/, '')
             .replace(/\/$/, '');
-        
-        const isOfflineMode = apiUrl.includes('localhost') || apiUrl.includes('127.0.0.1');
-        
-        if (!isOfflineMode) {
-            console.log('[SignalR] Skipping connection - not in offline mode');
-            return;
-        }
 
         if (this.connection?.state === signalR.HubConnectionState.Connected) {
-            console.log('[SignalR] Already connected, connectionId:', this.connection.connectionId);
             return;
         }
-
-        console.log(`[SignalR] Connecting to ${apiUrl}/notificationHub with token:`, token ? 'present' : 'missing');
 
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl(`${apiUrl}/notificationHub`, {
@@ -42,33 +32,30 @@ class SignalRService {
                 transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.ServerSentEvents,
             })
             .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
-            .configureLogging(signalR.LogLevel.Information) // Changed from Warning to Information for better debugging
+            .configureLogging(signalR.LogLevel.Warning)
             .build();
 
         this.connection.onreconnecting((error) => {
             console.warn('[SignalR] Reconnecting...', error);
         });
 
-        this.connection.onreconnected((connectionId) => {
-            console.log('[SignalR] Reconnected:', connectionId);
+        this.connection.onreconnected(() => {
+            // Reconnected successfully
         });
 
         this.connection.onclose((error) => {
             if (error) console.error('[SignalR] Connection closed with error:', error);
-            else console.log('[SignalR] Connection closed cleanly');
         });
 
         try {
             await this.connection.start();
-            console.log('[SignalR] Connected successfully, connectionId:', this.connection.connectionId);
         } catch (error) {
-            console.error('[SignalR] Failed to connect:', error);
+            console.error('[SignalR] Connection failed:', error);
             throw error;
         }
 
         // Replay any handlers that were registered before the connection was ready
         for (const { event, cb } of this.pendingHandlers) {
-            console.log(`[SignalR] Replaying pending handler for "${event}"`);
             this.connection.on(event, cb);
         }
         this.pendingHandlers = [];
@@ -76,11 +63,9 @@ class SignalRService {
 
     async joinAdminStaffGroup(): Promise<void> {
         if (!this.connection || this.connection.state !== signalR.HubConnectionState.Connected) {
-            console.warn('[SignalR] Cannot join admin_staff — not connected');
             return;
         }
         await this.connection.invoke('JoinAdminStaffGroup');
-        console.log('[SignalR] Joined admin_staff group');
     }
 
     async leaveAdminStaffGroup(): Promise<void> {
@@ -92,11 +77,9 @@ class SignalRService {
 
     async joinUserGroup(userId: string): Promise<void> {
         if (!this.connection || this.connection.state !== signalR.HubConnectionState.Connected) {
-            console.warn('[SignalR] Cannot join user group — not connected');
             return;
         }
         await this.connection.invoke('JoinUserGroup', userId);
-        console.log(`[SignalR] Joined user group: user_${userId}`);
     }
 
     async leaveUserGroup(userId: string): Promise<void> {
@@ -108,12 +91,15 @@ class SignalRService {
 
     on(eventName: string, callback: (data: any) => void): void {
         if (this.connection?.state === signalR.HubConnectionState.Connected) {
+            // Connection already exists - register immediately
             this.connection.on(eventName, callback);
-            console.log(`[SignalR] Registered handler for "${eventName}"`);
-        } else {
-            // Queue for replay once connected
+        } else if (this.connection) {
+            // Connection exists but not connected yet - register anyway and queue as backup
+            this.connection.on(eventName, callback);
             this.pendingHandlers.push({ event: eventName, cb: callback });
-            console.log(`[SignalR] Queued handler for "${eventName}" (not yet connected)`);
+        } else {
+            // No connection yet - queue for replay once connected
+            this.pendingHandlers.push({ event: eventName, cb: callback });
         }
     }
 
@@ -136,7 +122,6 @@ class SignalRService {
         try {
             await this.connection.stop();
             this.pendingHandlers = [];
-            console.log('[SignalR] Disconnected');
         } catch (error) {
             console.error('[SignalR] Error disconnecting:', error);
         }

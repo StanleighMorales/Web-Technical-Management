@@ -108,13 +108,9 @@ const AdminNotificationListener = () => {
     };
 
     useEffect(() => {
-        console.log('[AdminNotificationListener] Initializing...');
-        
         // Step 1: Register all handlers BEFORE connecting so none are missed
         const unsubNewRequest = subscribe('ReceiveNewPendingRequest',
             (n: NewPendingRequestNotification) => {
-                console.log('[AdminNotificationListener] ReceiveNewPendingRequest:', n);
-                
                 // Play alert sound for new pending requests
                 playAlertSound();
                 
@@ -186,15 +182,9 @@ const AdminNotificationListener = () => {
 
         // Step 2: Connect → Step 3: Join group
         connect()
-            .then(() => {
-                console.log('[AdminNotificationListener] Connected successfully');
-                return joinAdminStaffGroup();
-            })
-            .then(() => {
-                console.log('[AdminNotificationListener] Joined admin_staff group successfully');
-            })
+            .then(() => joinAdminStaffGroup())
             .catch((err) => {
-                console.error('[AdminNotificationListener] Setup failed:', err);
+                console.error('[AdminNotificationListener] Connection failed:', err);
                 showToast.error('SignalR Connection Failed', 'Real-time notifications are not available. Please refresh the page.');
             });
 
