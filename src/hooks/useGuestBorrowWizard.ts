@@ -27,6 +27,8 @@ interface UseGuestBorrowWizardReturn {
   reset: () => void;
   /** Returns to step 1 but keeps all form data intact (used when the user cancels mid-review). */
   cancel: () => void;
+  /** Called by ScanItemModal — bypasses stale closure by accepting rfidUid directly. */
+  scanItemByRfid: (rfidUid: string) => void;
 }
 
 const makeInitialFormData = (mode: "borrow" | "reserve"): TGuestBorrowFormData => ({

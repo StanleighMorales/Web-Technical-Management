@@ -69,7 +69,7 @@ export const ReviewCountdown = ({
           )}
           <SummaryRow label="Room" value={formData.room} />
           <SummaryRow label="Schedule" value={formData.subjectTimeSchedule} />
-          <SummaryRow label="Status" value={formData.status} />
+          <SummaryRow label="Status" value={formData.status ?? "—"} />
           {formData.reservedFor && (
             <SummaryRow
               label="Reserved For"
