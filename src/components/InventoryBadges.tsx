@@ -23,7 +23,8 @@ export const InventoryBadges = memo(
         className={`
           group
           flex flex-row items-center gap-3
-          px-4 py-3
+          px-4 py-2
+          m-2
           rounded-2xl
           bg-white/80 backdrop-blur-md
           border-2
@@ -35,7 +36,7 @@ export const InventoryBadges = memo(
           outline-none
           focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-400
 
-          hover:shadow-lg hover:scale-[1.02] hover:-translate-y-0.5
+          hover:shadow-lg hover:scale-[1.02]
 
           ${isSelected
             ? "border-blue-500 bg-blue-50/90 shadow-md ring-2 ring-blue-200/50"
