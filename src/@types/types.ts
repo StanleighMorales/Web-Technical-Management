@@ -492,3 +492,25 @@ export type TStudentRfidSession = {
   scannedRfidUid?: string | null;
   errorMessage?: string | null;
 };
+
+export type TBorrowSession = {
+  id: string;
+  status: "Pending" | "Completed" | "Failed" | "Cancelled";
+  studentName: string | null;
+  itemName: string | null;
+  lentItemId: string | null;
+  errorMessage: string | null;
+  createdAt: string;
+  expiresAt: string;
+};
+
+export type TReturnSession = {
+  id: string;
+  status: "Pending" | "Completed" | "Failed" | "Cancelled";
+  itemName: string | null;
+  borrowerName: string | null;
+  lentItemId: string | null;
+  errorMessage: string | null;
+  createdAt: string;
+  expiresAt: string;
+};
