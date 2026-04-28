@@ -26,7 +26,7 @@ export default function Login() {
     if (name === "password") { setPasswordError(""); setErrorMessage(""); setIsBlockedError(false); }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     let hasError = false;
     if (!submitForm.identifier) { setUsernameError("Username is required"); hasError = true; }
