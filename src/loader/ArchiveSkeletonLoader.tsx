@@ -1,139 +1,109 @@
+import React from "react";
+
+const Bone = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
+  <div className={`animate-pulse rounded-lg bg-slate-200 ${className ?? ""}`} style={style} />
+);
+
 const ArchiveSkeletonLoader = () => {
-    return (
-        <div className="animate-fadeIn min-h-screen w-full bg-gradient-to-br from-[#f8fafc] via-[#e0e7ef] to-[#c7d2fe] flex flex-col">
-            {/* Header Skeleton */}
-            <header className="archive-header pt-8 px-8 pb-8 bg-white/80 shadow-lg rounded-b-3xl flex flex-col items-center">
-                <div className="h-12 w-80 bg-gray-200 rounded-lg animate-pulse mb-2"></div>
-                <div className="h-6 w-96 bg-gray-200 rounded-lg animate-pulse"></div>
-            </header>
+  return (
+    <div className="min-h-screen bg-slate-50 p-6 md:p-8 space-y-8">
 
-            {/* Archive Table Container Skeleton */}
-            <section className="px-8 py-6">
-                <div className="bg-white/90 h-[70vh] py-4 px-4 rounded-3xl shadow-2xl border border-[#e0e7ef] overflow-x-auto">
-                    {/* Table Header Section */}
-                    <div className="px-6 py-4 border-b border-gray-200 mb-4">
-                        <div className="h-6 w-48 bg-gray-200 rounded-lg animate-pulse mb-2"></div>
-                        <div className="h-4 w-80 bg-gray-200 rounded-lg animate-pulse"></div>
-                    </div>
-
-                    {/* Table Skeleton */}
-                    <div className="w-full">
-                        {/* Table Header Skeleton */}
-                        <div className="w-full border-collapse">
-                            <div className="sticky -top-4 bg-gray-50">
-                                <div className="flex">
-                                    {/* Serial Number */}
-                                    <div className="flex-1 py-3 px-4 border-b border-gray-200">
-                                        <div className="h-3 w-24 bg-gray-200 rounded animate-pulse"></div>
-                                    </div>
-                                    {/* Image */}
-                                    <div className="flex-1 py-3 px-4 border-b border-gray-200">
-                                        <div className="h-3 w-16 bg-gray-200 rounded animate-pulse"></div>
-                                    </div>
-                                    {/* Item Name */}
-                                    <div className="flex-1 py-3 px-4 border-b border-gray-200">
-                                        <div className="h-3 w-20 bg-gray-200 rounded animate-pulse"></div>
-                                    </div>
-                                    {/* Item Type */}
-                                    <div className="flex-1 py-3 px-4 border-b border-gray-200">
-                                        <div className="h-3 w-18 bg-gray-200 rounded animate-pulse"></div>
-                                    </div>
-                                    {/* Item Model */}
-                                    <div className="flex-1 py-3 px-4 border-b border-gray-200">
-                                        <div className="h-3 w-20 bg-gray-200 rounded animate-pulse"></div>
-                                    </div>
-                                    {/* Item Make */}
-                                    <div className="flex-1 py-3 px-4 border-b border-gray-200">
-                                        <div className="h-3 w-18 bg-gray-200 rounded animate-pulse"></div>
-                                    </div>
-                                    {/* Description */}
-                                    <div className="flex-1 py-3 px-4 border-b border-gray-200">
-                                        <div className="h-3 w-24 bg-gray-200 rounded animate-pulse"></div>
-                                    </div>
-                                    {/* Category */}
-                                    <div className="flex-1 py-3 px-4 border-b border-gray-200">
-                                        <div className="h-3 w-20 bg-gray-200 rounded animate-pulse"></div>
-                                    </div>
-                                    {/* Condition */}
-                                    <div className="flex-1 py-3 px-4 border-b border-gray-200">
-                                        <div className="h-3 w-20 bg-gray-200 rounded animate-pulse"></div>
-                                    </div>
-                                    {/* Bar Code */}
-                                    <div className="flex-1 py-3 px-4 border-b border-gray-200">
-                                        <div className="h-3 w-20 bg-gray-200 rounded animate-pulse"></div>
-                                    </div>
-                                    {/* Created At */}
-                                    <div className="flex-1 py-3 px-4 border-b border-gray-200">
-                                        <div className="h-3 w-20 bg-gray-200 rounded animate-pulse"></div>
-                                    </div>
-                                    {/* Actions */}
-                                    <div className="flex-1 py-3 px-4 border-b border-gray-200">
-                                        <div className="h-3 w-16 bg-gray-200 rounded animate-pulse"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Table Rows Skeleton */}
-                            <div className="mt-4">
-                                {[...Array(8)].map((_, rowIndex) => (
-                                    <div key={rowIndex} className="flex py-3 px-4 border-b border-gray-100 hover:bg-gray-50">
-                                        {/* Serial Number */}
-                                        <div className="flex-1">
-                                            <div className="h-4 w-28 bg-gray-200 rounded animate-pulse"></div>
-                                        </div>
-                                        {/* Image */}
-                                        <div className="flex-1">
-                                            <div className="w-10 h-10 bg-gray-200 rounded-xl animate-pulse"></div>
-                                        </div>
-                                        {/* Item Name */}
-                                        <div className="flex-1">
-                                            <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
-                                        </div>
-                                        {/* Item Type */}
-                                        <div className="flex-1">
-                                            <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
-                                        </div>
-                                        {/* Item Model */}
-                                        <div className="flex-1">
-                                            <div className="h-4 w-22 bg-gray-200 rounded animate-pulse"></div>
-                                        </div>
-                                        {/* Item Make */}
-                                        <div className="flex-1">
-                                            <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
-                                        </div>
-                                        {/* Description */}
-                                        <div className="flex-1">
-                                            <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
-                                        </div>
-                                        {/* Category */}
-                                        <div className="flex-1">
-                                            <div className="h-4 w-18 bg-gray-200 rounded animate-pulse"></div>
-                                        </div>
-                                        {/* Condition */}
-                                        <div className="flex-1">
-                                            <div className="h-6 w-20 bg-gray-200 rounded-full animate-pulse"></div>
-                                        </div>
-                                        {/* Bar Code */}
-                                        <div className="flex-1">
-                                            <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
-                                        </div>
-                                        {/* Created At */}
-                                        <div className="flex-1">
-                                            <div className="h-4 w-28 bg-gray-200 rounded animate-pulse"></div>
-                                        </div>
-                                        {/* Actions */}
-                                        <div className="flex-1">
-                                            <div className="h-8 w-20 bg-gray-200 rounded-lg animate-pulse"></div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+      {/* ── Page header ── */}
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+        <div className="space-y-3">
+          {/* "Archive vault" pill */}
+          <Bone className="h-7 w-32 rounded-full" />
+          {/* Title */}
+          <Bone className="h-10 w-40" />
+          {/* Subtitle */}
+          <Bone className="h-4 w-96 max-w-full" />
+          <Bone className="h-4 w-72 max-w-full" />
         </div>
-    );
+        {/* Count badge */}
+        <Bone className="h-10 w-48 rounded-2xl shrink-0" />
+      </div>
+
+      {/* ── Main card ── */}
+      <div className="bg-white rounded-[2rem] border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
+
+        {/* Toolbar */}
+        <div className="px-6 md:px-8 py-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          {/* Filter tabs */}
+          <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl w-fit">
+            {[72, 64, 80, 80].map((w, i) => (
+              <Bone key={i} className="h-7 rounded-lg" style={{ width: w }} />
+            ))}
+          </div>
+          {/* Search + pagination */}
+          <div className="flex items-center gap-2">
+            <Bone className="h-9 w-40 rounded-xl" />
+            <Bone className="h-9 w-44 rounded-xl" />
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <div className="min-h-[55vh] max-h-[55vh] overflow-y-auto">
+            <table className="w-full">
+              {/* Head — matches items columns: Serial No., Image, Name, Category, Condition, Archived At, Action, chevron */}
+              <thead className="sticky top-0 bg-slate-50/90 backdrop-blur-sm border-b border-slate-100">
+                <tr>
+                  {[100, 56, 160, 100, 90, 120, 80, 32].map((w, i) => (
+                    <th key={i} className="px-6 py-4 text-left">
+                      <Bone className="h-3 rounded" style={{ width: w }} />
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+
+              {/* Rows */}
+              <tbody>
+                {[...Array(8)].map((_, rowIdx) => (
+                  <tr key={rowIdx} className="border-b border-slate-50">
+                    {/* Serial No. */}
+                    <td className="px-6 py-4">
+                      <Bone className="h-3.5 w-24" />
+                    </td>
+                    {/* Image */}
+                    <td className="px-6 py-4">
+                      <Bone className="h-10 w-10 rounded-xl" />
+                    </td>
+                    {/* Name */}
+                    <td className="px-6 py-4">
+                      <Bone className="h-3.5 w-36" />
+                    </td>
+                    {/* Category */}
+                    <td className="px-6 py-4">
+                      <Bone className="h-3.5 w-24" />
+                    </td>
+                    {/* Condition badge */}
+                    <td className="px-6 py-4">
+                      <Bone className="h-5 w-20 rounded-full" />
+                    </td>
+                    {/* Archived At */}
+                    <td className="px-6 py-4">
+                      <Bone className="h-3.5 w-28" />
+                    </td>
+                    {/* Action buttons */}
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <Bone className="h-7 w-16 rounded-md" />
+                        <Bone className="h-7 w-20 rounded-md" />
+                      </div>
+                    </td>
+                    {/* Chevron */}
+                    <td className="px-6 py-4">
+                      <Bone className="h-4 w-4 rounded" />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default ArchiveSkeletonLoader;
