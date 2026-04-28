@@ -469,15 +469,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      <FloatingActionButtons
-        showFloatingMenu={showFloatingMenu}
-        setShowFloatingMenu={() => setShowFloatingMenu(true)}
-        menuOpenedByClick={menuOpenedByClick}
-        setShowScanModal={() => setShowScanModal(true)}
-        setMenuOpenedByClick={() => setMenuOpenedByClick(true)}
-        setShowReturnModal={() => setShowReturnModal(true)}
-      />
-
       {menuOpenedByClick && showFloatingMenu && (
         <div
           className="fixed inset-0 z-30"

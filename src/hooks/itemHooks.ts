@@ -7,15 +7,18 @@ import {
   archiveItemApi,
   borrowItem,
   cancelBorrowSessionApi,
+  cancelItemScanSessionApi,
   cancelRfidSessionApi,
   cancelReturnSessionApi,
   createBorrowSessionApi,
+  createItemScanSessionApi,
   createRfidSessionApi,
   createReturnSessionApi,
   deleteItemApi,
   getArchiveItemInfo,
   getBorrowSessionApi,
   getItemApi,
+  getItemScanSessionApi,
   getReturnSessionApi,
   getRfidSessionApi,
   importItem,
@@ -236,5 +239,19 @@ export const useCancelReturnSession = () => {
   return useMutation({
     mutationFn: cancelReturnSessionApi,
     mutationKey: ["returnSession"],
+  });
+};
+
+export const useCreateItemScanSession = () => {
+  return useMutation({
+    mutationFn: createItemScanSessionApi,
+    mutationKey: ["itemScanSession"],
+  });
+};
+
+export const useCancelItemScanSession = () => {
+  return useMutation({
+    mutationFn: cancelItemScanSessionApi,
+    mutationKey: ["itemScanSession"],
   });
 };

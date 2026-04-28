@@ -5,6 +5,8 @@ import { WebcamCapture } from "./WebcamCapture";
 import { ReviewCountdown } from "./ReviewCountdown";
 import { showToast } from "./AppToast";
 import { BorrowSuccessModal } from "./BorrowSuccessModal";
+import ScanItemModal from "./ScanItemModal";
+import { ScanLine } from "lucide-react";
 
 interface GuestBorrowWizardProps {
   prefilledTagUid?: string;
@@ -49,12 +51,14 @@ export const GuestBorrowWizard = ({
     submit,
     reset,
     cancel,
+    scanItemByRfid,
   } = useGuestBorrowWizard(mode);
 
   const isReserve = mode === "reserve";
   const STEPS = isReserve ? RESERVE_STEPS : BORROW_STEPS;
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showScanModal, setShowScanModal] = useState(false);
 
   // Pre-fill tag UID if provided
   useEffect(() => {
@@ -109,45 +113,53 @@ export const GuestBorrowWizard = ({
 
       {/* Step 1: Scan Item */}
       {step === 1 && (
-        <div className="flex flex-col gap-4">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-1">
-              Scan Item
-            </h2>
+        <div className="flex flex-col items-center gap-6">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-gray-900 mb-1">Scan Item</h2>
             <p className="text-sm text-gray-500">
-              Enter the RFID tag UID of the item to {isReserve ? "reserve" : "borrow"}. The system will
+              Use the RFID scanner to select the item to {isReserve ? "reserve" : "borrow"}. The system will
               verify availability before proceeding.
             </p>
           </div>
 
-          {/* RFID input */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              RFID Tag UID <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={formData.tagUid}
-              onChange={(e) => {
-                updateField("tagUid", e.target.value);
-              }}
-              onKeyDown={(e) => { if (e.key === "Enter") nextStep(); }}
-              placeholder="Enter or scan RFID tag UID"
+          {/* Scan button / item display */}
+          <div className="flex flex-col items-center gap-4">
+
+            {/* Card button — matches RFID Controller style */}
+            <button
+              type="button"
+              onClick={() => setShowScanModal(true)}
               disabled={isCheckingRfid}
-              className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
-                errors.tagUid || errors.rfid
-                  ? "border-red-400 focus:ring-red-400 bg-red-50"
-                  : "border-gray-300 focus:ring-blue-500"
-              }`}
-            />
+              className={`flex flex-col items-center gap-3 p-6 rounded-2xl border-2 bg-white shadow-sm transition-all duration-200 cursor-pointer w-full sm:w-52
+                ${errors.tagUid || errors.rfid
+                  ? "border-red-400 ring-2 ring-red-100"
+                  : scannedItem
+                    ? "border-indigo-500 ring-2 ring-indigo-100"
+                    : "border-slate-200 hover:border-slate-300 hover:shadow-md"
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+            >
+              <span className={`flex items-center justify-center w-14 h-14 rounded-2xl
+                ${errors.tagUid || errors.rfid ? "bg-red-50" : "bg-indigo-50"}`}>
+                <ScanLine className={`w-7 h-7 ${errors.tagUid || errors.rfid ? "text-red-500" : "text-indigo-600"}`} />
+              </span>
+              <span className="text-base font-semibold text-slate-700">
+                {isCheckingRfid ? "Checking…" : scannedItem ? "Re-scan Item" : "Scan Item"}
+              </span>
+              {scannedItem && !errors.rfid && (
+                <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
+                  Scanned
+                </span>
+              )}
+            </button>
+
             {errors.tagUid && (
-              <p className="text-red-500 text-sm mt-1">{errors.tagUid}</p>
+              <p className="text-red-500 text-sm">{errors.tagUid}</p>
             )}
           </div>
 
           {/* Checking spinner */}
           {isCheckingRfid && (
-            <div className="flex items-center gap-3 px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 text-sm">
+            <div className="flex items-center gap-3 px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 text-sm w-full max-w-sm">
               <svg className="animate-spin h-4 w-4 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -158,7 +170,7 @@ export const GuestBorrowWizard = ({
 
           {/* RFID / availability error */}
           {errors.rfid && !isCheckingRfid && (
-            <div className="flex items-start gap-3 px-4 py-3 bg-red-50 border border-red-300 rounded-lg">
+            <div className="flex items-start gap-3 px-4 py-3 bg-red-50 border border-red-300 rounded-lg w-full max-w-sm">
               <svg className="h-5 w-5 text-red-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
@@ -170,25 +182,25 @@ export const GuestBorrowWizard = ({
             </div>
           )}
 
-          {/* Item found + available preview card */}
+          {/* Item found — preview card */}
           {scannedItem && !errors.rfid && !isCheckingRfid && (
-            <div className="flex items-center gap-4 px-4 py-3 bg-green-50 border border-green-300 rounded-lg">
+            <div className="flex items-center gap-4 px-4 py-3 bg-green-50 border border-green-300 rounded-xl w-full max-w-sm">
               {scannedItem.image ? (
                 <img
                   src={scannedItem.image}
                   alt={scannedItem.itemName}
-                  className="w-14 h-14 rounded-lg object-cover shrink-0 border border-green-200"
+                  className="w-12 h-12 rounded-lg object-cover shrink-0 border border-green-200"
                 />
               ) : (
-                <div className="w-14 h-14 rounded-lg bg-green-100 flex items-center justify-center shrink-0">
-                  <svg className="w-7 h-7 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center shrink-0">
+                  <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                       d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z" />
                   </svg>
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-gray-900 truncate">{scannedItem.itemName}</p>
+                <p className="font-semibold text-gray-900 truncate text-sm">{scannedItem.itemName}</p>
                 <p className="text-xs text-gray-500 truncate">{scannedItem.serialNumber} · {scannedItem.category}</p>
                 <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
                   <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -200,16 +212,28 @@ export const GuestBorrowWizard = ({
             </div>
           )}
 
-          <div className="flex justify-end">
+          <div className="flex justify-end w-full">
             <button
               type="button"
               onClick={nextStep}
-              disabled={isCheckingRfid}
+              disabled={isCheckingRfid || !scannedItem}
               className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isCheckingRfid ? "Checking…" : "Next"}
             </button>
           </div>
+
+          {/* Scan Item Modal */}
+          {showScanModal && (
+            <ScanItemModal
+              onClose={() => setShowScanModal(false)}
+              onScanned={(rfidUid) => {
+                // Use scanItemByRfid — passes rfidUid directly to avoid
+                // stale closure issues with formData in nextStep.
+                scanItemByRfid(rfidUid);
+              }}
+            />
+          )}
         </div>
       )}
 
