@@ -1,4 +1,5 @@
 import { type FC } from "react";
+import box from "../assets/box.webp";
 import { useState, useMemo, useCallback } from "react";
 import ArchiveSkeletonLoader from "../loader/ArchiveSkeletonLoader.tsx";
 import type { TUsers } from "../@types/types.ts";
@@ -319,7 +320,7 @@ export default function Archive() {
                               archivedAt={item.createdAt}
                               itemName={item.itemName}
                               serialNumber={item.serialNumber}
-                              image={item.image || null}
+                              image={item.image || box}
                               description={item.description}
                               category={item.category}
                               condition={item.condition}
