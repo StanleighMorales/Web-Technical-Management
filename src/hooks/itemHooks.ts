@@ -18,7 +18,6 @@ import {
   getArchiveItemInfo,
   getBorrowSessionApi,
   getItemApi,
-  getItemScanSessionApi,
   getReturnSessionApi,
   getRfidSessionApi,
   importItem,

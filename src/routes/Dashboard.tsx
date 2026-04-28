@@ -8,7 +8,6 @@ import { useReturnItem } from "../hooks/itemHooks";
 import { showToast } from "../components/AppToast";
 import { getToken } from "../utils/token";
 import { BorrowDetailDialog } from "../components/BorrowDetailDialog";
-import { FloatingActionButtons } from "../components/FloatingActionButtons";
 import {
   createColumnHelper,
   useReactTable,
