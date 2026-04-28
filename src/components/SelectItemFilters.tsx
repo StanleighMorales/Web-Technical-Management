@@ -10,6 +10,13 @@ interface SelectItemFiltersProps {
         available: number;
         borrowed: number;
     };
+    conditionCounts: {
+        New: number;
+        Good: number;
+        Defective: number;
+        Refurbished: number;
+        NeedRepair: number;
+    };
 }
 
 export default function SelectItemFilters({
@@ -18,6 +25,7 @@ export default function SelectItemFilters({
     selectedStatus,
     selectedCondition,
     statusCounts,
+    conditionCounts,
 }: SelectItemFiltersProps) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -29,11 +37,12 @@ export default function SelectItemFilters({
     ];
 
     const conditions = [
-        { value: "", label: "All Conditions" },
-        { value: "New", label: "New" },
-        { value: "Good", label: "Good" },
-        { value: "Fair", label: "Fair" },
-        { value: "Poor", label: "Poor" },
+        { value: "", label: "All Conditions", count: conditionCounts.New + conditionCounts.Good + conditionCounts.Defective + conditionCounts.Refurbished + conditionCounts.NeedRepair },
+        { value: "New", label: "New", count: conditionCounts.New },
+        { value: "Good", label: "Good", count: conditionCounts.Good },
+        { value: "Defective", label: "Defective", count: conditionCounts.Defective },
+        { value: "Refurbished", label: "Refurbished", count: conditionCounts.Refurbished },
+        { value: "NeedRepair", label: "Need Repair", count: conditionCounts.NeedRepair },
     ];
 
     useEffect(() => {
@@ -184,6 +193,9 @@ export default function SelectItemFilters({
                                                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                                 </svg>
                                             )}
+                                        </span>
+                                        <span className="px-2 py-0.5 text-xs font-semibold bg-gray-100 text-gray-700 rounded-full shrink-0">
+                                            {condition.count}
                                         </span>
                                     </button>
                                 ))}
