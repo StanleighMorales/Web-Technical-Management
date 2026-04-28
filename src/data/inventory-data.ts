@@ -37,10 +37,10 @@ export const useFilteredItems = () => {
                     selectedCategory === "" || item.category === selectedCategory;
 
                 const matchesCondition =
-                    selectedCondition === "" || item.condition === selectedCondition;
+                    selectedCondition === "" || item.condition.toLowerCase() === selectedCondition.toLowerCase();
 
                 const matchesStatus =
-                    selectedStatus === "" || item.status === selectedStatus;
+                    selectedStatus === "" || item.status.toLowerCase() === selectedStatus.toLowerCase();
 
                 return (
                     matchesSearch && matchesCategory && matchesCondition && matchesStatus

@@ -72,8 +72,16 @@ export default function InventoryList() {
 
   const statusCounts = useMemo(() => ({
     all: items.length,
-    available: items.filter((item) => item.status === "Available").length,
-    borrowed: items.filter((item) => item.status === "Borrowed").length,
+    available: items.filter((item) => item.status.toLowerCase() === "available").length,
+    borrowed: items.filter((item) => item.status.toLowerCase() === "borrowed").length,
+  }), [items]);
+
+  const conditionCounts = useMemo(() => ({
+    New: items.filter((item) => item.condition === "New").length,
+    Good: items.filter((item) => item.condition === "Good").length,
+    Defective: items.filter((item) => item.condition === "Defective").length,
+    Refurbished: items.filter((item) => item.condition === "Refurbished").length,
+    NeedRepair: items.filter((item) => item.condition === "NeedRepair").length,
   }), [items]);
 
   const { mutate: importItem } = useImportItem();
@@ -429,6 +437,7 @@ export default function InventoryList() {
               selectedStatus={selectedStatus}
               selectedCondition={selectedCondition}
               statusCounts={statusCounts}
+              conditionCounts={conditionCounts}
             />
           </div>
         </div>
