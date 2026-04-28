@@ -49,14 +49,14 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
   const [departmentError, setDepartmentError] = useState<string>("");
   
   // Additional fields errors for Student
-  const [studentIdError, setStudentIdError] = useState<string>("");
-  const [courseError, setCourseError] = useState<string>("");
-  const [sectionError, setSectionError] = useState<string>("");
-  const [yearError, setYearError] = useState<string>("");
-  const [streetError, setStreetError] = useState<string>("");
-  const [cityError, setCityError] = useState<string>("");
-  const [provinceError, setProvinceError] = useState<string>("");
-  const [postalCodeError, setPostalCodeError] = useState<string>("");
+  const [_studentIdError, setStudentIdError] = useState<string>("");
+  const [_courseError, setCourseError] = useState<string>("");
+  const [_sectionError, setSectionError] = useState<string>("");
+  const [_yearError, setYearError] = useState<string>("");
+  const [_streetError, setStreetError] = useState<string>("");
+  const [_cityError, setCityError] = useState<string>("");
+  const [_provinceError, setProvinceError] = useState<string>("");
+  const [_postalCodeError, setPostalCodeError] = useState<string>("");
   
   // Basic registration form (same for all account types)
   const [formData, setFormData] = useState<TUserFormData>({
@@ -77,7 +77,7 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
   });
   
   // Additional data for Student
-  const [studentData, setStudentData] = useState({
+  const [_studentData, setStudentData] = useState({
     studentIdNumber: "",
     course: "",
     section: "",
@@ -151,7 +151,7 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
 
   const { mutate: registerUser } = useRegisterUser();
   const { mutate: updateTeacher } = useUpdateTeacher();
-  const { mutate: updateStudent } = useUpdateStudent();
+  const { mutate: _updateStudent } = useUpdateStudent();
   const { mutate: createRfidSession } = useCreateStudentRfidSession();
   const { mutate: cancelRfidSession } = useCancelStudentRfidSession();
 

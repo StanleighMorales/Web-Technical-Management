@@ -1,30 +1,32 @@
 import { useState } from "react";
+import type React from "react";
 import { FaWifi } from "react-icons/fa";
 import { TbPackages } from "react-icons/tb";
 import { MdOutlineKeyboardReturn, MdLocationOn } from "react-icons/md";
 
 type ActiveMode = "borrow" | "return" | "location" | null;
+type ModeColor = "blue" | "green" | "orange";
 
 export default function RfidControllerModule() {
   const [activeMode, setActiveMode] = useState<ActiveMode>(null);
 
-  const modes = [
+  const modes: { key: NonNullable<ActiveMode>; label: string; description: string; icon: React.ElementType; color: ModeColor }[] = [
     {
-      key: "borrow" as const,
+      key: "borrow",
       label: "Borrow",
       description: "Scan RFID tag to register a borrow transaction.",
       icon: TbPackages,
       color: "blue",
     },
     {
-      key: "return" as const,
+      key: "return",
       label: "Return",
       description: "Scan RFID tag to process an item return.",
       icon: MdOutlineKeyboardReturn,
       color: "green",
     },
     {
-      key: "location" as const,
+      key: "location",
       label: "Location",
       description: "Scan RFID tag to track or update item location.",
       icon: MdLocationOn,
@@ -32,7 +34,7 @@ export default function RfidControllerModule() {
     },
   ];
 
-  const colorMap = {
+  const colorMap: Record<ModeColor, { btn: string; activeBorder: string; badge: string; icon: string; iconBg: string }> = {
     blue: {
       btn: "bg-blue-600 hover:bg-blue-700 shadow-blue-500/30",
       activeBorder: "border-blue-500 ring-2 ring-blue-200",
