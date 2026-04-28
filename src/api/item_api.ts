@@ -138,6 +138,25 @@ export const getItemByRfid = async (rfidUid: string): Promise<TItemList> => {
   return response.data.data;
 };
 
+// ── RFID Session API ──────────────────────────────────────────────────────────
+
+const rfid_session_end_point = "/rfid-sessions";
+
+export const createRfidSessionApi = async (itemId: string) => {
+  const response = await api.post(rfid_session_end_point, { itemId });
+  return response.data.data;
+};
+
+export const getRfidSessionApi = async (sessionId: string) => {
+  const response = await api.get(`${rfid_session_end_point}/${sessionId}`);
+  return response.data.data;
+};
+
+export const cancelRfidSessionApi = async (sessionId: string) => {
+  const response = await api.delete(`${rfid_session_end_point}/${sessionId}`);
+  return response.data;
+};
+
 export const borrowGuestItem = async (data: TGuestBorrowFormData) => {
   const body = new FormData();
   body.append("TagUid", data.tagUid);

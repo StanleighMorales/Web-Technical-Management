@@ -19,6 +19,9 @@ import {
   importUser,
   blockUserApi,
   unblockUserApi,
+  createStudentRfidSessionApi,
+  getStudentRfidSessionApi,
+  cancelStudentRfidSessionApi,
 } from "../api/user_api";
 
 export const useAllUsers = () => {
@@ -186,5 +189,29 @@ export const useUnblockUser = () => {
       queryClient.invalidateQueries({ queryKey: ["students"] });
       queryClient.invalidateQueries({ queryKey: ["teachers"] });
     },
+  });
+};
+
+export const useCreateStudentRfidSession = () => {
+  return useMutation({
+    mutationFn: createStudentRfidSessionApi,
+    mutationKey: ["studentRfidSession"],
+  });
+};
+
+export const useGetStudentRfidSession = (sessionId: string) => {
+  return queryOptions({
+    queryFn: () => getStudentRfidSessionApi(sessionId),
+    queryKey: ["studentRfidSession", sessionId],
+    enabled: !!sessionId,
+    staleTime: 0,
+    refetchInterval: 2000,
+  });
+};
+
+export const useCancelStudentRfidSession = () => {
+  return useMutation({
+    mutationFn: cancelStudentRfidSessionApi,
+    mutationKey: ["studentRfidSession"],
   });
 };

@@ -152,6 +152,7 @@ export type TUpdateStudent = {
   frontStudentIdPicture: File | string | null;
   backStudentIdPicture: File | string | null;
   profilePicture: File | string | null;
+  rfidUid?: string | null;
   onClose: () => void;
 };
 
@@ -241,6 +242,7 @@ export type TStudent = {
   blockReason?: string | null;
   blockedAt?: string | null;
   blockedUntil?: string | null;
+  rfidUid?: string | null;
 };
 
 export type TTeacher = {
@@ -468,4 +470,25 @@ export type TBlockStatus = {
   isPermanent: boolean;
   blockedById: string | null;
   blockedByUsername: string | null;
+};
+
+export type TRfidSession = {
+  id: string;
+  itemId: string;
+  itemName: string;
+  serialNumber: string;
+  status: "Pending" | "Completed" | "Expired";
+  expiresAt: string;
+  createdAt: string;
+};
+
+export type TStudentRfidSession = {
+  id: string;
+  studentId: string;
+  studentName: string;
+  status: "Pending" | "Completed" | "Failed" | "Cancelled" | "Expired";
+  expiresAt: string;
+  createdAt: string;
+  scannedRfidUid?: string | null;
+  errorMessage?: string | null;
 };

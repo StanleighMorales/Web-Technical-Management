@@ -422,6 +422,7 @@ export default function RegistrationModule({ embedded = false, onCountsChange }:
                     email={selectedEditStudent.email}
                     userRole={selectedEditStudent.userRole}
                     status={selectedEditStudent.status}
+                    rfidUid={selectedEditStudent.rfidUid}
                     onClose={() => setIsEditStudentOpen(false)}
                 />
             )}

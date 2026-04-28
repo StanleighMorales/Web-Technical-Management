@@ -10,12 +10,21 @@ import {
 import { BiLogoSass } from "react-icons/bi";
 import { BsPersonCircle, BsClipboardCheck } from "react-icons/bs";
 import { TbPackages } from "react-icons/tb";
+import { FaWifi } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import SidebarSkeletonLoader from "../loader/SidebarSkeletonLoader";
 import { useSidebar } from "../context/SidebarContext";
 import { usePendingCount } from "../hooks/usePendingCount";
 import { useActiveBorrowCount } from "../hooks/useActiveBorrowCount";
 import { useLogoutUser } from "../hooks/authHooks";
+import type { IconType } from "react-icons";
+
+type NavLink = {
+  label: string;
+  link: string;
+  icon: IconType;
+  badge?: number;
+};
 
 export default function Sidebar() {
   const navigate = useNavigate();
@@ -29,7 +38,7 @@ export default function Sidebar() {
   const activeBorrowCount = useActiveBorrowCount();
 
   // Primary navigation links
-  const primaryLinks = [
+  const primaryLinks: NavLink[] = [
     { label: "Dashboard", link: "/home/dashboard", icon: MdDashboardCustomize },
     { label: "Inventory", link: "/home/inventory-list", icon: GiArchiveRegister },
     { 
@@ -41,13 +50,14 @@ export default function Sidebar() {
   ];
 
   // Operational links (with divider after)
-  const operationalLinks = [
+  const operationalLinks: NavLink[] = [
     { label: "Borrowing", link: "/home/borrow-item", icon: TbPackages },
     { label: "Active Borrows", link: "/home/active-borrowed-items", icon: BsClipboardCheck, badge: activeBorrowCount },
+    { label: "RFID Controller", link: "/home/rfid-controller", icon: FaWifi },
   ];
 
   // Administrative links
-  const administrativeLinks = [
+  const administrativeLinks: NavLink[] = [
     { label: "User Management", link: "/home/user-management", icon: CiUser },
     { label: "Activity Logs", link: "/home/activity-logs", icon: BiLogoSass },
     { label: "Borrowing Logs", link: "/home/borrow-logs", icon: MdHistory },
@@ -55,7 +65,7 @@ export default function Sidebar() {
   ];
 
   // Bottom links
-  const bottomLinks = [
+  const bottomLinks: NavLink[] = [
     { label: "Profile", link: "/home/settings", icon: BsPersonCircle },
   ];
 

@@ -1,10 +1,12 @@
 import React, { Activity, useState, useEffect } from "react";
-import type { TUserFormData, TUpdatedTeacher } from "../@types/types";
+import type { TUserFormData, TUpdatedTeacher, TStudentRfidSession } from "../@types/types";
 import CloseButton from "./CloseButton";
-import { useRegisterUser, useUpdateStudent, useUpdateTeacher } from "../hooks/userHooks";
+import { useRegisterUser, useUpdateStudent, useUpdateTeacher, useCreateStudentRfidSession, useCancelStudentRfidSession } from "../hooks/userHooks";
+import { getStudentRfidSessionApi } from "../api/user_api";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import { showToast } from "./AppToast";
 import { UserData } from "../utils/usersData/userData";
+import { Loader2, Wifi, CheckCircle2, XCircle, CreditCard } from "lucide-react";
 
 type AddUserProps = {
   onClose: () => void;
@@ -47,14 +49,14 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
   const [departmentError, setDepartmentError] = useState<string>("");
   
   // Additional fields errors for Student
-  const [studentIdError, setStudentIdError] = useState<string>("");
-  const [courseError, setCourseError] = useState<string>("");
-  const [sectionError, setSectionError] = useState<string>("");
-  const [yearError, setYearError] = useState<string>("");
-  const [streetError, setStreetError] = useState<string>("");
-  const [cityError, setCityError] = useState<string>("");
-  const [provinceError, setProvinceError] = useState<string>("");
-  const [postalCodeError, setPostalCodeError] = useState<string>("");
+  const [_studentIdError, setStudentIdError] = useState<string>("");
+  const [_courseError, setCourseError] = useState<string>("");
+  const [_sectionError, setSectionError] = useState<string>("");
+  const [_yearError, setYearError] = useState<string>("");
+  const [_streetError, setStreetError] = useState<string>("");
+  const [_cityError, setCityError] = useState<string>("");
+  const [_provinceError, setProvinceError] = useState<string>("");
+  const [_postalCodeError, setPostalCodeError] = useState<string>("");
   
   // Basic registration form (same for all account types)
   const [formData, setFormData] = useState<TUserFormData>({
@@ -75,7 +77,7 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
   });
   
   // Additional data for Student
-  const [studentData, setStudentData] = useState({
+  const [_studentData, setStudentData] = useState({
     studentIdNumber: "",
     course: "",
     section: "",
@@ -149,7 +151,101 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
 
   const { mutate: registerUser } = useRegisterUser();
   const { mutate: updateTeacher } = useUpdateTeacher();
-  const { mutate: updateStudent } = useUpdateStudent();
+  const { mutate: _updateStudent } = useUpdateStudent();
+  const { mutate: createRfidSession } = useCreateStudentRfidSession();
+  const { mutate: cancelRfidSession } = useCancelStudentRfidSession();
+
+  // RFID session state (step 3 for Student)
+  const [rfidSession, setRfidSession] = useState<TStudentRfidSession | null>(null);
+  const [rfidStatus, setRfidStatus] = useState<"idle" | "starting" | "waiting" | "completed" | "expired" | "error">("idle");
+  const [rfidPollId, setRfidPollId] = useState<ReturnType<typeof setInterval> | null>(null);
+  const [rfidCreateRetryId, setRfidCreateRetryId] = useState<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (rfidPollId) clearInterval(rfidPollId);
+      if (rfidCreateRetryId) clearInterval(rfidCreateRetryId);
+    };
+  }, [rfidPollId, rfidCreateRetryId]);
+
+  const stopRfidPolling = () => {
+    if (rfidPollId) { clearInterval(rfidPollId); setRfidPollId(null); }
+  };
+
+  const stopRfidRetrying = () => {
+    if (rfidCreateRetryId) { clearInterval(rfidCreateRetryId); setRfidCreateRetryId(null); }
+  };
+
+  const startRfidPolling = (sessionId: string, studentName: string) => {
+    const id = setInterval(async () => {
+      try {
+        const s: TStudentRfidSession = await getStudentRfidSessionApi(sessionId);
+        setRfidSession(s);
+        if (s.status === "Completed") {
+          clearInterval(id); setRfidPollId(null);
+          setRfidStatus("completed");
+          console.log(`[RFID] 🎉 Scan completed! scannedRfidUid: "${s.scannedRfidUid}"`);
+          showToast.success("RFID Registered", `RFID card assigned to ${studentName} successfully!`);
+        } else if (s.status === "Expired" || s.status === "Cancelled") {
+          clearInterval(id); setRfidPollId(null);
+          setRfidStatus("expired");
+        } else if (s.status === "Failed") {
+          clearInterval(id); setRfidPollId(null);
+          setRfidStatus("error");
+        }
+      } catch {
+        // network hiccup — keep polling
+      }
+    }, 2000);
+    setRfidPollId(id);
+  };
+
+  // Keeps retrying POST /rfid-sessions/student every 2s until backend responds with a session
+  const startRfidCreateRetry = (studentId: string, studentName: string) => {
+    let attemptCount = 0;
+    const attempt = () => {
+      attemptCount++;
+      console.log(`[RFID] 🔄 Attempt #${attemptCount} — POST /rfid-sessions/student { studentId: "${studentId}" }`);
+      createRfidSession(studentId, {
+        onSuccess: (s: TStudentRfidSession) => {
+          console.log(`[RFID] ✅ Session created on attempt #${attemptCount}:`, s);
+          stopRfidRetrying();
+          setRfidSession(s);
+          setRfidStatus("waiting");
+          startRfidPolling(s.id, studentName);
+        },
+        onError: (err: any) => {
+          console.warn(`[RFID] ❌ Attempt #${attemptCount} failed:`, err?.response?.data?.message ?? err?.message ?? err);
+          // stay in "starting" — interval retries automatically
+        },
+      });
+    };
+
+    attempt(); // fire immediately on click
+    const retryId = setInterval(attempt, 2000);
+    setRfidCreateRetryId(retryId);
+  };
+
+  const handleStartRfidSession = () => {
+    if (!createdUserId) return;
+    setRfidStatus("starting");
+    startRfidCreateRetry(createdUserId, `${formData.firstName} ${formData.lastName}`);
+  };
+
+  const handleCancelRfidSession = () => {
+    stopRfidRetrying();
+    stopRfidPolling();
+    if (rfidSession?.id) cancelRfidSession(rfidSession.id);
+    setRfidStatus("idle");
+    setRfidSession(null);
+  };
+
+  const handleSkipRfid = () => {
+    stopRfidPolling();
+    if (rfidSession?.id && rfidStatus === "waiting") cancelRfidSession(rfidSession.id);
+    showToast.success("Student Created", "Student created successfully! RFID can be assigned later.");
+    setTimeout(() => onClose(), 800);
+  };
   
   // Check if current user can create a specific account type
   const canCreateAccountType = (type: AccountType): boolean => {
@@ -307,15 +403,15 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
         // Don't advance, submit will handle it
         return;
       }
+      // Student step 3 is RFID — no further navigation needed
       if (accountType === "Student" && step === 3) {
-        // Validate academic info before going to address step
-        submitStudentAcademicInfo();
         return;
       }
     }
     
-    // Don't clear touched fields - keep them so validation state persists
-    setStep((s) => Math.min(s + 1, TOTAL_BASIC_STEPS));
+    // Use the full total steps so post-creation steps aren't clamped to 2
+    const maxStep = getTotalSteps();
+    setStep((s) => Math.min(s + 1, maxStep));
   };
 
   const goBack = () => {
@@ -396,8 +492,8 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
           showToast.success("Account Created", "Basic account created! Now let's add department information.");
           setStep(3); // Go to teacher additional info step
         } else if (accountType === "Student") {
-          showToast.success("Account Created", "Basic account created! Now let's add academic information.");
-          setStep(3); // Go to student additional info step
+          showToast.success("Account Created", "Student account created! Optionally assign an RFID card now.");
+          setStep(3); // Go directly to RFID step
         } else {
           // Admin/Staff/SuperAdmin - no additional steps needed
           showToast.success("User Created", `${accountType} account created successfully!`);
@@ -486,157 +582,6 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
     );
   };
   
-  const submitStudentAcademicInfo = () => {
-    // Validate student academic fields
-    let ok = true;
-    if (!studentData.studentIdNumber) {
-      setStudentIdError("Student ID is required");
-      ok = false;
-    }
-    if (!studentData.course) {
-      setCourseError("Course is required");
-      ok = false;
-    }
-    if (!studentData.section) {
-      setSectionError("Section is required");
-      ok = false;
-    }
-    if (!studentData.year) {
-      setYearError("Year is required");
-      ok = false;
-    }
-    
-    if (!ok) {
-      console.error("Academic info validation failed:", studentData);
-      return;
-    }
-    
-    console.log("Academic info validated successfully:", studentData);
-    
-    // Move to address step
-    setStep(4);
-  };
-  
-  const submitStudentAddressInfo = () => {
-    console.log("=== SUBMIT STUDENT ADDRESS INFO ===");
-    console.log("Current studentData state:", studentData);
-    console.log("Current formData state:", formData);
-    console.log("Created User ID:", createdUserId);
-    
-    // Validate student address fields
-    let ok = true;
-    if (!studentData.street) {
-      setStreetError("Street is required");
-      ok = false;
-    }
-    if (!studentData.cityMunicipality) {
-      setCityError("City/Municipality is required");
-      ok = false;
-    }
-    if (!studentData.province) {
-      setProvinceError("Province is required");
-      ok = false;
-    }
-    if (!studentData.postalCode) {
-      setPostalCodeError("Postal Code is required");
-      ok = false;
-    }
-    
-    if (!ok) {
-      console.error("Address validation failed");
-      return;
-    }
-    
-    // Prevent double submission
-    if (isSubmitting) {
-      console.warn("Already submitting, preventing double submission");
-      return;
-    }
-    setIsSubmitting(true);
-    
-    // Prepare update data matching EditStudent format exactly
-    const updateData = {
-      frontStudentIdPicture: null,
-      backStudentIdPicture: null,
-      studentIdNumber: studentData.studentIdNumber,
-      phoneNumber: formData.phoneNumber,
-      course: studentData.course,
-      section: studentData.section,
-      year: studentData.year,
-      profilePicture: null,
-      street: studentData.street,
-      cityMunicipality: studentData.cityMunicipality,
-      province: studentData.province,
-      postalCode: studentData.postalCode,
-      id: createdUserId,
-      username: formData.username,
-      email: formData.email,
-      userRole: "Student",
-      status: "Active",
-      lastName: formData.lastName,
-      middleName: formData.middleName,
-      firstName: formData.firstName,
-    };
-    
-    console.log("=== SENDING UPDATE REQUEST ===");
-    console.log("Update data being sent:", JSON.stringify(updateData, null, 2));
-    console.log("Student ID from data:", updateData.studentIdNumber);
-    console.log("Course from data:", updateData.course);
-    console.log("Section from data:", updateData.section);
-    console.log("Year from data:", updateData.year);
-    
-    updateStudent(
-      { id: createdUserId, data: updateData as any },
-      {
-        onSuccess: (response) => {
-          console.log("=== UPDATE SUCCESS ===");
-          console.log("Student update success response:", response);
-          console.log("Response data:", response?.data);
-          console.log("Response message:", response?.message);
-          setIsSubmitting(false);
-          showToast.success("Student Profile Complete", "Student account fully created with all details!");
-          
-          // Wait a bit before closing to ensure query invalidation completes
-          setTimeout(() => {
-            console.log("Closing modal and resetting form");
-            onClose();
-            resetForm();
-          }, 1500);
-        },
-        onError: (error: any) => {
-          console.error("=== UPDATE ERROR ===");
-          console.error("Student update error:", error);
-          console.error("Error response:", error.response);
-          console.error("Error data:", error.response?.data);
-          console.error("Error status:", error.response?.status);
-          console.error("Error message:", error.message);
-          
-          // Check if it's a validation error
-          if (error.response?.data?.errors) {
-            console.error("Validation errors:", error.response.data.errors);
-          }
-          
-          setIsSubmitting(false);
-          
-          // Show more detailed error message
-          let errorMessage = "Failed to update student details.";
-          if (error.response?.data?.message) {
-            errorMessage = error.response.data.message;
-          } else if (error.response?.data?.title) {
-            errorMessage = error.response.data.title;
-          } else if (error.message) {
-            errorMessage = error.message;
-          }
-          
-          showToast.error("Update Failed", errorMessage);
-          
-          // Don't close the modal on error so user can see what happened
-          console.log("Update failed - keeping modal open for debugging");
-        },
-      }
-    );
-  };
-  
   const resetForm = () => {
     setFormData({
       firstName: "",
@@ -677,17 +622,15 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
     
     // Additional steps after account creation
     if (accountType === "Teacher" && step === 3) return "Department";
-    if (accountType === "Student" && step === 3) return "Academic Information";
-    if (accountType === "Student" && step === 4) return "Address Information";
+    if (accountType === "Student" && step === 3) return "RFID Card";
     
     return "";
   };
   
   // Get total steps for current account type
   const getTotalSteps = () => {
-    if (!isAccountCreated) return TOTAL_BASIC_STEPS;
-    if (accountType === "Teacher") return 3; // 0, 1, 2, 3
-    if (accountType === "Student") return 4; // 0, 1, 2, 3, 4
+    if (accountType === "Teacher") return 3;
+    if (accountType === "Student") return 3;
     return TOTAL_BASIC_STEPS;
   };
 
@@ -714,16 +657,20 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
                 <>
                   <div className="flex items-center gap-2" aria-label={`Step ${step} of ${getTotalSteps()}`}>
                     {!isAccountCreated ? (
-                      /* Show basic steps (1-2) before account creation */
+                      /* Show steps based on selected account type */
                       <>
-                        {BASIC_STEPS.map((s, i) => (
+                        {(accountType === "Student"
+                          ? [{ id: 1, title: "Basic Info" }, { id: 2, title: "Account Setup" }, { id: 3, title: "RFID" }]
+                          : accountType === "Teacher"
+                          ? [{ id: 1, title: "Basic Info" }, { id: 2, title: "Account Setup" }, { id: 3, title: "Department" }]
+                          : BASIC_STEPS as readonly { id: number; title: string }[]
+                        ).map((s, i, arr) => (
                           <React.Fragment key={s.id}>
                             <div className="flex items-center gap-1.5">
                               <span
-                                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-medium transition-colors ${step >= s.id
-                                  ? "bg-blue-800 text-white"
-                                  : "bg-blue-200 text-blue-500"
-                                  }`}
+                                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-medium transition-colors ${
+                                  step >= s.id ? "bg-blue-800 text-white" : "bg-blue-200 text-blue-500"
+                                }`}
                               >
                                 {s.id}
                               </span>
@@ -731,7 +678,7 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
                                 {s.title}
                               </span>
                             </div>
-                            {i < BASIC_STEPS.length - 1 && (
+                            {i < arr.length - 1 && (
                               <span className="mx-0.5 h-0.5 w-4 rounded-full bg-slate-200 sm:w-6" aria-hidden />
                             )}
                           </React.Fragment>
@@ -766,13 +713,12 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
                         ))}
                       </>
                     ) : accountType === "Student" ? (
-                      /* Show student steps (1-4) after account creation */
+                      /* Show student steps (1-3) after account creation */
                       <>
                         {[
                           { id: 1, title: "Basic Info" },
                           { id: 2, title: "Account Setup" },
-                          { id: 3, title: "Academic Info" },
-                          { id: 4, title: "Address" }
+                          { id: 3, title: "RFID" },
                         ].map((s, i) => (
                           <React.Fragment key={s.id}>
                             <div className="flex items-center gap-1.5">
@@ -788,7 +734,7 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
                                 {s.title}
                               </span>
                             </div>
-                            {i < 3 && (
+                            {i < 2 && (
                               <span className="mx-0.5 h-0.5 w-4 rounded-full bg-slate-200 sm:w-6" aria-hidden />
                             )}
                           </React.Fragment>
@@ -1304,180 +1250,117 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
                 </div>
               )}
 
-              {/* Step 3: Student - Academic Information */}
+              {/* Step 3: Student - RFID Registration */}
               {step === 3 && accountType === "Student" && isAccountCreated && (
-                <div className="space-y-5">
-                  <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
-                    <p className="text-sm text-emerald-800">
-                      ✓ Basic account created! Now let's add academic information.
-                    </p>
+                <div className="flex flex-col items-center gap-5 py-4">
+                  <div className="flex flex-col items-center gap-2 text-center">
+                    <div className={`flex h-16 w-16 items-center justify-center rounded-full ${
+                      rfidStatus === "completed" ? "bg-green-100" :
+                      rfidStatus === "expired" || rfidStatus === "error" ? "bg-rose-100" :
+                      rfidStatus === "waiting" || rfidStatus === "starting" ? "bg-violet-100" :
+                      "bg-slate-100"
+                    }`}>
+                      {rfidStatus === "completed" ? (
+                        <CheckCircle2 className="h-8 w-8 text-green-600" />
+                      ) : rfidStatus === "expired" || rfidStatus === "error" ? (
+                        <XCircle className="h-8 w-8 text-rose-500" />
+                      ) : rfidStatus === "waiting" || rfidStatus === "starting" ? (
+                        <Wifi className="h-8 w-8 text-violet-600 animate-pulse" />
+                      ) : (
+                        <CreditCard className="h-8 w-8 text-slate-400" />
+                      )}
+                    </div>
+
+                    {rfidStatus === "idle" && (
+                      <>
+                        <p className="text-sm font-semibold text-slate-700">Student created successfully!</p>
+                        <p className="text-xs text-slate-500 max-w-xs">
+                          Optionally assign an RFID card now. Ask the student to tap their card on the reader after starting the session.
+                        </p>
+                      </>
+                    )}
+                    {rfidStatus === "starting" && (
+                      <p className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" /> Connecting to server…
+                      </p>
+                    )}
+                    {rfidStatus === "waiting" && rfidSession && (
+                      <>
+                        <p className="text-sm font-semibold text-slate-700">Waiting for card tap…</p>
+                        <p className="text-xs text-slate-500 max-w-xs">
+                          Ask the student to tap their RFID card on the reader. Session expires at{" "}
+                          <span className="font-medium text-slate-700">
+                            {new Date(rfidSession.expiresAt).toLocaleTimeString()}
+                          </span>.
+                        </p>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <Loader2 className="h-3.5 w-3.5 animate-spin text-violet-500" />
+                          <span className="text-xs text-violet-600">Polling for scan…</span>
+                        </div>
+                      </>
+                    )}
+                    {rfidStatus === "completed" && (
+                      <>
+                        <p className="text-sm font-semibold text-green-700">RFID card registered!</p>
+                        <p className="text-xs text-slate-500">The card has been assigned to this student.</p>
+                      </>
+                    )}
+                    {rfidStatus === "expired" && (
+                      <>
+                        <p className="text-sm font-semibold text-rose-600">Session expired</p>
+                        <p className="text-xs text-slate-500">The 5-minute window passed. Start a new session or skip.</p>
+                      </>
+                    )}
+                    {rfidStatus === "error" && (
+                      <>
+                        <p className="text-sm font-semibold text-rose-600">Something went wrong</p>
+                        <p className="text-xs text-slate-500">Could not start the RFID session. Try again or skip.</p>
+                      </>
+                    )}
                   </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div>
-                      <label htmlFor="studentIdNumber" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
-                        Student ID Number <span className="text-rose-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        id="studentIdNumber"
-                        name="studentIdNumber"
-                        className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(studentIdError, "studentIdNumber")}`}
-                        value={studentData.studentIdNumber}
-                        onChange={handleInputChange}
-                        placeholder="e.g., 2024-00001"
-                      />
-                      <Activity mode={shouldShowError(studentIdError, "studentIdNumber") ? "visible" : "hidden"}>
-                        <p className="text-rose-500 text-xs mt-1">{studentIdError}</p>
-                      </Activity>
-                    </div>
 
-                    <div>
-                      <label htmlFor="course" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
-                        Course <span className="text-rose-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        id="course"
-                        name="course"
-                        className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(courseError, "course")}`}
-                        value={studentData.course}
-                        onChange={handleInputChange}
-                        placeholder="e.g., BSCS"
-                      />
-                      <Activity mode={shouldShowError(courseError, "course") ? "visible" : "hidden"}>
-                        <p className="text-rose-500 text-xs mt-1">{courseError}</p>
-                      </Activity>
-                    </div>
-
-                    <div>
-                      <label htmlFor="section" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
-                        Section <span className="text-rose-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        id="section"
-                        name="section"
-                        className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(sectionError, "section")}`}
-                        value={studentData.section}
-                        onChange={handleInputChange}
-                        placeholder="e.g., A"
-                      />
-                      <Activity mode={shouldShowError(sectionError, "section") ? "visible" : "hidden"}>
-                        <p className="text-rose-500 text-xs mt-1">{sectionError}</p>
-                      </Activity>
-                    </div>
-
-                    <div>
-                      <label htmlFor="year" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
-                        Year <span className="text-rose-500">*</span>
-                      </label>
-                      <select
-                        id="year"
-                        name="year"
-                        className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(yearError, "year")}`}
-                        value={studentData.year}
-                        onChange={handleInputChange}
+                  <div className="flex flex-wrap gap-3 justify-center">
+                    {(rfidStatus === "idle" || rfidStatus === "expired" || rfidStatus === "error") && (
+                      <button
+                        type="button"
+                        onClick={handleStartRfidSession}
+                        className="px-5 py-2.5 bg-violet-600 text-white text-sm font-medium rounded-lg shadow-sm hover:bg-violet-700 transition-colors cursor-pointer"
                       >
-                        <option value="">Select year</option>
-                        <option value="1st Year">1st Year</option>
-                        <option value="2nd Year">2nd Year</option>
-                        <option value="3rd Year">3rd Year</option>
-                        <option value="4th Year">4th Year</option>
-                      </select>
-                      <Activity mode={shouldShowError(yearError, "year") ? "visible" : "hidden"}>
-                        <p className="text-rose-500 text-xs mt-1">{yearError}</p>
-                      </Activity>
-                    </div>
+                        {rfidStatus === "idle" ? "Start RFID Session" : "Retry"}
+                      </button>
+                    )}
+                    {(rfidStatus === "waiting" || rfidStatus === "starting") && (
+                      <button
+                        type="button"
+                        onClick={handleCancelRfidSession}
+                        className="px-5 py-2.5 bg-rose-50 text-rose-600 border border-rose-200 text-sm font-medium rounded-lg hover:bg-rose-100 transition-colors cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                    {rfidStatus !== "completed" && (
+                      <button
+                        type="button"
+                        onClick={handleSkipRfid}
+                        className="px-5 py-2.5 text-slate-600 text-sm font-medium rounded-lg border border-slate-300 bg-white hover:bg-slate-50 transition-colors cursor-pointer"
+                      >
+                        Skip for Now
+                      </button>
+                    )}
+                    {rfidStatus === "completed" && (
+                      <button
+                        type="button"
+                        onClick={onClose}
+                        className="px-5 py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg shadow-sm hover:bg-green-700 transition-colors cursor-pointer"
+                      >
+                        Done
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
 
-              {/* Step 4: Student - Address Information */}
-              {step === 4 && accountType === "Student" && isAccountCreated && (
-                <div className="space-y-5">
-                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p className="text-sm text-blue-800">
-                      Almost done! Please provide address information.
-                    </p>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div className="sm:col-span-2">
-                      <label htmlFor="street" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
-                        Street Address <span className="text-rose-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        id="street"
-                        name="street"
-                        className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(streetError, "street")}`}
-                        value={studentData.street}
-                        onChange={handleInputChange}
-                        placeholder="e.g., 123 Main Street, Barangay Example"
-                      />
-                      <Activity mode={shouldShowError(streetError, "street") ? "visible" : "hidden"}>
-                        <p className="text-rose-500 text-xs mt-1">{streetError}</p>
-                      </Activity>
-                    </div>
-
-                    <div>
-                      <label htmlFor="cityMunicipality" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
-                        City/Municipality <span className="text-rose-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        id="cityMunicipality"
-                        name="cityMunicipality"
-                        className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(cityError, "cityMunicipality")}`}
-                        value={studentData.cityMunicipality}
-                        onChange={handleInputChange}
-                        placeholder="e.g., Manila"
-                      />
-                      <Activity mode={shouldShowError(cityError, "cityMunicipality") ? "visible" : "hidden"}>
-                        <p className="text-rose-500 text-xs mt-1">{cityError}</p>
-                      </Activity>
-                    </div>
-
-                    <div>
-                      <label htmlFor="province" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
-                        Province <span className="text-rose-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        id="province"
-                        name="province"
-                        className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(provinceError, "province")}`}
-                        value={studentData.province}
-                        onChange={handleInputChange}
-                        placeholder="e.g., Metro Manila"
-                      />
-                      <Activity mode={shouldShowError(provinceError, "province") ? "visible" : "hidden"}>
-                        <p className="text-rose-500 text-xs mt-1">{provinceError}</p>
-                      </Activity>
-                    </div>
-
-                    <div>
-                      <label htmlFor="postalCode" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
-                        Postal Code <span className="text-rose-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        id="postalCode"
-                        name="postalCode"
-                        className={`w-full px-3.5 py-2.5 rounded-lg border bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors ${inputError(postalCodeError, "postalCode")}`}
-                        value={studentData.postalCode}
-                        onChange={handleInputChange}
-                        placeholder="e.g., 1000"
-                      />
-                      <Activity mode={shouldShowError(postalCodeError, "postalCode") ? "visible" : "hidden"}>
-                        <p className="text-rose-500 text-xs mt-1">{postalCodeError}</p>
-                      </Activity>
-                    </div>
-                  </div>
-                </div>
-              )}
-
+              {step < getTotalSteps() && (
               <div className="flex items-center justify-between pt-4 border-t border-slate-100">
                 <div>
                   {step > 0 ? (
@@ -1534,37 +1417,10 @@ export const AddUsers = ({ onClose }: AddUserProps) => {
                     >
                       {isSubmitting ? "Saving..." : "Complete Profile"}
                     </button>
-                  ) : isAccountCreated && accountType === "Student" && step === 3 ? (
-                    /* Next button for student academic info */
-                    <button
-                      type="button"
-                      onClick={goNext}
-                      disabled={isSubmitting}
-                      className={`px-5 py-2.5 bg-blue-500 text-white text-sm font-medium rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-colors ${
-                        isSubmitting 
-                          ? "opacity-50 cursor-not-allowed" 
-                          : "hover:bg-slate-700 cursor-pointer"
-                      }`}
-                    >
-                      Next
-                    </button>
-                  ) : isAccountCreated && accountType === "Student" && step === 4 ? (
-                    /* Complete Student Profile button */
-                    <button
-                      type="button"
-                      onClick={submitStudentAddressInfo}
-                      disabled={isSubmitting}
-                      className={`px-5 py-2.5 bg-emerald-500 text-white text-sm font-medium rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors ${
-                        isSubmitting 
-                          ? "opacity-50 cursor-not-allowed" 
-                          : "hover:bg-emerald-600 cursor-pointer"
-                      }`}
-                    >
-                      {isSubmitting ? "Saving..." : "Complete Profile"}
-                    </button>
                   ) : null}
                 </div>
               </div>
+              )}
             </form>
           </div>
         </div>
