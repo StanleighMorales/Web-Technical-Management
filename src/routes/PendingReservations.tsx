@@ -167,7 +167,7 @@ export default function PendingReservations() {
         {/* Title */}
         <div className="flex flex-col gap-4 mb-8 md:flex-row md:justify-between md:items-center">
           <div>
-            <h1 className="text-[#1e293b] text-3xl md:text-5xl mb-2 font-extrabold tracking-tight drop-shadow-lg">
+            <h1 className="text-[#1e293b] text-3xl md:text-3xl mb-2 font-extrabold tracking-tight drop-shadow-lg">
               Pending & Reservations
             </h1>
             <span className="text-lg font-medium text-[#64748b]">
