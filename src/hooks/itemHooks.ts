@@ -6,11 +6,19 @@ import {
   allItemsArchiveApi,
   archiveItemApi,
   borrowItem,
+  cancelBorrowSessionApi,
+  cancelItemScanSessionApi,
   cancelRfidSessionApi,
+  cancelReturnSessionApi,
+  createBorrowSessionApi,
+  createItemScanSessionApi,
   createRfidSessionApi,
+  createReturnSessionApi,
   deleteItemApi,
   getArchiveItemInfo,
+  getBorrowSessionApi,
   getItemApi,
+  getReturnSessionApi,
   getRfidSessionApi,
   importItem,
   recentlyBorrowItems,
@@ -182,5 +190,67 @@ export const useCancelRfidSession = () => {
   return useMutation({
     mutationFn: cancelRfidSessionApi,
     mutationKey: ["rfidSession"],
+  });
+};
+
+export const useCreateBorrowSession = () => {
+  return useMutation({
+    mutationFn: createBorrowSessionApi,
+    mutationKey: ["borrowSession"],
+  });
+};
+
+export const useGetBorrowSession = (sessionId: string) => {
+  return queryOptions({
+    queryFn: () => getBorrowSessionApi(sessionId),
+    queryKey: ["borrowSession", sessionId],
+    enabled: !!sessionId,
+    staleTime: 0,
+    refetchInterval: 2000,
+  });
+};
+
+export const useCancelBorrowSession = () => {
+  return useMutation({
+    mutationFn: cancelBorrowSessionApi,
+    mutationKey: ["borrowSession"],
+  });
+};
+
+export const useCreateReturnSession = () => {
+  return useMutation({
+    mutationFn: createReturnSessionApi,
+    mutationKey: ["returnSession"],
+  });
+};
+
+export const useGetReturnSession = (sessionId: string) => {
+  return queryOptions({
+    queryFn: () => getReturnSessionApi(sessionId),
+    queryKey: ["returnSession", sessionId],
+    enabled: !!sessionId,
+    staleTime: 0,
+    refetchInterval: 2000,
+  });
+};
+
+export const useCancelReturnSession = () => {
+  return useMutation({
+    mutationFn: cancelReturnSessionApi,
+    mutationKey: ["returnSession"],
+  });
+};
+
+export const useCreateItemScanSession = () => {
+  return useMutation({
+    mutationFn: createItemScanSessionApi,
+    mutationKey: ["itemScanSession"],
+  });
+};
+
+export const useCancelItemScanSession = () => {
+  return useMutation({
+    mutationFn: cancelItemScanSessionApi,
+    mutationKey: ["itemScanSession"],
   });
 };

@@ -27,6 +27,8 @@ interface UseGuestBorrowWizardReturn {
   reset: () => void;
   /** Returns to step 1 but keeps all form data intact (used when the user cancels mid-review). */
   cancel: () => void;
+  /** Called by ScanItemModal — bypasses stale closure by accepting rfidUid directly. */
+  scanItemByRfid: (rfidUid: string) => void;
 }
 
 const makeInitialFormData = (mode: "borrow" | "reserve"): TGuestBorrowFormData => ({
@@ -288,9 +290,11 @@ export function useGuestBorrowWizard(mode: "borrow" | "reserve" = "borrow"): Use
     setSubmitError(null);
     try {
       // For reserve mode, combine date + time into reservedFor ISO string
+      // and set status to "Reserved"
       const submitData: TGuestBorrowFormData = { ...formData };
       if (mode === "reserve" && formData.reservedForDate && formData.reservedForTime) {
         submitData.reservedFor = `${formData.reservedForDate}T${formData.reservedForTime}:00`;
+        submitData.status = "Reserved";
       }
       await borrowGuestItem(submitData);
       // Set success FIRST — the component watches this to show the modal.
@@ -328,5 +332,30 @@ export function useGuestBorrowWizard(mode: "borrow" | "reserve" = "borrow"): Use
     submit,
     reset,
     cancel,
+    /** Called by ScanItemModal — bypasses stale closure by accepting rfidUid directly. */
+    scanItemByRfid: (rfidUid: string) => {
+      setErrors({});
+      setIsCheckingRfid(true);
+      // Store the uid so it's available for submission
+      setFormData((prev) => ({ ...prev, tagUid: rfidUid }));
+      getItemByRfid(rfidUid)
+        .then((item) => {
+          setScannedItem(item);
+          const itemStatus = item.status?.toLowerCase();
+          if (itemStatus !== "available") {
+            setErrors({
+              rfid: `Item is not available. Current status: ${item.status}.`,
+            });
+          } else {
+            setErrors({});
+            setStep(2);
+          }
+        })
+        .catch(() => {
+          setScannedItem(null);
+          setErrors({ rfid: "No item registered to this RFID tag." });
+        })
+        .finally(() => setIsCheckingRfid(false));
+    },
   };
 }

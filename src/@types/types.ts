@@ -449,7 +449,7 @@ export type TGuestBorrowFormData = {
   // Split date/time fields for the reservation schedule step
   reservedForDate: string | null;
   reservedForTime: string | null;
-  status: "Borrowed" | "Reserved" | "Pending";
+  status: "Borrowed" | "Reserved" | "Pending" | null;
 
   // Step 3 — Photo
   guestImage: File | null;
@@ -491,4 +491,37 @@ export type TStudentRfidSession = {
   createdAt: string;
   scannedRfidUid?: string | null;
   errorMessage?: string | null;
+};
+
+export type TBorrowSession = {
+  id: string;
+  status: "Pending" | "Completed" | "Failed" | "Cancelled";
+  studentName: string | null;
+  itemName: string | null;
+  lentItemId: string | null;
+  errorMessage: string | null;
+  createdAt: string;
+  expiresAt: string;
+};
+
+export type TReturnSession = {
+  id: string;
+  status: "Pending" | "Completed" | "Failed" | "Cancelled";
+  itemName: string | null;
+  borrowerName: string | null;
+  lentItemId: string | null;
+  errorMessage: string | null;
+  createdAt: string;
+  expiresAt: string;
+};
+
+export type TItemScanSession = {
+  id: string;
+  status: "Pending" | "Completed" | "Failed" | "Cancelled";
+  itemId: string | null;
+  itemName: string | null;
+  rfidUid: string | null;   // pass this as TagUid to POST /api/v1/lentItems/guests
+  errorMessage: string | null;
+  createdAt: string;
+  expiresAt: string;
 };

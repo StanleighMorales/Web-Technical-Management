@@ -1,6 +1,6 @@
 import { api } from "./axios";
 import { getToken } from "../utils/token";
-import type { TBorrowItemData, TGuestBorrowFormData, TItemForm, TItemList, TUpdateItem } from "../@types/types";
+import type { TBorrowItemData, TBorrowSession, TGuestBorrowFormData, TItemForm, TItemList, TItemScanSession, TReturnSession, TUpdateItem } from "../@types/types";
 
 const item_end_point = "/items";
 const item_archive_end_point = "/archiveitems";
@@ -170,7 +170,8 @@ export const borrowGuestItem = async (data: TGuestBorrowFormData) => {
   body.append("SubjectTimeSchedule", data.subjectTimeSchedule);
   if (data.remarks) body.append("Remarks", data.remarks);
   if (data.reservedFor) body.append("ReservedFor", data.reservedFor);
-  body.append("Status", data.status);
+  // Only append Status when explicitly set — let backend default otherwise
+  if (data.status) body.append("Status", data.status);
   if (data.guestImage) body.append("GuestImage", data.guestImage);
 
   // Use axios to leverage the token refresh interceptor
@@ -181,4 +182,58 @@ export const borrowGuestItem = async (data: TGuestBorrowFormData) => {
   });
 
   return response.data;
+};
+
+// ── Borrow Session API ────────────────────────────────────────────────────────
+
+const borrow_session_end_point = "/borrow-sessions";
+
+export const createBorrowSessionApi = async (): Promise<TBorrowSession> => {
+  const response = await api.post(borrow_session_end_point);
+  return response.data.data;
+};
+
+export const getBorrowSessionApi = async (sessionId: string): Promise<TBorrowSession> => {
+  const response = await api.get(`${borrow_session_end_point}/${sessionId}`);
+  return response.data.data;
+};
+
+export const cancelBorrowSessionApi = async (sessionId: string): Promise<void> => {
+  await api.delete(`${borrow_session_end_point}/${sessionId}`);
+};
+
+// ── Return Session API ────────────────────────────────────────────────────────
+
+const return_session_end_point = "/return-sessions";
+
+export const createReturnSessionApi = async (): Promise<TReturnSession> => {
+  const response = await api.post(return_session_end_point);
+  return response.data.data;
+};
+
+export const getReturnSessionApi = async (sessionId: string): Promise<TReturnSession> => {
+  const response = await api.get(`${return_session_end_point}/${sessionId}`);
+  return response.data.data;
+};
+
+export const cancelReturnSessionApi = async (sessionId: string): Promise<void> => {
+  await api.delete(`${return_session_end_point}/${sessionId}`);
+};
+
+// ── Item Scan Session API ─────────────────────────────────────────────────────
+
+const item_scan_session_end_point = "/item-scan-sessions";
+
+export const createItemScanSessionApi = async (): Promise<TItemScanSession> => {
+  const response = await api.post(item_scan_session_end_point);
+  return response.data.data;
+};
+
+export const getItemScanSessionApi = async (sessionId: string): Promise<TItemScanSession> => {
+  const response = await api.get(`${item_scan_session_end_point}/${sessionId}`);
+  return response.data.data;
+};
+
+export const cancelItemScanSessionApi = async (sessionId: string): Promise<void> => {
+  await api.delete(`${item_scan_session_end_point}/${sessionId}`);
 };

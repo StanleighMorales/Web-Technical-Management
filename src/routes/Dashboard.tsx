@@ -8,7 +8,6 @@ import { useReturnItem } from "../hooks/itemHooks";
 import { showToast } from "../components/AppToast";
 import { getToken } from "../utils/token";
 import { BorrowDetailDialog } from "../components/BorrowDetailDialog";
-import { FloatingActionButtons } from "../components/FloatingActionButtons";
 import {
   createColumnHelper,
   useReactTable,
@@ -468,15 +467,6 @@ export default function Dashboard() {
           </div>
         </div>
       )}
-
-      <FloatingActionButtons
-        showFloatingMenu={showFloatingMenu}
-        setShowFloatingMenu={() => setShowFloatingMenu(true)}
-        menuOpenedByClick={menuOpenedByClick}
-        setShowScanModal={() => setShowScanModal(true)}
-        setMenuOpenedByClick={() => setMenuOpenedByClick(true)}
-        setShowReturnModal={() => setShowReturnModal(true)}
-      />
 
       {menuOpenedByClick && showFloatingMenu && (
         <div
