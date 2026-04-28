@@ -29,6 +29,12 @@ type TUpdateUserPasswordPayload = {
 
 export const userLoggedIn = async () => {
   const response = await api.get("/auth/me");
+
+  if (response.status === 500) {
+    window.location.replace("/");
+    return null;
+  }
+
   return response.data.data;
 };
 
