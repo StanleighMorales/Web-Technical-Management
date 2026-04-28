@@ -81,9 +81,14 @@ export const useArchiveItem = () => {
 };
 
 export const useBorrowItem = () => {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: borrowItem,
     mutationKey: ["lentitems"],
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["lentItems"] })
+    }
   });
 };
 
