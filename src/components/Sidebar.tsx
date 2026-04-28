@@ -53,7 +53,7 @@ export default function Sidebar() {
   const operationalLinks: NavLink[] = [
     { label: "Borrowing", link: "/home/borrow-item", icon: TbPackages },
     { label: "Active Borrows", link: "/home/active-borrowed-items", icon: BsClipboardCheck, badge: activeBorrowCount },
-    { label: "RFID Controller", link: "/home/rfid-controller", icon: FaWifi },
+    { label: "Scan Controller", link: "/home/rfid-controller", icon: FaWifi },
   ];
 
   // Administrative links
