@@ -11,10 +11,12 @@ function HomeContent() {
   const userData = UserData();
 
   const isAdminOrStaff =
-    userData.userRole === "Admin" || userData.userRole === "Staff";
+    userData.userRole === "Admin" || 
+    userData.userRole === "Staff" || 
+    userData.userRole === "SuperAdmin";
 
   return (
-    <div className="layout-container relative flex min-h-[100vh] w-full">
+    <div className="layout-container relative flex min-h-screen w-full">
       {/* Toast notifications container */}
       <ToastContainer
         position="top-right"
@@ -31,15 +33,16 @@ function HomeContent() {
         style={{ zIndex: 9999, minWidth: 320 }}
       />
 
-      {/* Mount notification listener for Admin/Staff only */}
+      {/* Mount notification listener for Admin/Staff/SuperAdmin only */}
       {isAdminOrStaff && <AdminNotificationListener />}
 
       {/* Sidebar component for navigation */}
       <Sidebar />
       {/* Main content area with left margin to account for fixed sidebar */}
       <main
-        className={`flex-1 w-full transition-all duration-300 ${isSidebarExpanded ? "lg:ml-[270px]" : "lg:ml-[75px]"
-          }`}
+        className={`flex-1 w-full transition-all duration-300 ${
+          isSidebarExpanded ? "lg:ml-[270px]" : "lg:ml-[75px]"
+        }`}
       >
         <Outlet />
       </main>
