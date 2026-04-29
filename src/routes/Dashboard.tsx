@@ -1,21 +1,16 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import box from "../assets/box.webp";
 import { DashboardSkeletonLoader } from "../loader/DashboardSkeletonLoader";
 import DashboardBadges from "../components/DashboardBadges";
 import ErrorTable from "../components/ErrorTables";
-import type { TRecentBorrowItemProps } from "../@types/types";
 import { ViewRecentBorrowItems } from "../components/ViewRecentBorrowItems";
 import { useReturnItem } from "../hooks/itemHooks";
 import { showToast } from "../components/AppToast";
 import { getToken } from "../utils/token";
 import { BorrowDetailDialog } from "../components/BorrowDetailDialog";
-import {
-  createColumnHelper,
-  useReactTable,
-  getCoreRowModel,
-} from "@tanstack/react-table";
 import { SlugStatus } from "../components/SlugStatus";
 import { useRecentlyAllBorrowItems, useSummarriesData } from "../data/dashboard-data";
+import { useDashboardStore } from "../states/dashboard-state";
 import {
   Package,
   Users,
@@ -29,52 +24,17 @@ import {
   Wifi,
 } from "lucide-react";
 
-const columnHelper = createColumnHelper<TRecentBorrowItemProps>();
-
-const columns = [
-  columnHelper.accessor("item.serialNumber", { header: "Serial No." }),
-  columnHelper.accessor("item.image", {
-    header: "Image",
-    cell: ({ row }) => (
-      <img
-        src={
-          typeof row.original.item.image === "string"
-            ? row.original.item.image
-            : box
-        }
-        alt={row.original.item.itemName}
-        className="w-10 h-10 object-cover rounded-xl border border-slate-100"
-      />
-    ),
-    enableResizing: true,
-  }),
-  columnHelper.accessor("item.itemName", {
-    header: "Item",
-    enableResizing: true,
-  }),
-  columnHelper.accessor("borrowerFullName", {
-    header: "Occupied By",
-    enableResizing: true,
-  }),
-  columnHelper.accessor("teacherFullName", {
-    header: "Teacher",
-    enableResizing: true,
-  }),
-  columnHelper.accessor("room", { header: "Room", enableResizing: true }),
-  columnHelper.accessor("remarks", { header: "Remarks", enableResizing: true }),
-  columnHelper.accessor("lentAt", { header: "Lent At", enableResizing: true }),
-  columnHelper.accessor("status", {
-    header: "Status",
-    cell: ({ row }) => {
-      const colorClass = SlugStatus(row.original.status);
-      return (
-        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${colorClass}`}>
-          {row.original.status}
-        </span>
-      );
-    },
-    enableResizing: true,
-  }),
+const TABLE_HEADERS = [
+  "Serial No.",
+  "Image",
+  "Item",
+  "Occupied By",
+  "Teacher",
+  "Room",
+  "Remarks",
+  "Lent At",
+  "Status",
+  "",
 ];
 
 const badgeIcons = [
@@ -93,22 +53,27 @@ const badgeGradients = [
 
 export default function Dashboard() {
   const { dataSummary } = useSummarriesData();
-  const { borrowedItemData, isBorrowedItemLoading, isBorrowedItemError } = useRecentlyAllBorrowItems();
+  const { borrowedItemData, isBorrowedItemLoading, isBorrowedItemError } =
+    useRecentlyAllBorrowItems();
 
-  const [onViewBorrowItemOpen, setOnViewBorrowItemOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-
-  const [showFloatingMenu, setShowFloatingMenu] = useState<boolean>(false);
-  const [menuOpenedByClick, setMenuOpenedByClick] = useState<boolean>(false);
-
-  const [showReturnModal, setShowReturnModal] = useState<boolean>(false);
-  const [returnBarcode, setReturnBarcode] = useState<string>("");
-  const [returnError, setReturnError] = useState<string>("");
-
-  const [showScanModal, setShowScanModal] = useState<boolean>(false);
-  const [scannedBarcode, setScannedBarcode] = useState<string>("");
-  const [scanError, setScanError] = useState<string>("");
-  const [scannedLentItemId, setScannedLentItemId] = useState<string | null>(null);
+  const {
+    selectedId,
+    setSelectedId,
+    scannedLentItemId,
+    setScannedLentItemId,
+    showReturnModal,
+    setShowReturnModal,
+    returnBarcode,
+    setReturnBarcode,
+    returnError,
+    setReturnError,
+    showScanModal,
+    setShowScanModal,
+    scannedBarcode,
+    setScannedBarcode,
+    scanError,
+    setScanError,
+  } = useDashboardStore();
 
   const returnItemMutation = useReturnItem();
 
@@ -120,29 +85,18 @@ export default function Dashboard() {
   ];
 
   const recentBorrows = useMemo(
-    () =>
-      borrowedItemData
-        .filter((item) => item.status === "Borrowed")
-        .slice(0, 5),
+    () => borrowedItemData.filter((item) => item.status === "Borrowed").slice(0, 5),
     [borrowedItemData],
   );
 
-  const table = useReactTable({
-    data: recentBorrows,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    columnResizeMode: "onChange",
-  });
+  // Keep store in sync with fetched data (optional — useful if other pages read it)
+  const setBorrowedItemData = useDashboardStore((s) => s.setBorrowedItemData);
+  useEffect(() => {
+    setBorrowedItemData(borrowedItemData);
+  }, [borrowedItemData, setBorrowedItemData]);
 
-  const handleViewBorrowItemOpen = (id: string) => {
-    setSelectedId(id);
-    setOnViewBorrowItemOpen(true);
-  };
-
-  const handleViewBorrowItemClose = () => {
-    setSelectedId(null);
-    setOnViewBorrowItemOpen(false);
-  };
+  const handleViewOpen = (id: string) => setSelectedId(id);
+  const handleViewClose = () => setSelectedId(null);
 
   const handleReturnSubmit = async () => {
     setReturnError("");
@@ -165,38 +119,40 @@ export default function Dashboard() {
     setScanError("");
     const lentItemBarcode = scannedBarcode.trim();
     if (!lentItemBarcode) { setScanError("Please enter a lent item barcode"); return; }
-    if (!lentItemBarcode.startsWith("LENT-") || lentItemBarcode.length !== 17 || !/^LENT-\d{8}-\d{3}$/.test(lentItemBarcode)) {
+    if (!/^LENT-\d{8}-\d{3}$/.test(lentItemBarcode)) {
       setScanError("Invalid lent item barcode format. Expected format: LENT-YYYYMMDD-XXX");
       return;
     }
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/api/v1/lentItems/barcode/${lentItemBarcode}`,
-        { method: "GET", headers: { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" } },
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+            "Content-Type": "application/json",
+          },
+        },
       );
       const contentType = response.headers.get("content-type");
-      const hasJsonContent = contentType && contentType.includes("application/json");
+      const hasJson = contentType?.includes("application/json");
       if (!response.ok) {
-        let errorMessage = "Lent item not found";
-        if (hasJsonContent) {
-          try { const errorData = await response.json(); errorMessage = errorData.message || errorMessage; }
-          catch (jsonError) { console.error("Failed to parse error response:", jsonError); }
+        let msg = "Lent item not found";
+        if (hasJson) {
+          try { const err = await response.json(); msg = err.message || msg; } catch { /* ignore */ }
         } else {
-          const textResponse = await response.text();
-          errorMessage = textResponse || `HTTP ${response.status}: ${response.statusText}`;
+          msg = (await response.text()) || `HTTP ${response.status}: ${response.statusText}`;
         }
-        throw new Error(errorMessage);
+        throw new Error(msg);
       }
-      if (!hasJsonContent) throw new Error("Invalid response format from server");
-      const responseData = await response.json();
-      if (!responseData || !responseData.data) throw new Error("Invalid response structure from server");
-      const lentItem = responseData.data;
+      if (!hasJson) throw new Error("Invalid response format from server");
+      const { data: lentItem } = await response.json();
+      if (!lentItem) throw new Error("Invalid response structure from server");
       setShowScanModal(false);
       setScannedBarcode("");
       setScanError("");
       setScannedLentItemId(lentItem.id);
     } catch (error: any) {
-      console.error("Scan error:", error);
       setScanError(error.message || "Failed to fetch lent item details");
     }
   };
@@ -206,6 +162,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-slate-50 p-6 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
 
+      {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-indigo-500 mb-1">Overview</p>
@@ -215,13 +172,16 @@ export default function Dashboard() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          {/* Date Display */}
           <div className="flex items-center gap-2 text-xs text-slate-400 font-medium bg-white border border-slate-200 rounded-xl px-4 py-2.5 shadow-sm">
             <Clock className="h-3.5 w-3.5 text-slate-400" />
-            {new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" }).format(new Date())}
+            {new Intl.DateTimeFormat("en-US", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            }).format(new Date())}
           </div>
-          {/* Notification System Status */}
-          <div className="flex items-center gap-2 text-xs font-medium bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl px-4 py-2.5 shadow-sm">
+          <div className="flex items-center gap-2 text-xs font-medium bg-linear-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl px-4 py-2.5 shadow-sm">
             <Wifi className="h-3.5 w-3.5 text-emerald-600" />
             <span className="text-slate-700">Notifications</span>
             <div className="flex items-center gap-1.5">
@@ -232,22 +192,21 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* ── Badges ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {badges.map((item, index) => (
           <div key={index} className="relative group">
-            {/* gradient accent bar */}
-            <div className={`absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-gradient-to-r ${badgeGradients[index]} opacity-80`} />
+            <div className={`absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-linear-to-r ${badgeGradients[index]} opacity-80`} />
             <DashboardBadges name={item.name} link={item.link} data={item.data} />
-            {/* icon overlay */}
-            <div className={`absolute top-4 right-4 h-9 w-9 rounded-xl bg-gradient-to-tr ${badgeGradients[index]} flex items-center justify-center text-white shadow-md opacity-80 group-hover:opacity-100 transition-opacity`}>
+            <div className={`absolute top-4 right-4 h-9 w-9 rounded-xl bg-linear-to-tr ${badgeGradients[index]} flex items-center justify-center text-white shadow-md opacity-80 group-hover:opacity-100 transition-opacity`}>
               {badgeIcons[index]}
             </div>
           </div>
         ))}
       </div>
 
-      <div className="bg-white rounded-[2rem] border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
-
+      {/* ── Recent Borrows Table ── */}
+      <div className="bg-white rounded-4xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
         <div className="px-6 md:px-8 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
@@ -260,84 +219,94 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Table body */}
         <div className="overflow-x-auto">
-          <div className="overflow-y-auto">
-            {isBorrowedItemError ? (
-              <ErrorTable />
-            ) : (
-              <table className="w-full text-left text-sm whitespace-nowrap">
-                <thead>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <tr key={headerGroup.id} className="border-b border-slate-100">
-                      {headerGroup.headers.map((header: any) => (
-                        <th
-                          key={header.id}
-                          className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400"
-                        >
-                          {header.isPlaceholder ? null : header.column.columnDef.header}
-                        </th>
-                      ))}
-                      <th className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4" />
-                    </tr>
+          {isBorrowedItemError ? (
+            <ErrorTable />
+          ) : (
+            <table className="w-full text-left text-sm whitespace-nowrap">
+              <thead>
+                <tr className="border-b border-slate-100">
+                  {TABLE_HEADERS.map((h) => (
+                    <th
+                      key={h}
+                      className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400"
+                    >
+                      {h}
+                    </th>
                   ))}
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {table.getRowModel().rows.length > 0 ? (
-                    table.getRowModel().rows.map((row) => (
-                      <tr
-                        key={row.id}
-                        onClick={() => handleViewBorrowItemOpen(row.original.id)}
-                        className="group transition-all duration-200 hover:bg-indigo-50/30 cursor-pointer"
-                      >
-                        {row.getVisibleCells().map((cell: any) => (
-                          <td key={cell.id} className="px-6 py-4 text-slate-700 font-medium">
-                            {cell.column.columnDef.cell
-                              ? cell.column.columnDef.cell(cell.getContext())
-                              : cell.renderValue() ?? <span className="text-slate-300 italic text-xs">—</span>}
-                          </td>
-                        ))}
-                        <td className="px-6 py-4">
-                          <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-indigo-500 transition-colors" />
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={columns.length + 1} className="px-8 py-20 text-center">
-                        <div className="flex flex-col items-center gap-3 text-slate-400">
-                          <BookOpen className="h-10 w-10 text-slate-200" />
-                          <p className="font-semibold text-slate-500">No borrowed items</p>
-                          <p className="text-xs">There are no active borrows at the moment.</p>
-                        </div>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {recentBorrows.length > 0 ? (
+                  recentBorrows.map((row) => (
+                    <tr
+                      key={row.id}
+                      onClick={() => handleViewOpen(row.id)}
+                      className="group transition-all duration-200 hover:bg-indigo-50/30 cursor-pointer"
+                    >
+                      <td className="px-6 py-4 text-slate-700 font-medium">
+                        {row.item.serialNumber}
+                      </td>
+                      <td className="px-6 py-4">
+                        <img
+                          src={typeof row.item.image === "string" ? row.item.image : box}
+                          alt={row.item.itemName}
+                          className="w-10 h-10 object-cover rounded-xl border border-slate-100"
+                        />
+                      </td>
+                      <td className="px-6 py-4 text-slate-700 font-medium">{row.item.itemName}</td>
+                      <td className="px-6 py-4 text-slate-700 font-medium">{row.borrowerFullName}</td>
+                      <td className="px-6 py-4 text-slate-700 font-medium">{row.teacherFullName}</td>
+                      <td className="px-6 py-4 text-slate-700 font-medium">{row.room}</td>
+                      <td className="px-6 py-4 text-slate-700 font-medium">
+                        {row.remarks ?? <span className="text-slate-300 italic text-xs">—</span>}
+                      </td>
+                      <td className="px-6 py-4 text-slate-700 font-medium">{row.lentAt}</td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${SlugStatus(row.status)}`}>
+                          {row.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-indigo-500 transition-colors" />
                       </td>
                     </tr>
-                  )}
-                </tbody>
-              </table>
-            )}
-          </div>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={TABLE_HEADERS.length} className="px-8 py-20 text-center">
+                      <div className="flex flex-col items-center gap-3 text-slate-400">
+                        <BookOpen className="h-10 w-10 text-slate-200" />
+                        <p className="font-semibold text-slate-500">No borrowed items</p>
+                        <p className="text-xs">There are no active borrows at the moment.</p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 
-      {onViewBorrowItemOpen && selectedId && (
+      {/* ── Dialogs ── */}
+      {selectedId && (
         <ViewRecentBorrowItems
           itemId={selectedId}
-          isOpen={onViewBorrowItemOpen}
-          onClose={handleViewBorrowItemClose}
+          isOpen={!!selectedId}
+          onClose={handleViewClose}
         />
       )}
 
       <BorrowDetailDialog
-        itemId={scannedLentItemId || ""}
+        itemId={scannedLentItemId ?? ""}
         isOpen={!!scannedLentItemId}
         onClose={() => setScannedLentItemId(null)}
-        fromScan={true}
-        onProceedToScan={() => {
-          showToast.success("Item Borrowed", "Item borrowed successfully!");
-        }}
+        fromScan
+        onProceedToScan={() => showToast.success("Item Borrowed", "Item borrowed successfully!")}
       />
 
+      {/* ── Return Modal ── */}
       {showReturnModal && (
         <div
           className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
@@ -347,7 +316,6 @@ export default function Dashboard() {
             className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
               <div className="flex items-center gap-3">
                 <div className="h-9 w-9 rounded-xl bg-orange-50 flex items-center justify-center">
@@ -364,7 +332,7 @@ export default function Dashboard() {
             </div>
             <div className="p-6 space-y-4">
               <p className="text-sm text-slate-500 leading-relaxed">
-                Scan the <span className="font-semibold text-slate-700">item barcode</span> to mark it as returned. The system will automatically find and update the active borrowed record.
+                Scan the <span className="font-semibold text-slate-700">item barcode</span> to mark it as returned.
               </p>
               <div>
                 <input
@@ -404,6 +372,7 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* ── Scan Modal ── */}
       {showScanModal && (
         <div
           className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
@@ -413,7 +382,6 @@ export default function Dashboard() {
             className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
               <div className="flex items-center gap-3">
                 <div className="h-9 w-9 rounded-xl bg-green-50 flex items-center justify-center">
@@ -467,13 +435,6 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-      )}
-
-      {menuOpenedByClick && showFloatingMenu && (
-        <div
-          className="fixed inset-0 z-30"
-          onClick={() => { setShowFloatingMenu(false); setMenuOpenedByClick(false); }}
-        />
       )}
     </div>
   );
