@@ -15,8 +15,6 @@ import ErrorTable from "../components/ErrorTables";
 import { showToast } from "../components/AppToast";
 import * as XLSX from "xlsx";
 import { useImportItem } from "../hooks/itemHooks";
-// import { jsPDF } from "jspdf";
-// import html2canvas from "html2canvas";
 import SelectItemFilters from "../components/SelectItemFilters";
 import { InventoryTable } from "../components/InventoryTable";
 import { useAllInventoryItems, useFilteredItems } from "../data/inventory-data";
@@ -29,7 +27,6 @@ import {
   MoreHorizontal,
   X,
   Sparkles,
-  // FileDown,
   Loader2,
 } from "lucide-react";
 
@@ -61,8 +58,6 @@ export default function InventoryList() {
     setShowPrintBarcodeModal,
     printCurrentPage,
     setPrintCurrentPage,
-    // isGeneratingPDF,
-    // setIsGeneratingPDF,
   } = useInventoryListState();
 
   const itemsPerPage = 10;
@@ -240,78 +235,6 @@ export default function InventoryList() {
     }
   };
 
-  // const handleGeneratePDF = async () => {
-  //   if (filteredItems.length === 0) return;
-  //   setIsGeneratingPDF(true);
-
-  //   try {
-  //     const pdf = new jsPDF("p", "mm", "a4");
-  //     const totalPdfPages = Math.ceil(filteredItems.length / itemsPerPrintPage);
-
-  //     for (let page = 1; page <= totalPdfPages; page++) {
-  //       const startIdx = (page - 1) * itemsPerPrintPage;
-  //       const endIdx = Math.min(startIdx + itemsPerPrintPage, filteredItems.length);
-  //       const pageItems = filteredItems.slice(startIdx, endIdx);
-
-  //       const tempContainer = document.createElement("div");
-  //       tempContainer.style.cssText = `
-  //         width: 210mm; height: 297mm; background: white; padding: 6mm;
-  //         display: grid; grid-template-columns: repeat(3, 1fr);
-  //         grid-template-rows: repeat(5, 1fr); gap: 4mm;
-  //         position: absolute; left: -9999px; top: 0;
-  //       `;
-
-  //       pageItems.forEach((item) => {
-  //         const card = document.createElement("div");
-  //         card.style.cssText = `
-  //           border: 1px solid #d1d5db; border-radius: 2mm; padding: 3mm;
-  //           background: white; display: flex; flex-direction: column;
-  //           align-items: center; justify-content: space-between; text-align: center;
-  //         `;
-  //         card.innerHTML = `
-  //           <div style="font-size:10px;font-weight:600;line-height:1.3;margin-bottom:2mm;color:#1f2937;min-height:8mm;max-height:8mm;overflow:hidden;word-wrap:break-word;display:flex;align-items:center;justify-content:center;">
-  //             ${item.itemName}
-  //           </div>
-  //           <div style="flex:1;width:100%;display:flex;align-items:center;justify-content:center;margin:2mm 0;">
-  //             <img src="${item.image || box}" alt="${item.serialNumber}" style="max-width:100%;max-height:30mm;object-fit:contain;" crossorigin="anonymous" />
-  //           </div>
-  //           <div style="font-size:9px;line-height:1.2;margin-top:1mm;color:#4b5563;font-weight:500;">${item.serialNumber}</div>
-  //           <div style="font-size:8px;line-height:1.2;margin-top:1mm;color:#6b7280;">${item.category}</div>
-  //         `;
-  //         tempContainer.appendChild(card);
-  //       });
-
-  //       document.body.appendChild(tempContainer);
-  //       await new Promise((resolve) => setTimeout(resolve, 800));
-
-  //       const canvas = await html2canvas(tempContainer, {
-  //         scale: 2, useCORS: true, allowTaint: true, logging: false, backgroundColor: "#ffffff",
-  //       });
-
-  //       document.body.removeChild(tempContainer);
-
-  //       const imgData = canvas.toDataURL("image/png");
-  //       if (page > 1) pdf.addPage();
-  //       pdf.addImage(imgData, "PNG", 0, 0, 210, 297);
-  //     }
-
-  //     const date = new Date().toISOString().split("T")[0];
-  //     pdf.save(`barcodes_${date}.pdf`);
-
-  //     setShowSuccessAlert(true);
-  //     setShowSuccessMessage(`Successfully generated PDF with ${filteredItems.length} barcode${filteredItems.length !== 1 ? "s" : ""}`);
-  //     setTimeout(() => { setShowSuccessAlert(false); setShowSuccessMessage(""); }, 3000);
-  //     setShowPrintBarcodeModal(false);
-  //   } catch (error) {
-  //     console.error("PDF generation error:", error);
-  //     setShowSuccessAlert(true);
-  //     setShowSuccessMessage(`PDF generation failed: ${error instanceof Error ? error.message : "Unknown error"}`);
-  //     setTimeout(() => { setShowSuccessAlert(false); setShowSuccessMessage(""); }, 3000);
-  //   } finally {
-  //     setIsGeneratingPDF(false);
-  //   }
-  // };
-
   if (isPending) return <InventoryListSkeletonLoader />;
 
   return (
@@ -376,20 +299,7 @@ export default function InventoryList() {
                       }
                       <span className="font-medium">{isImporting ? "Importing..." : "Import Items"}</span>
                     </button>
-
                     <div className="h-px bg-slate-100 mx-1" />
-
-                    {/* Print barcodes */}
-                    {/* <button
-                      onClick={() => { setShowPrintBarcodeModal(true); setIsMoreMenuOpen(false); }}
-                      disabled={filteredItems.length === 0}
-                      className="flex items-center gap-3 w-full px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <Printer className="h-4 w-4 text-slate-400" />
-                      <span className="font-medium">
-                        Print Barcodes{filteredItems.length > 0 && ` (${filteredItems.length})`}
-                      </span>
-                    </button> */}
 
                     {/* Export */}
                     <button
@@ -610,18 +520,6 @@ export default function InventoryList() {
                 >
                   Cancel
                 </button>
-
-                {/* <button
-                  onClick={handleGeneratePDF}
-                  disabled={isGeneratingPDF}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm shadow-indigo-200"
-                >
-                  {isGeneratingPDF
-                    ? <><Loader2 className="h-4 w-4 animate-spin" /> Generating...</>
-                    : <><FileDown className="h-4 w-4" /> Download PDF</>
-                  }
-                </button> */}
-              
               </div>
             </div>
           </div>
