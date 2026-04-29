@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from "react";
+import React, { useMemo, useCallback } from "react";
 import { useRecentlyBorrowItems } from "../hooks/itemHooks";
 import { FormattedDateTime } from "../components/FormattedDateTime.ts";
 import { SlugStatus } from "../components/SlugStatus.ts";
@@ -18,6 +18,7 @@ import { useReturnItemMutation } from "../query/patch/useReturnItemMutation";
 import { showToast } from "../components/AppToast";
 import ReturnConfirmationModal from "../components/ReturnConfirmationModal";
 import ActiveBorrowedItemsSkeletonLoader from "../loader/ActiveBorrowedItemsSkeletonLoader";
+import { useActiveBorrowedItemsState } from "../states/active-borrowed-items-state";
 
 const columnHelper = createColumnHelper<TRecentBorrowItemProps>();
 
@@ -58,20 +59,27 @@ const activeBorrowColumns = [
   }),
 ];
 
+const itemsPerPage = 10;
+
 export default function ActiveBorrowedItems() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedBorrowId, setSelectedBorrowId] = useState<string | null>(null);
-  const [itemToReturn, setItemToReturn] = useState<TRecentBorrowItemProps | null>(null);
-  const itemsPerPage = 10;
+  const {
+    searchTerm,
+    setSearchTerm,
+    currentPage,
+    setCurrentPage,
+    selectedBorrowId,
+    setSelectedBorrowId,
+    itemToReturn,
+    setItemToReturn,
+  } = useActiveBorrowedItemsState();
 
   const { data, isPending, isError } = useQuery(useRecentlyBorrowItems());
-  const [allItems, setAllItems] = useState<TRecentBorrowItemProps[]>([]);
   const returnItemMutation = useReturnItemMutation();
 
-  useEffect(() => {
-    if (data) setAllItems(Array.isArray(data) ? data : []);
-  }, [data]);
+  const allItems: TRecentBorrowItemProps[] = useMemo(
+    () => (Array.isArray(data) ? data : []),
+    [data],
+  );
 
   const filteredData = useMemo(
     () =>
@@ -92,37 +100,31 @@ export default function ActiveBorrowedItems() {
     [filteredData, currentPage],
   );
 
-  const handlePageChange = useCallback((page: number) => setCurrentPage(page), []);
+  const handlePageChange = useCallback((page: number) => setCurrentPage(page), [setCurrentPage]);
 
   const handleReturnClick = useCallback(
     (e: React.MouseEvent, item: TRecentBorrowItemProps) => {
       e.stopPropagation();
-      
       if (!item.id) {
         showToast.error("Error", "Lent item ID not found");
         return;
       }
-
       setItemToReturn(item);
     },
-    []
+    [setItemToReturn],
   );
 
-  const handleConfirmReturn = useCallback(
-    async () => {
-      if (!itemToReturn?.id) return;
-
-      try {
-        await returnItemMutation.mutateAsync(itemToReturn.id);
-        showToast.success("Item Returned", `${itemToReturn.item.itemName} has been returned successfully`);
-        setItemToReturn(null);
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : "Failed to return item";
-        showToast.error("Return Failed", msg);
-      }
-    },
-    [itemToReturn, returnItemMutation]
-  );
+  const handleConfirmReturn = useCallback(async () => {
+    if (!itemToReturn?.id) return;
+    try {
+      await returnItemMutation.mutateAsync(itemToReturn.id);
+      showToast.success("Item Returned", `${itemToReturn.item.itemName} has been returned successfully`);
+      setItemToReturn(null);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : "Failed to return item";
+      showToast.error("Return Failed", msg);
+    }
+  }, [itemToReturn, returnItemMutation, setItemToReturn]);
 
   const table = useReactTable({
     data: paginatedData,
@@ -130,9 +132,7 @@ export default function ActiveBorrowedItems() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  if (isPending) {
-    return <ActiveBorrowedItemsSkeletonLoader />;
-  }
+  if (isPending) return <ActiveBorrowedItemsSkeletonLoader />;
 
   return (
     <div className="h-screen bg-slate-50 flex flex-col p-6 md:p-8 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
@@ -146,8 +146,9 @@ export default function ActiveBorrowedItems() {
         </p>
       </div>
 
-      {/* Table card — grows to fill remaining height */}
+      {/* Table card */}
       <div className="flex-1 min-h-0 bg-white rounded-[2rem] border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden flex flex-col">
+
         {/* Table Header */}
         <div className="shrink-0 px-6 md:px-8 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
