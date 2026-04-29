@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { AddUsers } from "../components/AddUser";
 import Button from "../components/Button";
 import EditUser from "../components/EditUser";
@@ -23,20 +23,10 @@ import {
   GraduationCap,
 } from "lucide-react";
 
-type TPageTab = "staff" | "registered";
-
 export default function UserManagement() {
-  const [activeTab, setActiveTab] = useState<TPageTab>("staff");
-  const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
-  const [blockUserId, setBlockUserId] = useState("");
-
-  const { mutate, isPending: isArchiving } = useArchiveUser();
-  const { mutate: blockUser, isPending: isBlocking } = useBlockUser();
-  const { mutate: unblockUser } = useUnblockUser();
-  const { users, isPending, isError } = useAllUsersManagement();
-  const { filteredUser, setSearchUser, setSelectedStatus, selectedRole, setSelectedRole } = useFilteredUser();
-
   const {
+    activeTab,
+    setActiveTab,
     isAddUserOpen,
     setIsAddUserOpen,
     isEditUserOpen,
@@ -45,15 +35,30 @@ export default function UserManagement() {
     setIsViewCredentialsOpen,
     isArchiveModalOpen,
     setIsArchiveModalOpen,
+    isBlockModalOpen,
+    setIsBlockModalOpen,
     selectedUserId,
     setSelectedUserId,
     archiveUserId,
     setArchiveUserId,
+    blockUserId,
+    setBlockUserId,
   } = useAllUsersManagementState();
+
+  const { mutate, isPending: isArchiving } = useArchiveUser();
+  const { mutate: blockUser, isPending: isBlocking } = useBlockUser();
+  const { mutate: unblockUser } = useUnblockUser();
+  const { users, isPending, isError } = useAllUsersManagement();
+  const { filteredUser, setSearchUser, setSelectedStatus, selectedRole, setSelectedRole } = useFilteredUser();
 
   const selectedUser = useMemo(
     () => users.find((u) => u.id === selectedUserId),
     [users, selectedUserId],
+  );
+
+  const blockUserData = useMemo(
+    () => users.find((u) => u.id === blockUserId),
+    [users, blockUserId],
   );
 
   const confirmArchiveUser = useCallback(() => {
@@ -69,7 +74,7 @@ export default function UserManagement() {
         showToast.error("Action Failed", "You cannot archive the logged-in user!");
       },
     });
-  }, [archiveUserId, mutate]);
+  }, [archiveUserId, mutate, setIsArchiveModalOpen, setArchiveUserId]);
 
   const cancelArchiveUser = () => {
     setIsArchiveModalOpen(false);
@@ -111,7 +116,7 @@ export default function UserManagement() {
           setBlockUserId("");
           showToast.error("Action Failed", error?.response?.data?.message || "Failed to block user.");
         },
-      }
+      },
     );
   };
 
@@ -120,16 +125,10 @@ export default function UserManagement() {
     setBlockUserId("");
   };
 
-  const blockUserData = useMemo(
-    () => users.find((u) => u.id === blockUserId),
-    [users, blockUserId],
-  );
-
   const tableUsers = filteredUser.filter(
     (user) => (user.userRole === "Admin" || user.userRole === "Staff") && user.status?.toLowerCase() !== "archived",
   );
 
-  // Calculate detailed stats for Staff & Admins
   const staffUsers = users.filter((u) => u.userRole === "Staff" && u.status?.toLowerCase() !== "archived");
   const adminUsers = users.filter((u) => u.userRole === "Admin" && u.status?.toLowerCase() !== "archived");
   const staffOnlineCount = staffUsers.filter((u) => u.status.toLowerCase() === "online").length;
@@ -182,10 +181,8 @@ export default function UserManagement() {
             Teachers & Students
           </button>
         </div>
-        
-        {/* Stats and New User button */}
+
         <div className="flex items-center gap-3">
-          {/* New User button - visible on all tabs */}
           <Button onClick={() => setIsAddUserOpen(true)} name="New User" />
         </div>
       </div>
@@ -199,22 +196,17 @@ export default function UserManagement() {
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               {/* Left side - Minimal Stats */}
               <div className="flex items-center gap-2 flex-wrap">
-                {/* Total */}
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200">
                   <Users className="h-3.5 w-3.5 text-slate-500" />
                   <span className="text-sm font-semibold text-slate-700">{tableUsers.length}</span>
                   <span className="text-xs text-slate-500">total</span>
                 </div>
-
-                {/* Staff */}
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-violet-50 border border-violet-200">
                   <ShieldCheck className="h-3.5 w-3.5 text-violet-600" />
                   <span className="text-sm font-semibold text-violet-700">{staffUsers.length}</span>
                   <span className="text-xs text-violet-600">staff</span>
                   <span className="text-xs text-violet-500">({staffOnlineCount} online)</span>
                 </div>
-
-                {/* Admins */}
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-200">
                   <ShieldCheck className="h-3.5 w-3.5 text-amber-600" />
                   <span className="text-sm font-semibold text-amber-700">{adminUsers.length}</span>
@@ -225,7 +217,6 @@ export default function UserManagement() {
 
               {/* Right side - Filters and Search */}
               <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 lg:justify-end">
-                {/* Role filter pills */}
                 <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl shrink-0">
                   {["all", "admin", "staff"].map((role) => (
                     <button
@@ -241,13 +232,9 @@ export default function UserManagement() {
                     </button>
                   ))}
                 </div>
-
-                {/* Status filter dropdown */}
                 <div className="shrink-0">
                   <SelectUserStatus onChangeStatus={setSelectedStatus} />
                 </div>
-
-                {/* Search bar */}
                 <div className="grow sm:grow-0 sm:w-auto">
                   <SearchBar
                     onChangeValue={(value) => setSearchUser(value)}
@@ -278,16 +265,14 @@ export default function UserManagement() {
                 <table className="w-full text-left text-sm whitespace-nowrap">
                   <thead>
                     <tr className="border-b border-slate-100">
-                      {["First Name", "Last Name", "Username", "Email", "Role", "Status"].map(
-                        (col) => (
-                          <th
-                            key={col}
-                            className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400"
-                          >
-                            {col}
-                          </th>
-                        ),
-                      )}
+                      {["First Name", "Last Name", "Username", "Email", "Role", "Status"].map((col) => (
+                        <th
+                          key={col}
+                          className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400"
+                        >
+                          {col}
+                        </th>
+                      ))}
                       <th className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4 w-12" />
                     </tr>
                   </thead>
