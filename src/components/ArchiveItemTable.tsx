@@ -2,7 +2,7 @@ import { FormattedDateTime } from "./FormattedDateTime";
 import { SlugCondition } from "./SlugCondition";
 import { UserData } from "../utils/usersData/userData";
 import { type FC } from "react";
-import box from "../assets/box.webp";
+import no_image_svg from "../assets/no-image-svgrepo-com.svg";
 import { LuArchiveRestore } from "react-icons/lu";
 import { RiDeleteBin6Line } from "react-icons/ri";
 
@@ -72,7 +72,7 @@ export const ArchiveItemTable: FC<TArchiveItemNewProps> = (props) => {
             </td>
             <td className="py-4 px-4 font-medium border-b border-[#e6e6e6] text-[#1e293b]">
                 <img
-                    src={typeof props.image === "string" ? props.image : box}
+                    src={typeof props.image === "string" ? props.image : no_image_svg}
                     alt={props.itemName}
                     className="object-cover w-10 h-10 rounded-xl"
                 />
