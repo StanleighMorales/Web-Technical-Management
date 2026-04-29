@@ -1,6 +1,6 @@
 import { type FC } from "react";
 import box from "../assets/box.webp";
-import { useState, useMemo, useCallback } from "react";
+import { useMemo, useCallback } from "react";
 import ArchiveSkeletonLoader from "../loader/ArchiveSkeletonLoader.tsx";
 import type { TUsers } from "../@types/types.ts";
 import { useDeleteItem } from "../hooks/itemHooks.ts";
@@ -26,6 +26,7 @@ import {
   useFilteredItems,
   useFilteredUsers,
 } from "../data/archive-data.ts";
+import { useArchiveState } from "../states/archive-state.ts";
 import {
   Archive as ArchiveIcon,
   Package,
@@ -56,8 +57,44 @@ const filterTabs: { key: FilterKey; label: string; icon: typeof Package }[] = [
   { key: "students", label: "Students", icon: GraduationCap },
 ];
 
+const itemsPerPage = 10;
+
 export default function Archive() {
-  const [searchItem, setSearchItem] = useState<string>("");
+  const {
+    searchItem,
+    setSearchItem,
+    currentPage,
+    setCurrentPage,
+    isRestoreConfirmOpen,
+    setIsRestoreConfirmOpen,
+    restoreSelectedItemId,
+    setRestoreSelectedItemId,
+    selectedItemId,
+    setSelectedItemId,
+    isItemDetailsOpen,
+    setIsItemDetailsOpen,
+    isDeleteConfirmOpen,
+    setIsDeleteItemConfirmOpen,
+    deleteSelectedId,
+    setDeleteSelectedId,
+    isUserRestoreConfirmOpen,
+    setIsUserRestoreConfirmOpen,
+    userRestoreSelectedId,
+    setUserRestoreSelectedId,
+    isUserDeleteConfirmOpen,
+    setIsUserDeleteConfirmOpen,
+    userDeleteSelectedId,
+    setUserDeleteSelectedId,
+    isStudentCredentialsOpen,
+    setIsStudentCredentialsOpen,
+    selectedStudentId,
+    setSelectedStudentId,
+    isTeacherCredentialsOpen,
+    setIsTeacherCredentialsOpen,
+    selectedTeacherId,
+    setSelectedTeacherId,
+  } = useArchiveState();
+
   const userData = UserData();
   const restoreItemMutation = useRestoreItem();
   const deleteItemMutation = useDeleteItem();
@@ -69,24 +106,6 @@ export default function Archive() {
   const { filteredUsers, activeFilter, setActiveFilter, setSelectedCategory } =
     useFilteredUsers({ searchItem });
 
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage = 10;
-
-  const [isRestoreConfirmOpen, setIsRestoreConfirmOpen] = useState(false);
-  const [restoreSelectedItemId, setRestoreSelectedItemId] = useState<string | null>(null);
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [isItemDetailsOpen, setIsItemDetailsOpen] = useState<boolean>(false);
-  const [isDeleteConfirmOpen, setIsDeleteItemConfirmOpen] = useState(false);
-  const [deleteSelectedId, setDeleteSelectedId] = useState<string | null>(null);
-  const [isUserRestoreConfirmOpen, setIsUserRestoreConfirmOpen] = useState(false);
-  const [userRestoreSelectedId, setUserRestoreSelectedId] = useState<string | null>(null);
-  const [isUserDeleteConfirmOpen, setIsUserDeleteConfirmOpen] = useState(false);
-  const [userDeleteSelectedId, setUserDeleteSelectedId] = useState<string | null>(null);
-  const [isStudentCredentialsOpen, setIsStudentCredentialsOpen] = useState(false);
-  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
-  const [isTeacherCredentialsOpen, setIsTeacherCredentialsOpen] = useState(false);
-  const [selectedTeacherId, setSelectedTeacherId] = useState<string | null>(null);
-
   const totalPages = Math.ceil(
     activeFilter === "items"
       ? filteredItems.length / itemsPerPage
@@ -96,16 +115,20 @@ export default function Archive() {
 
   const paginatedItems = useMemo(
     () => filteredItems.slice((validCurrentPage - 1) * itemsPerPage, validCurrentPage * itemsPerPage),
-    [filteredItems, itemsPerPage, validCurrentPage],
+    [filteredItems, validCurrentPage],
   );
 
   const paginatedUsers = useMemo(
     () => filteredUsers.slice((validCurrentPage - 1) * itemsPerPage, validCurrentPage * itemsPerPage),
-    [filteredUsers, itemsPerPage, validCurrentPage],
+    [filteredUsers, validCurrentPage],
   );
 
-  const handlePageChange = useCallback((page: number) => setCurrentPage(page), []);
-  const handleShowAll = useCallback(() => { setSelectedCategory(""); setCurrentPage(1); }, []);
+  const handlePageChange = useCallback((page: number) => setCurrentPage(page), [setCurrentPage]);
+
+  const handleShowAll = useCallback(() => {
+    setSelectedCategory("");
+    setCurrentPage(1);
+  }, [setSelectedCategory, setCurrentPage]);
 
   const handleConfirmRestoreItem = useCallback(() => {
     if (!restoreSelectedItemId) return;
@@ -116,7 +139,7 @@ export default function Archive() {
         showToast.success("Item Restored", data.message);
       },
     });
-  }, [restoreItemMutation, restoreSelectedItemId]);
+  }, [restoreItemMutation, restoreSelectedItemId, setIsRestoreConfirmOpen, setRestoreSelectedItemId]);
 
   const handleConfirmDeleteItem = useCallback(() => {
     if (!deleteSelectedId) return;
@@ -127,7 +150,7 @@ export default function Archive() {
         showToast.success("Item Deleted", data.message);
       },
     });
-  }, [deleteItemMutation, deleteSelectedId]);
+  }, [deleteItemMutation, deleteSelectedId, setIsDeleteItemConfirmOpen, setDeleteSelectedId]);
 
   const handleConfirmRestoreUser = useCallback(() => {
     if (!userRestoreSelectedId) return;
@@ -138,7 +161,7 @@ export default function Archive() {
         showToast.success("User Restored", data.message);
       },
     });
-  }, [restoreUserMutation, userRestoreSelectedId]);
+  }, [restoreUserMutation, userRestoreSelectedId, setIsUserRestoreConfirmOpen, setUserRestoreSelectedId]);
 
   const handleConfirmDeleteUser = useCallback(() => {
     if (!userDeleteSelectedId) return;
@@ -149,8 +172,9 @@ export default function Archive() {
         showToast.success("User Deleted", data.message);
       },
     });
-  }, [deleteUserMutation, userDeleteSelectedId]);
+  }, [deleteUserMutation, userDeleteSelectedId, setIsUserDeleteConfirmOpen, setUserDeleteSelectedId]);
 
+  // Handler helpers
   const viewArchiveItemCredentials = (id: string) => { setSelectedItemId(id); setIsItemDetailsOpen(true); };
   const viewArchiveTeacherCredentials = (id: string) => { setSelectedTeacherId(id); setIsTeacherCredentialsOpen(true); };
   const handleCloseArchiveTeacherCredentials = () => { setSelectedTeacherId(null); setIsTeacherCredentialsOpen(false); };
@@ -192,11 +216,9 @@ export default function Archive() {
     );
   };
 
-  // Derive active count label
   const activeCount = activeFilter === "items" ? filteredItems.length : filteredUsers.length;
   const activeLabel = filterTabs.find((t) => t.key === activeFilter)?.label ?? "";
 
-  // Column headers per filter
   const itemHeaders = ["Serial No.", "Image", "Name", "Category", "Condition", "Archived At", "Action"];
   const userHeaders = ["User ID", "Full Name", "Username", "Email", "Phone", "Role", "Status", "Action"];
   const teacherHeaders = ["Teacher ID", "Full Name", "Username", "Role", "Status", "Action"];
@@ -209,8 +231,6 @@ export default function Archive() {
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
-
-      {/* ── Page header ─────────────────────────────────────────────────── */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-100 text-amber-600 text-xs font-semibold mb-4">
@@ -231,7 +251,7 @@ export default function Archive() {
         </div>
       </div>
 
-      {/* ── Main card ───────────────────────────────────────────────────── */}
+      {/* Main card */}
       <div className="bg-white rounded-[2rem] border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
 
         {/* Toolbar */}
@@ -288,7 +308,7 @@ export default function Archive() {
               <ErrorTable />
             ) : (
               <>
-                {/* ── Items ── */}
+                {/* Items */}
                 {activeFilter === "items" && (
                   <table className="w-full text-left text-sm whitespace-nowrap">
                     <thead>
@@ -339,7 +359,7 @@ export default function Archive() {
                   </table>
                 )}
 
-                {/* ── Users ── */}
+                {/* Users */}
                 {activeFilter === "users" && (
                   <table className="w-full text-left text-sm whitespace-nowrap">
                     <thead>
@@ -385,7 +405,7 @@ export default function Archive() {
                   </table>
                 )}
 
-                {/* ── Teachers ── */}
+                {/* Teachers */}
                 {activeFilter === "teachers" && (
                   <table className="w-full text-left text-sm whitespace-nowrap">
                     <thead>
@@ -435,7 +455,7 @@ export default function Archive() {
                   </table>
                 )}
 
-                {/* ── Students ── */}
+                {/* Students */}
                 {activeFilter === "students" && (
                   <table className="w-full text-left text-sm whitespace-nowrap">
                     <thead>
@@ -492,10 +512,10 @@ export default function Archive() {
         </div>
       </div>
 
-      {/* ── Modals ──────────────────────────────────────────────────────── */}
+      {/* Modals */}
       {isRestoreConfirmOpen && (
         <PopUpModal title="Restore Item" label="restore" noun="item" destination="inventory list"
-          onHandleCancelAction={handleCancelRestore} onHandleConfirmAction={handleConfirmRestoreItem} 
+          onHandleCancelAction={handleCancelRestore} onHandleConfirmAction={handleConfirmRestoreItem}
           isLoading={restoreItemMutation.isPending} />
       )}
       {isDeleteConfirmOpen && (
@@ -504,7 +524,7 @@ export default function Archive() {
       )}
       {isUserRestoreConfirmOpen && (
         <PopUpModal title="Restore User" label="restore" noun="user" destination="Registration Module"
-          onHandleCancelAction={handleCancelUserRestore} onHandleConfirmAction={handleConfirmRestoreUser} 
+          onHandleCancelAction={handleCancelUserRestore} onHandleConfirmAction={handleConfirmRestoreUser}
           isLoading={restoreUserMutation.isPending} />
       )}
       {isUserDeleteConfirmOpen && (
@@ -525,7 +545,7 @@ export default function Archive() {
   );
 }
 
-// ── Shared sub-components ────────────────────────────────────────────────────
+// Shared sub-components
 
 function EmptyState({ icon: Icon, label, isEmpty }: { icon: any; label: string; isEmpty: boolean }) {
   return (
