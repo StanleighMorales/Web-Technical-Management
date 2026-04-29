@@ -88,7 +88,6 @@ export default function Sidebar() {
 
   if (isSidebarLoading) return <SidebarSkeletonLoader />;
 
-  // ── Style tokens ──────────────────────────────────────────────────────────
   const navLinkBase =
     "flex items-center gap-2.5 px-2.5 py-2 rounded-lg font-medium text-[13px] tracking-wide text-slate-600 hover:bg-slate-100 hover:text-blue-600 transition-all duration-200";
   const navLinkActive =
@@ -96,7 +95,6 @@ export default function Sidebar() {
   const iconWrap =
     "flex items-center justify-center w-8 h-8 rounded-md shrink-0 bg-slate-100 group-hover:bg-blue-50 [.active_&]:!bg-white/20";
 
-  // ── Section label ─────────────────────────────────────────────────────────
   const SectionLabel = ({ label }: { label: string }) => (
     <li className="px-2.5 pt-4 pb-1">
       <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 opacity-0 transition-opacity duration-300 group-hover:opacity-100 whitespace-nowrap">
@@ -105,7 +103,6 @@ export default function Sidebar() {
     </li>
   );
 
-  // ── Reusable nav item ─────────────────────────────────────────────────────
   const NavItem = ({
     item,
     badgeColor = "orange",
@@ -154,7 +151,7 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* ── Desktop Sidebar ─────────────────────────────────────────────── */}
+      {/* Desktop Sidebar */}
       <aside
         className="hidden fixed top-0 left-0 z-50 flex-col justify-between h-screen bg-white border-r border-slate-200 shadow-sm transition-all duration-300 lg:flex group animate-fadeIn w-[68px] hover:w-[260px]"
         onMouseEnter={() => setIsSidebarExpanded(true)}
@@ -222,7 +219,7 @@ export default function Sidebar() {
         </footer>
       </aside>
 
-      {/* ── Mobile Toggle ───────────────────────────────────────────────── */}
+      {/* Mobile Toggle */}
       <div className="fixed top-4 left-4 z-50 lg:hidden">
         <button
           onClick={toggleMobileMenu}
@@ -239,7 +236,7 @@ export default function Sidebar() {
         </button>
       </div>
 
-      {/* ── Mobile Overlay ──────────────────────────────────────────────── */}
+      {/*  Mobile Overlay  */}
       {isMobileMenuOpen && (
         <div
           className="fixed inset-0 z-40 lg:hidden bg-slate-900/40 backdrop-blur-sm"
@@ -247,7 +244,7 @@ export default function Sidebar() {
         />
       )}
 
-      {/* ── Mobile Drawer ───────────────────────────────────────────────── */}
+      {/*  Mobile Drawer */}
       {isMobileMenuOpen && (
         <div className="flex fixed inset-y-0 left-0 z-50 flex-col w-68 max-w-[85vw] bg-white border-r border-slate-200 shadow-xl lg:hidden animate-slideIn overflow-hidden">
           {/* Header */}
@@ -316,7 +313,7 @@ export default function Sidebar() {
         </div>
       )}
 
-      {/* ── Logout overlay ──────────────────────────────────────────────── */}
+      {/*  Logout overlay */}
       {isLoggingOut && (
         <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-900/90 backdrop-blur-md animate-in fade-in duration-300">
           <div className="flex flex-col items-center gap-6 text-center px-8">
