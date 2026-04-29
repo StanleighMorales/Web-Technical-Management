@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import HistoryListSkeletonLoader from "../loader/HistoryListSkeletonLoader";
 import { useQuery } from "@tanstack/react-query";
 import type { THistoryBorrwedItems } from "../@types/types";
@@ -11,11 +11,27 @@ import { useUpdateLentItemStatusMutation } from "../query/patch/useUpdateLentIte
 import { showToast } from "../components/AppToast";
 import { BorrowDetailDialog } from "../components/BorrowDetailDialog";
 import { useRecentlyBorrowItems } from "../hooks/itemHooks";
+import { usePendingReservationsState } from "../states/pending-reservations-state";
 
 export default function PendingReservations() {
-  const [activeTab, setActiveTab] = useState<"pending" | "reservations">("pending");
-  const [searchItem, setSearchItem] = useState("");
-  const [borrowedItem, setBorrowedItem] = useState<THistoryBorrwedItems[]>([]);
+  const {
+    activeTab,
+    setActiveTab,
+    searchItem,
+    setSearchItem,
+    isApproveModalOpen,
+    setIsApproveModalOpen,
+    isDenyModalOpen,
+    setIsDenyModalOpen,
+    isMarkBorrowedModalOpen,
+    setIsMarkBorrowedModalOpen,
+    selectedItem,
+    setSelectedItem,
+    isDetailsModalOpen,
+    setIsDetailsModalOpen,
+    selectedItemId,
+    setSelectedItemId,
+  } = usePendingReservationsState();
 
   // If navigated here from the due-soon dialog, open the Reservations tab directly
   useEffect(() => {
@@ -24,63 +40,64 @@ export default function PendingReservations() {
       setActiveTab("reservations");
       sessionStorage.removeItem("pendingReservationsTab");
     }
-  }, []);
-
-  // Modal state
-  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
-  const [isDenyModalOpen, setIsDenyModalOpen] = useState(false);
-  const [isMarkBorrowedModalOpen, setIsMarkBorrowedModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<THistoryBorrwedItems | null>(null);
-
-  // Details modal
-  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  }, [setActiveTab]);
 
   const { data, isPending, isError } = useQuery(useRecentlyBorrowItems());
   const { mutate: approveLentItem, isPending: isApproving } = useUpdateLentItemStatusMutation();
   const { mutate: denyLentItem,   isPending: isDenying   } = useUpdateLentItemStatusMutation();
   const { mutate: borrowLentItem, isPending: isBorrowing } = useUpdateLentItemStatusMutation();
 
-  useEffect(() => {
-    if (data) setBorrowedItem(data);
-  }, [data]);
+  const borrowedItem: THistoryBorrwedItems[] = useMemo(
+    () => (Array.isArray(data) ? data : []),
+    [data],
+  );
 
-  // ── Filtered lists ──────────────────────────────────────────────────────
-  const pendingItems = useMemo(() => {
-    return borrowedItem.filter((item) => {
-      const matchesSearch =
-        item.borrowerFullName?.toLowerCase().includes(searchItem.toLowerCase()) ||
-        item.item.itemName?.toLowerCase().includes(searchItem.toLowerCase());
-      return matchesSearch && item.status === "Pending";
-    });
-  }, [borrowedItem, searchItem]);
+  // Filtered lists
+  const pendingItems = useMemo(
+    () =>
+      borrowedItem.filter((item) => {
+        const matchesSearch =
+          item.borrowerFullName?.toLowerCase().includes(searchItem.toLowerCase()) ||
+          item.item.itemName?.toLowerCase().includes(searchItem.toLowerCase());
+        return matchesSearch && item.status === "Pending";
+      }),
+    [borrowedItem, searchItem],
+  );
 
-  const reservationItems = useMemo(() => {
-    return borrowedItem.filter((item) => {
-      const matchesSearch =
-        item.borrowerFullName?.toLowerCase().includes(searchItem.toLowerCase()) ||
-        item.item.itemName?.toLowerCase().includes(searchItem.toLowerCase());
-      // Approved = reservation confirmed by admin, awaiting pickup
-      return matchesSearch && item.status === "Approved";
-    });
-  }, [borrowedItem, searchItem]);
+  const reservationItems = useMemo(
+    () =>
+      borrowedItem.filter((item) => {
+        const matchesSearch =
+          item.borrowerFullName?.toLowerCase().includes(searchItem.toLowerCase()) ||
+          item.item.itemName?.toLowerCase().includes(searchItem.toLowerCase());
+        return matchesSearch && item.status === "Approved";
+      }),
+    [borrowedItem, searchItem],
+  );
 
   const filteredItems = activeTab === "pending" ? pendingItems : reservationItems;
 
-  // ── Approve ─────────────────────────────────────────────────────────────
+  // Approve
   const handleApproveClick = (item: THistoryBorrwedItems) => {
     setSelectedItem(item);
     setIsApproveModalOpen(true);
   };
 
   const handleConfirmApprove = () => {
-    if (!selectedItem) { showToast.error("Action Failed", "No item selected."); setIsApproveModalOpen(false); return; }
+    if (!selectedItem) {
+      showToast.error("Action Failed", "No item selected.");
+      setIsApproveModalOpen(false);
+      return;
+    }
 
     approveLentItem(
       { id: selectedItem.id, lentItemsStatus: "Approved" },
       {
         onSuccess: () => {
-          showToast.success("Reservation Approved", `Reservation approved for ${selectedItem.item.itemName}`);
+          showToast.success(
+            "Reservation Approved",
+            `Reservation approved for ${selectedItem.item.itemName}`,
+          );
           setIsApproveModalOpen(false);
           setSelectedItem(null);
         },
@@ -92,24 +109,33 @@ export default function PendingReservations() {
     );
   };
 
-  // ── Deny / Cancel ────────────────────────────────────────────────────────
+  // Deny / Cancel
   const handleDenyClick = (item: THistoryBorrwedItems) => {
     setSelectedItem(item);
     setIsDenyModalOpen(true);
   };
 
   const handleConfirmDeny = () => {
-    if (!selectedItem) { showToast.error("Action Failed", "No item selected."); setIsDenyModalOpen(false); return; }
+    if (!selectedItem) {
+      showToast.error("Action Failed", "No item selected.");
+      setIsDenyModalOpen(false);
+      return;
+    }
 
-    // Approved reservations → "Canceled"; pending requests → "Denied"
     const statusToSet = selectedItem.status === "Approved" ? "Canceled" : "Denied";
 
     denyLentItem(
       { id: selectedItem.id, lentItemsStatus: statusToSet },
       {
         onSuccess: () => {
-          const actionText = selectedItem.status === "Approved" ? "canceled reservation" : "denied borrow request";
-          showToast.success("Request Processed", `Successfully ${actionText} for ${selectedItem.item.itemName}`);
+          const actionText =
+            selectedItem.status === "Approved"
+              ? "canceled reservation"
+              : "denied borrow request";
+          showToast.success(
+            "Request Processed",
+            `Successfully ${actionText} for ${selectedItem.item.itemName}`,
+          );
           setIsDenyModalOpen(false);
           setSelectedItem(null);
         },
@@ -121,23 +147,29 @@ export default function PendingReservations() {
     );
   };
 
-  // ── Mark as Borrowed (manual fallback) ───────────────────────────────────
+  // Mark as Borrowed
   const handleMarkBorrowedClick = (item: THistoryBorrwedItems) => {
     setSelectedItem(item);
     setIsMarkBorrowedModalOpen(true);
   };
 
   const handleConfirmMarkBorrowed = () => {
-    if (!selectedItem) { showToast.error("Action Failed", "No item selected."); setIsMarkBorrowedModalOpen(false); return; }
+    if (!selectedItem) {
+      showToast.error("Action Failed", "No item selected.");
+      setIsMarkBorrowedModalOpen(false);
+      return;
+    }
 
     borrowLentItem(
       { id: selectedItem.id, lentItemsStatus: "Borrowed" },
       {
         onSuccess: () => {
-          showToast.success("Marked as Borrowed", `${selectedItem.item.itemName} marked as borrowed for ${selectedItem.borrowerFullName}`);
+          showToast.success(
+            "Marked as Borrowed",
+            `${selectedItem.item.itemName} marked as borrowed for ${selectedItem.borrowerFullName}`,
+          );
           setIsMarkBorrowedModalOpen(false);
           setSelectedItem(null);
-          // Switch to pending tab so the user sees the updated state
           setActiveTab("reservations");
         },
         onError: (error) => {
@@ -148,7 +180,7 @@ export default function PendingReservations() {
     );
   };
 
-  // ── Details modal ────────────────────────────────────────────────────────
+  // Details modal
   const handleRowClick = (itemId: string) => {
     setSelectedItemId(itemId);
     setIsDetailsModalOpen(true);
