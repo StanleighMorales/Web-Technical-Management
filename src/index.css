@@ -3,7 +3,7 @@
 @import "tailwindcss";
 
 * {
-  font-family: Arial, Poppins;
+  font-family: "Poppins", sans-serif;
 }
 
 html,
