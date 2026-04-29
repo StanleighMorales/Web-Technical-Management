@@ -1,16 +1,15 @@
-import { useState } from "react";
 import { useActivityLogs } from "../hooks/logsHooks";
 import { useNavigate } from "@tanstack/react-router";
 import { Search, Activity, Calendar, User, Tag, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import type { TActivityLogs } from "../@types/types";
 import ActivityLogsSkeletonLoader from "../loader/ActivityLogsSkeletonLoader";
+import { useActivityLogsState } from "../states/activity-logs-state";
 
 const ITEMS_PER_PAGE = 10;
 
 export default function ActivityLogs() {
     const { data: logs, isLoading, isError } = useActivityLogs();
-    const [searchTerm, setSearchTerm] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
+    const { searchTerm, setSearchTerm, currentPage, setCurrentPage } = useActivityLogsState();
     const navigate = useNavigate();
 
     const filteredLogs = logs?.data.filter((log: TActivityLogs) =>
@@ -248,7 +247,7 @@ export default function ActivityLogs() {
                     {totalPages > 1 && (
                         <div className="flex items-center gap-1">
                             <button
-                                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                                 disabled={currentPage === 1}
                                 className="flex items-center gap-1 px-3 py-2 rounded-xl text-slate-500 font-medium hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-200 transition-all disabled:opacity-40 disabled:pointer-events-none"
                             >
@@ -290,7 +289,7 @@ export default function ActivityLogs() {
                                 )}
 
                             <button
-                                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                                 disabled={currentPage === totalPages}
                                 className="flex items-center gap-1 px-3 py-2 rounded-xl text-slate-500 font-medium hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-200 transition-all disabled:opacity-40 disabled:pointer-events-none"
                             >
