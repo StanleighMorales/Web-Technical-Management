@@ -1,32 +1,84 @@
+const Bone = ({ className }: { className?: string }) => (
+  <div className={`animate-pulse rounded-md bg-slate-200 ${className ?? ""}`} />
+);
+
 export default function SidebarSkeletonLoader() {
   return (
-    <aside className="hidden top-0 left-0 z-30 flex-col justify-between h-screen bg-white border-r shadow-xl lg:flex animate-fadeIn w-[75px] border-[#e5e7eb]">
-      {/* Logo and Title Skeleton */}
-      <div className="flex flex-col items-center py-8">
-        {/* Logo skeleton */}
-        <div className="mb-2 w-20 h-20 bg-gray-200 rounded-full animate-pulse"></div>
-        {/* Title skeleton */}
+    <aside className="hidden fixed top-0 left-0 z-50 flex-col justify-between h-screen bg-white border-r border-slate-200 shadow-sm lg:flex animate-fadeIn w-[68px]">
+
+      {/* Logo */}
+      <div className="flex flex-col items-center pt-5 pb-3 px-2 border-b border-slate-100 gap-2">
+        <Bone className="w-10 h-10 rounded-full" />
       </div>
 
-      {/* Navigation Skeleton */}
-      <nav className="flex-1">
-        <ul className="flex flex-col gap-2 px-4">
-          {/* Navigation items skeleton */}
-          {[...Array(6)].map((_, index) => (
-            <li key={index}>
-              <div className="flex gap-3 items-center py-3 rounded-lg px-auto">
-                <div className="h-4 bg-gray-200 rounded animate-pulse min-w-[30px]"></div>
+      {/* Nav items */}
+      <nav className="flex-1 px-2 py-2">
+        <ul className="flex flex-col gap-0.5">
+          {/* Section label placeholder */}
+          <li className="px-2.5 pt-4 pb-1">
+            <Bone className="h-2 w-6 rounded-sm" />
+          </li>
+
+          {/* Primary group — 3 items */}
+          {[...Array(3)].map((_, i) => (
+            <li key={`p-${i}`}>
+              <div className="flex items-center gap-2.5 px-2.5 py-2">
+                <Bone className="w-8 h-8 rounded-md shrink-0" />
               </div>
             </li>
           ))}
+
+          {/* Section label placeholder */}
+          <li className="px-2.5 pt-4 pb-1">
+            <Bone className="h-2 w-8 rounded-sm" />
+          </li>
+
+          {/* Operational group — 3 items */}
+          {[...Array(3)].map((_, i) => (
+            <li key={`o-${i}`}>
+              <div className="flex items-center gap-2.5 px-2.5 py-2">
+                <Bone className="w-8 h-8 rounded-md shrink-0" />
+              </div>
+            </li>
+          ))}
+
+          {/* Divider */}
+          <li className="my-1.5 px-2">
+            <div className="h-px bg-slate-100" />
+          </li>
+
+          {/* Section label placeholder */}
+          <li className="px-2.5 pt-1 pb-1">
+            <Bone className="h-2 w-10 rounded-sm" />
+          </li>
+
+          {/* Administrative group — 4 items */}
+          {[...Array(4)].map((_, i) => (
+            <li key={`a-${i}`}>
+              <div className="flex items-center gap-2.5 px-2.5 py-2">
+                <Bone className="w-8 h-8 rounded-md shrink-0" />
+              </div>
+            </li>
+          ))}
+
+          {/* Section label placeholder */}
+          <li className="px-2.5 pt-4 pb-1">
+            <Bone className="h-2 w-6 rounded-sm" />
+          </li>
+
+          {/* Account — 1 item */}
+          <li>
+            <div className="flex items-center gap-2.5 px-2.5 py-2">
+              <Bone className="w-8 h-8 rounded-md shrink-0" />
+            </div>
+          </li>
         </ul>
       </nav>
 
-      {/* Logout Button Skeleton */}
-      <footer className="py-8 px-4">
-        <div className="flex gap-2 justify-center items-center py-3 px-4 w-full rounded-lg shadow bg-[#f1f5f9]">
-          <div className="w-5 h-5 bg-gray-200 rounded animate-pulse"></div>
-          <div className="w-16 h-4 bg-gray-200 rounded animate-pulse"></div>
+      {/* Sign out */}
+      <footer className="p-2 border-t border-slate-100">
+        <div className="flex items-center gap-2.5 py-2 px-2.5">
+          <Bone className="w-8 h-8 rounded-md shrink-0" />
         </div>
       </footer>
     </aside>
