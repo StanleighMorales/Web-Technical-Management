@@ -1,12 +1,12 @@
 import { Link, useParams } from "@tanstack/react-router";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { TItemList } from "../@types/types";
 import { useGetItemInfo } from "../hooks/itemHooks";
 import ViewItemSkeletonLoader from "../loader/ViewItemSkeletonLoader";
-import { useState } from "react";
 import { EditItemForm } from "./EditItemForm";
+import no_image_svg from "../assets/no-image-svgrepo-com.svg";
 import { FormattedDateTime } from "./FormattedDateTime";
-import box from "../assets/box.webp";
 import {
   ArrowLeft,
   Pencil,
@@ -96,13 +96,13 @@ export default function ViewItem() {
             <div className="md:w-72 flex-shrink-0 bg-slate-50 border-b md:border-b-0 md:border-r border-slate-100 flex items-center justify-center p-8">
               {item.image ? (
                 <img
-                  src={typeof item.image === "string" ? item.image : box}
+                  src={typeof item.image === "string" ? item.image : no_image_svg}
                   alt={item.itemName}
                   className="w-48 h-48 object-cover rounded-2xl shadow-md"
                 />
               ) : (
                 <img
-                  src={box}
+                  src={no_image_svg}
                   alt={item.itemName}
                   className="w-48 h-48 object-cover rounded-2xl shadow-md opacity-60"
                 />
