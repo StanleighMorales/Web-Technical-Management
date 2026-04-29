@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { TBorrowItemData } from "../@types/types";
 import { useBorrowItem } from "../hooks/itemHooks";
 import { showToast } from "./AppToast";
+import { useBorrowItemFormState } from "../states/borrow-item-form-state";
 import {
   ScanLine,
   User,
@@ -17,6 +18,22 @@ import {
   X,
 } from "lucide-react";
 
+const EMPTY_FORM: TBorrowItemData = {
+  tagUid: "",
+  borrowerFirstName: "",
+  borrowerLastName: "",
+  organization: null,
+  contactNumber: null,
+  purpose: null,
+  supervisorName: null,
+  room: "",
+  subjectTimeSchedule: "",
+  reservedFor: null,
+  remarks: null,
+  status: null,
+  guestImage: null,
+};
+
 export const BorrowItemForm = ({
   prefilledItemId: _prefilledItemId,
   prefilledItemName: _prefilledItemName,
@@ -25,32 +42,24 @@ export const BorrowItemForm = ({
   prefilledItemName?: string;
   onLentItemScanned?: (lentItem: any) => void;
 }) => {
-  const [showReservationModal, setShowReservationModal] = useState<boolean>(false);
-  const [reservationDate, setReservationDate] = useState<string>("");
-  const [reservationTime, setReservationTime] = useState<string>("07:30");
-
-  // Form errors
+  // ── Local state (form-lifecycle bound) ──────────────────────────────────
+  const [formData, setFormData] = useState<TBorrowItemData>(EMPTY_FORM);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Form data
-  const [formData, setFormData] = useState<TBorrowItemData>({
-    tagUid: "",
-    borrowerFirstName: "",
-    borrowerLastName: "",
-    organization: null,
-    contactNumber: null,
-    purpose: null,
-    supervisorName: null,
-    room: "",
-    subjectTimeSchedule: "",
-    reservedFor: null,
-    remarks: null,
-    status: null,
-    guestImage: null,
-  });
+  // ── Global UI state (modal + reservation date/time) ─────────────────────
+  const {
+    showReservationModal,
+    setShowReservationModal,
+    reservationDate,
+    setReservationDate,
+    reservationTime,
+    setReservationTime,
+    resetReservation,
+  } = useBorrowItemFormState();
 
   const borrowItemMutation = useBorrowItem();
 
+  // ── Handlers ─────────────────────────────────────────────────────────────
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
@@ -61,20 +70,18 @@ export const BorrowItemForm = ({
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-
     if (!formData.tagUid) newErrors.tagUid = "Tag UID is required";
     if (!formData.borrowerFirstName) newErrors.borrowerFirstName = "First name is required";
     if (!formData.borrowerLastName) newErrors.borrowerLastName = "Last name is required";
     if (!formData.room) newErrors.room = "Room is required";
     if (!formData.subjectTimeSchedule) newErrors.subjectTimeSchedule = "Subject/Time/Schedule is required";
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleReservationSubmit = async () => {
-    let hasError = false;
     const newErrors: Record<string, string> = {};
+    let hasError = false;
 
     if (!reservationDate) { newErrors.reservationDate = "Please select a date"; hasError = true; }
     if (!reservationTime) { newErrors.reservationTime = "Please select a time"; hasError = true; }
@@ -82,9 +89,7 @@ export const BorrowItemForm = ({
     if (reservationTime) {
       const [hours, minutes] = reservationTime.split(":").map(Number);
       const timeInMinutes = hours * 60 + minutes;
-      const minTime = 7 * 60 + 30;
-      const maxTime = 20 * 60 + 30;
-      if (timeInMinutes < minTime || timeInMinutes > maxTime) {
+      if (timeInMinutes < 7 * 60 + 30 || timeInMinutes > 20 * 60 + 30) {
         newErrors.reservationTime = "Time must be between 7:30 AM and 8:30 PM";
         hasError = true;
       }
@@ -93,13 +98,11 @@ export const BorrowItemForm = ({
     if (hasError) { setErrors((prev) => ({ ...prev, ...newErrors })); return; }
 
     try {
-      const reservedForDateTime = `${reservationDate}T${reservationTime}:00`;
       await borrowItemMutation.mutateAsync({
         ...formData,
-        reservedFor: reservedForDateTime,
+        reservedFor: `${reservationDate}T${reservationTime}:00`,
         status: "Reserved",
       });
-
       showToast.success("Reservation Submitted", "Reservation submitted successfully!");
       resetForm();
     } catch (error: any) {
@@ -129,27 +132,12 @@ export const BorrowItemForm = ({
   };
 
   const resetForm = () => {
-    setFormData({
-      tagUid: "",
-      borrowerFirstName: "",
-      borrowerLastName: "",
-      organization: null,
-      contactNumber: null,
-      purpose: null,
-      supervisorName: null,
-      room: "",
-      subjectTimeSchedule: "",
-      reservedFor: null,
-      remarks: null,
-      status: null,
-      guestImage: null,
-    });
-    setShowReservationModal(false);
-    setReservationDate("");
-    setReservationTime("07:30");
+    setFormData(EMPTY_FORM);
     setErrors({});
+    resetReservation();
   };
 
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <>
       {/* Reservation Modal */}
@@ -176,6 +164,7 @@ export const BorrowItemForm = ({
                 <X className="h-5 w-5" />
               </button>
             </div>
+
             <div className="p-6 space-y-4">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
@@ -198,6 +187,7 @@ export const BorrowItemForm = ({
                   <p className="text-rose-500 text-xs mt-1 font-medium">{errors.reservationDate}</p>
                 )}
               </div>
+
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                   Time <span className="text-rose-500">*</span>
@@ -220,6 +210,7 @@ export const BorrowItemForm = ({
                 )}
                 <p className="text-xs text-slate-400 mt-1">Time must be between 7:30 AM and 8:30 PM</p>
               </div>
+
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
@@ -259,7 +250,8 @@ export const BorrowItemForm = ({
             Guest Borrow Form
           </h2>
           <p className="text-xs text-slate-400 font-medium mt-1">
-            Fill out the form below to request equipment. Fields marked with <span className="text-rose-500">*</span> are required.
+            Fill out the form below to request equipment. Fields marked with{" "}
+            <span className="text-rose-500">*</span> are required.
           </p>
         </div>
 
@@ -308,7 +300,9 @@ export const BorrowItemForm = ({
                     : "border-slate-200 focus:ring-indigo-500/10 focus:border-indigo-500"
                 }`}
               />
-              {errors.borrowerFirstName && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.borrowerFirstName}</p>}
+              {errors.borrowerFirstName && (
+                <p className="text-rose-500 text-xs mt-1 font-medium">{errors.borrowerFirstName}</p>
+              )}
             </div>
 
             <div>
@@ -329,7 +323,9 @@ export const BorrowItemForm = ({
                     : "border-slate-200 focus:ring-indigo-500/10 focus:border-indigo-500"
                 }`}
               />
-              {errors.borrowerLastName && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.borrowerLastName}</p>}
+              {errors.borrowerLastName && (
+                <p className="text-rose-500 text-xs mt-1 font-medium">{errors.borrowerLastName}</p>
+              )}
             </div>
           </div>
 
@@ -444,7 +440,9 @@ export const BorrowItemForm = ({
                     : "border-slate-200 focus:ring-indigo-500/10 focus:border-indigo-500"
                 }`}
               />
-              {errors.subjectTimeSchedule && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.subjectTimeSchedule}</p>}
+              {errors.subjectTimeSchedule && (
+                <p className="text-rose-500 text-xs mt-1 font-medium">{errors.subjectTimeSchedule}</p>
+              )}
             </div>
           </div>
 
