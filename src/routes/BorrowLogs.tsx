@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { useBorrowLogs } from "../hooks/logsHooks";
 import {
     Search,
@@ -16,6 +16,7 @@ import {
 import type { TBorrowingLogs } from "../@types/types";
 import BorrowLogsSkeletonLoader from "../loader/BorrowLogsSkeletonLoader";
 import BorrowLogsDetailModal from "../components/BorrowLogsDetailModal";
+import { useBorrowLogsState } from "../states/borrow-logs-state";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -120,13 +121,18 @@ const getAvatarGradient = (name: string | null) => {
 
 export default function BorrowLogs() {
     const { data: logsData, isLoading, isError } = useBorrowLogs();
-    const [searchTerm, setSearchTerm] = useState("");
-    const [statusFilter, setStatusFilter] = useState("All");
-    const [currentPage, setCurrentPage] = useState(1);
-    
-    // Modal state
-    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-    const [selectedLog, setSelectedLog] = useState<TBorrowingLogs | null>(null);
+    const {
+        searchTerm,
+        setSearchTerm,
+        statusFilter,
+        setStatusFilter,
+        currentPage,
+        setCurrentPage,
+        isDetailModalOpen,
+        setIsDetailModalOpen,
+        selectedLog,
+        setSelectedLog,
+    } = useBorrowLogsState();
 
     const logs: TBorrowingLogs[] = logsData?.data ?? logsData ?? [];
 
@@ -434,7 +440,7 @@ export default function BorrowLogs() {
 
                     <div className="flex items-center gap-1">
                         <button
-                            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                             disabled={safePage === 1}
                             className="flex items-center gap-1 px-3 py-2 rounded-xl text-slate-500 font-medium hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-200 transition-all disabled:opacity-40 disabled:pointer-events-none"
                         >
@@ -475,7 +481,7 @@ export default function BorrowLogs() {
                             )}
 
                         <button
-                            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                             disabled={safePage === totalPages}
                             className="flex items-center gap-1 px-3 py-2 rounded-xl text-slate-500 font-medium hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-200 transition-all disabled:opacity-40 disabled:pointer-events-none"
                         >
