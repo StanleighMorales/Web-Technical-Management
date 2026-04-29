@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useLoggedInUser } from "../hooks/userHooks";
 import { FormattedPhoneNumber } from "../components/FormatedPhoneNumber";
 import SettingsSkeletonLoader from "../loader/SettingsSkeletonLoader";
@@ -7,6 +7,7 @@ import SettingsSkeletonLoader from "../loader/SettingsSkeletonLoader";
 import EditProfileModal from "../components/EditProfileModal";
 import type { TUsers } from "../@types/types";
 import ErrorTable from "../components/ErrorTables";
+import { useSettingsState } from "../states/settings-state";
 import {
   User,
   Mail,
@@ -20,13 +21,10 @@ import {
 
 export default function Settings() {
   // const [showChangePassword, setShowChangePassword] = useState(false);
-  const [showEditProfile, setShowEditProfile] = useState(false);
-  const [user, setUser] = useState<TUsers | null>(null);
+  const { showEditProfile, setShowEditProfile } = useSettingsState();
   const { data, isLoading, isError } = useQuery(useLoggedInUser());
 
-  useEffect(() => {
-    if (data) setUser(data);
-  }, [data]);
+  const user: TUsers | null = useMemo(() => data ?? null, [data]);
 
   if (isLoading) return <SettingsSkeletonLoader />;
 
@@ -70,7 +68,7 @@ export default function Settings() {
         ) : (
           <div className="flex flex-col lg:flex-row gap-6">
 
-            {/* ── Left panel — identity card ─────────────────────────── */}
+            {/* Left panel — identity card  */}
             <div className="lg:w-72 flex-shrink-0 space-y-4">
 
               {/* Avatar card */}
@@ -131,7 +129,7 @@ export default function Settings() {
               </div> */}
             </div>
 
-            {/* ── Right panel — detail sections ─────────────────────── */}
+            {/* Right panel — detail sections  */}
             <div className="flex-1 space-y-4">
 
               {/* Personal information */}
@@ -175,7 +173,7 @@ export default function Settings() {
           </div>
         )}
       </div>
-{/* 
+      {/* 
       {showChangePassword && (
         <ChangePasswordModal id={user?.id} onClose={() => setShowChangePassword(false)} />
       )} */}
@@ -198,8 +196,6 @@ export default function Settings() {
     </div>
   );
 }
-
-// ── Sub-components ───────────────────────────────────────────────────────────
 
 function Section({
   title,
