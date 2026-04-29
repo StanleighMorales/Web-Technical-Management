@@ -74,7 +74,7 @@ export default function Login() {
           target="_blank"
           rel="noreferrer"
           title="Go to ACLC Page"
-          className="relative z-10 w-fit -mb-24"
+          className="relative z-10 w-fit"
         >
           <img
             src={logo}
