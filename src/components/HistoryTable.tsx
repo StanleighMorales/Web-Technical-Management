@@ -1,7 +1,7 @@
 import type { THistoryBorrwedItems } from "../@types/types";
 import { FormattedDateTime } from "./FormattedDateTime";
 import { SlugStatus } from "./SlugStatus";
-import box from "../assets/box.webp"
+import no_image_svg from "../assets/no-image-svgrepo-com.svg";
 
 type HistoryTableProps = {
     items: THistoryBorrwedItems[];
@@ -21,7 +21,7 @@ export default function HistoryTable({ items }: HistoryTableProps) {
                     <td className="py-3 px-4">{item.item.serialNumber}</td>
                     <td className="py-4 px-6">
                         <img
-                            src={typeof item.item.image === "string" ? item.item.image : box}
+                            src={typeof item.item.image === "string" ? item.item.image : no_image_svg}
                             alt={item.borrowerFullName}
                             className="object-cover w-10 h-10 rounded-xl"
                             onError={(e) => (e.currentTarget.style.display = "none")}
