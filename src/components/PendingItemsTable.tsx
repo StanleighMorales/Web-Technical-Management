@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import no_image_svg from "../assets/no-image-svgrepo-com.svg";
 import type { THistoryBorrwedItems } from "../@types/types";
 import { FormattedDateTime } from "./FormattedDateTime";
 import { SlugStatus } from "./SlugStatus";
@@ -8,6 +9,7 @@ import { FiEdit } from "react-icons/fi";
 import { MdOutlineCancel } from "react-icons/md";
 import { FiCheckCircle } from "react-icons/fi";
 import { MdOutlineClose } from "react-icons/md";
+import { Clock10Icon } from "lucide-react";
 
 type PendingItemsTableProps = {
     items: THistoryBorrwedItems[];
@@ -119,7 +121,7 @@ export default function PendingItemsTable({
                                         <td className="py-3 px-6">{item.item.serialNumber}</td>
                                         <td className="py-4 px-6">
                                             <img
-                                                src={typeof item.item.image === "string" ? item.item.image : "-"}
+                                                src={typeof item.item.image === "string" ? item.item.image : no_image_svg}
                                                 alt={item.borrowerFullName}
                                                 className="object-cover w-10 h-10 rounded-lg"
                                                 onError={(e) => (e.currentTarget.style.display = "none")}
@@ -137,7 +139,7 @@ export default function PendingItemsTable({
                                             {item.reservedFor ? (
                                                 <div className="flex flex-col">
                                                     <span className="text-sm font-medium text-gray-900">
-                                                        {new Date(item.reservedFor).toLocaleDateString()}
+                                                        {FormattedDateTime(item.reservedFor)}
                                                     </span>
                                                     <span className="text-xs text-gray-600">
                                                         {new Date(item.reservedFor).toLocaleTimeString([], {
@@ -147,7 +149,7 @@ export default function PendingItemsTable({
                                                     </span>
                                                     {isPickupSoon && (
                                                         <span className="mt-0.5 text-[10px] font-bold text-amber-600 animate-pulse">
-                                                            ⏰ Pickup soon
+                                                            <Clock10Icon /> Pickup soon
                                                         </span>
                                                     )}
                                                 </div>
