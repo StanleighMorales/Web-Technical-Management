@@ -2,7 +2,7 @@ import type { FC } from "react";
 import { useState } from "react";
 import { IoArchive } from "react-icons/io5";
 import { useArchiveItem } from "../hooks/itemHooks";
-import box from "../assets/box.webp";
+import no_image_svg from "../assets/no-image-svgrepo-com.svg";
 import { FormattedDateTime } from "./FormattedDateTime";
 import { SlugCondition } from "./SlugCondition";
 import { SlugStatus } from "./SlugStatus";
@@ -107,7 +107,7 @@ export const InventoryTable = ({ item }: InventoryTableProps) => {
             cell: ({ row }) => (
                 <img
                     src={
-                        typeof row.original.image === "string" ? row.original.image : box
+                        typeof row.original.image === "string" ? row.original.image : no_image_svg
                     }
                     alt={row.original.itemName}
                     className="w-12 h-12 object-cover rounded"
@@ -131,7 +131,7 @@ export const InventoryTable = ({ item }: InventoryTableProps) => {
             header: "DateTime",
             cell: ({ row }) => {
                 const formattedDateTime = FormattedDateTime(row.original.createdAt);
-                return <span>{formattedDateTime}</span>;
+                return <span>{formattedDateTime?.replace("/" , "-")}</span>;
             },
         }),
         columnHelper.accessor("status", {
