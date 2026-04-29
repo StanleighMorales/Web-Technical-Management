@@ -74,7 +74,7 @@ export default function Login() {
           target="_blank"
           rel="noreferrer"
           title="Go to ACLC Page"
-          className="relative z-10 w-fit"
+          className="relative z-10 w-fit -mb-24"
         >
           <img
             src={logo}
@@ -84,29 +84,27 @@ export default function Login() {
         </a>
 
         {/* Hero copy */}
-        <div className="relative z-10 max-w-2xl -mt-30">
-          <h1 className="text-6xl font-extrabold text-white leading-tight tracking-tight drop-shadow-md">
-            Technical Equipment<br />Borrowing System
-          </h1>
-          <p className="text-xl text-blue-100/75 font-medium leading-relaxed">
-            Managing resources, tracking items and borrowers. Ensures smooth lifecycle management.
-          </p>
-          <div className="flex flex-wrap gap-2 pt-1">
-            {["Inventory", "Borrow Logs", "User Roles", "Activity Logs"].map((tag) => (
-              <span
-                key={tag}
-                className="px-3 py-1 rounded-full bg-white/10 border border-white/15 text-white/70 text-xs font-semibold"
-              >
-                {tag}
-              </span>
-            ))}
+        <div className="relative z-10 flex-1 flex items-center">
+          <div className="max-w-2xl">
+            <h1 className="text-6xl font-extrabold text-white leading-tight tracking-tight drop-shadow-md">
+              Technical Equipment<br />Borrowing System
+            </h1>
+            <p className="text-xl text-blue-100/75 font-medium leading-relaxed">
+              Managing resources, tracking items and borrowers. Ensures smooth lifecycle management.
+            </p>
+            <div className="flex flex-wrap gap-2 pt-1">
+              {["Inventory", "Borrow Logs", "User Roles", "Activity Logs"].map((tag) => (
+                <span
+                  key={tag}
+                  className="px-3 py-1 rounded-full bg-white/10 border border-white/15 text-white/70 text-xs font-semibold"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Footer */}
-        <p className="relative z-10 text-white/30 text-xs font-medium">
-          © {new Date().getFullYear()} ACLC College of Mandaue
-        </p>
       </div>
 
       <div className="flex w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 flex-col items-center justify-center bg-white px-10 py-14">
@@ -247,9 +245,15 @@ export default function Login() {
           </form>
 
           {/* Footer */}
-          <p className="text-center text-xs text-slate-300 font-medium">
-            © {new Date().getFullYear()} ACLC College of Mandaue
-          </p>
+          <div className="space-y-1 text-center">
+            <p className="text-xs text-slate-400/80 font-medium">
+              © {new Date().getFullYear()} ACLC College of Mandaue. All rights reserved.
+            </p>
+            <p className="text-xs text-slate-400/70 leading-relaxed">
+              This system is an official internal tool developed exclusively for ACLC College of Mandaue.
+              Unauthorized access, reproduction, or distribution is strictly prohibited.
+            </p>
+          </div>
         </div>
       </div>
     </div>
