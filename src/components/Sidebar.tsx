@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import logo from "../assets/aclcLogo.webp";
+import logo from "../assets/newAclcLogo.webp";
 import { CiLogout, CiUser } from "react-icons/ci";
 import { GiArchiveRegister } from "react-icons/gi";
 import {
@@ -30,33 +30,30 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [isSidebarLoading, setIsSidebarLoading] = useState<boolean>(true);
-
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
   const { mutate, isPending } = useLogoutUser();
   const { setIsSidebarExpanded } = useSidebar();
   const { total: pendingCount } = usePendingCount();
   const activeBorrowCount = useActiveBorrowCount();
 
-  // Primary navigation links
   const primaryLinks: NavLink[] = [
     { label: "Dashboard", link: "/home/dashboard", icon: MdDashboardCustomize },
     { label: "Inventory", link: "/home/inventory-list", icon: GiArchiveRegister },
-    { 
-      label: "Pending Requests", 
-      link: "/home/pending-reservations", 
+    {
+      label: "Pending Requests",
+      link: "/home/pending-reservations",
       icon: BsClipboardCheck,
-      badge: pendingCount 
+      badge: pendingCount,
     },
   ];
 
-  // Operational links (with divider after)
   const operationalLinks: NavLink[] = [
     { label: "Borrowing", link: "/home/borrow-item", icon: TbPackages },
     { label: "Active Borrows", link: "/home/active-borrowed-items", icon: BsClipboardCheck, badge: activeBorrowCount },
     { label: "Scan Controller", link: "/home/rfid-controller", icon: FaWifi },
   ];
 
-  // Administrative links
   const administrativeLinks: NavLink[] = [
     { label: "User Management", link: "/home/user-management", icon: CiUser },
     { label: "Activity Logs", link: "/home/activity-logs", icon: BiLogoSass },
@@ -64,12 +61,10 @@ export default function Sidebar() {
     { label: "Archives", link: "/home/archive-table", icon: MdInventory },
   ];
 
-  // Bottom links
   const bottomLinks: NavLink[] = [
     { label: "Profile", link: "/home/settings", icon: BsPersonCircle },
   ];
 
-  // Toggle mobile menu
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
@@ -93,315 +88,237 @@ export default function Sidebar() {
 
   if (isSidebarLoading) return <SidebarSkeletonLoader />;
 
+  // ── Style tokens ──────────────────────────────────────────────────────────
   const navLinkBase =
-    "flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-[15px] text-slate-600 hover:bg-slate-100 hover:text-blue-600 transition-all duration-200";
-  const navLinkActive = "active !bg-blue-600 !text-white shadow-md shadow-blue-600/25";
+    "flex items-center gap-2.5 px-2.5 py-2 rounded-lg font-medium text-[13px] tracking-wide text-slate-600 hover:bg-slate-100 hover:text-blue-600 transition-all duration-200";
+  const navLinkActive =
+    "active !bg-blue-600 !text-white shadow-sm shadow-blue-600/30";
   const iconWrap =
-    "flex items-center justify-center w-9 h-9 rounded-lg shrink-0 bg-slate-100 group-hover:bg-blue-50 [.active_&]:!bg-white/20";
+    "flex items-center justify-center w-8 h-8 rounded-md shrink-0 bg-slate-100 group-hover:bg-blue-50 [.active_&]:!bg-white/20";
+
+  // ── Section label ─────────────────────────────────────────────────────────
+  const SectionLabel = ({ label }: { label: string }) => (
+    <li className="px-2.5 pt-4 pb-1">
+      <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 opacity-0 transition-opacity duration-300 group-hover:opacity-100 whitespace-nowrap">
+        {label}
+      </span>
+    </li>
+  );
+
+  // ── Reusable nav item ─────────────────────────────────────────────────────
+  const NavItem = ({
+    item,
+    badgeColor = "orange",
+    onClick,
+    alwaysShowLabel = false,
+  }: {
+    item: NavLink;
+    badgeColor?: "orange" | "green";
+    onClick?: () => void;
+    alwaysShowLabel?: boolean;
+  }) => {
+    const bgBadge = badgeColor === "green" ? "bg-emerald-500 shadow-emerald-500/30" : "bg-orange-500 shadow-orange-500/30";
+    return (
+      <li>
+        <Link
+          to={item.link}
+          onClick={onClick}
+          className={`${navLinkBase} group`}
+          activeProps={{ className: `${navLinkBase} ${navLinkActive} group` }}
+        >
+          <span className={`${iconWrap} relative`}>
+            <item.icon className="text-[17px] text-slate-500 group-hover:text-blue-600 [.active_&]:!text-white" />
+            {item.badge !== undefined && item.badge > 0 && (
+              <span className={`absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[16px] h-[16px] px-0.5 text-[9px] font-bold text-white ${bgBadge} rounded-full ring-2 ring-slate-50 shadow-md ${alwaysShowLabel ? "" : "lg:group-hover:hidden"}`}>
+                {item.badge > 99 ? "99+" : item.badge}
+              </span>
+            )}
+          </span>
+          <span className={`whitespace-nowrap flex-1 ${alwaysShowLabel ? "" : "opacity-0 transition-opacity duration-300 lg:group-hover:opacity-100"}`}>
+            {item.label}
+          </span>
+          {item.badge !== undefined && item.badge > 0 && !alwaysShowLabel && (
+            <span className={`ml-auto px-1.5 py-0.5 text-[10px] font-bold text-white ${bgBadge} rounded-full hidden lg:group-hover:inline-flex shadow-sm`}>
+              {item.badge > 99 ? "99+" : item.badge}
+            </span>
+          )}
+          {item.badge !== undefined && item.badge > 0 && alwaysShowLabel && (
+            <span className={`ml-auto px-1.5 py-0.5 text-[10px] font-bold text-white ${bgBadge} rounded-full shadow-sm`}>
+              {item.badge > 99 ? "99+" : item.badge}
+            </span>
+          )}
+        </Link>
+      </li>
+    );
+  };
 
   return (
     <>
-      {/* Desktop Sidebar */}
+      {/* ── Desktop Sidebar ─────────────────────────────────────────────── */}
       <aside
-        className="hidden fixed top-0 left-0 z-50 flex-col justify-between h-screen bg-slate-50/95 border-r border-slate-200/80 shadow-lg transition-all duration-300 lg:flex group animate-fadeIn w-[80px] hover:w-[280px] backdrop-blur-sm"
+        className="hidden fixed top-0 left-0 z-50 flex-col justify-between h-screen bg-white border-r border-slate-200 shadow-sm transition-all duration-300 lg:flex group animate-fadeIn w-[68px] hover:w-[260px]"
         onMouseEnter={() => setIsSidebarExpanded(true)}
         onMouseLeave={() => setIsSidebarExpanded(false)}
       >
         {/* Logo */}
-        <div className="flex flex-col items-center pt-6 pb-4 px-2">
-          <div className="rounded-2xl p-1.5 bg-white shadow-sm ring-1 ring-slate-200/60 transition-all duration-300 group-hover:scale-105">
+        <div className="flex flex-col items-center pt-5 pb-3 px-2 border-b border-slate-100">
+          <div className="rounded-full p-1 bg-slate-50 ring-1 ring-slate-200 transition-all duration-300 group-hover:scale-105">
             <img
               src={logo}
               alt="Logo"
-              className="rounded-xl w-11 h-11 transition-all duration-300 group-hover:w-14 group-hover:h-14"
+              className="rounded-full w-10 h-10 transition-all duration-300 group-hover:w-16 group-hover:h-16"
             />
           </div>
-          <span className="mt-2 text-lg font-bold tracking-wider opacity-0 transition-opacity duration-300 group-hover:opacity-100 text-blue-600">
+          <span className="mt-1.5 text-sm font-bold tracking-widest opacity-0 transition-opacity duration-300 group-hover:opacity-100 text-blue-600 uppercase">
             ACLC
           </span>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-2 group-hover:scrollbar-thin scrollbar-none">
-          <ul className="flex flex-col gap-1">
-            {/* Primary Links */}
+        <nav className="flex-1 overflow-y-auto px-2 py-2 group-hover:scrollbar-thin scrollbar-none">
+          <ul className="flex flex-col gap-0.5">
+            <SectionLabel label="Main" />
             {primaryLinks.map((item) => (
-              <li key={item.label}>
-                <Link
-                  to={item.link}
-                  className={`${navLinkBase} group`}
-                  activeProps={{ className: `${navLinkBase} ${navLinkActive} group` }}
-                >
-                  <span className={iconWrap + " relative"}>
-                    <item.icon className="text-xl text-slate-500 group-hover:text-blue-600 [.active_&]:!text-white" />
-                    {item.badge !== undefined && item.badge > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-orange-500 rounded-full ring-2 ring-slate-50 animate-bounce lg:group-hover:hidden transition-opacity shadow-lg shadow-orange-500/50">
-                        {item.badge > 99 ? "99+" : item.badge}
-                      </span>
-                    )}
-                  </span>
-                  <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 lg:group-hover:opacity-100 flex-1">
-                    {item.label}
-                  </span>
-                  {item.badge !== undefined && item.badge > 0 && (
-                    <span className="ml-auto px-2 py-0.5 text-xs font-bold text-white bg-orange-500 rounded-full hidden lg:group-hover:inline-flex transition-opacity shadow-md shadow-orange-500/30 animate-pulse">
-                      {item.badge > 99 ? "99+" : item.badge}
-                    </span>
-                  )}
-                </Link>
-              </li>
+              <NavItem key={item.label} item={item} badgeColor="orange" />
             ))}
 
-            {/* Operational Links */}
+            <SectionLabel label="Operations" />
             {operationalLinks.map((item) => (
-              <li key={item.label}>
-                <Link
-                  to={item.link}
-                  className={`${navLinkBase} group`}
-                  activeProps={{ className: `${navLinkBase} ${navLinkActive} group` }}
-                >
-                  <span className={iconWrap + " relative"}>
-                    <item.icon className="text-xl text-slate-500 group-hover:text-blue-600 [.active_&]:!text-white" />
-                    {item.badge !== undefined && item.badge > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-green-500 rounded-full ring-2 ring-slate-50 animate-bounce lg:group-hover:hidden transition-opacity shadow-lg shadow-orange-500/50">
-                        {item.badge > 99 ? "99+" : item.badge}
-                      </span>
-                    )}
-                  </span>
-                  <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex-1">
-                    {item.label}
-                  </span>
-                  {item.badge !== undefined && item.badge > 0 && (
-                    <span className="ml-auto px-2 py-0.5 text-xs font-bold text-white bg-green-500 rounded-full hidden lg:group-hover:inline-flex transition-opacity shadow-md shadow-orange-500/30 animate-pulse">
-                      {item.badge > 99 ? "99+" : item.badge}
-                    </span>
-                  )}
-                </Link>
-              </li>
+              <NavItem key={item.label} item={item} badgeColor="green" />
             ))}
 
             {/* Divider */}
-            <li className="my-2 px-3">
-              <div className="h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <li className="my-1.5 px-2">
+              <div className="h-px bg-slate-100 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </li>
 
-            {/* Administrative Links */}
+            <SectionLabel label="Administration" />
             {administrativeLinks.map((item) => (
-              <li key={item.label}>
-                <Link
-                  to={item.link}
-                  className={`${navLinkBase} group`}
-                  activeProps={{ className: `${navLinkBase} ${navLinkActive} group` }}
-                >
-                  <span className={iconWrap}>
-                    <item.icon className="text-xl text-slate-500 group-hover:text-blue-600 [.active_&]:!text-white" />
-                  </span>
-                  <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                    {item.label}
-                  </span>
-                </Link>
-              </li>
+              <NavItem key={item.label} item={item} />
             ))}
 
-            {/* Bottom Links */}
+            <SectionLabel label="Account" />
             {bottomLinks.map((item) => (
-              <li key={item.label}>
-                <Link
-                  to={item.link}
-                  className={`${navLinkBase} group`}
-                  activeProps={{ className: `${navLinkBase} ${navLinkActive} group` }}
-                >
-                  <span className={iconWrap}>
-                    <item.icon className="text-xl text-slate-500 group-hover:text-blue-600 [.active_&]:!text-white" />
-                  </span>
-                  <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                    {item.label}
-                  </span>
-                </Link>
-              </li>
+              <NavItem key={item.label} item={item} />
             ))}
           </ul>
         </nav>
 
         {/* Logout */}
-        <footer className="p-2 border-t border-slate-200/80">
+        <footer className="p-2 border-t border-slate-100">
           <button
             type="button"
             onClick={logoutUser}
-            className="flex gap-3 items-center py-2.5 px-3 w-full rounded-xl text-[15px] font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200 disabled:opacity-60"
             disabled={isPending}
+            className="flex gap-2.5 items-center py-2 px-2.5 w-full rounded-lg text-[13px] font-medium tracking-wide text-red-500 hover:bg-red-50 hover:text-red-600 transition-all duration-200 disabled:opacity-50"
           >
-            <span className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0 bg-red-50">
-              <CiLogout className="text-xl text-red-500" />
+            <span className="flex items-center justify-center w-8 h-8 rounded-md shrink-0 bg-red-50">
+              <CiLogout className="text-[17px] text-red-500" />
             </span>
             <span className="whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-              Logout
+              Sign Out
             </span>
           </button>
         </footer>
       </aside>
 
-      {/* Mobile Sidebar Toggle */}
+      {/* ── Mobile Toggle ───────────────────────────────────────────────── */}
       <div className="fixed top-4 left-4 z-50 lg:hidden">
         <button
           onClick={toggleMobileMenu}
-          className="p-2.5 rounded-xl bg-white border border-slate-200 shadow-md hover:shadow-lg hover:bg-slate-50 transition-all duration-200"
+          className="p-2 rounded-lg bg-white border border-slate-200 shadow-sm hover:bg-slate-50 transition-all duration-200"
           aria-label="Toggle mobile menu"
         >
-          <svg
-            className="w-6 h-6 text-slate-700"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             {isMobileMenuOpen ? (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             ) : (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             )}
           </svg>
         </button>
       </div>
 
-      {/* Mobile Overlay */}
+      {/* ── Mobile Overlay ──────────────────────────────────────────────── */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 z-40 lg:hidden bg-slate-900/50 backdrop-blur-sm"
+          className="fixed inset-0 z-40 lg:hidden bg-slate-900/40 backdrop-blur-sm"
           onClick={closeMobileMenu}
         />
       )}
 
-      {/* Mobile Sidebar Drawer */}
-      {isMobileMenuOpen && (        <div className="flex fixed inset-y-0 left-0 z-50 flex-col w-72 max-w-[85vw] bg-slate-50 border-r border-slate-200 shadow-2xl lg:hidden animate-slideIn overflow-hidden">
-          <div className="flex items-center gap-3 px-5 py-5 border-b border-slate-200 bg-white/80">
-            <img src={logo} alt="Logo" className="w-12 h-12 rounded-xl shadow-sm" />
-            <span className="text-xl font-bold tracking-wide text-blue-600">ACLC</span>
+      {/* ── Mobile Drawer ───────────────────────────────────────────────── */}
+      {isMobileMenuOpen && (
+        <div className="flex fixed inset-y-0 left-0 z-50 flex-col w-68 max-w-[85vw] bg-white border-r border-slate-200 shadow-xl lg:hidden animate-slideIn overflow-hidden">
+          {/* Header */}
+          <div className="flex items-center gap-3 px-4 py-4 border-b border-slate-100">
+            <img src={logo} alt="Logo" className="w-10 h-10 rounded-full ring-1 ring-slate-200" />
+            <div>
+              <p className="text-sm font-bold text-slate-900 tracking-wide">ACLC</p>
+              <p className="text-[11px] text-slate-400 font-medium">College of Mandaue</p>
+            </div>
           </div>
-          <nav className="flex-1 overflow-y-auto py-4 px-3">
-            <ul className="flex flex-col gap-1">
-              {/* Primary Links */}
+
+          <nav className="flex-1 overflow-y-auto py-3 px-2">
+            <ul className="flex flex-col gap-0.5">
+              {/* Section: Main */}
+              <li className="px-2.5 pt-2 pb-1">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Main</span>
+              </li>
               {primaryLinks.map((item) => (
-                <li key={item.label}>
-                  <Link
-                    to={item.link}
-                    onClick={closeMobileMenu}
-                    className={`${navLinkBase} group`}
-                    activeProps={{ className: `${navLinkBase} ${navLinkActive} group` }}
-                  >
-                    <span className={iconWrap + " relative"}>
-                      <item.icon className="text-xl text-slate-500 [.active_&]:!text-white" />
-                      {item.badge !== undefined && item.badge > 0 && (
-                        <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-orange-500 rounded-full shadow-lg shadow-orange-500/50 animate-bounce">
-                          {item.badge > 99 ? "99+" : item.badge}
-                        </span>
-                      )}
-                    </span>
-                    <span className="flex-1">{item.label}</span>
-                    {item.badge !== undefined && item.badge > 0 && (
-                      <span className="ml-auto px-2 py-0.5 text-xs font-bold text-white bg-orange-500 rounded-full shadow-md shadow-orange-500/30 animate-pulse">
-                        {item.badge > 99 ? "99+" : item.badge}
-                      </span>
-                    )}
-                  </Link>
-                </li>
+                <NavItem key={item.label} item={item} badgeColor="orange" onClick={closeMobileMenu} alwaysShowLabel />
               ))}
 
-              {/* Operational Links */}
+              {/* Section: Operations */}
+              <li className="px-2.5 pt-3 pb-1">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Operations</span>
+              </li>
               {operationalLinks.map((item) => (
-                <li key={item.label}>
-                  <Link
-                    to={item.link}
-                    onClick={closeMobileMenu}
-                    className={`${navLinkBase} group`}
-                    activeProps={{ className: `${navLinkBase} ${navLinkActive} group` }}
-                  >
-                    <span className={iconWrap + " relative"}>
-                      <item.icon className="text-xl text-slate-500 [.active_&]:!text-white" />
-                      {item.badge !== undefined && item.badge > 0 && (
-                        <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-orange-500 rounded-full shadow-lg shadow-orange-500/50 animate-bounce">
-                          {item.badge > 99 ? "99+" : item.badge}
-                        </span>
-                      )}
-                    </span>
-                    <span className="flex-1">{item.label}</span>
-                    {item.badge !== undefined && item.badge > 0 && (
-                      <span className="ml-auto px-2 py-0.5 text-xs font-bold text-white bg-orange-500 rounded-full shadow-md shadow-orange-500/30 animate-pulse">
-                        {item.badge > 99 ? "99+" : item.badge}
-                      </span>
-                    )}
-                  </Link>
-                </li>
+                <NavItem key={item.label} item={item} badgeColor="green" onClick={closeMobileMenu} alwaysShowLabel />
               ))}
 
               {/* Divider */}
-              <li className="my-2 px-3">
-                <div className="h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent" />
+              <li className="my-1.5 px-2">
+                <div className="h-px bg-slate-100" />
               </li>
 
-              {/* Administrative Links */}
+              {/* Section: Administration */}
+              <li className="px-2.5 pt-1 pb-1">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Administration</span>
+              </li>
               {administrativeLinks.map((item) => (
-                <li key={item.label}>
-                  <Link
-                    to={item.link}
-                    onClick={closeMobileMenu}
-                    className={`${navLinkBase} group`}
-                    activeProps={{ className: `${navLinkBase} ${navLinkActive} group` }}
-                  >
-                    <span className={iconWrap}>
-                      <item.icon className="text-xl text-slate-500 [.active_&]:!text-white" />
-                    </span>
-                    {item.label}
-                  </Link>
-                </li>
+                <NavItem key={item.label} item={item} onClick={closeMobileMenu} alwaysShowLabel />
               ))}
 
-              {/* Bottom Links */}
+              {/* Section: Account */}
+              <li className="px-2.5 pt-3 pb-1">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Account</span>
+              </li>
               {bottomLinks.map((item) => (
-                <li key={item.label}>
-                  <Link
-                    to={item.link}
-                    onClick={closeMobileMenu}
-                    className={`${navLinkBase} group`}
-                    activeProps={{ className: `${navLinkBase} ${navLinkActive} group` }}
-                  >
-                    <span className={iconWrap}>
-                      <item.icon className="text-xl text-slate-500 [.active_&]:!text-white" />
-                    </span>
-                    {item.label}
-                  </Link>
-                </li>
+                <NavItem key={item.label} item={item} onClick={closeMobileMenu} alwaysShowLabel />
               ))}
             </ul>
           </nav>
-          <footer className="p-3 border-t border-slate-200 bg-white/50">
+
+          <footer className="p-2 border-t border-slate-100">
             <button
               type="button"
               onClick={logoutUser}
-              className="flex gap-3 items-center py-2.5 px-3 w-full rounded-xl text-[15px] font-medium text-red-600 hover:bg-red-50 disabled:opacity-60"
               disabled={isPending}
+              className="flex gap-2.5 items-center py-2 px-2.5 w-full rounded-lg text-[13px] font-medium tracking-wide text-red-500 hover:bg-red-50 disabled:opacity-50"
             >
-              <span className="flex items-center justify-center w-9 h-9 rounded-lg bg-red-50">
-                <CiLogout className="text-xl text-red-500" />
+              <span className="flex items-center justify-center w-8 h-8 rounded-md bg-red-50">
+                <CiLogout className="text-[17px] text-red-500" />
               </span>
-              Logout
+              Sign Out
             </button>
           </footer>
         </div>
       )}
 
-      {/* Logout overlay */}
+      {/* ── Logout overlay ──────────────────────────────────────────────── */}
       {isLoggingOut && (
-        <div className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-slate-900/90 backdrop-blur-md animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-900/90 backdrop-blur-md animate-in fade-in duration-300">
           <div className="flex flex-col items-center gap-6 text-center px-8">
             <div className="relative flex h-20 w-20 items-center justify-center">
               <div className="absolute inset-0 rounded-full bg-blue-500/20 animate-ping" />
@@ -409,19 +326,19 @@ export default function Sidebar() {
                 <img src={logo} alt="Logo" className="w-10 h-10 rounded-full" />
               </div>
             </div>
-            <div className="space-y-2">
-              <h2 className="text-2xl font-extrabold text-white tracking-tight">
-                Thank you!
+            <div className="space-y-1.5">
+              <h2 className="text-xl font-bold text-white tracking-tight">
+                Signed out successfully
               </h2>
-              <p className="text-slate-400 font-medium text-base">
-                You've been logged out successfully.
+              <p className="text-slate-400 text-sm font-medium">
+                Thank you for using the system.
               </p>
             </div>
-            <div className="flex gap-1.5 mt-2">
+            <div className="flex gap-1.5 mt-1">
               {[0, 1, 2].map((i) => (
                 <span
                   key={i}
-                  className="h-2 w-2 rounded-full bg-blue-500 animate-bounce"
+                  className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-bounce"
                   style={{ animationDelay: `${i * 0.15}s` }}
                 />
               ))}
