@@ -1,4 +1,5 @@
 import React, { useMemo, useCallback } from "react";
+import no_image_svg from "../assets/no-image-svgrepo-com.svg";
 import { useRecentlyBorrowItems } from "../hooks/itemHooks";
 import { FormattedDateTime } from "../components/FormattedDateTime.ts";
 import { SlugStatus } from "../components/SlugStatus.ts";
@@ -28,9 +29,9 @@ const activeBorrowColumns = [
     header: "Image",
     cell: ({ row }) => (
       <img
-        src={typeof row.original.item.image === "string" ? row.original.item.image : undefined}
+        src={typeof row.original.item.image === "string" ? row.original.item.image : no_image_svg}
         alt={row.original.item.itemName}
-        className="w-10 h-10 object-cover rounded-xl border border-slate-100"
+        className="w-10 h-10 object-cover rounded border border-slate-100"
       />
     ),
   }),
