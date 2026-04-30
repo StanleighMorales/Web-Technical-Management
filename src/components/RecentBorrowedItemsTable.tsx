@@ -1,33 +1,45 @@
 import { SlugStatus } from "./SlugStatus";
-import type { TRecentBorrowedItemsTableProps } from "../types/types";
-export default function RecentBorrowedItemsTable({
-  id,
-  datetime,
-  teacher,
-  room,
-  item,
-  occupied,
-  status,
-}: TRecentBorrowedItemsTableProps) {
-  return (
-    <>
-      <td hidden>{id}</td>
-      <td className="py-3 px-6">{datetime}</td>
-      <td className="py-3 px-6">
-        {teacher.charAt(0).toUpperCase() + teacher.slice(1)}
-      </td>
-      <td className="py-3 px-6">
-        {room.charAt(0).toUpperCase() + room.slice(1)}
-      </td>
-      <td className="py-3 px-6">
-        {item.charAt(0).toUpperCase() + item.slice(1)}
-      </td>
-      <td className="py-3 px-6">
-        {occupied.charAt(0).toUpperCase() + occupied.slice(1)}
-      </td>
-      <td className="py-3 px-6">
-        {SlugStatus(status.charAt(0).toUpperCase() + status.slice(1))}
-      </td>
-    </>
-  );
-}
+import no_image_svg from "../assets/no-image-svgrepo-com.svg";
+import type { FC } from "react";
+import { FormattedDateTime } from "./FormattedDateTime";
+
+type TRecentBorrowedItemsTableProps = {
+    id: string;
+    image: string | null;
+    itemName: string;
+    serialNumber: string;
+    borrowerFullName: string;
+    room: string;
+    teacherFullName: string;
+    remarks: string | null;
+    createdAt: string;
+    status: string;
+};
+
+export const RecentBorrowedItemsTable: FC<TRecentBorrowedItemsTableProps> = (props) => {
+
+    return (
+        <>
+            <td className="py-3 px-4">{props.serialNumber}</td>
+            <td className="py-4 px-6">
+                <img
+                    src={typeof props.image === "string" ? props.image : no_image_svg}
+                    alt={props.itemName}
+                    className="object-cover w-10 h-10 rounded"
+                    onError={(e) => (e.currentTarget.style.display = "none")}
+                />
+            </td>
+            <td className="py-4 px-6">{props.itemName}</td>
+            <td className="py-4 px-6">{props.borrowerFullName}</td>
+            <td className="py-4 px-6">{props.teacherFullName || "-"}</td>
+            <td className="py-4 px-6">{props.room || "-"}</td>
+            <td className="py-4 px-6">{props.remarks || "-"}</td>
+            <td className="py-4 px-6">{FormattedDateTime(props.createdAt)}</td>
+            <td className="py-4 px-6">
+                <span className={`px-3 py-1 rounded-full text-sm ${SlugStatus(props.status)}`}>
+                    {props.status}
+                </span>
+            </td>
+        </>
+    );
+};

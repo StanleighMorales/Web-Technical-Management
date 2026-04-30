@@ -1,58 +1,45 @@
-import type { THistoryBorrwedItems } from "../types/types";
-import { FormattedDateTime } from "./FormatedDateTime";
+import type { THistoryBorrwedItems } from "../@types/types";
+import { FormattedDateTime } from "./FormattedDateTime";
 import { SlugStatus } from "./SlugStatus";
+import no_image_svg from "../assets/no-image-svgrepo-com.svg";
 
 type HistoryTableProps = {
-  id: number;
-  ItemName: string;
-  Borrowed_id: string;
-  Teacher: string;
-  Room: string;
-  Occupied: string;
-  Condition: string;
-  Event_Date: string;
-  Status: string;
-  filteredItems: THistoryBorrwedItems[];
+    items: THistoryBorrwedItems[];
 };
 
-export default function HistoryTable({
-  id,
-  ItemName,
-  Borrowed_id,
-  Teacher,
-  Room,
-  Occupied,
-  Condition,
-  Event_Date,
-  Status,
-  filteredItems,
-}: HistoryTableProps) {
-  return (
-    <>
-      {filteredItems.map((_, index) => (
-        <tr
-          key={index}
-          className="hover:bg-[#f1f5f9] transition-colors  odd:bg-white even:bg-[#f8fafc]"
-        >
-          <td className="py-3 px-6">{id}</td>
-          <td className="py-3 px-6">{ItemName}</td>
-          <td className="py-3 px-6">{Borrowed_id}</td>
-          <td className="py-3 px-6">{Teacher}</td>
-          <td className="py-3 px-6">{Room}</td>
-          <td className="py-3 px-6">{Occupied}</td>
-          <td className="py-3 px-6">{Condition}</td>
-          <td className="py-3 px-6">{FormattedDateTime(Event_Date)}</td>
-          <td className="py-3 px-6">
-            <span
-              className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${SlugStatus(
-                Status,
-              )}`}
-            >
-              {Status}
-            </span>
-          </td>
-        </tr>
-      ))}
-    </>
-  );
+export default function HistoryTable({ items }: HistoryTableProps) {
+    const sortedItems = [...items]
+        .sort((a, b) => new Date(b.item.updatedAt).getTime() - new Date(a.item.updatedAt).getTime());
+
+    return (
+        <>
+            {sortedItems.map((item) => (
+                <tr
+                    key={item.id}
+                    className="hover:bg-[#f1f5f9] transition-colors odd:bg-white even:bg-[#f8fafc]"
+                >
+                    <td className="py-3 px-4">{item.item.serialNumber}</td>
+                    <td className="py-4 px-6">
+                        <img
+                            src={typeof item.item.image === "string" ? item.item.image : no_image_svg}
+                            alt={item.borrowerFullName}
+                            className="object-cover w-10 h-10 rounded-xl"
+                            onError={(e) => (e.currentTarget.style.display = "none")}
+                        />
+                    </td>
+                    <td className="py-4 px-6">{item.item.itemName}</td>
+                    <td className="py-4 px-6">{item.borrowerFullName}</td>
+                    <td className="py-4 px-6">{item.teacherFullName || "-"}</td>
+                    <td className="py-4 px-6">{item.room || "-"}</td>
+                    <td className="py-4 px-6">{item.remarks || "-"}</td>
+                    <td className="py-4 px-6">{FormattedDateTime(item.item.updatedAt)}</td>
+                    <td className="py-4 px-6">
+                        <span className={`px-3 py-1 rounded-full text-sm ${SlugStatus(item.status)}`}>
+                            {item.status}
+                        </span>
+                    </td>
+                </tr>
+            ))}
+        </>
+    );
 }

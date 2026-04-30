@@ -1,118 +1,81 @@
 export default function SettingsSkeletonLoader() {
   return (
-    <div className="p-8 w-full mx-auto">
-      {/* Header Section */}
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <div className="h-8 bg-gray-200 rounded w-48 mb-2 animate-pulse"></div>
-          <div className="h-4 bg-gray-200 rounded w-96 animate-pulse"></div>
+    <div className="min-h-screen bg-slate-50 p-6 md:p-8">
+      <div className="max-w-6xl mx-auto space-y-6">
+
+        {/* Page title */}
+        <div>
+          <div className="h-8 w-32 bg-slate-200 rounded-lg animate-pulse" />
+          <div className="h-4 w-72 bg-slate-200 rounded animate-pulse mt-2" />
         </div>
 
-        {/* Main Card */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-          {/* Header with Avatar */}
-          <div className="bg-gradient-to-r from-gray-300 to-gray-400 px-8 py-6">
-            <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-gray-200 rounded-full animate-pulse"></div>
-              <div>
-                <div className="h-6 bg-gray-200 rounded w-48 mb-2 animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+        <div className="flex flex-col lg:flex-row gap-6">
+
+          {/* ── Left panel ── */}
+          <div className="lg:w-72 shrink-0 space-y-4">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col items-center gap-3">
+              {/* Avatar */}
+              <div className="h-20 w-20 rounded-full bg-slate-200 animate-pulse" />
+
+              {/* Name + username */}
+              <div className="flex flex-col items-center gap-1.5 w-full">
+                <div className="h-5 w-36 bg-slate-200 rounded animate-pulse" />
+                <div className="h-3.5 w-24 bg-slate-200 rounded animate-pulse" />
               </div>
+
+              {/* Pills */}
+              <div className="flex gap-2">
+                <div className="h-5 w-16 bg-slate-200 rounded-full animate-pulse" />
+                <div className="h-5 w-16 bg-slate-200 rounded-full animate-pulse" />
+              </div>
+
+              {/* Edit button */}
+              <div className="h-9 w-full bg-slate-100 rounded-xl animate-pulse mt-1" />
             </div>
           </div>
 
-          {/* Content Section */}
-          <div className="p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Personal Information Column */}
-              <div className="space-y-6">
-                <div className="h-6 bg-gray-200 rounded w-40 border-b border-gray-200 pb-2 animate-pulse"></div>
+          {/* ── Right panel ── */}
+          <div className="flex-1 space-y-4">
 
-                <div className="space-y-4">
-                  {/* First Name */}
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gray-200 rounded-lg animate-pulse"></div>
-                    <div>
-                      <div className="h-3 bg-gray-200 rounded w-20 mb-1 animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
-                    </div>
-                  </div>
-
-                  {/* Last Name */}
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gray-200 rounded-lg animate-pulse"></div>
-                    <div>
-                      <div className="h-3 bg-gray-200 rounded w-20 mb-1 animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
-                    </div>
-                  </div>
-
-                  {/* Middle Name */}
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gray-200 rounded-lg animate-pulse"></div>
-                    <div>
-                      <div className="h-3 bg-gray-200 rounded w-24 mb-1 animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-28 animate-pulse"></div>
-                    </div>
-                  </div>
-                </div>
+            {/* Personal Information section */}
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
+                <div className="h-4 w-4 bg-slate-200 rounded animate-pulse" />
+                <div className="h-4 w-40 bg-slate-200 rounded animate-pulse" />
               </div>
-
-              {/* Account Information Column */}
-              <div className="space-y-6">
-                <div className="h-6 bg-gray-200 rounded w-40 border-b border-gray-200 pb-2 animate-pulse"></div>
-
-                <div className="space-y-4">
-                  {/* Username */}
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gray-200 rounded-lg animate-pulse"></div>
-                    <div>
-                      <div className="h-3 bg-gray-200 rounded w-16 mb-1 animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-28 animate-pulse"></div>
-                    </div>
-                  </div>
-
-                  {/* Email */}
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gray-200 rounded-lg animate-pulse"></div>
-                    <div>
-                      <div className="h-3 bg-gray-200 rounded w-12 mb-1 animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-48 animate-pulse"></div>
-                    </div>
-                  </div>
-
-                  {/* Role */}
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gray-200 rounded-lg animate-pulse"></div>
-                    <div>
-                      <div className="h-3 bg-gray-200 rounded w-8 mb-1 animate-pulse"></div>
-                      <div className="h-5 bg-gray-200 rounded w-16 animate-pulse"></div>
-                    </div>
-                  </div>
-
-                  {/* Phone Number */}
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gray-200 rounded-lg animate-pulse"></div>
-                    <div>
-                      <div className="h-3 bg-gray-200 rounded w-24 mb-1 animate-pulse"></div>
-                      <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
-                    </div>
-                  </div>
+              <div className="p-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-slate-100 rounded-xl overflow-hidden border border-slate-100">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <FieldSkeleton key={i} />
+                  ))}
                 </div>
               </div>
             </div>
 
-            {/* Account Status Section */}
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="h-5 bg-gray-200 rounded w-32 mb-1 animate-pulse"></div>
-                  <div className="h-3 bg-gray-200 rounded w-48 animate-pulse"></div>
+            {/* Account Information section */}
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
+                <div className="h-4 w-4 bg-slate-200 rounded animate-pulse" />
+                <div className="h-4 w-44 bg-slate-200 rounded animate-pulse" />
+              </div>
+              <div className="p-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-slate-100 rounded-xl overflow-hidden border border-slate-100">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <FieldSkeleton key={i} badge={i >= 2} />
+                  ))}
                 </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-gray-200 rounded-full animate-pulse"></div>
-                  <div className="h-4 bg-gray-200 rounded w-12 animate-pulse"></div>
-                </div>
+              </div>
+            </div>
+
+            {/* Account Status bar */}
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-5 py-4 flex items-center justify-between gap-4">
+              <div className="space-y-1.5">
+                <div className="h-4 w-32 bg-slate-200 rounded animate-pulse" />
+                <div className="h-3 w-56 bg-slate-200 rounded animate-pulse" />
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-2.5 w-2.5 rounded-full bg-slate-200 animate-pulse" />
+                <div className="h-4 w-14 bg-slate-200 rounded animate-pulse" />
               </div>
             </div>
           </div>
@@ -122,4 +85,18 @@ export default function SettingsSkeletonLoader() {
   );
 }
 
-
+function FieldSkeleton({ badge = false }: { badge?: boolean }) {
+  return (
+    <div className="bg-white px-4 py-3.5 flex flex-col gap-1.5">
+      <div className="flex items-center gap-1.5">
+        <div className="h-3.5 w-3.5 bg-slate-200 rounded animate-pulse" />
+        <div className="h-3 w-20 bg-slate-200 rounded animate-pulse" />
+      </div>
+      {badge ? (
+        <div className="h-5 w-16 bg-slate-100 rounded-full animate-pulse" />
+      ) : (
+        <div className="h-4 w-32 bg-slate-200 rounded animate-pulse" />
+      )}
+    </div>
+  );
+}

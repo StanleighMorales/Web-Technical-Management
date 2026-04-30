@@ -1,32 +1,84 @@
+const Bone = ({ className }: { className?: string }) => (
+  <div className={`animate-pulse rounded-md bg-slate-200 ${className ?? ""}`} />
+);
+
 export default function SidebarSkeletonLoader() {
   return (
-    <aside className="animate-fadeIn h-screen w-[75px] bg-white border-r border-[#e5e7eb] flex flex-col justify-between shadow-xl left-0 top-0 z-30">
-      {/* Logo and Title Skeleton */}
-      <div className="flex flex-col items-center py-8">
-        {/* Logo skeleton */}
-        <div className="w-20 h-20 mb-2 bg-gray-200 rounded-full animate-pulse"></div>
-        {/* Title skeleton */}
+    <aside className="hidden fixed top-0 left-0 z-50 flex-col justify-between h-screen bg-white border-r border-slate-200 shadow-sm lg:flex animate-fadeIn w-[68px]">
+
+      {/* Logo */}
+      <div className="flex flex-col items-center pt-5 pb-3 px-2 border-b border-slate-100 gap-2">
+        <Bone className="w-10 h-10 rounded-full" />
       </div>
 
-      {/* Navigation Skeleton */}
-      <nav className="flex-1">
-        <ul className="flex flex-col gap-2 px-4">
-          {/* Navigation items skeleton */}
-          {[...Array(5)].map((_, index) => (
-            <li key={index}>
-              <div className="flex items-center gap-3 px-auto py-3 rounded-lg">
-                <div className="h-4 min-w-[30px] bg-gray-200 rounded animate-pulse"></div>
+      {/* Nav items */}
+      <nav className="flex-1 px-2 py-2">
+        <ul className="flex flex-col gap-0.5">
+          {/* Section label placeholder */}
+          <li className="px-2.5 pt-4 pb-1">
+            <Bone className="h-2 w-6 rounded-sm" />
+          </li>
+
+          {/* Primary group — 3 items */}
+          {[...Array(3)].map((_, i) => (
+            <li key={`p-${i}`}>
+              <div className="flex items-center gap-2.5 px-2.5 py-2">
+                <Bone className="w-8 h-8 rounded-md shrink-0" />
               </div>
             </li>
           ))}
+
+          {/* Section label placeholder */}
+          <li className="px-2.5 pt-4 pb-1">
+            <Bone className="h-2 w-8 rounded-sm" />
+          </li>
+
+          {/* Operational group — 3 items */}
+          {[...Array(3)].map((_, i) => (
+            <li key={`o-${i}`}>
+              <div className="flex items-center gap-2.5 px-2.5 py-2">
+                <Bone className="w-8 h-8 rounded-md shrink-0" />
+              </div>
+            </li>
+          ))}
+
+          {/* Divider */}
+          <li className="my-1.5 px-2">
+            <div className="h-px bg-slate-100" />
+          </li>
+
+          {/* Section label placeholder */}
+          <li className="px-2.5 pt-1 pb-1">
+            <Bone className="h-2 w-10 rounded-sm" />
+          </li>
+
+          {/* Administrative group — 4 items */}
+          {[...Array(4)].map((_, i) => (
+            <li key={`a-${i}`}>
+              <div className="flex items-center gap-2.5 px-2.5 py-2">
+                <Bone className="w-8 h-8 rounded-md shrink-0" />
+              </div>
+            </li>
+          ))}
+
+          {/* Section label placeholder */}
+          <li className="px-2.5 pt-4 pb-1">
+            <Bone className="h-2 w-6 rounded-sm" />
+          </li>
+
+          {/* Account — 1 item */}
+          <li>
+            <div className="flex items-center gap-2.5 px-2.5 py-2">
+              <Bone className="w-8 h-8 rounded-md shrink-0" />
+            </div>
+          </li>
         </ul>
       </nav>
 
-      {/* Logout Button Skeleton */}
-      <footer className="px-4 py-8">
-        <div className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#f1f5f9] rounded-lg shadow">
-          <div className="h-5 w-5 bg-gray-200 rounded animate-pulse"></div>
-          <div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div>
+      {/* Sign out */}
+      <footer className="p-2 border-t border-slate-100">
+        <div className="flex items-center gap-2.5 py-2 px-2.5">
+          <Bone className="w-8 h-8 rounded-md shrink-0" />
         </div>
       </footer>
     </aside>

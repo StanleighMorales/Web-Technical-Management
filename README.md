@@ -34,27 +34,3 @@ It ensures accountability and prevents loss or misuse of equipment by keeping a 
 | **Version Control** | Git & GitHub |
 
 ---
-
-## ⚙️ Installation & Setup
-
-1. **Clone the repository**
-   ```bash
-   git git@github.com:Technical-Assets-Management-CS31A/Web-Technical-Management.git
-   cd Web-Technical-Management.git
-
-2. Installation
-
-```text
-npm install
-
-```
-
-3. Development
-
-```text
-npm run dev
-```
-## Testing
-
-```text
-npm run test

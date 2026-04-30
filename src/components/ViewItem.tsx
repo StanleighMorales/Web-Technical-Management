@@ -1,239 +1,193 @@
-import { Link, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import type { TItemList } from "../types/types";
-import { useItemDetailsQuery } from "../query/get/useItemDetailsQuery";
-import ViewItemSkeletonLoader from "../loader/ViewItemSkeletonLoader";
-import { FaArrowCircleLeft, FaEdit } from "react-icons/fa";
-import { IoMdWarning } from "react-icons/io";
-import { FaHashtag, FaTools } from "react-icons/fa";
-import { FaCheckCircle } from "react-icons/fa";
-import { BsCalendar2Date } from "react-icons/bs";
-import { MdOutlineDescription } from "react-icons/md";
-import { FaBarcode } from "react-icons/fa6";
+import { Link, useParams } from "@tanstack/react-router";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import type { TItemList } from "../@types/types";
+import { useGetItemInfo } from "../hooks/itemHooks";
+import ViewItemSkeletonLoader from "../loader/ViewItemSkeletonLoader";
 import { EditItemForm } from "./EditItemForm";
-import { FormattedDateTime } from "./FormatedDateTime";
+import no_image_svg from "../assets/no-image-svgrepo-com.svg";
+import { FormattedDateTime } from "./FormattedDateTime";
+import {
+  ArrowLeft,
+  Pencil,
+  AlertTriangle,
+  Hash,
+  Wrench,
+  CheckCircle,
+  Tag,
+  Layers,
+  Calendar,
+  FileText,
+  Package,
+} from "lucide-react";
 
 export default function ViewItem() {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams({ strict: false }) as { id: string };
   const itemId = String(id);
   const [isEditItemFormOpen, setIsEditItemFormOpen] = useState(false);
-  const { data, isLoading, error } = useQuery(useItemDetailsQuery(itemId));
+  const { data, isLoading, error } = useQuery(useGetItemInfo(itemId));
 
-  if (isLoading) {
-    return <ViewItemSkeletonLoader />;
-  }
+  if (isLoading) return <ViewItemSkeletonLoader />;
 
   if (error || !data) {
     return (
-      <div className="w-full min-h-screen flex justify-center items-center bg-gradient-to-br from-slate-50 to-slate-100">
-        <div className="bg-white rounded-2xl shadow-lg border border-red-100 p-8 text-center max-w-md mx-4">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <IoMdWarning className="text-red-500 w-8 h-8" />
+      <div className="flex items-center justify-center min-h-screen bg-slate-50 p-6">
+        <div className="bg-white rounded-2xl border border-rose-100 shadow-sm p-10 max-w-sm w-full text-center">
+          <div className="h-14 w-14 rounded-full bg-rose-50 flex items-center justify-center mx-auto mb-4">
+            <AlertTriangle className="h-7 w-7 text-rose-500" />
           </div>
-          <h3 className="text-lg font-semibold text-slate-900 mb-2">
-            Unable to Load
-          </h3>
-          <p className="text-slate-600">
-            Failed to load item details. Please try again later.
-          </p>
+          <h3 className="text-base font-bold text-slate-900 mb-1">Unable to Load</h3>
+          <p className="text-sm text-slate-500">Failed to load item details. Please try again later.</p>
+          <Link
+            to="/home/inventory-list"
+            className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Inventory
+          </Link>
         </div>
       </div>
     );
   }
 
-  const itemDetails: TItemList = data;
+  const item: TItemList = data;
+
+  const isAvailable = item.status?.toLowerCase() === "available";
+
+  const detailFields = [
+    { icon: <Hash className="h-4 w-4" />, color: "bg-indigo-500", label: "Serial Number", value: item.serialNumber || "Not provided" },
+    { icon: <CheckCircle className="h-4 w-4" />, color: "bg-emerald-500", label: "Condition", value: item.condition || "Not provided" },
+    { icon: <Tag className="h-4 w-4" />, color: "bg-teal-500", label: "Category", value: item.category || "Not provided" },
+    { icon: <Wrench className="h-4 w-4" />, color: "bg-blue-500", label: "Item Make", value: item.itemMake || "Not provided" },
+    { icon: <Layers className="h-4 w-4" />, color: "bg-purple-500", label: "Item Type", value: item.itemType || "Not provided" },
+    { icon: <Package className="h-4 w-4" />, color: "bg-orange-500", label: "Item Model", value: item.itemModel || "Not provided" },
+    { icon: <Calendar className="h-4 w-4" />, color: "bg-rose-500", label: "Date Added", value: FormattedDateTime(item.createdAt) },
+    ...(item.updatedAt
+      ? [{ icon: <Calendar className="h-4 w-4" />, color: "bg-slate-500", label: "Last Updated", value: FormattedDateTime(item.updatedAt) }]
+      : []),
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="relative max-w-6xl mx-auto">
-        <div className="absolute top-0 left-0 flex flex-row justify-between w-full gap-2">
-          <Link to="/home/inventory-list">
-            <FaArrowCircleLeft className="text-blue-600 w-8 h-8 cursor-pointer" />
+    <div className="min-h-screen bg-slate-50 p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
+      <div className="max-w-5xl mx-auto space-y-6">
+
+        <div className="flex items-center justify-between">
+          <Link
+            to="/home/inventory-list"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-blue-600 transition-colors group"
+          >
+            <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
+            Back to Inventory
           </Link>
-          <button type="button" onClick={() => setIsEditItemFormOpen(true)}>
-            <FaEdit className="text-blue-600 w-8 h-8 cursor-pointer" />
-          </button>
-        </div>
-        {/* Header */}
-        <div className="text-center mb-8 mt-10">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {itemDetails.itemName}
-          </h1>
-          <p className="text-gray-600 font-bold">{itemDetails.category}</p>
-        </div>
-
-        {/* Image Section */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <div className="flex justify-center">
-            {itemDetails.image ? (
-              <img
-                src={
-                  typeof itemDetails.image === "string" ? itemDetails.image : ""
-                }
-                alt={itemDetails.itemName}
-                className="w-64 h-64 object-cover rounded-lg"
-              />
-            ) : (
-              <div className="w-64 h-64 flex flex-col items-center justify-center bg-gray-100 rounded-lg border-2 border-dashed border-gray-300">
-                <svg
-                  className="w-12 h-12 text-gray-400 mb-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-                <span className="text-gray-500 text-sm">
-                  No Image Available
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Serial Number */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center mb-3">
-              <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center mr-3">
-                <FaHashtag className="text-white w-4 h-4" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                Serial Number
-              </h3>
-            </div>
-            <p className="text-gray-600">{itemDetails.serialNumber}</p>
-          </div>
-
-          {/* Condition */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center mb-3">
-              <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center mr-3">
-                <FaCheckCircle className="text-white w-4 h-4" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">Condition</h3>
-            </div>
-            <p className="text-gray-600">{itemDetails.condition}</p>
-          </div>
-
-          {/* Item Make */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center mb-3">
-              <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
-                <FaTools className="text-white w-4 h-4" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">Item Make</h3>
-            </div>
-            <p className="text-gray-600">{itemDetails.itemMake}</p>
-          </div>
-
-          {/* Item Type */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center mb-3">
-              <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mr-3">
-                <FaTools className="text-white w-4 h-4" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">Item Type</h3>
-            </div>
-            <p className="text-gray-600">{itemDetails.itemType}</p>
-          </div>
-
-          {/* Item Model */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center mb-3">
-              <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center mr-3">
-                <FaHashtag className="text-white w-4 h-4" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                Item Model
-              </h3>
-            </div>
-            <p className="text-gray-600">{itemDetails.itemModel}</p>
-          </div>
-
-          {/* Date Added */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center mb-3">
-              <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center mr-3">
-                <BsCalendar2Date className="text-white w-4 h-4" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                Date Added
-              </h3>
-            </div>
-            <p className="text-gray-600">
-              {FormattedDateTime(itemDetails.createdAt)}
-            </p>
-          </div>
-        </div>
-
-        {/* Description */}
-        <div className="flex flex-row justify-between gap-4">
-          <div className="flex flex-1 bg-white rounded-lg shadow-md p-6 mt-6">
-            <div className="mb-3">
-              <div className="flex flex-row items-center mb-4">
-                <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center mr-3">
-                  <MdOutlineDescription className="text-white w-4 h-4" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Description
-                </h3>
-              </div>
-              <p className="text-gray-600">{itemDetails.description}</p>
-            </div>
-          </div>
-          {/* Barcode */}
-          <div className="flex flex-1 bg-white rounded-lg shadow-md p-4 mt-6">
-            <div className="w-full flex justify-center items-center">
-              {itemDetails.barCode ? (
-                <img
-                  src={itemDetails.barCode}
-                  alt="Barcode"
-                  className="w-32 h-32"
-                />
-              ) : (
-                <p className="text-gray-600/50">
-                  Don't have generated BarCode.
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-        <div className="flex flex-row justify-end mt-6">
           <button
             type="button"
-            className="text-lg font-semibold text-gray-900 cursor-pointer float-right bg-white rounded-lg shadow-md p-4 px-8"
+            onClick={() => setIsEditItemFormOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-semibold text-white bg-blue-500 hover:bg-blue-600 active:bg-blue-700 shadow-sm transition-colors"
           >
-            <div className="flex flex-row justify-center items-center gap-2">
-              {itemDetails.barCode ? (
-                <>
-                  <FaBarcode />
-                  <p className="text-gray-600/50">
-                    You have generated BarCode.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <FaBarcode />
-                  <p className="text-gray-600/50">Generate BarCode ?</p>
-                </>
-              )}
-            </div>
+            <Pencil className="h-3.5 w-3.5" />
+            Edit Item
           </button>
         </div>
+
+        <div className="bg-white rounded-[2rem] border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
+          <div className="flex flex-col md:flex-row gap-0">
+
+            {/* Image panel */}
+            <div className="md:w-72 flex-shrink-0 bg-slate-50 border-b md:border-b-0 md:border-r border-slate-100 flex items-center justify-center p-8">
+              {item.image ? (
+                <img
+                  src={typeof item.image === "string" ? item.image : no_image_svg}
+                  alt={item.itemName}
+                  className="w-48 h-48 object-cover rounded-2xl shadow-md"
+                />
+              ) : (
+                <img
+                  src={no_image_svg}
+                  alt={item.itemName}
+                  className="w-48 h-48 object-cover rounded-2xl shadow-md opacity-60"
+                />
+              )}
+            </div>
+
+            {/* Info panel */}
+            <div className="flex-1 p-6 md:p-8 flex flex-col justify-between gap-4">
+              <div>
+                <div className="flex items-start justify-between gap-4 flex-wrap">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">
+                      Item Details
+                    </p>
+                    <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
+                      {item.itemName}
+                    </h1>
+                    <p className="mt-1.5 text-xs text-slate-400 font-medium mb-1">
+                      {item.rfidUid || "Not provided"}
+                    </p>
+                  </div>
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${isAvailable
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                      : "bg-rose-50 text-rose-700 border-rose-100"
+                    }`}>
+                    <span className={`h-1.5 w-1.5 rounded-full ${isAvailable ? "bg-emerald-500" : "bg-rose-500"}`} />
+                    {item.status}
+                  </span>
+                </div>
+              </div>
+
+              {/* Quick stats row */}
+              <div className="flex flex-wrap gap-3">
+                <Chip label="Category" value={item.category} />
+                <Chip label="Condition" value={item.condition} />
+                <Chip label="Type" value={item.itemType} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {detailFields.map(({ icon, color, label, value }) => (
+            <div
+              key={label}
+              className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 flex items-start gap-3"
+            >
+              <div className={`h-8 w-8 rounded-xl ${color} flex items-center justify-center text-white flex-shrink-0`}>
+                {icon}
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs text-slate-400 font-medium">{label}</p>
+                <p className="text-sm font-semibold text-slate-900 truncate mt-0.5">
+                  {value || <span className="text-slate-300 italic font-normal">Not provided</span>}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {item.description && (
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 flex items-start gap-3">
+            <div className="h-8 w-8 rounded-xl bg-slate-700 flex items-center justify-center text-white flex-shrink-0">
+              <FileText className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-400 font-medium mb-1">Description</p>
+              <p className="text-sm text-slate-700 leading-relaxed">{item.description}</p>
+            </div>
+          </div>
+        )}
       </div>
+
       {isEditItemFormOpen && (
-        <EditItemForm
-          onClose={() => setIsEditItemFormOpen(false)}
-          Id={itemId}
-        />
+        <EditItemForm onClose={() => setIsEditItemFormOpen(false)} id={itemId} />
       )}
+    </div>
+  );
+}
+
+function Chip({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-100">
+      <span className="text-xs text-slate-400 font-medium">{label}:</span>
+      <span className="text-xs font-semibold text-slate-700">{value}</span>
     </div>
   );
 }

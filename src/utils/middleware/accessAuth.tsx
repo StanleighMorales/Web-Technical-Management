@@ -1,44 +1,40 @@
-import { Navigate } from "react-router-dom";
-import { getToken } from "../token";
-import { removeToken } from "../token";
+import { Navigate } from "@tanstack/react-router";
+import { useAuth } from "../../routes/auth/useAuth";
+import { getToken, removeToken } from "../token";
+import newAclcLogo from "../../assets/newAclcLogo.webp"
 
-// Helper to get the key safely and warn if missing
-const getAccessTokenKey = () => {
-  const key = import.meta.env.VITE_ACCESS_TOKEN;
+interface RouteProps {
+  children: React.ReactNode;
+}
 
-  if (!key) {
-    console.warn(
-      "⚠️ Environment variable 'VITE_ACCESS_TOKEN' is undefined. Using fallback key 'accessToken'.",
-    );
-    return "accessToken";
-  }
-
-  return key;
-};
-
-export const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  const key = getAccessTokenKey();
+export const PublicRoute = ({ children }: RouteProps) => {
   const token = getToken();
 
-  if (!token) {
-    console.log(
-      `🟢 No token found under key '${key}'. Allowing public access.`,
-    );
-    return <>{children}</>;
+  if (token) {
+    return <Navigate to="/home/dashboard" replace />;
   }
 
-  console.log(
-    `🔒 Token found under key '${key}'. Redirecting to /home/dashboard.`,
-  );
-  return <Navigate to="/home/dashboard" replace />;
+  return <>{children}</>;
 };
 
-export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const key = getAccessTokenKey();
-  const token = getToken();
+export const ProtectedRoute = ({ children }: RouteProps) => {
+  const { loading, isAuthenticated } = useAuth();
 
-  if (!key || !token || token === "undefined" || token === "null") {
-    console.error("🚫 Invalid or missing token. Logging out.");
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-white">
+        <img
+          src={newAclcLogo}
+          alt="Aclc logo"
+          width={100}
+          height={150}
+          className="animate-pulse rounded-full"
+        />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
     removeToken();
     return <Navigate to="/" replace />;
   }
