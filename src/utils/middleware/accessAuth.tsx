@@ -1,7 +1,7 @@
 import { Navigate } from "@tanstack/react-router";
 import { useAuth } from "../../routes/auth/useAuth";
-import logo from "../../assets/aclcLogo.webp";
 import { getToken, removeToken } from "../token";
+import newAclcLogo from "../../assets/newAclcLogo.webp"
 
 interface RouteProps {
   children: React.ReactNode;
@@ -24,7 +24,7 @@ export const ProtectedRoute = ({ children }: RouteProps) => {
     return (
       <div className="flex items-center justify-center h-screen bg-white">
         <img
-          src={logo}
+          src={newAclcLogo}
           alt="Aclc logo"
           width={100}
           height={150}
