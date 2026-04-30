@@ -1,5 +1,5 @@
 import { type FC } from "react";
-import box from "../assets/box.webp";
+import no_image_svg from "../assets/no-image-svgrepo-com.svg";
 import { useMemo, useCallback } from "react";
 import ArchiveSkeletonLoader from "../loader/ArchiveSkeletonLoader.tsx";
 import type { TUsers } from "../@types/types.ts";
@@ -303,7 +303,7 @@ export default function Archive() {
 
         {/* Table */}
         <div className="overflow-x-auto">
-          <div className="min-h-[55vh] max-h-[55vh] overflow-y-auto">
+          <div className="min-h-[65vh] max-h-[55vh] overflow-y-auto">
             {isError || isUsersError ? (
               <ErrorTable />
             ) : (
@@ -340,7 +340,7 @@ export default function Archive() {
                               archivedAt={item.createdAt}
                               itemName={item.itemName}
                               serialNumber={item.serialNumber}
-                              image={item.image || box}
+                              image={item.image || no_image_svg}
                               description={item.description}
                               category={item.category}
                               condition={item.condition}
