@@ -43,7 +43,7 @@ const ArchiveSkeletonLoader = () => {
 
         {/* Table */}
         <div className="overflow-x-auto">
-          <div className="min-h-[55vh] max-h-[55vh] overflow-y-auto">
+          <div className="min-h-[65vh] max-h-[55vh] overflow-y-auto">
             <table className="w-full">
               {/* Head — matches items columns: Serial No., Image, Name, Category, Condition, Archived At, Action, chevron */}
               <thead className="sticky top-0 bg-slate-50/90 backdrop-blur-sm border-b border-slate-100">
