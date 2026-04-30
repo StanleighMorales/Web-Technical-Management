@@ -8,7 +8,7 @@ import AddItemForm from "../components/AddItem";
 import Button from "../components/Button";
 import SearchBar from "../components/SearchBar";
 import InventoryListSkeletonLoader from "../loader/InventoryListSkeletonLoader";
-import box from "../assets/box.webp";
+import no_image_svg from "../assets/no-image-svgrepo-com.svg";
 import { InventoryBadges } from "../components/InventoryBadges";
 import Pagination from "../components/Pagination";
 import ErrorTable from "../components/ErrorTables";
@@ -469,7 +469,7 @@ export default function InventoryList() {
                         </div>
                         <div className="w-full flex items-center justify-center">
                           <img
-                            src={item.image || box}
+                            src={item.image || no_image_svg}
                             alt={item.serialNumber}
                             className="max-w-full h-16 object-contain"
                           />
