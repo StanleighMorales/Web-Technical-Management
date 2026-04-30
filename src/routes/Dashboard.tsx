@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import box from "../assets/box.webp";
+import no_image_svg from "../assets/no-image-svgrepo-com.svg";
 import { DashboardSkeletonLoader } from "../loader/DashboardSkeletonLoader";
 import DashboardBadges from "../components/DashboardBadges";
 import ErrorTable from "../components/ErrorTables";
@@ -31,9 +31,9 @@ const TABLE_HEADERS = [
   "Occupied By",
   "Teacher",
   "Room",
-  "Remarks",
   "Lent At",
   "Status",
+  "Remarks",
   "",
 ];
 
@@ -249,7 +249,7 @@ export default function Dashboard() {
                       </td>
                       <td className="px-6 py-4">
                         <img
-                          src={typeof row.item.image === "string" ? row.item.image : box}
+                          src={typeof row.item.image === "string" ? row.item.image : no_image_svg}
                           alt={row.item.itemName}
                           className="w-10 h-10 object-cover rounded-xl border border-slate-100"
                         />
@@ -258,14 +258,14 @@ export default function Dashboard() {
                       <td className="px-6 py-4 text-slate-700 font-medium">{row.borrowerFullName}</td>
                       <td className="px-6 py-4 text-slate-700 font-medium">{row.teacherFullName}</td>
                       <td className="px-6 py-4 text-slate-700 font-medium">{row.room}</td>
-                      <td className="px-6 py-4 text-slate-700 font-medium">
-                        {row.remarks ?? <span className="text-slate-300 italic text-xs">—</span>}
-                      </td>
                       <td className="px-6 py-4 text-slate-700 font-medium">{row.lentAt}</td>
                       <td className="px-6 py-4">
                         <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${SlugStatus(row.status)}`}>
                           {row.status}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 text-slate-700 font-medium">
+                        {row.remarks ?? <span className="text-slate-300 italic text-xs">—</span>}
                       </td>
                       <td className="px-6 py-4">
                         <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-indigo-500 transition-colors" />
