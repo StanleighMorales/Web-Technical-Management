@@ -59,7 +59,7 @@ export default function Login() {
   return (
     <div className="relative flex min-h-screen w-full overflow-hidden">
 
-      <div className="relative hidden lg:flex lg:flex-1 flex-col justify-between overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800 px-14 py-5">
+      <div className="relative hidden lg:flex lg:flex-1 flex-col gap-50 overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800 px-14 py-5">
 
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute -top-24 -left-24 h-80 w-80 rounded-full bg-white/5" />
@@ -84,7 +84,7 @@ export default function Login() {
         </a>
 
         {/* Hero copy */}
-        <div className="relative z-10 flex-1 flex items-center">
+        <div className="relative z-10 flex items-center">
           <div className="max-w-2xl">
             <h1 className="text-6xl font-extrabold text-white leading-tight tracking-tight drop-shadow-md">
               Technical Equipment<br />Borrowing System
