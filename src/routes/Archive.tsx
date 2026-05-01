@@ -35,7 +35,6 @@ import {
   BookOpen,
   Search,
   Sparkles,
-  ChevronRight,
   MoreVertical,
 } from "lucide-react";
 import { RiDeleteBin6Line } from "react-icons/ri";
