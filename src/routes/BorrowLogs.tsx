@@ -17,6 +17,7 @@ import type { TBorrowingLogs } from "../@types/types";
 import BorrowLogsSkeletonLoader from "../loader/BorrowLogsSkeletonLoader";
 import BorrowLogsDetailModal from "../components/BorrowLogsDetailModal";
 import { useBorrowLogsState } from "../states/borrow-logs-state";
+import { truncateRemarks } from "../components/truncateRemarks";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -190,7 +191,7 @@ export default function BorrowLogs() {
         return <BorrowLogsSkeletonLoader />;
     }
 
-    // ── Error ────────────────────────────────────────────────────────────────
+    // Error 
     if (isError) {
         return (
             <div className="flex h-[80vh] items-center justify-center p-6">
@@ -214,7 +215,7 @@ export default function BorrowLogs() {
         );
     }
 
-    // ── Main ─────────────────────────────────────────────────────────────────
+    // Main 
     return (
         <div className="p-6 md:p-8 max-w-[100rem] mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
 
@@ -398,7 +399,7 @@ export default function BorrowLogs() {
                                         <td className="px-6 py-4 max-w-[180px]">
                                             {log.remarks ? (
                                                 <p className="text-xs text-slate-500 truncate" title={log.remarks}>
-                                                    {log.remarks}
+                                                    {truncateRemarks(log.remarks)}
                                                 </p>
                                             ) : (
                                                 <span className="text-slate-300 text-xs italic">No remarks</span>
