@@ -198,6 +198,8 @@ export default function HistoryList({
             <Pagination
               totalPages={totalPages}
               currentPage={validCurrentPage}
+              totalItems={filteredItems.length}
+              itemsPerPage={itemsPerPage}
               handlePageChange={handlePageChange}
             />
           )}
