@@ -10,55 +10,24 @@ import ErrorTable from "../components/ErrorTables";
 import { BookOpen, ChevronRight, RotateCcw } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import type { TRecentBorrowItemProps } from "../@types/types";
-import {
-  createColumnHelper,
-  useReactTable,
-  getCoreRowModel,
-} from "@tanstack/react-table";
 import { useReturnItemMutation } from "../query/patch/useReturnItemMutation";
 import { showToast } from "../components/AppToast";
 import ReturnConfirmationModal from "../components/ReturnConfirmationModal";
 import ActiveBorrowedItemsSkeletonLoader from "../loader/ActiveBorrowedItemsSkeletonLoader";
 import { useActiveBorrowedItemsState } from "../states/active-borrowed-items-state";
+import { truncateRemarks } from "../components/truncateRemarks.tsx";
 
-const columnHelper = createColumnHelper<TRecentBorrowItemProps>();
-
-const activeBorrowColumns = [
-  columnHelper.accessor("item.serialNumber", { header: "Serial No." }),
-  columnHelper.accessor("item.image", {
-    header: "Image",
-    cell: ({ row }) => (
-      <img
-        src={typeof row.original.item.image === "string" ? row.original.item.image : no_image_svg}
-        alt={row.original.item.itemName}
-        className="w-10 h-10 object-cover rounded border border-slate-100"
-      />
-    ),
-  }),
-  columnHelper.accessor("item.itemName", { header: "Item" }),
-  columnHelper.accessor("borrowerFullName", { header: "Occupied By" }),
-  columnHelper.accessor("teacherFullName", { header: "Teacher" }),
-  columnHelper.accessor("room", { header: "Room" }),
-  columnHelper.accessor("remarks", { header: "Remarks" }),
-  columnHelper.accessor("lentAt", {
-    header: "Lent At",
-    cell: ({ getValue }) => {
-      const val = getValue();
-      return val ? FormattedDateTime(val) : <span className="text-slate-300 italic text-xs">—</span>;
-    },
-  }),
-  columnHelper.accessor("status", {
-    header: "Status",
-    cell: ({ row }) => {
-      const colorClass = SlugStatus(row.original.status);
-      return (
-        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${colorClass}`}>
-          {row.original.status}
-        </span>
-      );
-    },
-  }),
-];
+const tableHeaders = [
+  "Serial No.",
+  "Image",
+  "Item",
+  "Occupied By",
+  "Room",
+  "Lent At",
+  "Status",
+  "Remarks",
+  "Actions",
+] as const;
 
 const itemsPerPage = 10;
 
@@ -127,12 +96,6 @@ export default function ActiveBorrowedItems() {
     }
   }, [itemToReturn, returnItemMutation, setItemToReturn]);
 
-  const table = useReactTable({
-    data: paginatedData,
-    columns: activeBorrowColumns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
   if (isPending) return <ActiveBorrowedItemsSkeletonLoader />;
 
   return (
@@ -183,41 +146,53 @@ export default function ActiveBorrowedItems() {
             ) : (
               <table className="w-full text-left text-sm whitespace-nowrap">
                 <thead>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <tr key={headerGroup.id} className="border-b border-slate-100">
-                      {headerGroup.headers.map((header) => (
-                        <th
-                          key={header.id}
-                          className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400"
-                        >
-                          {header.isPlaceholder ? null : String(header.column.columnDef.header ?? "")}
-                        </th>
-                      ))}
-                      <th className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">
-                        Actions
+                  <tr className="border-b border-slate-100">
+                    {tableHeaders.map((header) => (
+                      <th
+                        key={header}
+                        className="sticky top-0 bg-slate-50/80 backdrop-blur-sm px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400"
+                      >
+                        {header}
                       </th>
-                    </tr>
-                  ))}
+                    ))}
+                  </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {table.getRowModel().rows.length > 0 ? (
-                    table.getRowModel().rows.map((row) => (
+                  {paginatedData.length > 0 ? (
+                    paginatedData.map((item, idx) => (
                       <tr
-                        key={row.id}
-                        onClick={() => setSelectedBorrowId(row.original.id)}
+                        key={item.id ?? idx}
+                        onClick={() => setSelectedBorrowId(item.id)}
                         className="group transition-all duration-200 hover:bg-indigo-50/30 cursor-pointer"
                       >
-                        {row.getVisibleCells().map((cell) => (
-                          <td key={cell.id} className="px-6 py-4 text-slate-700 font-medium">
-                            {cell.column.columnDef.cell
-                              ? (cell.column.columnDef.cell as (ctx: ReturnType<typeof cell.getContext>) => React.ReactNode)(cell.getContext())
-                              : (cell.renderValue() as React.ReactNode) ?? <span className="text-slate-300 italic text-xs">—</span>}
-                          </td>
-                        ))}
+                        <td className="px-6 py-4 text-slate-700 font-medium">{item.item.serialNumber ?? "—"}</td>
+                        <td className="px-6 py-4 text-slate-700 font-medium">
+                          <img
+                            src={typeof item.item.image === "string" ? item.item.image : no_image_svg}
+                            alt={item.item.itemName}
+                            className="w-10 h-10 object-cover rounded border border-slate-100"
+                          />
+                        </td>
+                        <td className="px-6 py-4 text-slate-700 font-medium">{item.item.itemName ?? "—"}</td>
+                        <td className="px-6 py-4 text-slate-700 font-medium">{item.borrowerFullName ?? "—"}</td>
+                        <td className="px-6 py-4 text-slate-700 font-medium">{item.room ?? "—"}</td>
+                        <td className="px-6 py-4 text-slate-700 font-medium">
+                          {item.lentAt ? FormattedDateTime(item.lentAt) : (
+                            <span className="text-slate-300 italic text-xs">—</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-slate-700 font-medium">
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${SlugStatus(item.status)}`}>
+                            {item.status ?? "—"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-slate-700 font-medium">
+                          <span>{truncateRemarks(item.remarks || "-")}</span>
+                        </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
                             <button
-                              onClick={(e) => handleReturnClick(e, row.original)}
+                              onClick={(e) => handleReturnClick(e, item)}
                               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-amber-500 hover:bg-amber-500/80 active:bg-amber-700 shadow-sm transition-colors"
                               title="Manually return this item"
                             >
@@ -231,7 +206,7 @@ export default function ActiveBorrowedItems() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={activeBorrowColumns.length + 1} className="px-8 py-20 text-center">
+                      <td colSpan={tableHeaders.length} className="px-8 py-20 text-center">
                         <div className="flex flex-col items-center gap-3 text-slate-400">
                           <BookOpen className="h-10 w-10 text-slate-200" />
                           <p className="font-semibold text-slate-500">No active borrowed items</p>
