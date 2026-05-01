@@ -67,12 +67,7 @@ export const BorrowItemsTable = ({
     },
     [selectedCategory],
   );
-
-  const handleShowAll = useCallback(() => {
-    setSelectedCategory("");
-    setCurrentPage(1);
-  }, []);
-
+  
   const handleRowClick = (item: TItemList) => {
     setSelectedItem(item);
   };
