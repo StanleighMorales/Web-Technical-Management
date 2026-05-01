@@ -10,11 +10,6 @@ import { UserData } from "../utils/usersData/userData";
 import PopUpModal from "./PopUpModal";
 import { useNavigate } from "@tanstack/react-router";
 import type { TItemList } from "../@types/types";
-import {
-    useReactTable,
-    getCoreRowModel,
-    createColumnHelper,
-} from "@tanstack/react-table";
 import { showToast } from "./AppToast";
 
 type InventoryTableProps = {
@@ -97,109 +92,58 @@ export const InventoryTable = ({ item }: InventoryTableProps) => {
         setSelectedItemId(null);
     };
 
-    const isAdmin = userRole === "Admin" || userRole === "SuperAdmin";
-
-    const columnHelper = createColumnHelper<TItemList>();
-    const baseColumns = [
-        columnHelper.accessor("serialNumber", { header: "Serial Number" }),
-        columnHelper.accessor("image", {
-            header: "Image",
-            cell: ({ row }) => (
-                <img
-                    src={
-                        typeof row.original.image === "string" ? row.original.image : no_image_svg
-                    }
-                    alt={row.original.itemName}
-                    className="w-12 h-12 object-cover rounded"
-                />
-            ),
-        }),
-        columnHelper.accessor("itemName", { header: "Item" }),
-        columnHelper.accessor("category", { header: "Category" }),
-        columnHelper.accessor("condition", {
-            header: "Condition",
-            cell: ({ row }) => {
-                const colorCondition = SlugCondition(row.original.condition);
-                return (
-                    <span className={`px-3 py-1 rounded-full text-sm ${colorCondition}`}>
-                        {row.original.condition}
-                    </span>
-                );
-            },
-        }),
-        columnHelper.accessor("createdAt", {
-            header: "DateTime",
-            cell: ({ row }) => {
-                const formattedDateTime = FormattedDateTime(row.original.createdAt);
-                return <span>{formattedDateTime?.replace("/" , "-")}</span>;
-            },
-        }),
-        columnHelper.accessor("status", {
-            header: "Status",
-            cell: ({ row }) => {
-                const colorClass = SlugStatus(row.original.status);
-                return (
-                    <span className={`px-3 py-1 rounded-full text-sm ${colorClass}`}>
-                        {row.original.status}
-                    </span>
-                );
-            },
-        }),
-        columnHelper.display({
-            id: "action",
-            header: "Action",
-            cell: ({ row }) => (
-                <ShowButtonIfUserAdmin
-                    userRole={userRole}
-                    itemStatus={row.original.status}
-                    onHandleArchive={() => handleArchive(row.original.id)}
-                />
-            ),
-        }),
-    ];
-
-    const columns = isAdmin ? baseColumns : baseColumns;
-
-    const table = useReactTable({
-        data: item,
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-    });
-
     return (
         <>
             <table className="w-full text-left border-collapse">
                 <thead>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                        <tr
-                            key={headerGroup.id}
-                            className="sticky top-0 bg-white/90 backdrop-blur-sm"
-                        >
-                            {headerGroup.headers.map((header: any) => (
-                                <th
-                                    key={header.id}
-                                    className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]"
-                                >
-                                    {header.isPlaceholder ? null : header.column.columnDef.header}
-                                </th>
-                            ))}
-                        </tr>
-                    ))}
+                    <tr className="sticky top-0 bg-white/90 backdrop-blur-sm">
+                        <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">Serial Number</th>
+                        <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">Image</th>
+                        <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">Item</th>
+                        <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">Category</th>
+                        <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">Condition</th>
+                        <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">DateTime</th>
+                        <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">Status</th>
+                        <th className="py-3 px-4 text-xs font-semibold uppercase border-b text-[#64748b]">Action</th>
+                    </tr>
                 </thead>
                 <tbody>
-                    {table.getRowModel().rows.map((row) => (
+                    {item.map((row) => (
                         <tr
                             key={row.id}
-                            onClick={() => navigate({ to: `/home/item/$id`, params: { id: row.original.id } })}
+                            onClick={() => navigate({ to: `/home/item/$id`, params: { id: row.id } })}
                             className="transition-colors cursor-pointer odd:bg-white even:bg-[#f9fbff] hover:bg-[#f8fafc]"
                         >
-                            {row.getVisibleCells().map((cell: any) => (
-                                <td className="py-3 px-4" key={cell.id}>
-                                    {cell.column.columnDef.cell
-                                        ? cell.column.columnDef.cell(cell.getContext())
-                                        : cell.renderValue()}
-                                </td>
-                            ))}
+                            <td className="py-3 px-4">{row.serialNumber}</td>
+                            <td className="py-3 px-4">
+                                <img
+                                    src={typeof row.image === "string" ? row.image : no_image_svg}
+                                    alt={row.itemName}
+                                    className="w-12 h-12 object-cover rounded"
+                                />
+                            </td>
+                            <td className="py-3 px-4">{row.itemName}</td>
+                            <td className="py-3 px-4">{row.category}</td>
+                            <td className="py-3 px-4">
+                                <span className={`px-3 py-1 rounded-full text-sm ${SlugCondition(row.condition)}`}>
+                                    {row.condition}
+                                </span>
+                            </td>
+                            <td className="py-3 px-4">
+                                <span>{FormattedDateTime(row.createdAt)}</span>
+                            </td>
+                            <td className="py-3 px-4">
+                                <span className={`px-3 py-1 rounded-full text-sm ${SlugStatus(row.status)}`}>
+                                    {row.status}
+                                </span>
+                            </td>
+                            <td className="py-3 px-4">
+                                <ShowButtonIfUserAdmin
+                                    userRole={userRole}
+                                    itemStatus={row.status}
+                                    onHandleArchive={() => handleArchive(row.id)}
+                                />
+                            </td>
                         </tr>
                     ))}
                 </tbody>
