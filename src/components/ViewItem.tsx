@@ -55,15 +55,15 @@ export default function ViewItem() {
   const isAvailable = item.status?.toLowerCase() === "available";
 
   const detailFields = [
-    { icon: <Hash className="h-4 w-4" />, color: "bg-indigo-500", label: "Serial Number", value: item.serialNumber || "Not provided" },
-    { icon: <CheckCircle className="h-4 w-4" />, color: "bg-emerald-500", label: "Condition", value: item.condition || "Not provided" },
-    { icon: <Tag className="h-4 w-4" />, color: "bg-teal-500", label: "Category", value: item.category || "Not provided" },
-    { icon: <Wrench className="h-4 w-4" />, color: "bg-blue-500", label: "Item Make", value: item.itemMake || "Not provided" },
-    { icon: <Layers className="h-4 w-4" />, color: "bg-purple-500", label: "Item Type", value: item.itemType || "Not provided" },
-    { icon: <Package className="h-4 w-4" />, color: "bg-orange-500", label: "Item Model", value: item.itemModel || "Not provided" },
-    { icon: <Calendar className="h-4 w-4" />, color: "bg-rose-500", label: "Date Added", value: FormattedDateTime(item.createdAt) },
+    { icon: <Hash className="h-4 w-4" />, label: "Serial Number", value: item.serialNumber || "Not provided" },
+    { icon: <CheckCircle className="h-4 w-4" />, label: "Condition", value: item.condition || "Not provided" },
+    { icon: <Tag className="h-4 w-4" />, label: "Category", value: item.category || "Not provided" },
+    { icon: <Wrench className="h-4 w-4" />, label: "Item Make", value: item.itemMake || "Not provided" },
+    { icon: <Layers className="h-4 w-4" />, label: "Item Type", value: item.itemType || "Not provided" },
+    { icon: <Package className="h-4 w-4" />, label: "Item Model", value: item.itemModel || "Not provided" },
+    { icon: <Calendar className="h-4 w-4" />, label: "Date Added", value: FormattedDateTime(item.createdAt) },
     ...(item.updatedAt
-      ? [{ icon: <Calendar className="h-4 w-4" />, color: "bg-slate-500", label: "Last Updated", value: FormattedDateTime(item.updatedAt) }]
+      ? [{ icon: <Calendar className="h-4 w-4" />, label: "Last Updated", value: FormattedDateTime(item.updatedAt) }]
       : []),
   ];
 
@@ -145,12 +145,12 @@ export default function ViewItem() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {detailFields.map(({ icon, color, label, value }) => (
+          {detailFields.map(({ icon, label, value }) => (
             <div
               key={label}
               className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 flex items-start gap-3"
             >
-              <div className={`h-8 w-8 rounded-xl ${color} flex items-center justify-center text-white flex-shrink-0`}>
+              <div className="h-8 w-8 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 flex-shrink-0">
                 {icon}
               </div>
               <div className="min-w-0">
@@ -165,7 +165,7 @@ export default function ViewItem() {
 
         {item.description && (
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 flex items-start gap-3">
-            <div className="h-8 w-8 rounded-xl bg-slate-700 flex items-center justify-center text-white flex-shrink-0">
+            <div className="h-8 w-8 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 flex-shrink-0">
               <FileText className="h-4 w-4" />
             </div>
             <div>
