@@ -125,9 +125,9 @@ export const BorrowItemsTable = ({
                 <Pagination
                   totalPages={totalPages}
                   currentPage={currentPage}
+                  totalItems={filteredItems.length}
+                  itemsPerPage={itemsPerPage}
                   handlePageChange={handlePageChange}
-                  selectedCategory={selectedCategory}
-                  handleShowAll={handleShowAll}
                 />
               )}
               <SearchBar
