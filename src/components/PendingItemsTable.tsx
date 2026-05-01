@@ -50,6 +50,8 @@ export default function PendingItemsTable({
                     <Pagination
                         totalPages={totalPages}
                         currentPage={currentPage}
+                        totalItems={items.length}
+                        itemsPerPage={ITEMS_PER_PAGE}
                         handlePageChange={setCurrentPage}
                     />
                     <SearchBar
