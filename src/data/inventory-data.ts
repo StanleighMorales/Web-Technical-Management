@@ -27,25 +27,27 @@ export const useFilteredItems = () => {
     // this func use a useMemo to filtered item either its itemName or the Category and also for the Matches Category and return items,searchItem and selectedCategory
     const filteredItems = useMemo(
         () =>
-            items.filter((item) => {
-                const matchesSearch =
-                    item.itemName.toLowerCase().includes(searchItem.toLowerCase()) ||
-                    item.category.toLowerCase().includes(searchItem.toLowerCase()) ||
-                    item.serialNumber.toLowerCase().includes(searchItem.toLowerCase());
+            items
+                .filter((item) => {
+                    const matchesSearch =
+                        item.itemName.toLowerCase().includes(searchItem.toLowerCase()) ||
+                        item.category.toLowerCase().includes(searchItem.toLowerCase()) ||
+                        item.serialNumber.toLowerCase().includes(searchItem.toLowerCase());
 
-                const matchesCategory =
-                    selectedCategory === "" || item.category === selectedCategory;
+                    const matchesCategory =
+                        selectedCategory === "" || item.category === selectedCategory;
 
-                const matchesCondition =
-                    selectedCondition === "" || item.condition.toLowerCase() === selectedCondition.toLowerCase();
+                    const matchesCondition =
+                        selectedCondition === "" || item.condition.toLowerCase() === selectedCondition.toLowerCase();
 
-                const matchesStatus =
-                    selectedStatus === "" || item.status.toLowerCase() === selectedStatus.toLowerCase();
+                    const matchesStatus =
+                        selectedStatus === "" || item.status.toLowerCase() === selectedStatus.toLowerCase();
 
-                return (
-                    matchesSearch && matchesCategory && matchesCondition && matchesStatus
-                );
-            }),
+                    return (
+                        matchesSearch && matchesCategory && matchesCondition && matchesStatus
+                    );
+                })
+                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
         [items, searchItem, selectedCategory, selectedCondition, selectedStatus],
     );
 
