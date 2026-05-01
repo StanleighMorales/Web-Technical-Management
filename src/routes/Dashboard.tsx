@@ -24,6 +24,7 @@ import {
   ChevronRight,
   Wifi,
 } from "lucide-react";
+import { FormattedDateTime } from "../components/FormattedDateTime";
 
 const TABLE_HEADERS = [
   "Serial No.",
@@ -231,39 +232,42 @@ export default function Dashboard() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {recentBorrows.length > 0 ? (
-                  recentBorrows.map((row) => (
-                    <tr
-                      key={row.id}
-                      onClick={() => handleViewOpen(row.id)}
-                      className="group transition-all duration-200 hover:bg-indigo-50/30 cursor-pointer"
-                    >
-                      <td className="px-6 py-4 text-slate-700 font-medium">
-                        {row.item.serialNumber}
-                      </td>
-                      <td className="px-6 py-4">
-                        <img
-                          src={typeof row.item.image === "string" ? row.item.image : no_image_svg}
-                          alt={row.item.itemName}
-                          className="w-10 h-10 object-cover rounded-xl border border-slate-100"
-                        />
-                      </td>
-                      <td className="px-6 py-4 text-slate-700 font-medium">{row.item.itemName}</td>
-                      <td className="px-6 py-4 text-slate-700 font-medium">{row.borrowerFullName}</td>
-                      <td className="px-6 py-4 text-slate-700 font-medium">{row.room}</td>
-                      <td className="px-6 py-4 text-slate-700 font-medium">{row.lentAt}</td>
-                      <td className="px-6 py-4">
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${SlugStatus(row.status)}`}>
-                          {row.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-slate-700 font-medium">
-                        {truncateRemarks(row.remarks || "-") ?? <span className="text-slate-300 italic text-xs">—</span>}
-                      </td>
-                      <td className="px-6 py-4">
-                        <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-indigo-500 transition-colors" />
-                      </td>
-                    </tr>
-                  ))
+                  recentBorrows
+                    .slice()
+                    .sort((a, b) => new Date(b.lentAt).getTime() - new Date(a.lentAt).getTime())
+                    .map((row) => (
+                      <tr
+                        key={row.id}
+                        onClick={() => handleViewOpen(row.id)}
+                        className="group transition-all duration-200 hover:bg-indigo-50/30 cursor-pointer"
+                      >
+                        <td className="px-6 py-4 text-slate-700 font-medium">
+                          {row.item.serialNumber}
+                        </td>
+                        <td className="px-6 py-4">
+                          <img
+                            src={typeof row.item.image === "string" ? row.item.image : no_image_svg}
+                            alt={row.item.itemName}
+                            className="w-10 h-10 object-cover rounded-xl border border-slate-100"
+                          />
+                        </td>
+                        <td className="px-6 py-4 text-slate-700 font-medium">{row.item.itemName}</td>
+                        <td className="px-6 py-4 text-slate-700 font-medium">{row.borrowerFullName}</td>
+                        <td className="px-6 py-4 text-slate-700 font-medium">{row.room}</td>
+                        <td className="px-6 py-4 text-slate-700 font-medium">{FormattedDateTime(row.lentAt || "-")}</td>
+                        <td className="px-6 py-4">
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${SlugStatus(row.status)}`}>
+                            {row.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-slate-700 font-medium">
+                          {truncateRemarks(row.remarks || "-") ?? <span className="text-slate-300 italic text-xs">—</span>}
+                        </td>
+                        <td className="px-6 py-4">
+                          <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-indigo-500 transition-colors" />
+                        </td>
+                      </tr>
+                    ))
                 ) : (
                   <tr>
                     <td colSpan={TABLE_HEADERS.length} className="px-8 py-20 text-center">
