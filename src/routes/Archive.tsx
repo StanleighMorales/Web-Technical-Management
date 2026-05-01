@@ -1,4 +1,4 @@
-import { type FC } from "react";
+import { type FC, useState, useRef, useEffect } from "react";
 import no_image_svg from "../assets/no-image-svgrepo-com.svg";
 import { useMemo, useCallback } from "react";
 import ArchiveSkeletonLoader from "../loader/ArchiveSkeletonLoader.tsx";
@@ -36,6 +36,7 @@ import {
   Search,
   Sparkles,
   ChevronRight,
+  MoreVertical,
 } from "lucide-react";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { LuArchiveRestore } from "react-icons/lu";
@@ -102,7 +103,7 @@ export default function Archive() {
   const restoreUserMutation = useRestoreUser();
   const { archiveItems, isPending, isError } = useAllItemInArchive();
   const { isUsersPending, isUsersError } = useAllUsersInArchive();
-  const { filteredItems, selectedCategory } = useFilteredItems({ searchItem });
+  const { filteredItems } = useFilteredItems({ searchItem });
   const { filteredUsers, activeFilter, setActiveFilter, setSelectedCategory } =
     useFilteredUsers({ searchItem });
 
@@ -125,10 +126,10 @@ export default function Archive() {
 
   const handlePageChange = useCallback((page: number) => setCurrentPage(page), [setCurrentPage]);
 
-  const handleShowAll = useCallback(() => {
-    setSelectedCategory("");
-    setCurrentPage(1);
-  }, [setSelectedCategory, setCurrentPage]);
+  // const handleShowAll = useCallback(() => {
+  //   setSelectedCategory("");
+  //   setCurrentPage(1);
+  // }, [setSelectedCategory, setCurrentPage]);
 
   const handleConfirmRestoreItem = useCallback(() => {
     if (!restoreSelectedItemId) return;
@@ -189,29 +190,59 @@ export default function Archive() {
   const handleDeleteUser = (id: string) => { setUserDeleteSelectedId(id); setIsUserDeleteConfirmOpen(true); };
   const handleCancelUserDelete = () => { setIsUserDeleteConfirmOpen(false); setUserDeleteSelectedId(null); };
 
-  const ShowButtonIfUserAdmin: FC<checkIfUserAdminProps> = ({ onHandleRestoreUser, onHandleDeleteUser }) => {
+  const UserActionMenu: FC<checkIfUserAdminProps> = ({ onHandleRestoreUser, onHandleDeleteUser }) => {
     const role = userData.userRole?.toLowerCase();
     const isAdminOrSuper = role === "admin" || role === "superadmin";
     const isStaff = role === "staff";
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+          setIsMenuOpen(false);
+        }
+      };
+      if (isMenuOpen) document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [isMenuOpen]);
+
     if (!isAdminOrSuper && !isStaff) return null;
+
     return (
-      <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-        {isAdminOrSuper && (
-          <button
-            onClick={onHandleDeleteUser}
-            title="Delete"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-rose-500 hover:bg-rose-600 active:bg-rose-700 shadow-sm transition-colors"
-          >
-            <RiDeleteBin6Line className="h-3.5 w-3.5" /> Delete
-          </button>
-        )}
+      <div className="relative" ref={menuRef} onClick={(e) => e.stopPropagation()}>
         <button
-          onClick={onHandleRestoreUser}
-          title="Restore"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-amber-500 hover:bg-amber-600 active:bg-amber-700 shadow-sm transition-colors"
+          onClick={(e) => { e.stopPropagation(); setIsMenuOpen(!isMenuOpen); }}
+          className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all"
+          title="More actions"
         >
-          <LuArchiveRestore className="h-3.5 w-3.5" /> Restore
+          <MoreVertical className="h-5 w-5" />
         </button>
+
+        {isMenuOpen && (
+          <div className="absolute right-0 mt-1 w-48 bg-white rounded-xl shadow-lg border border-slate-200 py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+            <button
+              onClick={(e) => { e.stopPropagation(); onHandleRestoreUser(); setIsMenuOpen(false); }}
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-amber-700 hover:bg-amber-50 transition-colors"
+            >
+              <LuArchiveRestore className="h-4 w-4" />
+              <span className="font-medium">Restore User</span>
+            </button>
+
+            {isAdminOrSuper && (
+              <>
+                <div className="my-1 border-t border-slate-100" />
+                <button
+                  onClick={(e) => { e.stopPropagation(); onHandleDeleteUser(); setIsMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-rose-700 hover:bg-rose-50 transition-colors"
+                >
+                  <RiDeleteBin6Line className="h-4 w-4" />
+                  <span className="font-medium">Delete User</span>
+                </button>
+              </>
+            )}
+          </div>
+        )}
       </div>
     );
   };
@@ -219,10 +250,10 @@ export default function Archive() {
   const activeCount = activeFilter === "items" ? filteredItems.length : filteredUsers.length;
   const activeLabel = filterTabs.find((t) => t.key === activeFilter)?.label ?? "";
 
-  const itemHeaders = ["Serial No.", "Image", "Name", "Category", "Condition", "Archived At", "Action"];
-  const userHeaders = ["User ID", "Full Name", "Username", "Email", "Phone", "Role", "Status", "Action"];
-  const teacherHeaders = ["Teacher ID", "Full Name", "Username", "Role", "Status", "Action"];
-  const studentHeaders = ["Student ID", "Full Name", "Course", "Section", "Year", "Role", "Status", "Action"];
+  const itemHeaders = ["Serial No.", "Image", "Name", "Category", "Condition", "Archived At"];
+  const userHeaders = ["User ID", "Full Name", "Username", "Email", "Phone", "Role", "Status", ""];
+  const teacherHeaders = ["Teacher ID", "Full Name", "Username", "Role", "Status"];
+  const studentHeaders = ["Student ID", "Full Name", "Course", "Section", "Year", "Role", "Status"];
 
   const emptyIcon = activeFilter === "items" ? Package : activeFilter === "users" ? Users : activeFilter === "teachers" ? BookOpen : GraduationCap;
   const EmptyIcon = emptyIcon;
@@ -269,11 +300,10 @@ export default function Archive() {
                     setSearchItem("");
                     setSelectedCategory("");
                   }}
-                  className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                    activeFilter === key
+                  className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${activeFilter === key
                       ? "bg-white text-slate-900 shadow-sm"
                       : "text-slate-500 hover:text-slate-700"
-                  }`}
+                    }`}
                 >
                   <Icon className="h-3.5 w-3.5" />
                   {label}
@@ -288,9 +318,9 @@ export default function Archive() {
               <Pagination
                 totalPages={totalPages}
                 currentPage={currentPage}
+                totalItems={activeCount}
+                itemsPerPage={itemsPerPage}
                 handlePageChange={handlePageChange}
-                selectedCategory={selectedCategory}
-                handleShowAll={handleShowAll}
               />
             )}
             <SearchBar
@@ -324,12 +354,12 @@ export default function Archive() {
                     <tbody className="divide-y divide-slate-100">
                       {paginatedItems.length === 0 ? (
                         <tr>
-                          <td colSpan={itemHeaders.length + 1}>
+                          <td colSpan={itemHeaders.length}>
                             <EmptyState icon={EmptyIcon} label={activeLabel} isEmpty={archiveItems.length === 0} />
                           </td>
                         </tr>
                       ) : (
-                        paginatedItems.map((item) => (
+                        paginatedItems.slice().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((item) => (
                           <tr
                             key={item.id}
                             onClick={() => viewArchiveItemCredentials(item.id)}
@@ -349,9 +379,6 @@ export default function Archive() {
                               isRestoring={restoreItemMutation.isPending}
                               isDeleting={deleteItemMutation.isPending}
                             />
-                            <td className="px-6 py-4">
-                              <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-amber-500 transition-colors" />
-                            </td>
                           </tr>
                         ))
                       )}
@@ -393,7 +420,7 @@ export default function Archive() {
                               <StatusBadge status={user.status} />
                             </td>
                             <td className="px-6 py-4">
-                              <ShowButtonIfUserAdmin
+                              <UserActionMenu
                                 onHandleRestoreUser={() => handleRestoreUser(user.id)}
                                 onHandleDeleteUser={() => handleDeleteUser(user.id)}
                               />
@@ -445,9 +472,6 @@ export default function Archive() {
                               isRestoring={restoreUserMutation.isPending}
                               isDeleting={deleteUserMutation.isPending}
                             />
-                            <td className="px-6 py-4">
-                              <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-amber-500 transition-colors" />
-                            </td>
                           </tr>
                         ))
                       )}
@@ -497,9 +521,6 @@ export default function Archive() {
                               isRestoring={restoreUserMutation.isPending}
                               isDeleting={deleteUserMutation.isPending}
                             />
-                            <td className="px-6 py-4">
-                              <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-amber-500 transition-colors" />
-                            </td>
                           </tr>
                         ))
                       )}
@@ -569,9 +590,9 @@ function RoleBadge({ role }: { role: string }) {
   const r = role?.toLowerCase();
   const cls =
     r === "admin" ? "bg-red-50 text-red-700 border-red-100"
-    : r === "staff" ? "bg-violet-50 text-violet-700 border-violet-100"
-    : r === "teacher" ? "bg-blue-50 text-blue-700 border-blue-100"
-    : "bg-emerald-50 text-emerald-700 border-emerald-100";
+      : r === "staff" ? "bg-violet-50 text-violet-700 border-violet-100"
+        : r === "teacher" ? "bg-blue-50 text-blue-700 border-blue-100"
+          : "bg-emerald-50 text-emerald-700 border-emerald-100";
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${cls}`}>
       {role}
