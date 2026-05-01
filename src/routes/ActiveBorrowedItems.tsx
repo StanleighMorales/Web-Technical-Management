@@ -128,6 +128,8 @@ export default function ActiveBorrowedItems() {
             <Pagination
               totalPages={totalPages || 1}
               currentPage={currentPage}
+              totalItems={filteredData.length}
+              itemsPerPage={itemsPerPage}
               handlePageChange={handlePageChange}
             />
             <SearchBar
