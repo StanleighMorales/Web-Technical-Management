@@ -368,15 +368,6 @@ export default function InventoryList() {
               </p>
             </div>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-              {filteredItems.length > 0 && (
-                <Pagination
-                  totalPages={totalPages}
-                  currentPage={currentPage}
-                  handlePageChange={handlePageChange}
-                  selectedCategory={selectedCategory}
-                  handleShowAll={handleShowAll}
-                />
-              )}
               <SearchBar
                 onChangeValue={(value) => setSearchItem(value)}
                 name="search"
@@ -415,6 +406,15 @@ export default function InventoryList() {
               )}
             </div>
           </div>
+
+          {/* Pagination footer */}
+          <Pagination
+            totalPages={totalPages}
+            currentPage={validCurrentPage}
+            totalItems={filteredItems.length}
+            itemsPerPage={itemsPerPage}
+            handlePageChange={handlePageChange}
+          />
         </div>
       </div>
 
