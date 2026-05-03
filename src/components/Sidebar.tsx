@@ -6,6 +6,7 @@ import {
   MdHistory,
   MdInventory,
   MdDashboardCustomize,
+  MdAssessment,
 } from "react-icons/md";
 import { BiLogoSass } from "react-icons/bi";
 import { BsPersonCircle, BsClipboardCheck } from "react-icons/bs";
@@ -17,6 +18,7 @@ import { useSidebar } from "../context/SidebarContext";
 import { usePendingCount } from "../hooks/usePendingCount";
 import { useActiveBorrowCount } from "../hooks/useActiveBorrowCount";
 import { useLogoutUser } from "../hooks/authHooks";
+import { ChevronDown } from "lucide-react";
 import type { IconType } from "react-icons";
 
 type NavLink = {
@@ -31,6 +33,7 @@ export default function Sidebar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [isSidebarLoading, setIsSidebarLoading] = useState<boolean>(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isLogsOpen, setIsLogsOpen] = useState(false);
 
   const { mutate, isPending } = useLogoutUser();
   const { setIsSidebarExpanded } = useSidebar();
@@ -56,9 +59,13 @@ export default function Sidebar() {
 
   const administrativeLinks: NavLink[] = [
     { label: "User Management", link: "/home/user-management", icon: CiUser },
+    { label: "Reports", link: "/home/reports", icon: MdAssessment },
+    { label: "Archives", link: "/home/archive-table", icon: MdInventory },
+  ];
+
+  const logsLinks: NavLink[] = [
     { label: "Activity Logs", link: "/home/activity-logs", icon: BiLogoSass },
     { label: "Borrowing Logs", link: "/home/borrow-logs", icon: MdHistory },
-    { label: "Archives", link: "/home/archive-table", icon: MdInventory },
   ];
 
   const bottomLinks: NavLink[] = [
@@ -149,6 +156,47 @@ export default function Sidebar() {
     );
   };
 
+  const LogsDropdown = ({
+    alwaysShowLabel = false,
+    onClick,
+  }: {
+    alwaysShowLabel?: boolean;
+    onClick?: () => void;
+  }) => (
+    <li>
+      <button
+        type="button"
+        onClick={() => setIsLogsOpen((o) => !o)}
+        className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg font-medium text-[13px] tracking-wide transition-all duration-200 group text-slate-600 hover:bg-slate-100 hover:text-blue-600"
+      >
+        <span className="flex items-center justify-center w-8 h-8 rounded-md shrink-0 bg-slate-100 group-hover:bg-blue-50">
+          <MdHistory className="text-[17px] text-slate-500 group-hover:text-blue-600" />
+        </span>
+        <span className={`whitespace-nowrap flex-1 text-left ${alwaysShowLabel ? "" : "opacity-0 transition-opacity duration-300 lg:group-hover:opacity-100"}`}>
+          Logs
+        </span>
+        <ChevronDown
+          className={`h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform duration-200
+            ${isLogsOpen ? "rotate-180" : ""}
+            ${alwaysShowLabel ? "" : "opacity-0 transition-opacity duration-300 lg:group-hover:opacity-100"}`}
+        />
+      </button>
+
+      {isLogsOpen && (
+        <ul className={`mt-0.5 flex flex-col gap-0.5 ${alwaysShowLabel ? "pl-4" : "pl-2"}`}>
+          {logsLinks.map((item) => (
+            <NavItem
+              key={item.label}
+              item={item}
+              alwaysShowLabel={alwaysShowLabel}
+              onClick={onClick}
+            />
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+
   return (
     <>
       {/* Desktop Sidebar */}
@@ -193,6 +241,7 @@ export default function Sidebar() {
             {administrativeLinks.map((item) => (
               <NavItem key={item.label} item={item} />
             ))}
+            <LogsDropdown />
 
             <SectionLabel label="Account" />
             {bottomLinks.map((item) => (
@@ -286,6 +335,7 @@ export default function Sidebar() {
               {administrativeLinks.map((item) => (
                 <NavItem key={item.label} item={item} onClick={closeMobileMenu} alwaysShowLabel />
               ))}
+              <LogsDropdown alwaysShowLabel onClick={closeMobileMenu} />
 
               {/* Section: Account */}
               <li className="px-2.5 pt-3 pb-1">
