@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useGetItemInfo, useUpdateItem, useCreateRfidSession, useCancelRfidSession } from "../hooks/itemHooks";
 import { showToast } from "./AppToast";
 import { getRfidSessionApi } from "../api/item_api";
+import { useGetCategories, useGetConditions } from "../hooks/inventorySettingsHooks";
 import {
   X,
   Pencil,
