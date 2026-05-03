@@ -28,10 +28,14 @@ import {
   summaryData,
 } from "../api/item_api";
 
+export const ITEMS_KEY = ["items"] as const;
+export const ARCHIVE_ITEMS_KEY = ["archiveitems"] as const;
+export const LENT_ITEMS_KEY = ["lentitems"] as const;
+
 export const useAllItems = () => {
   return queryOptions({
     queryFn: allItemsApi,
-    queryKey: ["items"],
+    queryKey: ITEMS_KEY,
     staleTime: 5 * 60 * 1000
   });
 };
@@ -41,9 +45,9 @@ export const useAddItem = () => {
 
   return useMutation({
     mutationFn: addItemApi,
-    mutationKey: ["items"],
+    mutationKey: ITEMS_KEY,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] });
+      queryClient.invalidateQueries({ queryKey: ITEMS_KEY });
     },
   });
 };
@@ -53,16 +57,16 @@ export const useUpdateItem = () => {
 
   return useMutation({
     mutationFn: updateItemApi,
-    mutationKey: ["items"],
+    mutationKey: ITEMS_KEY,
     onSuccess: () => {
-      querClient.invalidateQueries({ queryKey: ["items"] });
+      querClient.invalidateQueries({ queryKey: ITEMS_KEY });
     },
   });
 };
 export const useAllItemsArchive = () => {
   return queryOptions({
     queryFn: allItemsArchiveApi,
-    queryKey: ["archiveitems"],
+    queryKey: ARCHIVE_ITEMS_KEY,
     staleTime: 5 * 60 * 1000
   });
 };
@@ -74,8 +78,8 @@ export const useArchiveItem = () => {
     mutationFn: archiveItemApi,
     mutationKey: ["archive"],
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] });
-      queryClient.invalidateQueries({ queryKey: ["archiveitems"] });
+      queryClient.invalidateQueries({ queryKey: ITEMS_KEY });
+      queryClient.invalidateQueries({ queryKey: ARCHIVE_ITEMS_KEY });
     },
   });
 };
@@ -85,9 +89,9 @@ export const useBorrowItem = () => {
 
   return useMutation({
     mutationFn: borrowItem,
-    mutationKey: ["lentitems"],
+    mutationKey: LENT_ITEMS_KEY,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["lentItems"] })
+      queryClient.invalidateQueries({ queryKey: LENT_ITEMS_KEY })
     }
   });
 };
@@ -96,9 +100,9 @@ export const useDeleteItem = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteItemApi,
-    mutationKey: ["archiveitems"],
+    mutationKey: ARCHIVE_ITEMS_KEY,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["archiveitems"] });
+      queryClient.invalidateQueries({ queryKey: ARCHIVE_ITEMS_KEY });
     },
   });
 };
@@ -127,7 +131,7 @@ export const useImportItem = () => {
     mutationFn: importItem,
     mutationKey: ["import"],
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] });
+      queryClient.invalidateQueries({ queryKey: ITEMS_KEY });
     },
   });
 };
@@ -147,8 +151,8 @@ export const useRestoreItem = () => {
     mutationFn: restoreItemApi,
     mutationKey: ["restore"],
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["archiveitems"] });
-      queryClient.invalidateQueries({ queryKey: ["items"] });
+      queryClient.invalidateQueries({ queryKey: ARCHIVE_ITEMS_KEY });
+      queryClient.invalidateQueries({ queryKey: ITEMS_KEY });
     },
   });
 };
@@ -160,8 +164,8 @@ export const useReturnItem = () => {
     mutationFn: returnItem,
     mutationKey: ["returnItem"],
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] });
-      queryClient.invalidateQueries({ queryKey: ["lentItems"] });
+      queryClient.invalidateQueries({ queryKey: ITEMS_KEY });
+      queryClient.invalidateQueries({ queryKey: LENT_ITEMS_KEY });
     },
   });
 };
@@ -187,7 +191,7 @@ export const useGetRfidSession = (sessionId: string) => {
     queryKey: ["rfidSession", sessionId],
     enabled: !!sessionId,
     staleTime: 0,
-    refetchInterval: 2000, // poll every 2s like the ESP32 spec
+    refetchInterval: 2000,
   });
 };
 
