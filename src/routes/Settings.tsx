@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useLoggedInUser } from "../hooks/userHooks";
 import { FormattedPhoneNumber } from "../components/FormatedPhoneNumber";
 import SettingsSkeletonLoader from "../loader/SettingsSkeletonLoader";
-// import ChangePasswordModal from "../components/ChangePasswordModal";
 import EditProfileModal from "../components/EditProfileModal";
+import InventorySettings from "../components/InventorySettings";
 import type { TUsers } from "../@types/types";
 import ErrorTable from "../components/ErrorTables";
 import { useSettingsState } from "../states/settings-state";
@@ -17,10 +17,13 @@ import {
   Briefcase,
   AtSign,
   CircleUserRound,
+  Package,
 } from "lucide-react";
 
+type SettingsTab = "profile" | "inventory";
+
 export default function Settings() {
-  // const [showChangePassword, setShowChangePassword] = useState(false);
+  const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
   const { showEditProfile, setShowEditProfile } = useSettingsState();
   const { data, isLoading, isError } = useQuery(useLoggedInUser());
 
@@ -55,15 +58,39 @@ export default function Settings() {
     <div className="min-h-screen bg-slate-50 p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
       <div className="max-w-6xl mx-auto space-y-6">
 
-        {/* Page title */}
+        {/* Page title + tabs */}
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Profile</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Settings</h1>
           <p className="text-slate-500 text-sm font-medium mt-1">
-            Manage your account information and security.
+            Manage your account and system configuration.
           </p>
+          <div className="flex gap-1 mt-4 border-b border-slate-200">
+            {(
+              [
+                { key: "profile", label: "Profile", icon: <CircleUserRound className="h-4 w-4" /> },
+                { key: "inventory", label: "Inventory", icon: <Package className="h-4 w-4" /> },
+              ] as { key: SettingsTab; label: string; icon: React.ReactNode }[]
+            ).map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setActiveTab(tab.key)}
+                className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-all -mb-px ${
+                  activeTab === tab.key
+                    ? "border-blue-600 text-blue-600"
+                    : "border-transparent text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                {tab.icon}
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {isError ? (
+        {activeTab === "inventory" ? (
+          <InventorySettings />
+        ) : isError ? (
           <ErrorTable />
         ) : (
           <div className="flex flex-col lg:flex-row gap-6">
