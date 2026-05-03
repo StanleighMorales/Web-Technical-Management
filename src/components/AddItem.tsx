@@ -5,9 +5,9 @@ import { useAddItem, useCancelRfidSession, useCreateRfidSession } from "../hooks
 import { showToast } from "./AppToast";
 import { getRfidSessionApi } from "../api/item_api";
 import { Loader2, Wifi, CheckCircle2, XCircle } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useGetCategories, useGetConditions } from "../hooks/inventorySettingsHooks";
 
-const CATEGORIES = ["Electronics", "Keys", "MediaEquipment", "Tools", "Miscellaneous"] as const;
-const CONDITIONS = ["New", "Good", "Defective", "Refurbished", "NeedRepair"] as const;
 const ITEM_TYPES = ["Mouse", "Keyboard", "Extension", "Cable"] as const;
 
 type AddItemFormProps = {
@@ -43,6 +43,9 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
   const [itemMakeError, setItemMakeError] = useState<string>("");
   const [descriptionError, setDescriptionError] = useState<string>("");
   const [formData, setFormData] = useState<TItemForm>(EMPTY_FORM);
+
+  const { data: categories = [] } = useQuery(useGetCategories());
+  const { data: conditions = [] } = useQuery(useGetConditions());
 
   // RFID session state
   const [createdItemId, setCreatedItemId] = useState<string | null>(null);
@@ -310,22 +313,42 @@ const AddItemForm = ({ onClose }: AddItemFormProps) => {
                     Category <span className="text-rose-500">*</span>
                   </label>
                   <select
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-0 transition-colors"
+                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-0 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     id="category" name="category" value={formData.category} onChange={handleChange} data-testid="category"
+                    disabled={categories.length === 0}
                   >
-                    {CATEGORIES.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
+                    {categories.length === 0 ? (
+                      <option value="">No categories — add one in Settings</option>
+                    ) : (
+                      categories.map((cat) => <option key={cat} value={cat}>{cat}</option>)
+                    )}
                   </select>
+                  {categories.length === 0 && (
+                    <p className="text-amber-500 text-xs mt-1 font-medium">
+                      No categories available. Go to <span className="font-semibold">Settings → Inventory</span> to add some.
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label htmlFor="condition" className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
                     Condition <span className="text-rose-500">*</span>
                   </label>
                   <select
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-0 transition-colors"
+                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-0 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     id="condition" name="condition" value={formData.condition} onChange={handleChange} data-testid="condition"
+                    disabled={conditions.length === 0}
                   >
-                    {CONDITIONS.map((c) => <option key={c} value={c}>{c}</option>)}
+                    {conditions.length === 0 ? (
+                      <option value="">No conditions — add one in Settings</option>
+                    ) : (
+                      conditions.map((c) => <option key={c} value={c}>{c}</option>)
+                    )}
                   </select>
+                  {conditions.length === 0 && (
+                    <p className="text-amber-500 text-xs mt-1 font-medium">
+                      No conditions available. Go to <span className="font-semibold">Settings → Inventory</span> to add some.
+                    </p>
+                  )}
                 </div>
               </div>
             )}
