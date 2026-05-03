@@ -23,11 +23,8 @@ interface UseGuestBorrowWizardReturn {
   nextStep: () => boolean;
   prevStep: () => void;
   submit: () => Promise<void>;
-  /** Wipes all form data and returns to step 1 (used after a successful submission). */
   reset: () => void;
-  /** Returns to step 1 but keeps all form data intact (used when the user cancels mid-review). */
   cancel: () => void;
-  /** Called by ScanItemModal — bypasses stale closure by accepting rfidUid directly. */
   scanItemByRfid: (rfidUid: string) => void;
 }
 
